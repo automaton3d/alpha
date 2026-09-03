@@ -1,0 +1,557 @@
+% ============================================================================
+%  it_from_bit_continuation.tex
+%
+%  "Quest for alpha"
+%  Continuation of "It from Bit: A Concrete Attempt" (doc/it_from_bit.tex).
+%  Reference [1] is the previous paper; the remaining entries support the
+%  historical discussion of candidate definitions.
+%
+%  Compile:  pdflatex it_from_bit_continuation.tex  (run twice)
+% ============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\title{\textbf{Quest for alpha}}
+
+\author{Alexandre Furtado Neto\\
+        \small Independent Researcher\\
+        \small \texttt{alexandre.com@yahoo.com}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+% ----------------------------------------------------------------------------
+% Abstract
+% ----------------------------------------------------------------------------
+\begin{abstract}
+We continue the program of the toy universe: a deterministic, integer-only
+lattice automaton on a 3-torus from which geometry, a light clock, charge,
+polarization, and a sieve-gated force emerge from a single bit-local rule.
+This paper executes a pre-registered search for the fine-structure constant
+$\alpha$ from first principles: six candidate definitions, fixed in advance,
+are measured with a bit-identical harness and judged against
+$1/137.035999177$ under a strict convergence criterion. All six fail at the
+accessible scales, and four structural properties of the dynamics are
+established along the way. The contribution is a complete, falsifiable
+negative battery---a methodological template for computational derivations of
+dimensionless physical constants.
+\end{abstract}
+
+\noindent\textbf{PACS numbers: }12.10.Kt, 03.65.Ta, 04.60.Pp, 05.45.-a
+
+\noindent\textbf{Keywords:} it from bit, digital physics, cellular automata,
+emergent spacetime, emergent charge, wavefront automaton, computational
+universe.
+
+% ----------------------------------------------------------------------------
+\section{Introduction}
+\label{sec:intro}
+
+In \cite{itfrombit} we presented the \emph{Toy Universe}: a deterministic
+cellular automaton on a 3-torus in which the light clock, charge,
+polarization, and the matter--antimatter asymmetry emerge from a single
+bit-local rule. This paper asks the sharpest question the program can pose:
+does the emergent coupling of that automaton reproduce the fine-structure
+constant from first principles? We answer with a controlled experiment. Six
+candidate definitions are pre-registered in Section~\ref{sec:candidates}---fixed
+before any comparison with the empirical $1/137.035999177$---measured with a
+bit-identical headless harness, and judged under a strict eight-digit
+convergence criterion.
+
+All six fail at the accessible scales, and four structural obstructions are
+established along the way (the $L=7$ degeneracy of the polarization pair, the
+sticky two-bubble contact, the inexceedable maximum information speed, and
+the collapse-dominated character of the only force the model possesses). The
+failure set, not a number, is the result: in a domain---computational
+derivations of dimensionless physical constants---where numerology has been
+the historical norm, this paper demonstrates a complete, falsifiable negative
+battery as the disciplined alternative. Section~\ref{sec:recap} recaps the
+model; Sections~\ref{sec:candidates} and~\ref{sec:results} pre-register and
+measure the candidates; Section~\ref{sec:discussion} draws the structural and
+methodological conclusions.
+
+% ----------------------------------------------------------------------------
+\section{Recap: the it-from-bit automaton}
+\label{sec:recap}
+
+In [1] the automaton is defined as follows. Space is a three-torus of side
+$L$; a fourth coordinate $w$ indexes $W$ winding layers grouped into islands.
+Each cell carries six charge bits ($c_0c_1c_2\,q\,w_0w_1$), integer radius
+fields $r^2,r$, and an affinity label $a$; every update is integer-only. A
+pulsating spherical wavefront---the light clock---expands and contracts with
+period $2R_{\max}$, advancing one cell per tick, and schedules the local
+dynamics. At each turnaround an election chooses a momentum direction, a
+helical walker broadcasts an arrival stamp, and every cell reconstructs a
+transverse polarization pair $(pol_u,pol_v)$ approximating the circle
+$u^2+v^2=R^4$ by integer square roots. The $s2B$ sieve gate
+$((u\cdot t)\bmod S)<u$ admits a fraction of overlapping active cells to the
+interaction branch; gate-passing contacts collapse and reissue. All
+quantities in this paper are measured under this single dynamics
+\cite{itfrombit}.
+
+% ----------------------------------------------------------------------------
+\subsection{One scenario}
+\label{sec:onescenario}
+
+The model defines exactly one scenario: the full deterministic dynamics of
+[1]---the transition function that the reference GUI labelled ``full
+simulation.'' The scenario index carried by the reference implementation is
+legacy debug scaffolding: in the current code it selects display colours and
+help text only, and never branches the automaton's transition function. Every
+measurement in this paper (validation, candidates $\alpha_A$ and $\alpha_D$)
+is therefore taken under this single scenario. The two-bubble and canonical
+Platonic-seed arrangements of Section~\ref{sec:results} are not scenarios;
+they are initial conditions, i.e.\ diagnostic probes, within the one
+scenario.
+
+% ----------------------------------------------------------------------------
+\section{The electric channel as a measurable coupling}
+\label{sec:contrib1}
+
+% ----------------------------------------------------------------------------
+\subsection{Force law of the automaton}
+\label{sec:forcelaw}
+
+The first contribution turns the qualitative Coulomb-like dynamics of [1] into
+a measurable law. In the interaction branch an electric contact occurs when
+either bubble carries the electric bit $pB=(u>0)$; same-sign charges repel
+(\texttt{moveOneStepAway}), opposite signs aggregate and exchange leader
+identity \cite{itfrombit}. The impulse transferred by a contact is the most
+literal definition of the coupling; the force-branch statistics that a force
+law would need are measured and reported in Section~\ref{sec:results}.
+Fitting a full $F(r)$ law, however, meets a structural obstruction: under the
+single scenario the two-bubble contact is sticky (Section~\ref{sec:discussion}),
+so a clean pre/post force law would require separated sources that weak
+coupling does not provide.
+
+\subsection{Operational charge and the discrete Gauss law}
+\label{sec:gauss}
+
+The second step defines charge operationally: not as a stored bit, but as the
+flux of active cells carrying the electric bit through a closed shell. The
+plan is to verify a discrete Gauss law
+\begin{equation}
+  \Phi(r) \;=\; \sum_{\text{active }|x|=r} pB(x) \;\propto\; Q_{\mathrm{int}},
+  \label{eq:gauss}
+\end{equation}
+which gives the automaton its analogue of $\varepsilon_0$ and turns the
+electric force into a flux-measured coupling. The flux census itself is
+deferred: it requires closed shells around separated charges, which the
+sticky-contact regime does not supply at these parameters.
+
+% ----------------------------------------------------------------------------
+\section{From sieve throughput to the fine-structure constant}
+\label{sec:contrib2}
+
+% ----------------------------------------------------------------------------
+\subsection{The coupling ratio}
+\label{sec:coupling}
+
+The third step defines the electromagnetic coupling $\alpha$ as a ratio of
+measured events, not as a ratio of stored constants:
+\begin{equation}
+  \alpha(L,S) \;=\; \frac{\langle \text{impulse transferred} \rangle}
+                           {\langle \text{electric contacts} \rangle},
+  \label{eq:alpha}
+\end{equation}
+where the sieve throughput $P(u,S)\approx u/S$ controls how many overlapping
+active cells enter the interaction branch \cite{itfrombit}. The goal is to
+show that $\alpha(L,S)$ is independent of the sieve modulus $S$ inside the
+window where the channel opens, and to study its dependence on the lattice
+size $L$. The measured verdict is reported in
+Sections~\ref{sec:results}--\ref{sec:discussion}: the ratio is
+resonance-dominated in $S$ and non-stationary in run length.
+
+\subsection{Eliminating the dials}
+\label{sec:dials}
+
+The reference implementation sets the wave amplitude seed $U_0=2048$ and the
+sieve modulus $S=16384$ by hand \cite{itfrombit}. The plan is to express
+these constants in terms of the structural integers of the model
+($L$, $W=3L^2$, $R_{\max}=L/2$, $9L$, $\phi_{\mathrm{full}}=2R^2$) and to
+test whether the measured ratio \eqref{eq:alpha} converges as $L$ grows, so
+that the prediction is a limit rather than a dial setting. Section~\ref{sec:discussion}
+reports the single-$S$ scan and the $S$-averaging attempt that close this
+route.
+
+\subsection{Confronting \texorpdfstring{$1/137$}{1/137}}
+\label{sec:137}
+
+The decisive test is numerical: does $\lim_{L\to\infty}\alpha(L,S)$ converge
+to a rational number, and does that number agree with the empirical
+$1/137.035999084$? A clean convergence to $1/137$ is the target result; a
+convergence to any other simple rational is a falsification of the claim
+that the fine-structure constant is determined by this automaton. Either
+outcome is publishable. The extrapolation is anchored by the maximum-$L$ and
+anisotropic-sublattice runs described in Section~\ref{sec:sublattice}; the
+pre-registered candidate definitions are listed in
+Section~\ref{sec:candidates}.
+
+% ----------------------------------------------------------------------------
+\subsection{Candidate definitions of \texorpdfstring{$\alpha$}{alpha}}
+\label{sec:candidates}
+
+Following the measurement-first methodology of [1], the coupling is measured,
+not postulated. We pre-register the following definitions, each computable
+with the existing instrumentation, before any of them is compared with the
+empirical $1/137.035999177$: a ``dance on the computer'' in which the number
+comes out, not in which it is put in secretly \cite{feynman1985}.
+
+\begin{enumerate}
+  \item \textbf{Sieve throughput average.} $\alpha_A = \langle P(u,S)\rangle$
+        over all active cells of a light frame, with the exact gate
+        probability $P(u,S) = g\lceil u/g\rceil/S$, $g=\gcd(u,S)$
+        \cite{itfrombit}.
+  \item \textbf{Conditional contact ratio.} $\alpha_B$ as in
+        \eqref{eq:alpha}. The reference run already yields the proto-value
+        $18/6996 \approx 1/388.7$ \cite{itfrombit}; the task is its
+        $L$-dependence.
+  \item \textbf{Lattice Wyler ratio.} $\alpha_C$: a ratio of integer
+        ``volumes'' forced by the rule---shell counts, $W=3L^2$,
+        $\phi_{\mathrm{full}}=2R^2$, the $9L$ election seed---in the spirit
+        of a volume ratio, but with no adjustable radius
+        \cite{wyler1969,robertson1971}.
+  \item \textbf{Magnetic/electric occupancy.} $\alpha_D =
+        \langle sB\rangle/\langle pB\rangle$ over a light frame: transverse
+        (magnetic) versus in-phase (electric) bit populations, both measured.
+  \item \textbf{Bound-pair fine structure.} $\alpha_E$: the transverse-to-
+        radial energy ratio of a bound pair, computed from the reconstruction
+        pair $u^2+v^2=R^4$; only second-order ratios such as
+        $\langle v^2\rangle/\langle u^2\rangle$ are expected to be small.
+  \item \textbf{Self-consistent sieve.} $\alpha_F = U_0/S^*$, with $S^*$ the
+        fixed point of the normalized throughput map
+        $S \mapsto \langle g\lceil u/g\rceil\rangle(S)$, or the modulus at
+        which the pair-formation probability crosses $1/2$.
+  \item \textbf{Combinatorial state-space ratio.} $\alpha_G$: the fraction of
+        the $2^6$ charge words, or of the $\phi_{\mathrm{full}}$ phase slots,
+        that participate in pair formation---an Eddington-style count, kept
+        in the list only to be ruled out \cite{eddington1946}.
+\end{enumerate}
+
+The acceptance criterion is deliberately strict: a definition is accepted
+only if the measured ratio converges to $1/137.035999177$ to at least eight
+digits as $L$ grows, with the definition fixed in advance. A match to only a
+few digits (as in the historical derivations \cite{kragh2003,good1990}) is
+numerology, not a derivation.
+
+% ----------------------------------------------------------------------------
+\section{Experiments and configuration}
+\label{sec:experiments}
+
+A single headless CPU harness (\texttt{alpha\_probe}, shipped with the source)
+implements all probes reported here. Controlled two-bubble runs place two
+sources $SEP$ cells apart with complementary charges and opposite unit momenta
+on the $x$ axis; the canonical mode allocates the full $W=3L^2$ Platonic seed
+with all sources superposed. Runs use the sieve modulus $S=16384$ unless the
+modulus is the control variable (the $S$-scan of Section~\ref{sec:discussion}
+uses $S=128\ldots16384$), $200$ light frames ($100$ at $L=13$ for wall-time
+budget), and the reference geometry $SEP=4$. Each run logs the convolution
+counters, the per-frame active-cell census, and the realized throughput; the
+raw CSVs of the $S$-scan and the harness itself are shipped with the source.
+
+% ----------------------------------------------------------------------------
+\subsection{Lattice budget: maximum \texorpdfstring{$L$}{L} and anisotropic
+sublattices}
+\label{sec:sublattice}
+
+Memory and wall time scale with the cell count
+$\mathrm{BLOCK}\approx L^3 W = 3L^5$ (about $64$ bytes per cell, so the
+reference implementation reaches roughly $700\,\mathrm{MB}$ at $L=31$,
+$W=364$ \cite{itfrombit}). Two budget rules follow.
+
+\textbf{Maximum $L$.} Each scenario should be run at the largest lattice side
+that fits in memory, over the grid $L=7,9,11,\dots$ up to that limit. The
+coupling ratio \eqref{eq:alpha} and the force law of
+Section~\ref{sec:forcelaw} must be studied as functions of $L$; the
+$L\to\infty$ extrapolation of Section~\ref{sec:137} is the only way to
+separate genuine predictions from finite-lattice artifacts.
+
+\textbf{Anisotropic sublattice.} When a cubic box at the desired $L$ does not
+fit in memory, a sublattice $L \times \frac{L}{16} \times \frac{L}{16}$ with
+periodic boundary conditions stretches the same cell budget along the
+scattering axis, cutting the volume by a factor $16^2=256$ and allowing a
+much larger $L$. The two-bubble experiments live on the long axis; the two
+short axes only need to be wider than the interaction window. This requires
+generalizing the allocator from the cubic $\mathrm{EL}^3$ to three edge
+lengths, and the spherical-cavity and shell-counting diagnostics of [1] must
+be re-validated on the short axes (the cubic torus already exhibits
+integer-shell anisotropy at $L\ge11$ \cite{itfrombit}).
+
+% ----------------------------------------------------------------------------
+\section{Results}
+\label{sec:results}
+
+% ----------------------------------------------------------------------------
+\subsection{Validation: reproduction of the reference null result}
+
+A headless CPU harness (\texttt{alpha\_probe}, shipped with the source)
+replays the controlled two-bubble scattering of [1] at the reference
+parameters ($L=7$, $SEP=4$, $200$ light frames, sieve modulus $16384$,
+complementary charges). The convolution counters reproduce the manuscript
+exactly:
+\begin{center}
+  \texttt{active-passes} $= 6996$, \quad \texttt{s2B-passes} $= 18$, \quad
+  \texttt{pairs-formed} $= 0$,
+\end{center}
+i.e.\ a realized overlap throughput of $18/6996 \approx 1/388.7$, the
+quantitative null result of [1]. Bit-for-bit reproduction is the first check
+any measurement must pass: the second paper is only as good as its harness.
+
+% ----------------------------------------------------------------------------
+\subsection{Candidate \texorpdfstring{$\alpha_A$}{alphaA}: first lattice sweep}
+
+The first pre-registered candidate, the frame-averaged gate throughput over
+the active population, is measured at fixed geometry ($SEP=4$) and fixed
+modulus ($S=16384$):
+\begin{table}[ht]
+\centering
+\caption{Candidate $\alpha_A = \langle P(u,S)\rangle$ over the active
+population, frame-averaged (convolution counts are cumulative over the run).}
+\label{tab:alphaA}
+\begin{tabular}{c c c c c c}
+\hline
+$L$ & frames & active passes & $s2B$ passes & $\alpha_A$ & $1/\alpha_A$ \\
+\hline
+ 7 & 200 & 6996  & 18 & 0.004220105 & 236.96 \\
+ 9 & 200 & 9300  &  0 & 0.004265223 & 234.45 \\
+11 & 200 & 11920 & 40 & 0.009991230 & 100.09 \\
+13 & 100 & 7392  &  0 & 0.010428519 &  95.89 \\
+\hline
+\end{tabular}
+\end{table}
+
+Two facts follow. First, the harness is consistent with the closed-form gate
+probability of [1]. Second, and decisive for the program: $1/\alpha_A$ is
+\emph{not} constant in $L$ ($236.96, 234.45, 100.09, 95.89$). Under the
+pre-registered acceptance criterion of Section~\ref{sec:candidates} this
+candidate, in this crude form, is \emph{not} a derivation of the
+fine-structure constant. The non-monotonicity mirrors the non-monotonicity in
+the sieve modulus reported in [1] (discrete resonances of the overlap), and
+the fixed $SEP=4$ while $L$ grows changes the collision geometry run to run.
+A fifth data point from the canonical superposed seed ($L=5$, $W=75$,
+$400$ frames) gives $1/\alpha_A = 272.9$, again frame-dependent and far from
+$1/137.036$. Both the realized ($1/388.7$) and the theoretical ($1/237$ at
+$L=7$) throughputs are nevertheless of the same order as $1/137.036$, so the
+search space is not empty; the remaining candidates of
+Section~\ref{sec:candidates} and the $SEP\propto L$ scaling are the next
+measurements.
+
+
+% ----------------------------------------------------------------------------
+\subsection{Candidate \texorpdfstring{$\alpha_D$}{alphaD}: rejected in the
+two-bubble geometry}
+
+The same runs sample the magnetic/electric bit populations $\langle sB\rangle$
+and $\langle pB\rangle$ at each light frame. The candidate is unstable and
+non-monotonic ($\langle sB\rangle/\langle pB\rangle$ by total counts: $0$,
+$3.44$, $0.56$, $0.81$ at $L=7,9,11,13$). At $L=7$ the transverse bit is
+never set in the controlled two-bubble configuration, i.e.\ the magnetic
+channel is not populated there; for $L\ge9$ the per-frame ratios are
+dominated by frames with tiny denominators. Candidate $\alpha_D$ as defined
+in Section~\ref{sec:candidates} is therefore not measurable in the two-bubble
+geometry. The canonical Platonic-seed configuration ($L=5$, $W=3L^2=75$,
+$400$ light frames) likewise never populates the magnetic channel
+($\langle sB\rangle=0$), and with all source centres superposed it produces
+no convolution overlap at all ($conv\_calls=0$): the sources do not separate
+within $400$ frames in the headless default. The only runs so far in which
+$sB>0$ are the two-bubble geometries at $L=9,11$, where the ratio is unstable.
+Observability of $\alpha_D$ therefore requires separated sources, which the
+single-scenario dynamics produces from suitably separated initial conditions
+(as in the two-bubble probe) or only after far longer canonical evolution.
+
+
+
+% ----------------------------------------------------------------------------
+\subsection{The remaining four candidates: compact report}
+
+Candidates $\alpha_E$, $\alpha_C$, $\alpha_F$ and $\alpha_B$ complete the
+pre-registered battery. Their definitions are fixed in
+Section~\ref{sec:candidates}; the outcomes are:
+
+\begin{table}[ht]
+\centering
+\caption{Report card of the six pre-registered candidates under the strict
+criterion of Section~\ref{sec:candidates} (convergence to
+$1/137.035999177$ to at least eight digits).}
+\label{tab:report}
+\begin{tabular}{l l}
+\hline
+Candidate & Outcome \\
+\hline
+$\alpha_A$: $\langle P(u,S)\rangle$ frame-averaged
+          & $1/237\ldots 1/96$ ($L=7\ldots 13$); $1/273$ canonical $L=5$ \\
+$\alpha_B$: force events per contact
+          & collapse/gate $=1$; reduces to $1/388.7$ \\
+$\alpha_C$: Wyler-on-lattice, integer ratios
+          & $\to 1/137.03608$ (six digits); best ratio $135.0$ at $L=15$ \\
+$\alpha_D$: $\langle sB\rangle/\langle pB\rangle$
+          & $0$ (weak coupling); $\sim 1$ (open channel) \\
+$\alpha_E$: $\langle pol_v^2\rangle/\langle pol_u^2\rangle$
+          & $\to 2$ exactly (analytic, $R\to\infty$) \\
+$\alpha_F$: $U_0/S^*$, sieve fixed point
+          & $S^*=\langle u\rangle$ ($48$, $38$) $\to 1/23$, $1/54$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+  \item \textbf{$\alpha_E$.} The transverse-to-radial energy ratio of the
+        reconstructed pair is a geometric factor: the ratio of sums over the
+        uniform phase $j\in[0,2R)$ converges to $2$ as $R\to\infty$ (verified
+        to $R=1000$; the continuous circle limit is exact). The
+        mean-of-ratios variant is ill-defined ($u=0$ on pure-transverse cells
+        at even $R$). A related degeneracy explains the $\alpha_D$ nulls:
+        $R=R_{\max}-2=L/2-2$, so $L=7$ gives $R=1$ and the reconstruction
+        collapses to $pol_v\equiv0$.
+  \item \textbf{$\alpha_C$.} Feeding the lattice value of $\pi$ (integer
+        sphere-point counts) into Wyler's volume expression converges to
+        Wyler's numerology $1/137.036082$---six digits, below the criterion;
+        no curated structural-integer ratio approaches $137.036$ at
+        $L\le31$ (closest $135.0$ at $L=15$).
+  \item \textbf{$\alpha_F$.} The fixed point $S^*$ of the normalized
+        throughput map equals the run's mean active amplitude
+        $\langle u\rangle$ ($48$ at $L=7$, $38$ at $L=9$), so
+        $\alpha_F=U_0/S^*\sim1/50$ is geometry-locked.
+  \item \textbf{$\alpha_B$.} Read-only counters at the force-branch decisions
+        show that every gate-passing contact collapses (reissues):
+        collapse/s2B $=1.0$ at the reference and $0.995$ with the channel
+        open; repulsion is never reached in these probes. The only force of
+        the model is sieve-gated collapse, so $\alpha_B$ reduces to the
+        realized throughput $1/388.7$.
+\end{itemize}
+
+All six pre-registered definitions fail the criterion. This is the primary
+quantitative result of the paper: at the accessible scales, none of the
+natural ratio observables of the automaton reproduces the empirical
+fine-structure constant.
+
+% ----------------------------------------------------------------------------
+\section{Discussion}
+\label{sec:discussion}
+
+The campaign produced four structural findings and one methodological
+conclusion.
+
+\textbf{Structural findings.} (i)~$L=7$ is degenerate for the emergent
+polarization pair: $R=R_{\max}-2=1$, so the reconstructed circle collapses
+and $pol_v\equiv0$; every earlier $\alpha_D=0$ null at $L=7$ is a
+consequence, not a signal. (ii)~The two-bubble contact is ``sticky'': the
+adiabatic (non-collapse) branch drifts sources toward each other at every
+shell coincidence, so isolated bubbles never separate at weak coupling and no
+clean pre/post collision window exists. (iii)~The initial momentum magnitude
+is inert: sources advance one cell per tick regardless of $|m|$, so the
+emergent maximum information speed cannot be exceeded by construction.
+(iv)~The only force of the model is sieve-gated collapse: every event that
+passes the $s2B$ gate reissues; repulsion is structurally unreachable in the
+probes tested.
+
+\textbf{Methodological conclusion.} Six pre-registered candidate definitions,
+six clean falsifications, none at the $1/137.036$ level. The negative battery
+is exactly what the protocol of Section~\ref{sec:candidates} was designed to
+produce: definitions fixed in advance, measured, and rejected under a strict
+criterion, in the spirit of the historical caution of
+\cite{kragh2003,good1990,feynman1985}. It says that within this model, at
+$L\le31$, the fine-structure constant does not reside in any ratio of raw
+emergent observables (gate throughput, magnetic occupancy, reconstruction
+energy ratio, integer volumes, sieve fixed point). Whether $\alpha$ requires
+larger lattices, different initial conditions, or a genuinely different
+functional of the rule remains open; the search space is bounded but not
+empty---the realized and theoretical throughputs are both within a factor
+$\lesssim3$ of $1/137.036$.
+
+\textbf{Bypassing the dial.} Because every candidate inherits the hand-set
+sieve modulus $S=16384=2^{14}$, we attempted to remove the dial in two
+stages. (i)~A single-$S$ scan of the realized throughput at $L=7$ is a
+resonance comb (open channel $\sim1$ at $S\lesssim10^2$, crossing $1/137$ at
+$S=4800$, collapsing to $1/437$ at $S=5600$); the crossing is not
+$L$-stable ($L=9$, $S=4800$ gives $1/56$), so no choice of $S$ is
+structural. (ii)~Averaging the realized throughput over the modulus grid
+($S=128\ldots16384$) yields statistics that agree between $L=7$ and $L=9$
+(median $\sim1/190$) but drift to $\sim1/100$ at $L=11,13$. A frame-count
+control at $L=13$ then shows why: the sieve passes are bursty---they fire when
+the shell phase coincides---so the realized ratio changes by factors up to
+five when the run length doubles ($S=5248$: $1/241$ at $100$ frames vs.\
+$1/44$ at $200$). The realized-overlap throughput is therefore not
+stationary in time at accessible run lengths, and no S-averaged count ratio
+is a stable observable either. The dial cannot be removed by choice or by
+averaging; only the analytic expected-value observables (the closed-form
+$P(u,S)$ averaged over the measured amplitude spectrum) or far longer runs
+remain. The negative battery of Section~\ref{sec:results} therefore stands
+with an additional methodological control: every count-ratio coupling of
+this automaton is a discrete resonance in the sieve modulus and in time, not
+a smooth constant.
+
+% ----------------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+
+We conducted a systematic, pre-registered search for the fine-structure
+constant in a concrete ``it from bit'' automaton: a single-scenario lattice
+dynamics in which charge, polarization, and a sieve-gated force all emerge
+from a bit-local rule. Six candidate definitions---fixed in advance, measured
+with a bit-identical harness, and judged under a strict convergence
+criterion---all fail to reproduce $1/137.035999177$ at the accessible scales.
+Four structural properties of the model were established along the way: the
+$L=7$ degeneracy of the polarization pair, the sticky two-bubble contact, the
+inexceedable maximum information speed, and the collapse-dominated character
+of the only force the model possesses.
+
+The negative result is the contribution. It demonstrates the protocol working
+end to end: in a domain---computational derivations of dimensionless physical
+constants---where numerology has historically been the norm
+\cite{kragh2003,good1990,feynman1985}, a concrete automaton now reports six
+clean falsifications under definitions fixed before measurement. Whether the
+fine-structure constant lives in this model at all, and if so under which
+functional of its rule, remains open; what is no longer open is that it is
+not any of the six natural ratios this paper measured.
+
+% ----------------------------------------------------------------------------
+% References - [1] is the previous paper; the rest support the historical
+% discussion of candidate definitions.
+% ----------------------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{itfrombit}
+A.~Furtado~Neto, ``It from bit: a concrete attempt,'' preprint. Available at
+\url{https://www.researchgate.net/publication/372560046_It_from_bit_-_a_concrete_attempt}.
+
+\bibitem{wyler1969}
+A.~Wyler, ``Sur la constante de structure fine,'' \emph{Comptes Rendus de
+l'Acad\'emie des Sciences}, S\'er.~A, vol.~269, pp.~743--745, 1969; and
+``Les groupes des potentiels de Coulomb et de Yukawa,'' ibid., vol.~271,
+pp.~186--188, 1971.
+
+\bibitem{robertson1971}
+B.~Robertson, ``Wyler's expression for the fine-structure constant
+$\alpha$,'' \emph{Physical Review Letters}, vol.~27, p.~1545, 1971.
+
+\bibitem{eddington1946}
+A.~S.~Eddington, \emph{Fundamental Theory}. Cambridge, UK: Cambridge
+University Press, 1946.
+
+\bibitem{kragh2003}
+H.~Kragh, ``Magic number: A partial history of the fine-structure
+constant,'' \emph{Archive for History of Exact Sciences}, vol.~57, no.~5,
+pp.~395--431, 2003.
+
+\bibitem{good1990}
+I.~J.~Good, ``A quantal hypothesis for hadrons and the judging of physical
+numerology,'' in \emph{Disorder in Physical Systems}, G.~R.~Grimmett and
+D.~J.~A.~Welsh, Eds. Oxford, UK: Oxford University Press, 1990, p.~141.
+
+\bibitem{feynman1985}
+R.~P.~Feynman, \emph{QED: The Strange Theory of Light and Matter}.
+Princeton, NJ: Princeton University Press, 1985.
+
+\end{thebibliography}
+
+\end{document}

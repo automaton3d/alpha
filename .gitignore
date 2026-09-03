@@ -1,0 +1,26 @@
+# ---- build artifacts (automaton GUI, MSVC) ----
+/build/
+/obj/
+*.obj
+*.ilk
+*.pdb
+
+# ---- binaries / runtime copies ----
+*.exe
+*.dll
+/automaton.cfg
+/fonts/
+/logo.png
+/logo_bar.png
+/glad/
+/lib/
+
+# ---- logs & latex aux ----
+*.log
+*.err
+*.aux
+*.out
+*.toc
+
+# ---- experiment binaries / run logs (sources + CSVs are kept) ----
+/experiments/*.exe

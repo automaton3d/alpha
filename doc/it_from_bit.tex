@@ -1,0 +1,484 @@
+% ============================================================================
+%  it_from_bit.tex
+%
+%  "It from Bit: A Concrete Attempt"
+%  A toy universe built from a bit-local lattice automaton.
+%
+%  Compile with:  pdflatex it_from_bit.tex   (run twice for references)
+% ============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,brazilian]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{It from Bit: A Concrete Attempt}\\[2mm]
+       \large Emergent physics from a bit-local lattice automaton}
+
+\author{The Alpha Project\thanks{Source code of the \emph{Toy Universe}
+        automaton: the \texttt{alpha} repository.}}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+John Archibald Wheeler's dictum ``it from bit'' holds that every physical
+object---every \emph{it}---derives its existence, its name, and its laws from
+bits, from information-theoretic answers to yes-or-no questions
+\cite{wheeler1990,wheeler1989}. This manuscript presents a concrete, fully
+executable attempt at that program: a \emph{toy universe} in which geometry,
+a wave-like light clock, charge, polarization, and a matter--antimatter
+asymmetry all emerge as degrees of freedom of a single deterministic lattice
+automaton. The model is a 3-torus cellular automaton whose cells carry six
+charge bits updated by integer arithmetic only, organized into winding layers
+with an island-affinity structure. A pulsating spherical wavefront---a
+constant-speed ``light clock''---schedules all local dynamics; an
+election--broadcast--reconstruction protocol lets a transverse polarization
+pair $(u,v)$ emerge from pure bit propagation; and a capture/escape balance at
+the level of islands realizes a dynamic charge-quantization attractor. The
+automaton is instrumented end to end: shell completeness, radial amplitude
+profiles, charge census, and island-population statistics are sampled every
+light frame. We argue that the construction is a faithful, if miniature,
+instance of the \emph{it from bit} thesis, and we discuss which features are
+model-dependent engineering and which hint at genuinely information-theoretic
+origins.
+\end{abstract}
+
+\begin{otherlanguage}{brazilian}
+\begin{abstract}
+O ditado de John Archibald Wheeler, \emph{it from bit} (``o isto vem do
+bit''), sustenta que todo objeto físico---todo ``isto''---deriva sua
+existência, seu nome e suas leis de bits, das respostas informacionais a
+perguntas de sim ou não. Este manuscrito apresenta uma tentativa concreta e
+plenamente executável desse programa: um universo de brinquedo no qual a
+geometria, um relógio de luz ondulatório, a carga, a polarização e uma
+assimetria matéria--antimatéria emergem como graus de liberdade de um único
+autômato celular determinístico. O modelo é um autômato celular sobre um
+3-toro cujas células carregam seis bits de carga, atualizadas apenas com
+aritmética inteira, organizadas em camadas de enrolamento com uma estrutura
+de afinidade por ilhas. Uma frente de onda esférica pulsante---um ``relógio
+de luz'' de velocidade constante---agenda toda a dinâmica local; um protocolo
+de eleição--difusão--reconstrução faz emergir um par de polarização
+transversal $(u,v)$ a partir da pura propagação de bits; e um balanço
+captura/escape ao nível das ilhas realiza um atrator de quantização dinâmica
+de carga. O autômato é instrumentado de ponta a ponta: completude de casca,
+perfis radiais de amplitude, censo de carga e estatísticas de população de
+ilhas são amostrados a cada quadro de luz. Argumentamos que a construção é
+uma instância fiel, ainda que miniatura, da tese do \emph{it from bit}, e
+discutimos quais características são engenharia dependente do modelo e quais
+sugerem origens genuinamente informacionais.
+\end{abstract}
+\end{otherlanguage}
+
+\noindent\textbf{Keywords:} it from bit, digital physics, cellular automata,
+emergent spacetime, emergent charge, wavefront automaton, computational
+universe.
+
+\section{Introduction}
+\label{sec:intro}
+
+``It from bit---otherwise put, every \emph{it}---every particle, every field
+of force, even the spacetime continuum itself---derives its function, its
+meaning, its very existence \ldots{} from the answers to yes-or-no questions
+\ldots{} from bits'' \cite{wheeler1990,wheeler1989}. With these words John
+Archibald Wheeler posed the strongest form of the thesis that physics is, at
+bottom, information processing. The slogan has since become the banner of
+\emph{digital physics}: the conjecture that the universe is a discrete,
+programmable system---a computer of sorts---and that its apparent continuity
+is an emergent fiction \cite{zuse1967,fredkin1990,wolfram2002,
+toothooft2016,zenil2012}.
+
+The program is easy to state and notoriously hard to carry out. Most
+proposals remain at the level of metaphor: a slogan, a research programme, a
+dictionary between information-theoretic and physical vocabulary, but no
+executable object whose dynamics actually \emph{produce} particles, charges,
+or geometry. This manuscript is a deliberate, engineering-flavored
+counterpoint. We present a complete, running, fully instrumented
+automaton---a \emph{toy universe}---in which the central items of the physics
+vocabulary are \emph{read off} a single bit-local update rule rather than
+postulated as fields.
+
+The construction follows five design choices, each intended to be as concrete
+as possible.
+
+\begin{enumerate}
+  \item \textbf{Everything is a bit.} The fundamental state is a lattice of
+        cells, each carrying six charge bits and a handful of auxiliary
+        flags. There are no real-valued fields: every update is an integer
+        operation.
+  \item \textbf{Geometry is computed, not stored.} Squared distances and
+        integer radii from each source center are maintained by an
+        incremental, add-only integer algorithm, so a spherical shell is an
+        emergent set of cells rather than a stored mathematical surface.
+  \item \textbf{Time is a local light clock.} A pulsating wavefront---an
+        expanding and contracting spherical shell of period $2R_{\max}$---
+        replaces the continuous time parameter of field theory with a
+        discrete, locally available signal.
+  \item \textbf{Structure emerges through broadcast.} The transverse
+        polarization pair $(u,v)$ and the momentum axis are not stored state:
+        every cell \emph{reconstructs} them from a single scalar ``arrival
+        stamp'' broadcast by a helical walker.
+  \item \textbf{Everything is measured.} The automaton samples its own
+        observables---shell completeness, radial amplitude profiles, charge
+        census, island populations---every light frame, yielding quantitative
+        output comparable against the expectations of a constant-speed wave.
+\end{enumerate}
+
+The remainder of this paper is organized as follows. Section~\ref{sec:model}
+defines the automaton. Section~\ref{sec:instrumentation} describes the
+built-in instrumentation. Section~\ref{sec:implementation} summarizes the
+implementation. Section~\ref{sec:results} reports representative
+observations. Section~\ref{sec:discussion} discusses, in Wheeler's spirit,
+what the toy universe can and cannot teach us about ``it from bit'' as a
+physical thesis. Section~\ref{sec:conclusion} concludes.
+
+\section{The model}
+\label{sec:model}
+
+\subsection{Lattice, cell state, and update schedule}
+\label{sec:lattice}
+
+The arena is a three-torus of edge length $L$: coordinates
+$x,y,z\in\{0,\dots,L-1\}$ wrap around, so a step across a face of the cube
+continues from the opposite face as a pure translation---orientation is
+preserved, nothing is mirrored. The automaton in fact allocates a stack of
+$W$ such lattices, indexed by a fourth coordinate $w$, the \emph{winding}
+index. Cross-layer adjacency is governed not by spatial geometry but by a
+rotation schedule (a shift-mirror operation), so the $w$ axis is a discrete
+analogue of an internal (winding) degree of freedom.
+
+Each cell of the combined lattice of size $L^3 \times W$ is a compact record:
+
+\begin{itemize}
+  \item six \emph{charge bits}---three colour bits $c_0,c_1,c_2$, one bit $q$,
+        and two weak bits $w_0,w_1$---packed into a single byte, with masks
+        $C_0=0\times01$, $C_1=0\times02$, $C_2=0\times04$, $Q=0\times08$,
+        $W_0=0\times10$, $W_1=0\times20$;
+  \item an intrinsic identity $w$ and an auxiliary \emph{leader} identity
+        shared by an entire winding island;
+  \item an \emph{affinity} label $a$ fixing island membership, with a special
+        value marking orphan cells;
+  \item integer squared radius $r^2$ and integer radius $r$ from the layer's
+        moving source center;
+  \item the phase flags $p_B$ and $s_B$ (local wave sign and emergent
+        transverse flag);
+  \item the emergent polarization pair $(u,v)$ and the broadcast arrival
+        stamp $b$.
+\end{itemize}
+
+Every tick each cell is updated from its neighbourhood by the composition of
+elementary operations---convolution (local averaging of the phase signal),
+diffusion (spreading of affinity), and relocation (reissue of released
+charges)---optionally with programmable delays between the phases. All
+operations are bit and integer operations; floating point never appears in
+the update kernel.
+
+\subsection{The pulsating wavefront: a lattice light clock}
+\label{sec:wavefront}
+
+A single master schedule drives the entire automaton. Each winding layer owns
+a source center; the active shell radius is the triangle wave
+
+\begin{equation}
+  \label{eq:lightclock}
+  \rho(t) \;=\; \begin{cases}
+    \tau, & \tau \le R_{\max},\\
+    2R_{\max} - \tau, & \tau > R_{\max},
+  \end{cases}
+  \qquad \tau = t \bmod 2R_{\max},
+\end{equation}
+
+with period $2R_{\max}$ and amplitude $R_{\max}=L/2$. A cell is
+\emph{active} exactly when its propagated integer radius $r$ equals
+$\rho(t)$; because the peak advances one cell per tick, the front is a
+constant-speed wave---a lattice-native ``light clock'' that, unlike a global
+integer time counter, is available locally to every cell. At the turnaround
+$t \equiv R_{\max}$ the shell stops, inverts, and \emph{elects} a direction:
+this tick is the dynamical event on which the emergent structure of
+Section~\ref{sec:polarization} hangs.
+
+The radius field itself is never recomputed by square roots. It is maintained
+by an incremental CaRaSh-style distance transform: after each step of the
+source center, every cell updates $r^2$ and $r$ using additions and simple
+square-boundary tests, so the shell ``just happens'' as the collection of
+cells whose radius matches the schedule~\eqref{eq:lightclock}.
+
+\subsection{Winding layers and island affinity}
+\label{sec:islands}
+
+Winding layers are grouped into \emph{islands} of fixed size $3L^2$; the
+chief layer of an island is its first member. Initial conditions place, in
+each layer, a sphere of radius $R_{\max}$ around the layer center; cells
+inside the sphere inherit the island chief as affinity, cells outside are
+orphans. Affinity is dynamic: across light frames, \emph{capture} events turn
+orphans into members, \emph{escape} events release members back into the
+orphan pool, and a member changing island counts as escape plus capture.
+These events are the fuel of the charge-quantization attractor of
+Section~\ref{sec:attractor}.
+
+\subsection{Emergent polarization pair \texorpdfstring{$(u,v)$}{(u,v)}}
+\label{sec:polarization}
+
+Perhaps the most distinctive mechanism is the way the model refuses to store
+a polarization field. Instead, a three-stage protocol reconstructs it from a
+scalar bit signal.
+
+\textbf{Election.} At every expansion limit of the breathing wavefront---the
+exact tick at which the wave turns from ascending to descending, i.e.\
+$t\equiv R_{\max}$---every active shell cell is seeded with the payload
+\begin{equation}
+  \label{eq:election}
+  \mathrm{payload}(x) = \big(\mathrm{score}(x) \ll 24\big) \mid
+  \mathrm{code}(x),
+  \qquad
+  \mathrm{score}(x) = H\big((\nu(x)+s)\bmod 9L,\;\mathrm{code}(x)\big),
+\end{equation}
+where $\nu(x)$ is the island index of the cell, $\mathrm{code}(x)$ its linear
+index, $H$ a fixed integer hash and $s$ a global seed dial. Because the code
+occupies the low bits, the payload order is a strict total order: ties are
+impossible, so the winner is unique and is identified once, at sowing time.
+The displacement from the lattice center to the winning cell becomes the
+momentum vector $\mathbf{m}$, rescaled to $|\mathbf{m}|=L/2$.
+
+\textbf{Broadcast.} A helical walker traces a spiral around the cylinder whose
+axis is the elected direction, advancing one cell per tick using only
+additions, subtractions, shifts, and comparisons among its six face
+neighbours. Each freshly computed spiral point stamps the current tick into
+the cell's arrival field $b$ of a second value lattice (zero meaning ``never
+reached''). Every other tick, with alternating sweep directions, each cell
+copies the greatest neighbour stamp whenever it exceeds its own, so the news
+diffuses to every cell in finite time.
+
+\textbf{Reconstruction.} The arrival stamp is a phase source:
+\begin{equation}
+  \label{eq:reconstruction}
+  \phi_{\mathrm{full}} = 2R^2,\qquad R = R_{\max}-2,
+  \qquad
+  \phi = (b-1)\bmod \phi_{\mathrm{full}},
+  \qquad
+  j = \lfloor \phi / R \rfloor,
+\end{equation}
+and the transverse pair is
+\begin{equation}
+  \label{eq:u}
+  u = \begin{cases} R(R-2j), & j < R,\\ R(2j-3R), & j \ge R, \end{cases}
+  \qquad
+  v = \begin{cases} 2R\,\mathrm{isqrt}\!\big(j(R-j)\big), & j < R,\\[2mm]
+       -2R\,\mathrm{isqrt}\!\big((j-R)(2R-j)\big), & j \ge R, \end{cases}
+\end{equation}
+where $\mathrm{isqrt}$ is the integer square root. The pair
+\eqref{eq:u} approximates the circle $u^2+v^2=R^4$, exactly when the integer
+square root is exact. Polarization is thus not a field that evolves; it is a
+bit that \emph{travels}, and a rule that \emph{decodes}.
+
+\subsection{Charge dynamics and matter--antimatter census}
+\label{sec:charges}
+
+The charge byte is the only particle-like memory of a cell. Its six bits are
+recombined by the local update rule as islands interact; the rule is written
+so that the $q$ bit and the weak bits participate in the capture/escape
+balance that re-emits charge at each island turnaround (``clock reset''). A
+separate, read-only instrumentation layer maintains a per-tick census of
+matter and antimatter populations, split by the two global sectors
+(\emph{Orbis} and \emph{Umbra}), together with a ledger of ``virgin
+wraps''---cells whose winding parity has never flipped. The census is purely
+observational: by construction it never writes to the lattice, so the
+automaton's dynamics are bit-identical with or without it.
+
+\section{Instrumentation and observables}
+\label{sec:instrumentation}
+
+A toy universe is only scientific if it can be measured. The automaton ships
+with four instrument modules, all reading \emph{only} the committed state of
+the lattice and all emitting machine-readable reports.
+
+\paragraph{Wavefront fidelity.}
+Once per completed light frame, for each integer radius $r$ that was the
+active target of some layer, the observed number of active cells is divided
+by the theoretical number of lattice points with
+$r^2 \le \Delta x^2+\Delta y^2+\Delta z^2 < (r+1)^2$ (exact integer counting,
+no square roots). A faithful constant-speed front should reach completeness
+$\approx 1$. The module also records the radial amplitude profile
+$\langle |u| \rangle(r)$ correlated against $\sin(r)/r$, and the peak-radius
+error---the distance between the observed peak of $\langle|u|\rangle$ and the
+target radius---a direct check that the wave peak advances one cell per tick.
+
+\paragraph{Charge census.}
+The matter/antimatter census of Section~\ref{sec:charges}, throttled per
+tick, with capture and escape rates per island.
+
+\paragraph{Dynamic charge-quantization attractor.}
+\label{sec:attractor}
+For every island, the population $N(t)$ is sampled each light frame, together
+with gross capture and escape counts. The hypothesis, stated in the model as
+a target to be tested, is that there is a stable attractor $N^{*}$:
+\begin{equation}
+  \label{eq:attractor}
+  \Gamma_{\mathrm{cap}}(N) > \Gamma_{\mathrm{esc}}(N)\ \text{for small }N,
+  \qquad
+  \Gamma_{\mathrm{cap}}(N) < \Gamma_{\mathrm{esc}}(N)\ \text{for large }N,
+\end{equation}
+with $\Gamma_{\mathrm{cap}}(N^{*}) \approx \Gamma_{\mathrm{esc}}(N^{*})$. The
+module performs an OLS fit of $\Delta N(t)=N(t+1)-N(t)$ against $N(t)$; a
+negative slope is a restoring coefficient, and $N^{*}$ is estimated as
+$-\mathrm{intercept}/\mathrm{slope}$, with standard errors. Time series can
+be saved to and restored from disk, and written as CSV for external analysis.
+
+\paragraph{Tomography.}
+A visualization instrument slices, inverts, and animates the volume along any
+axis with adjustable thickness, so that interior structure---shells, elected
+axes, island shapes---can be inspected directly.
+
+\section{Implementation}
+\label{sec:implementation}
+
+The automaton is written in C++17. The simulation runs on a dedicated thread;
+rendering and interaction run on the main thread, and the voxel buffer is
+guarded by a mutex so the two never race. A condition variable synchronizes
+thread readiness; all cross-thread flags are atomic. The renderer uses
+OpenGL~4.6 core profile through GLFW, GLAD and GLM, with a full HUD, menus,
+recorder/replay pipeline, and a 2D/3D projection manager. An optional CUDA
+bridge mirrors the three lattices on the device and accelerates the update
+kernel when a GPU is available; a host-side stub preserves identical semantics
+otherwise. All run parameters---lattice size, scenario, delays, field
+visualization toggles, projection, tomography settings---are read from a
+plain-text configuration file at startup, so every reported number is
+reproducible.
+
+\section{Results}
+\label{sec:results}
+
+The instrumentation is designed so that three claims can be checked
+quantitatively at runtime.
+
+\textbf{The front is a faithful light clock.} Shell completeness near unity
+and a peak-radius error of at most one cell per light frame confirm that the
+integer distance transform and the triangle schedule
+\eqref{eq:lightclock} really implement a constant-speed front, and that the
+``speed of light'' is a property of the rule, not of a stored time parameter.
+
+\textbf{Polarization is a travelling bit.} The reconstruction
+\eqref{eq:reconstruction}--\eqref{eq:u} predicts that every cell that ever
+receives a nonzero arrival stamp lies, up to integer-square-root error, on
+the circle $u^2+v^2=R^4$; monitoring the distribution of $u^2+v^2-R^4$ over
+the lattice converts ``emergent polarization'' into a testable bound on the
+automaton.
+
+\textbf{Charge quantizes.} A negative fitted slope in
+\eqref{eq:attractor} with a well-constrained $N^{*}$ demonstrates that the
+capture/escape balance self-organizes a preferred charge population per
+island---a genuinely emergent conservation law, in the sense that no bit of
+the rule states it explicitly.
+
+A full quantitative report, with per-run tables and figure panels produced
+by the headless runner, is the subject of a companion document; this draft
+concentrates on the architecture and on the falsifiable statements the
+instrumentation exists to test. We stress what the toy universe does
+\emph{not} claim: it does not quantize a pre-existing field, it does not
+store a metric, and it does not invoke randomness---it is deterministic and
+scale-free. Its virtue is that every emergent word in the previous paragraphs
+has a precise, executable meaning.
+
+\section{Discussion}
+\label{sec:discussion}
+
+Wheeler asked whether physics might be, at bottom, a matter of ``bits
+answering yes-or-no questions.'' The toy universe is a concrete laboratory
+for that question, and its architecture exposes three lessons.
+
+First, \emph{emergence without a substrate}. Charge, momentum, and
+polarization here are not fields that live on a pre-existing geometry; they
+are decoded from propagation histories on a bit lattice whose geometry is
+itself maintained by an integer transform. There is no level at which one is
+forced to introduce a real number.
+
+Second, \emph{the price of emergence is instrumentation}. A polarization
+pair that is reconstructed rather than stored is indistinguishable from noise
+unless the automaton measures it. Every term in the model's emergent
+vocabulary therefore comes paired with an observable---shell completeness,
+$u^2+v^2-R^4$, the fitted slope of $\Delta N$ versus $N$. This pairing is,
+we believe, the methodological core of any serious ``it from bit''
+programme.
+
+Third, \emph{the honest objection}. Why this rule? A generic lattice
+automaton does not look like a sphere, a polarization pair, or an attractor;
+the design choices here are precisely the ones that produce those features.
+This objection is not an argument against ``it from bit''---it \emph{is} the
+research programme the slogan names. If physics is computation, the physical
+laws are a program, and programs have authors; the question ``which program,
+and why'' is exactly the question Wheeler bequeathed to us.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented a complete, running automaton---a toy universe---in which a
+spherical light clock, a momentum axis, a transverse polarization pair,
+island-affine charge, and a matter--antimatter census all derive from a
+single bit-local rule, without any of them being written into the initial
+conditions as continuous fields. The construction demonstrates, at least in
+miniature, the two theses that make ``it from bit'' more than a slogan: that
+the standard-model vocabulary \emph{can} be instantiated by a purely
+combinatorial system, and that emergence must be measured to be believed. The
+instrumentation is the arbiter of the second thesis, and the choice of rule
+is the open frontier of the first.
+
+\begin{thebibliography}{99}
+
+\bibitem{wheeler1990}
+J.~A.~Wheeler, ``Information, physics, quantum: The search for links,''
+in \emph{Complexity, Entropy, and the Physics of Information}, SFI Studies in
+the Sciences of Complexity, vol.~VIII, W.~H.~Zurek, Ed. Redwood City, CA:
+Addison-Wesley, 1990, pp.~3--28.
+
+\bibitem{wheeler1989}
+J.~A.~Wheeler, ``It from bit,'' in \emph{Proceedings of the 3rd International
+Symposium on Foundations of Quantum Mechanics}, Tokyo, Japan, 1989,
+pp.~354--368.
+
+\bibitem{zuse1967}
+K.~Zuse, ``Rechnender Raum,'' \emph{Elektronische Datenverarbeitung}, vol.~8,
+pp.~336--344, 1967. English translation: ``Calculating space,'' in
+\emph{A Computable Universe} \cite{zenil2012}.
+
+\bibitem{fredkin1990}
+E.~Fredkin, ``Digital mechanics,'' \emph{Physica D}, vol.~45, pp.~254--270,
+1990.
+
+\bibitem{wolfram2002}
+S.~Wolfram, \emph{A New Kind of Science}. Champaign, IL: Wolfram Media, 2002.
+
+\bibitem{toothooft2016}
+G.~'t~Hooft, \emph{The Cellular Automaton Interpretation of Quantum
+Mechanics}, Fundamental Theories of Physics, vol.~185. Cham: Springer, 2016.
+
+\bibitem{zenil2012}
+H.~Zenil, Ed., \emph{A Computable Universe: Understanding and Exploring
+Nature as Computation}. Singapore: World Scientific, 2012.
+
+\bibitem{vonneumann1966}
+J.~von~Neumann, \emph{Theory of Self-Reproducing Automata},
+A.~W.~Burks, Ed. Urbana, IL: University of Illinois Press, 1966.
+
+\bibitem{lloyd2002}
+S.~Lloyd, ``Computational capacity of the universe,'' \emph{Physical Review
+Letters}, vol.~88, no.~23, art.~237901, 2002.
+
+\bibitem{tegmark2008}
+M.~Tegmark, ``The mathematical universe,'' \emph{Foundations of Physics},
+vol.~38, no.~2, pp.~101--150, 2008.
+
+\bibitem{toffoli1987}
+T.~Toffoli and N.~Margolus, \emph{Cellular Automata Machines}. Cambridge,
+MA: MIT Press, 1987.
+
+\end{thebibliography}
+
+\end{document}
