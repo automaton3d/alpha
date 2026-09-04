@@ -84,7 +84,7 @@ bubble & a spherical wavefront emitted by one source centre in one layer $w$; th
 \hline
 chief (K) & the leading source of a $W$-island; delegates (D) are attached to it, singletons (S) are free sources, and a pair (P) is a charge-complementary bonded pair of sources & \ref{subsec:pairs}\\
 \hline
-propeller & a pair currently transferring momentum (a pending relocation impulse); it cannot join a blob & \ref{subsec:encounter}\\
+propeller & a pair carrying a non-zero momentum vector $\boldsymbol{m}$ ($\lvert\boldsymbol{m}\rvert=L/2$) that transfers impulses into partners' $\mathit{reloc}$; it cannot join a blob & \ref{subsubsec:propeller}\\
 \hline
 blob & a group of superposed equal-status pairs with the gluon/photon charge geometry $R2$ & \ref{subsec:pairs}\\
 \hline
@@ -195,8 +195,8 @@ polarization $v$ & N & $\mathrm{pol}_v$ & transverse reconstructed polarization 
 \textbf{Operational variables} & & & \\
 \hline
 translation offset & V & $\mathbf{c}$ & determines reissue address \\
-momentum vector & V & $\boldsymbol{m}$ & stable reissue/translation direction \\
-translation impulse & V & $\mathit{reloc}$ & signed displacement applied after interaction \\
+momentum vector & V & $\boldsymbol{m}$ & integer momentum, typically $\lvert\boldsymbol{m}\rvert=L/2$; immutable under inertia \\
+translation impulse & V & $\mathit{reloc}$ & consumable signed displacement; filled by encounter, applied by \texttt{applyMomentum} \\
 housekeeping tick & DN & $k$ & timeless clocking \\
 sieve test result & B & $s2B$ & seeded from $u$ and $t$, gated by $\mathit{active}$ \\
 sB hunting & B & $hB$ & flag to find the sB bit \\
@@ -272,13 +272,13 @@ Among the many possible choices, we select the following deterministic Platonic 
 \item The internal address $w$ is immutable; the charge bits $w_{0}$, $w_{1}$, electric charge $q=w_{1}\oplus w_{0}$, and color are derived from $w$ as described above.
 \item The affinity $a$ and the auxiliary leader identity $\mathit{leader\_w}$ are initialized to the island index of the $W$-island to which $w$ belongs (Sect.~\ref{subsec:w-islands}).  A true chief ($K$) emerges later through encounter, as described in Section~\ref{sec:dynamic-charge-quantization}.
 \item The housekeeping counter $k$ and the wavefront counter $t$ are set to zero; the contraction/phase vectors $\mathbf{c}$ are zero and $s2B$ is reset.
-\item The momentum-direction vector $\boldsymbol{m}$ is assigned a fixed unit step along one Cartesian axis.  Consecutive layers share the same axis and receive opposite signs according to the electric charge bit $q_{i}=w_{1}^{i}\oplus w_{0}^{i}$, so that $q=1$ points in the positive direction and $q=0$ in the negative direction.  With $W=3L^{2}$ and $L$ odd, this leaves the most perfect antipodal balance possible.
+\item The momentum vector $\boldsymbol{m}$ is initialized to the null vector $\boldsymbol{0}$.  A non-zero value is written only by the dynamic election path (Sect.~\ref{sec:phase-step}): at each expansion limit $t=\mathrm{RMAX}$ the automaton elects a direction and installs $\boldsymbol{m}$ with modulus $\lvert\boldsymbol{m}\rvert=L/2$ on the source-centre cell.  The inertia mechanism treats $\boldsymbol{m}$ as immutable and never rewrites it.
 \item The consumable translation impulse $\mathit{reloc}$ is zero.
 \item The wavefront data are seeded only at the source centers: $u=v=0$ and $r^{2}=0$, with a fixed amplitude $U_{0}$; all other cells have $r^{2}=\mathrm{INF}$ and $u=v=0$.
 \end{itemize}
 Real numbers and high-level functions are used only as intermediaries to compute these integer parameters; they are not stored in the lattice.  The dynamics is therefore strictly integer-based.
 \subsection{What the seed does not contain}
-The seed contains no precomputed radius, no wave cloud, no $(\mathrm{pol}_u,\mathrm{pol}_v)$ pair, no $pB$/$sB$/$s2B$ pattern, no interactions, and no randomized data.  Those are the first emergent consequences of the seed and are described in Sect.~\ref{sec:phase-step}.
+The seed contains no precomputed radius, no wave cloud, no $(\mathrm{pol}_u,\mathrm{pol}_v)$ pair, no $pB$/$sB$/$s2B$ pattern, no non-zero momentum $\boldsymbol{m}$, no interactions, and no randomized data.  Those are the first emergent consequences of the seed and are described in Sect.~\ref{sec:phase-step}.
 \subsection{The initial thermal bath}
 Before the dynamic patterns---the vectors $\boldsymbol{m}$, the charge islands, and the wave cloud---stabilize, the evolution is chaotic.  This early mixing is not a defect: it acts as a deterministic ``thermal bath'' that contributes to the apparent randomness of particle physics once the stable attractors are reached.
 %%%%%%%% PHASE STEP %%%%%%%%%%
@@ -364,7 +364,7 @@ Each pass lets every cell adopt the greatest payload among its six face neighbou
 \[
 \mathrm{payload}(x)\;\leftarrow\;\max\bigl(\mathrm{payload}(x),\;\mathrm{payload}(x\pm e_i)\bigr),
 \]
-with alternating sweep directions; $2R+8$ passes guarantee full coverage of the lattice.  The true winner---the \emph{seeded} cell holding the greatest payload---is identified once, at sowing time, while the payloads are still unique; the diffusion flood merely transports the news and never redefines the winner.  The displacement from the lattice center to the winning cell becomes the momentum vector $\boldsymbol{m}$, of which only the direction is meaningful: it is rescaled to $|\boldsymbol{m}|=L/2$ and frozen while the helical walk lives.  The next expansion limit elects a fresh direction for the next run; nothing is prescribed, and the orientation is read off the automaton's own ledger at the instant the wave reaches its limit.
+with alternating sweep directions; $2R+8$ passes guarantee full coverage of the lattice.  The true winner---the \emph{seeded} cell holding the greatest payload---is identified once, at sowing time, while the payloads are still unique; the diffusion flood merely transports the news and never redefines the winner.  The displacement from the lattice centre to the winning cell becomes the momentum vector $\boldsymbol{m}$: it is rescaled to $\lvert\boldsymbol{m}\rvert=L/2$ and written onto the source-centre cell of the layer.  That write is the sole dynamic initialisation of $\boldsymbol{m}$; thereafter the inertia path (Sect.~\ref{subsubsec:propeller}) treats $\boldsymbol{m}$ as immutable and only reads it to accumulate $\mathit{reloc}$ impulses.  The same elected axis drives the helical walker of Stage~2.  The next expansion limit may elect a fresh direction; nothing is prescribed at the Platonic seed, and the orientation is read off the automaton's own ledger at the instant the wave reaches its limit.
 
 \paragraph{Stage 2: Broadcast.}  As soon as $\boldsymbol{m}$ exists, a helical walker traces the spiral arm on the pulsating bubble.  It advances one cell per tick around the cylinder whose axis is the elected direction, keeping the radial error within about one cell by purely local comparisons among its six neighbours.  The walker is an arbitrary-axis integer helix (implementation details in the source code: \texttt{spiral/spiral.c}).  During the walk, each newly computed spiral point writes one plus the current tick into its own cell of a second value lattice, reserving $b(x)=0$ for ``never reached''.
 
@@ -466,6 +466,10 @@ A \emph{bubble} is an expanding spherical wavefront of information organized acr
 Two bubbles are overlapping if they share the same spatial coordinates and $t_1=t_2$. Overlapping bubbles can form a \emph{pair} if they have the same affinity, that is, $a_1=a_2$; the two partners share a center and phase, and their charges are complementary or matching depending on the pair's role. Pairs may remain bound to a particle as \emph{dressing} pairs or propagate freely as photons; a free pair expands outward and is gradually consumed, releasing two singletons at distinct locations.
 \subsubsection{Propeller} \label{subsubsec:propeller}
 A pair can act as a \textit{propeller}, repositioning other bubbles and providing inertia.
+A propeller is identified by a non-zero momentum vector $\boldsymbol{m}$ with typical modulus $\lvert\boldsymbol{m}\rvert=L/2$ (the same scale installed by the election of Sect.~\ref{sec:phase-step}).
+Its role is to transfer that momentum into other sources without altering its own $\boldsymbol{m}$: each relevant encounter ($P\times K$, $P\times D$, $P\times S$) adds $\boldsymbol{m}$ into the partner's consumable impulse $\mathit{reloc}$, while $\boldsymbol{m}$ itself remains immutable.
+Few propellers (or poorly aligned $\boldsymbol{m}$) yield sparse kicks and low emergent velocity of an island; many nearly collinear propellers yield frequent coherent kicks and high velocity.
+The island's centre of mass is kept cohesive by $K\times D$ and $D\times D$ contacts; the propellers only push.
 \subsubsection{Singleton}
 An unpaired bubble is called a \textit{singleton}; it is not a generic synonym for bubble.
 \subsubsection{Blob}
@@ -544,7 +548,7 @@ Else if two singletons have the same charge, we have fermion cohesion.
 One bubble is reissued from the contact point, while the other, from its active $sB$ site.
 Also, they become entangled ($a_1=a_2$).
 On the other hand, if the two bubbles share the same affinity, but have different charges, the bubble whose wavefront at the contact point has $pB=1$ is reissued from the contact point.
-The other bubble is reissued using the inertial-transported translation impulse, accumulated in the vector $\boldsymbol{\mathit{reloc}}$; the stable momentum vector $\boldsymbol{m}$ supplies the direction of that impulse, while the translation vector $\boldsymbol{c}$ is consumed during the reissue step.
+The other bubble is reissued using the inertial-transported translation impulse, accumulated in the vector $\boldsymbol{\mathit{reloc}}$; the momentum vector $\boldsymbol{m}$ of the pushing source supplies the impulse ($\mathit{reloc}\mathrel{+}=\boldsymbol{m}$), while the translation vector $\boldsymbol{c}$ is consumed during the reissue step.
 That is, one bubble is reissued from $\boldsymbol{x1}$, while the other from $(\boldsymbol{x_1}-\boldsymbol{x_2})\,\boldsymbol{mod}\,L$.
 For color-neutral combinations there are two cases: gluon$\times$gluon and quark$\times$gluon.
 In both cases, the two bubbles are reissued from the contact point and the partners colors are exchanged.
@@ -627,7 +631,9 @@ When the translation is complete, bubble variables are prepared for the next cyc
 If the time frame completes, the $k$ counter resets to zero, preparing the system for the next iteration.
 At the conclusion of the process, all $\boldsymbol{c}$ vectors will have a null value.
 A propeller ($P$) can only be relocated to a point on its active surface. In a $P \times K$, $P \times D$ or $P \times S$ interaction, the $P$ source is reissued from the active contact cell where the two wavefronts overlap; this contact point is already reached at the maximum information speed $v_{\max}$, so no superluminal transfer of information is required---the encounter that reads the contact is itself superluminal in coordinate speed but strictly non-signaling.
-Inertia is acquired by an inertial-transport mechanism. The propeller transfers its stable momentum direction $\boldsymbol{m}$ to the partner's consumable translation impulse $\boldsymbol{\mathit{reloc}}$; during the next light step the partner's source center is shifted by $\boldsymbol{\mathit{reloc}}$, while its long-term $\boldsymbol{m}$ is preserved and updated by \texttt{applyMomentum()}.
+Inertia is acquired by an inertial-transport mechanism. The propeller transfers its momentum vector $\boldsymbol{m}$ into the partner's consumable translation impulse $\boldsymbol{\mathit{reloc}}$ ($\mathit{reloc}\mathrel{+}=\boldsymbol{m}$); $\boldsymbol{m}$ itself is not modified by this transfer.
+At the end of the light frame, \texttt{applyMomentum} shifts the partner's source centre by $\boldsymbol{\mathit{reloc}}$, zeros $\boldsymbol{\mathit{reloc}}$, and \emph{preserves} $\boldsymbol{m}$ on the new centre---it never rewrites or normalises $\boldsymbol{m}$.
+Dynamic (re)initialisation of $\boldsymbol{m}$ is owned exclusively by the election path of Sect.~\ref{sec:phase-step}.
 The $P$ source itself is reissued from the contact point; the partner ($K$, $D$ or $S$) keeps its source kind but receives the impulse.
 A single propeller kick acts on one bubble at a time: only the contacted partner source receives $\boldsymbol{\mathit{reloc}}$, while all other bubbles of the aggregate keep their centers. Let $N$ be the total number of bubbles composing the particle (the $3$D island plus its pair dressing). If $n$ bubbles receive an impulse during one light frame, the mean center of mass advances by
 \begin{equation}
@@ -722,7 +728,7 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \EndFor
 \EndFor
 \State \Call{ApplyChargeConjugation}{} \Comment{matter--antimatter turnaround hook; exact no-op when the bias $\varepsilon = 0$}
-\State \Call{ApplyMomentum}{} \Comment{consume one photon pair at $t=\mathrm{RMAX}$, release singletons; advance source centres by $\boldsymbol{\mathit{reloc}}$; re-seed the pulsating wave at the new centre}
+\State \Call{ApplyMomentum}{} \Comment{consume one photon pair at $t=\mathrm{RMAX}$, release singletons; advance source centres by $\boldsymbol{\mathit{reloc}}$; preserve $\boldsymbol{m}$; re-seed the pulsating wave at the new centre}
 \State \Call{SwapLattices}{} \Comment{$\mathrm{draft}\to\mathrm{curr}$; at $k=0$ refresh the partner ($M.f \gets \mathrm{effective\_t}(M.t)$); while $k<\mathrm{ENCOUNTER}$ rotate the partner $W$-slices (\textsc{RotatePartners})}
 \EndProcedure
 \end{algorithmic}
@@ -1424,8 +1430,8 @@ $hB$, $cB$, $kB$, $bB$ & hunting, contraction, collapse, blob flags & boolean\\
 $b(x)$ & broadcasted arrival stamp of the elected momentum & ticks\\
 $ch$ & six-bit charge word ($w_1 w_0 q c_2 c_1 c_0$) & bits\\
 $a$ & affinity (W-island membership) & dimensionless\\
-$\boldsymbol{m}$ & momentum vector of a source & cells per frame\\
-$\mathrm{reloc}$ & translation impulse (relocation step) & cells per frame\\
+$\boldsymbol{m}$ & momentum vector of a source ($\lvert\boldsymbol{m}\rvert=L/2$ typical; immutable under inertia) & cells\\
+$\mathrm{reloc}$ & consumable translation impulse (filled by encounter, applied by \texttt{applyMomentum}) & cells\\
 $C$ & source-centre coordinate & cells\\
 $\mathrm{kind}$ & source kind ($K$, $S$, $D$, $P$) & dimensionless\\
 $S$ & electroweak sieve modulus ($\mathrm{s2b\_target}$) & dimensionless\\
@@ -1668,4 +1674,3 @@ long-axis evolution, and leaves structured aggregates as the next necessary
 step before any gravitational claim can be tested.
 
 \end{document}
-
