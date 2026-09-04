@@ -254,7 +254,7 @@ on the $x$ axis; the canonical mode allocates the full $W=3L^2$ Platonic seed
 with all sources superposed. Runs use the sieve modulus $S=16384$ unless the
 modulus is the control variable (the $S$-scan of Section~\ref{sec:discussion}
 uses $S=128\ldots16384$), $200$ light frames ($100$ at $L=13$ for wall-time
-budget), and the reference geometry $SEP=4$. Each run logs the convolution
+budget), and the reference geometry $SEP=4$. Each run logs the encounter
 counters, the per-frame active-cell census, and the realized throughput; the
 raw CSVs of the $S$-scan and the harness itself are shipped with the source.
 
@@ -296,7 +296,7 @@ integer-shell anisotropy at $L\ge11$ \cite{itfrombit}).
 A headless CPU harness (\texttt{alpha\_probe}, shipped with the source)
 replays the controlled two-bubble scattering of [1] at the reference
 parameters ($L=7$, $SEP=4$, $200$ light frames, sieve modulus $16384$,
-complementary charges). The convolution counters reproduce the manuscript
+complementary charges). The encounter counters reproduce the manuscript
 exactly:
 \begin{center}
   \texttt{active-passes} $= 6996$, \quad \texttt{s2B-passes} $= 18$, \quad
@@ -315,7 +315,7 @@ modulus ($S=16384$):
 \begin{table}[ht]
 \centering
 \caption{Candidate $\alpha_A = \langle P(u,S)\rangle$ over the active
-population, frame-averaged (convolution counts are cumulative over the run).}
+population, frame-averaged (encounter counts are cumulative over the run).}
 \label{tab:alphaA}
 \begin{tabular}{c c c c c c}
 \hline
@@ -361,7 +361,7 @@ in Section~\ref{sec:candidates} is therefore not measurable in the two-bubble
 geometry. The canonical Platonic-seed configuration ($L=5$, $W=3L^2=75$,
 $400$ light frames) likewise never populates the magnetic channel
 ($\langle sB\rangle=0$), and with all source centres superposed it produces
-no convolution overlap at all ($conv\_calls=0$): the sources do not separate
+no encounter overlap at all ($conv\_calls=0$): the sources do not separate
 within $400$ frames in the headless default. The only runs so far in which
 $sB>0$ are the two-bubble geometries at $L=9,11$, where the ratio is unstable.
 Observability of $\alpha_D$ therefore requires separated sources, which the

@@ -22,13 +22,24 @@ namespace automaton
 
   // Diagnostic counters for the controlled-scattering study (headless runner).
   // Exposed so tests/scatter_main.cpp can print them.
-  long long conv_calls = 0;       // convolute() invocations that passed active checks
-  long long conv_s2b   = 0;       // ... that also passed the s2B gate
-  long long conv_pair  = 0;       // ... that formed a pair (canFormPair && samePos && sameT)
-  long long conv_self  = 0;       // ... rejected by the same-W-island guard
-  long long conv_collapse = 0;    // gate-passing contacts in the collapse (force) branch
-  long long conv_adiah   = 0;     // gate-passing contacts in the adiabatic (attraction) branch
-  long long conv_repel   = 0;     // gate-passing contacts that repel one light-step
+  long long enc_calls = 0;       // encounter() invocations that passed active checks
+  long long enc_s2b   = 0;       // ... that also passed the s2B gate
+  long long enc_pair  = 0;       // ... that formed a pair (canFormPair && samePos && sameT)
+  long long enc_self  = 0;       // ... rejected by the same-W-island guard
+  long long enc_collapse = 0;    // gate-passing contacts in the collapse (force) branch
+  long long enc_adiah   = 0;     // gate-passing contacts in the adiabatic (attraction) branch
+  long long enc_repel   = 0;     // gate-passing contacts that repel one light-step
+
+  // Backward-compatible aliases (deprecated; new code should use enc_*).
+  // References, so the old conv_* readers (alpha_probe / campaign logs)
+  // observe the same values with no further changes.
+  long long& conv_calls    = enc_calls;
+  long long& conv_s2b      = enc_s2b;
+  long long& conv_pair     = enc_pair;
+  long long& conv_self     = enc_self;
+  long long& conv_collapse = enc_collapse;
+  long long& conv_adiah    = enc_adiah;
+  long long& conv_repel    = enc_repel;
 
   namespace
   {
@@ -160,10 +171,9 @@ namespace automaton
     void moveOneStep(Cell& srcDraft, const std::array<unsigned, 3>& from,
                      const std::array<unsigned, 3>& to)
     {
-      int M = (int)EL;
-      int dx = shortestDelta((int)from[0], (int)to[0], M);
-      int dy = shortestDelta((int)from[1], (int)to[1], M);
-      int dz = shortestDelta((int)from[2], (int)to[2], M);
+      int dx = shortestDelta((int)from[0], (int)to[0], (int)ELX);
+      int dy = shortestDelta((int)from[1], (int)to[1], (int)ELY);
+      int dz = shortestDelta((int)from[2], (int)to[2], (int)ELZ);
       reemitSourceAt(srcDraft, sign(dx), sign(dy), sign(dz));
     }
 
@@ -171,19 +181,18 @@ namespace automaton
     void moveOneStepAway(Cell& srcDraft, const std::array<unsigned, 3>& selfCenter,
                          const std::array<unsigned, 3>& otherCenter)
     {
-      int M = (int)EL;
-      int dx = shortestDelta((int)otherCenter[0], (int)selfCenter[0], M);
-      int dy = shortestDelta((int)otherCenter[1], (int)selfCenter[1], M);
-      int dz = shortestDelta((int)otherCenter[2], (int)selfCenter[2], M);
+      int dx = shortestDelta((int)otherCenter[0], (int)selfCenter[0], (int)ELX);
+      int dy = shortestDelta((int)otherCenter[1], (int)selfCenter[1], (int)ELY);
+      int dz = shortestDelta((int)otherCenter[2], (int)selfCenter[2], (int)ELZ);
       reemitSourceAt(srcDraft, sign(dx), sign(dy), sign(dz));
     }
 
     // Reemit at the contact voxel (curr position) without changing kind.
     void reemitAtContact(Cell& srcDraft, const Cell& contact)
     {
-      int dx = shortestDelta((int)srcDraft.x[0], (int)contact.x[0], (int)EL);
-      int dy = shortestDelta((int)srcDraft.x[1], (int)contact.x[1], (int)EL);
-      int dz = shortestDelta((int)srcDraft.x[2], (int)contact.x[2], (int)EL);
+      int dx = shortestDelta((int)srcDraft.x[0], (int)contact.x[0], (int)ELX);
+      int dy = shortestDelta((int)srcDraft.x[1], (int)contact.x[1], (int)ELY);
+      int dz = shortestDelta((int)srcDraft.x[2], (int)contact.x[2], (int)ELZ);
       reemitSourceAt(srcDraft, dx, dy, dz);
     }
 
@@ -206,44 +215,46 @@ namespace automaton
   }
 
   /**
-   * Analyzes the cases when the wavefronts cross
-   * during the convolution process.
+   * Handles the pairwise encounter of two active wavefronts of distinct
+   * W-islands that coincide at one voxel.  Named encounter(), not convolution:
+   * nothing is averaged here; the old name survives only in the conv_*
+   * diagnostics counters so the campaign logs/scripts stay valid.
    *
    * @curr the current lattice
    * @draft the draft lattice
-   * @mirror the mirrored lattice
+   * @partner the mirrored lattice
    */
-  bool convolute(Cell& curr, Cell &draft, Cell &mirror)
+  bool encounter(Cell& curr, Cell &draft, Cell &partner)
   {
-    if (!curr.active || !mirror.active)
+    if (!curr.active || !partner.active)
       return false;
 
     // A source does not interact with itself (same W-island).
-    if (curr.x[3] == mirror.x[3])
+    if (curr.x[3] == partner.x[3])
     {
-      ++conv_self;
+      ++enc_self;
       return false;
     }
 
     // Sieve: the electroweak interaction channel is only active where s2B is set.
-    ++conv_calls;
+    ++enc_calls;
     if (!curr.s2B)
       return false;
-    ++conv_s2b;
+    ++enc_s2b;
 
     // Source state is stored in the source-center cell of each W-layer.
     Cell& currSrc  = sourceCenterCurr(curr);
-    Cell& mirrorSrc = sourceCenterCurr(mirror);
+    Cell& partnerSrc = sourceCenterCurr(partner);
     Cell& currDraft  = sourceCenterDraft(curr);
-    Cell& mirrorDraft = sourceCenterDraft(mirror);
+    Cell& partnerDraft = sourceCenterDraft(partner);
 
     const auto& currCenter  = sourceCenter(curr);
-    const auto& mirrorCenter = sourceCenter(mirror);
+    const auto& partnerCenter = sourceCenter(partner);
 
-    bool samePos = (curr.x[0] == mirror.x[0] &&
-                    curr.x[1] == mirror.x[1] &&
-                    curr.x[2] == mirror.x[2]);
-    bool sameT   = (curr.t == mirror.t);
+    bool samePos = (curr.x[0] == partner.x[0] &&
+                    curr.x[1] == partner.x[1] &&
+                    curr.x[2] == partner.x[2]);
+    bool sameT   = (curr.t == partner.t);
 
     // ---------------------------------------------------------------
     // Pair formation (photon-like P sources).
@@ -251,20 +262,20 @@ namespace automaton
     // charges can form a pair. The pair is "dressing" if both bubbles already
     // share the same leader; otherwise it is a free photon.
     // ---------------------------------------------------------------
-    if (samePos && sameT && canFormPair(currSrc, mirrorSrc))
+    if (samePos && sameT && canFormPair(currSrc, partnerSrc))
     {
-      ++conv_pair;
+      ++enc_pair;
       bool dressing = (currSrc.leader_w != NO_LEADER_W &&
-                       currSrc.leader_w == mirrorSrc.leader_w);
+                       currSrc.leader_w == partnerSrc.leader_w);
       WIndex newLeader = dressing ? currSrc.leader_w : NO_LEADER_W;
       unsigned newA    = dressing ? (unsigned)newLeader : W_USED;
       WIndex parent    = dressing ? currSrc.leader_w : NO_PARENT;
 
       // If both sources are already a pair with each other, do not re-form.
       bool alreadyPaired = (currSrc.kind == SourceKind::P &&
-                            mirrorSrc.kind == SourceKind::P &&
-                            currSrc.pair_idx == mirrorSrc.w &&
-                            mirrorSrc.pair_idx == currSrc.w);
+                            partnerSrc.kind == SourceKind::P &&
+                            currSrc.pair_idx == partnerSrc.w &&
+                            partnerSrc.pair_idx == currSrc.w);
       if (alreadyPaired)
         return false;
 
@@ -272,24 +283,24 @@ namespace automaton
 
       uint8_t newCount = 1;
       if (currSrc.kind == SourceKind::P) newCount += currSrc.pair_count;
-      if (mirrorSrc.kind == SourceKind::P) newCount += mirrorSrc.pair_count;
+      if (partnerSrc.kind == SourceKind::P) newCount += partnerSrc.pair_count;
 
       currDraft.kind  = SourceKind::P;
-      mirrorDraft.kind = SourceKind::P;
-      currDraft.pair_idx   = mirrorSrc.w;
-      mirrorDraft.pair_idx = currSrc.w;
+      partnerDraft.kind = SourceKind::P;
+      currDraft.pair_idx   = partnerSrc.w;
+      partnerDraft.pair_idx = currSrc.w;
       currDraft.pair_count = newCount;
-      mirrorDraft.pair_count = newCount;
+      partnerDraft.pair_count = newCount;
       currDraft.leader_w  = newLeader;
-      mirrorDraft.leader_w = newLeader;
+      partnerDraft.leader_w = newLeader;
       currDraft.a  = newA;
-      mirrorDraft.a = newA;
+      partnerDraft.a = newA;
       currDraft.parent  = parent;
-      mirrorDraft.parent = parent;
+      partnerDraft.parent = parent;
 
       // Move both source centers to the contact point and reset their clocks.
       reemitAtContact(currDraft, curr);
-      reemitAtContact(mirrorDraft, mirror);
+      reemitAtContact(partnerDraft, partner);
 
       // -----------------------------------------------------------------
       // Blob formation (manuscript "Blob" and "Superposing bubbles"): a
@@ -301,13 +312,13 @@ namespace automaton
       // propeller) never blob; a single fresh pair (newCount == 1) is not
       // yet a group.
       // -----------------------------------------------------------------
-      if (newCount > 1 && canFormBlob(currSrc, mirrorSrc) &&
-          currSrc.pB == mirrorSrc.pB &&
-          currSrc.sB == mirrorSrc.sB &&
-          currSrc.bB == mirrorSrc.bB)
+      if (newCount > 1 && canFormBlob(currSrc, partnerSrc) &&
+          currSrc.pB == partnerSrc.pB &&
+          currSrc.sB == partnerSrc.sB &&
+          currSrc.bB == partnerSrc.bB)
       {
         currDraft.bB  = true;
-        mirrorDraft.bB = true;
+        partnerDraft.bB = true;
         chargesMarkBlob();
       }
 
@@ -315,10 +326,10 @@ namespace automaton
     }
 
     // pB triggers the electric channel, sB the magnetic channel.
-    bool electricContact   = curr.pB || mirror.pB;
-    bool magneticContact   = curr.sB || mirror.sB;
-    bool electricCollapse  = curr.pB && mirror.pB;
-    bool magneticCollapse  = curr.sB && mirror.sB;
+    bool electricContact   = curr.pB || partner.pB;
+    bool magneticContact   = curr.sB || partner.sB;
+    bool electricCollapse  = curr.pB && partner.pB;
+    bool magneticCollapse  = curr.sB && partner.sB;
     bool collapse          = electricCollapse || magneticCollapse;
 
     if (!electricContact && !magneticContact)
@@ -326,82 +337,82 @@ namespace automaton
 
     if (collapse)
     {
-      ++conv_collapse;
+      ++enc_collapse;
       // Collapse flag propagates inward and triggers reissue.
       draft.kB = true;
       draft.cB = true;
     }
     else
     {
-      ++conv_adiah;
+      ++enc_adiah;
       // Adiabatic: no collapse, but the two sources exchange
       // leader identity, affinity and light clock, then drift one step
       // toward each other.
-      WIndex minLeader = dominantLeader(currSrc, mirrorSrc);
+      WIndex minLeader = dominantLeader(currSrc, partnerSrc);
       adoptLeader(currDraft, minLeader);
-      adoptLeader(mirrorDraft, minLeader);
-      std::swap(currDraft.t, mirrorDraft.t);
-      moveOneStep(currDraft, currCenter, mirrorCenter);
-      moveOneStep(mirrorDraft, mirrorCenter, currCenter);
+      adoptLeader(partnerDraft, minLeader);
+      std::swap(currDraft.t, partnerDraft.t);
+      moveOneStep(currDraft, currCenter, partnerCenter);
+      moveOneStep(partnerDraft, partnerCenter, currCenter);
       return false;
     }
 
     // 1. K x K
-    if (currSrc.kind == SourceKind::K && mirrorSrc.kind == SourceKind::K)
+    if (currSrc.kind == SourceKind::K && partnerSrc.kind == SourceKind::K)
     {
-      ++conv_repel;
-      moveOneStepAway(currDraft, currCenter, mirrorCenter);
+      ++enc_repel;
+      moveOneStepAway(currDraft, currCenter, partnerCenter);
       return false;
     }
 
-    // 2. K x S (current = K, mirror = S): K does not move; the S becomes a
+    // 2. K x S (current = K, partner = S): K does not move; the S becomes a
     //    D delegate of K when it is its turn to be the current cell.
     //    The S-side is handled below.
 
-    // 3. S x K (current = S, mirror = K)
-    if (currSrc.kind == SourceKind::S && mirrorSrc.kind == SourceKind::K)
+    // 3. S x K (current = S, partner = K)
+    if (currSrc.kind == SourceKind::S && partnerSrc.kind == SourceKind::K)
     {
       currDraft.kind = SourceKind::D;
-      currDraft.parent = mirrorSrc.w;
-      adoptLeader(currDraft, mirrorSrc.leader_w == NO_LEADER_W ? mirrorSrc.w : mirrorSrc.leader_w);
+      currDraft.parent = partnerSrc.w;
+      adoptLeader(currDraft, partnerSrc.leader_w == NO_LEADER_W ? partnerSrc.w : partnerSrc.leader_w);
       // S vector direction relative to K is approximated as outward for now.
       currDraft.spin_target = 1;
-      moveOneStep(currDraft, currCenter, mirrorCenter);
+      moveOneStep(currDraft, currCenter, partnerCenter);
       return false;
     }
 
     // 4. S x S
-    if (currSrc.kind == SourceKind::S && mirrorSrc.kind == SourceKind::S)
+    if (currSrc.kind == SourceKind::S && partnerSrc.kind == SourceKind::S)
     {
-      if (currSrc.Q() == mirrorSrc.Q())
+      if (currSrc.Q() == partnerSrc.Q())
       {
         // Same field sign: repel one light-step.
-        ++conv_repel;
-        moveOneStepAway(currDraft, currCenter, mirrorCenter);
+        ++enc_repel;
+        moveOneStepAway(currDraft, currCenter, partnerCenter);
       }
       else
       {
         // Opposite field sign: both become D delegates of the dominant leader.
-        WIndex leader = dominantLeader(currSrc, mirrorSrc);
+        WIndex leader = dominantLeader(currSrc, partnerSrc);
         currDraft.kind  = SourceKind::D;
-        mirrorDraft.kind = SourceKind::D;
+        partnerDraft.kind = SourceKind::D;
         currDraft.parent  = leader;
-        mirrorDraft.parent = leader;
+        partnerDraft.parent = leader;
         adoptLeader(currDraft, leader);
-        adoptLeader(mirrorDraft, leader);
+        adoptLeader(partnerDraft, leader);
       }
       return false;
     }
 
     // 5. S x D / D x S
-    if ((currSrc.kind == SourceKind::S && mirrorSrc.kind == SourceKind::D) ||
-        (currSrc.kind == SourceKind::D && mirrorSrc.kind == SourceKind::S))
+    if ((currSrc.kind == SourceKind::S && partnerSrc.kind == SourceKind::D) ||
+        (currSrc.kind == SourceKind::D && partnerSrc.kind == SourceKind::S))
     {
-      Cell& sSrcDraft  = (currSrc.kind == SourceKind::S ? currDraft : mirrorDraft);
-      Cell& dSrc       = (currSrc.kind == SourceKind::S ? mirrorSrc : currSrc);
-      Cell& dSrcDraft  = (currSrc.kind == SourceKind::S ? mirrorDraft : currDraft);
-      const auto& sCenter = (currSrc.kind == SourceKind::S ? currCenter : mirrorCenter);
-      const auto& dCenter = (currSrc.kind == SourceKind::S ? mirrorCenter : currCenter);
+      Cell& sSrcDraft  = (currSrc.kind == SourceKind::S ? currDraft : partnerDraft);
+      Cell& dSrc       = (currSrc.kind == SourceKind::S ? partnerSrc : currSrc);
+      Cell& dSrcDraft  = (currSrc.kind == SourceKind::S ? partnerDraft : currDraft);
+      const auto& sCenter = (currSrc.kind == SourceKind::S ? currCenter : partnerCenter);
+      const auto& dCenter = (currSrc.kind == SourceKind::S ? partnerCenter : currCenter);
 
       // S becomes a D delegate of the K parent of the D.
       WIndex leader = (dSrc.leader_w == NO_LEADER_W ? dSrc.parent : dSrc.leader_w);
@@ -417,58 +428,58 @@ namespace automaton
     }
 
     // 6. D x D
-    if (currSrc.kind == SourceKind::D && mirrorSrc.kind == SourceKind::D)
+    if (currSrc.kind == SourceKind::D && partnerSrc.kind == SourceKind::D)
     {
-      if (currSrc.parent != mirrorSrc.parent)
+      if (currSrc.parent != partnerSrc.parent)
       {
         // Different tribes: reemit, repel one light-step, exchange momentum.
-        ++conv_repel;
-        moveOneStepAway(currDraft, currCenter, mirrorCenter);
-        // Simplified momentum exchange: add the mirror's momentum direction
+        ++enc_repel;
+        moveOneStepAway(currDraft, currCenter, partnerCenter);
+        // Simplified momentum exchange: add the partner's momentum direction
         // to the target's relocation impulse. applyMomentum will update m.
-        currDraft.reloc[0] += mirrorSrc.m[0];
-        currDraft.reloc[1] += mirrorSrc.m[1];
-        currDraft.reloc[2] += mirrorSrc.m[2];
+        currDraft.reloc[0] += partnerSrc.m[0];
+        currDraft.reloc[1] += partnerSrc.m[1];
+        currDraft.reloc[2] += partnerSrc.m[2];
       }
       else
       {
         // Same tribe: outer delegate imposes spin_target on inner one.
         // (Tangential/radial orbital motion is left as a refinement.)
-        currDraft.spin_target = mirrorSrc.spin_target;
+        currDraft.spin_target = partnerSrc.spin_target;
         // Enforce a common leader identity.
-        WIndex leader = dominantLeader(currSrc, mirrorSrc);
+        WIndex leader = dominantLeader(currSrc, partnerSrc);
         adoptLeader(currDraft, leader);
       }
       return false;
     }
 
-    // 7. P x K / P x D / P x S (current = P, mirror = ordinary source)
+    // 7. P x K / P x D / P x S (current = P, partner = ordinary source)
     if (currSrc.kind == SourceKind::P &&
-        (mirrorSrc.kind == SourceKind::K ||
-         mirrorSrc.kind == SourceKind::S ||
-         mirrorSrc.kind == SourceKind::D))
+        (partnerSrc.kind == SourceKind::K ||
+         partnerSrc.kind == SourceKind::S ||
+         partnerSrc.kind == SourceKind::D))
     {
       // P pair reemits at the contact point with phase 0.
       reemitAtContact(currDraft, curr);
 
       // Target receives a momentum impulse in the direction of P's momentum.
-      mirrorDraft.reloc[0] += currSrc.m[0];
-      mirrorDraft.reloc[1] += currSrc.m[1];
-      mirrorDraft.reloc[2] += currSrc.m[2];
+      partnerDraft.reloc[0] += currSrc.m[0];
+      partnerDraft.reloc[1] += currSrc.m[1];
+      partnerDraft.reloc[2] += currSrc.m[2];
       return false;
     }
 
-    // 8. K/D/S x P (current = ordinary source, mirror = P)
+    // 8. K/D/S x P (current = ordinary source, partner = P)
     if ((currSrc.kind == SourceKind::K ||
          currSrc.kind == SourceKind::S ||
          currSrc.kind == SourceKind::D) &&
-        mirrorSrc.kind == SourceKind::P)
+        partnerSrc.kind == SourceKind::P)
     {
       // Target reemits on its own surface at the contact point and gets P's momentum.
       reemitAtContact(currDraft, curr);
-      currDraft.reloc[0] += mirrorSrc.m[0];
-      currDraft.reloc[1] += mirrorSrc.m[1];
-      currDraft.reloc[2] += mirrorSrc.m[2];
+      currDraft.reloc[0] += partnerSrc.m[0];
+      currDraft.reloc[1] += partnerSrc.m[1];
+      currDraft.reloc[2] += partnerSrc.m[2];
       return false;
     }
 
@@ -512,12 +523,12 @@ namespace automaton
       /*--- Hunting using hB ---*/
       if (curr.active)
       {
-        if (north.hB) { draft.c[0] = (north.c[0] + 1) % EL; curr.sB = !draft.hB; }
-        else if (west.hB)  { draft.c[1] = (west.c[1] + 1) % EL; curr.sB = !draft.hB; }
-        else if (down.hB)  { draft.c[2] = (down.c[2] + 1) % EL; curr.sB = !draft.hB; }
-        else if (south.hB) { draft.c[1] = (south.c[1] + 1) % EL; curr.sB = !draft.hB; }
-        else if (east.hB)  { draft.c[0] = (east.c[0] + 1) % EL; curr.sB = !draft.hB; }
-        else if (up.hB)    { draft.c[2] = (up.c[2] + 1) % EL; curr.sB = !draft.hB; }
+        if (north.hB) { draft.c[0] = (north.c[0] + 1) % ELX; curr.sB = !draft.hB; }
+        else if (west.hB)  { draft.c[1] = (west.c[1] + 1) % ELY; curr.sB = !draft.hB; }
+        else if (down.hB)  { draft.c[2] = (down.c[2] + 1) % ELZ; curr.sB = !draft.hB; }
+        else if (south.hB) { draft.c[1] = (south.c[1] + 1) % ELY; curr.sB = !draft.hB; }
+        else if (east.hB)  { draft.c[0] = (east.c[0] + 1) % ELX; curr.sB = !draft.hB; }
+        else if (up.hB)    { draft.c[2] = (up.c[2] + 1) % ELZ; curr.sB = !draft.hB; }
       }
     }
     /****** SLOT III ******/
@@ -598,13 +609,13 @@ namespace automaton
     {
       if (forward.kB && forward.a == curr.a)
       {
-        int delta_x = (curr.x[0] - forward.x[0] + EL) % EL;
-        int delta_y = (curr.x[1] - forward.x[1] + EL) % EL;
-        int delta_z = (curr.x[2] - forward.x[2] + EL) % EL;
+        int delta_x = (curr.x[0] - forward.x[0] + ELX) % ELX;
+        int delta_y = (curr.x[1] - forward.x[1] + ELY) % ELY;
+        int delta_z = (curr.x[2] - forward.x[2] + ELZ) % ELZ;
 
-        draft.c[0] = (forward.c[0] + delta_x) % EL;
-        draft.c[1] = (forward.c[1] + delta_y) % EL;
-        draft.c[2] = (forward.c[2] + delta_z) % EL;
+        draft.c[0] = (forward.c[0] + delta_x) % ELX;
+        draft.c[1] = (forward.c[1] + delta_y) % ELY;
+        draft.c[2] = (forward.c[2] + delta_z) % ELZ;
         draft.kB = forward.kB;
         draft.cB = forward.cB;
       }
@@ -671,7 +682,7 @@ namespace automaton
    *
    * @curr the current lattice
    * @draft the draft lattice
-   * @mirror the mirrored lattice
+   * @partner the mirrored lattice
    */
   void reissue(Cell& curr, Cell &draft, Cell &forward,
                Cell &north, Cell &west, Cell &down,

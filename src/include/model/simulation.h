@@ -106,6 +106,13 @@ namespace automaton
   inline constexpr uint32_t NO_PAIR   = std::numeric_limits<uint32_t>::max();
 
   extern unsigned EL;
+  // Per-axis edges.  In the default cubic mode ELX == ELY == ELZ == EL.
+  // Declared here (before the inline accessors below) so getCell can index
+  // with per-axis strides; tube allocators may set them unequal once the
+  // per-axis geometry slices are complete.
+  extern unsigned ELX;
+  extern unsigned ELY;
+  extern unsigned ELZ;
   extern unsigned W_USED;
   extern bool convol_delay;
   extern bool diffuse_delay;
@@ -202,16 +209,20 @@ struct NeighborResult
   };
 
 
-  // Inline accessor for 4D indexing
+  // Inline accessor for 4D indexing.  Per-axis strides: the spatial index is
+  // ((x*ELY + y)*ELZ + z); for the default cube (ELX==ELY==ELZ==EL) this is
+  // identical to the legacy ((x*EL + y)*EL + z) layout.
   inline Cell& getCell(vector<Cell>& lattice, int x, int y, int z, int w)
   {
-    return lattice[((x * EL + y) * EL + z) * W_USED + w];
+    const size_t s = ((size_t)x * ELY + (size_t)y) * ELZ + (size_t)z;
+    return lattice[s * W_USED + (size_t)w];
   }
 
   
   inline const Cell& getCell(const vector<Cell>& lattice, int x, int y, int z, int w)
   {
-    return lattice[((x * EL + y) * EL + z) * W_USED + w];
+    const size_t s = ((size_t)x * ELY + (size_t)y) * ELZ + (size_t)z;
+    return lattice[s * W_USED + (size_t)w];
   }
 
   /// Function prototypes ///
@@ -223,8 +234,9 @@ struct NeighborResult
   bool initSimulation(int step);
   void replicate();
   bool simulation();
-  bool convolute(Cell& curr, Cell &draft, Cell &mirror);
-  bool convolute7(Cell& curr, Cell &draft, Cell &mirror);
+  bool encounter(Cell& curr, Cell &draft, Cell &partner);
+  // Legacy declaration only (no definition in this tree; pre-rename API).
+  bool encounter7(Cell& curr, Cell &draft, Cell &partner);
   void diffuse(Cell& curr, Cell &draft, Cell &forward, Cell &north, Cell &west, Cell &down, Cell &south, Cell &east, Cell &up);
   void relocate(Cell& curr, Cell &draft, Cell &north, Cell &west, Cell &down);
   void reissue(Cell& curr, Cell &draft, Cell &forward,
@@ -237,21 +249,35 @@ struct NeighborResult
   void printLattice(int w);
   bool neutralColor(Cell &a, Cell &b);
   bool neutralWeak(Cell &a, Cell &b);
-  void shiftMirror();
+  void rotatePartners();
   bool sanityTest3();
   bool tryAllocate(int EL, int W);
+  // Rectangular-tube allocator (S1 slice 1).  Equal edges delegate to the
+  // cubic path; unequal edges are refused until the per-axis
+  // indexing/wrap/distance-field slices are implemented (S1 slices 2-3).
+  bool tryAllocateTube(unsigned LX, unsigned LY, unsigned LZ, unsigned W);
   unsigned int getRandomUnsigned(unsigned int modulus);
   void relocateGlobal(unsigned dx, unsigned dy, unsigned dz);
 
-  // Convolution diagnostics (interaction.cpp), for the headless scattering
-  // runner (tests/scatter_main.cpp).
-  extern long long conv_calls;
-  extern long long conv_s2b;
-  extern long long conv_pair;
-  extern long long conv_self;
-  extern long long conv_collapse;
-  extern long long conv_adiah;
-  extern long long conv_repel;
+  // Encounter diagnostics (interaction.cpp).  Primary names are enc_*.
+  // The conv_* spellings are kept as aliases so the campaign logs/scripts
+  // and the headless runners keep working unchanged.
+  extern long long enc_calls;
+  extern long long enc_s2b;
+  extern long long enc_pair;
+  extern long long enc_self;
+  extern long long enc_collapse;
+  extern long long enc_adiah;
+  extern long long enc_repel;
+
+  // Deprecated aliases of the enc_* counters above.
+  extern long long& conv_calls;
+  extern long long& conv_s2b;
+  extern long long& conv_pair;
+  extern long long& conv_self;
+  extern long long& conv_collapse;
+  extern long long& conv_adiah;
+  extern long long& conv_repel;
 
   // Electroweak sieve modulus (manuscript, ``s2B'' gate):
   //   s2B is set iff  active && ((u * (t+1)) mod s2b_target) < u.
@@ -283,7 +309,7 @@ struct NeighborResult
   extern unsigned DIAG;
   extern unsigned RMAX;
   extern unsigned CONTRACT;
-  extern unsigned CONVOL;
+  extern unsigned ENCOUNTER;
   extern unsigned GSLOT_X;
   extern unsigned GSLOT_Y;
   extern unsigned GSLOT_Z;
@@ -346,7 +372,7 @@ struct NeighborResult
 /// Cross variables ///
 extern std::vector<Cell> lattice_curr;
 extern std::vector<Cell> lattice_draft; // Add or verify
-extern std::vector<Cell> lattice_mirror; // Add or verify
+extern std::vector<Cell> lattice_partner; // Add or verify
 
   /**
    * Tests if two vectors are equal.
@@ -382,7 +408,7 @@ extern std::vector<Cell> lattice_mirror; // Add or verify
   // Pointers for Device (GPU) memory
   extern Cell* d_lattice_curr;
   extern Cell* d_lattice_draft;
-  extern Cell* d_lattice_mirror;
+  extern Cell* d_lattice_partner;
   
 #endif // USE_CUDA
   

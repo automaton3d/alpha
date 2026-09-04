@@ -7,6 +7,14 @@ initial-condition probes within that one scenario, not separate scenarios.
 Harness: `alpha_probe.cpp` (headless, CPU, MSVC). Build: `build_probe.bat`.
 Usage: `alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon]`
 
+> **Naming note (code, Sep 2026).** The interaction kernel was renamed
+> `convolute()` -> `encounter()`, and its primary counters `conv_*` ->
+> `enc_*` (`src/model/interaction.cpp`, see also `simulation.h`).  The
+> `conv_*` spellings below remain valid: they are deprecated aliases bound
+> to the same `enc_*` values, kept so this campaign log, the headless
+> harness, and the manuscripts stay matched.  All quantities in this file
+> are unchanged by the rename.
+
 ## Validation (reference run of the "It from bit" manuscript)
 
     EL=7 SEP=4 FRAMES=200 SIEVE=16384
@@ -330,3 +338,42 @@ stands.
   L=7 (R=1) is degenerate for the polarization pair; the two-bubble contact
   is sticky (no pre/post window); v_max = 1 cannot be exceeded; the s2B gate
   is the only force and it is collapse-dominated.
+
+## Gravity probe & rectangular tube (gravity_probe, Sep 2026)
+
+Harness: `experiments/gravity_probe.cpp` (headless CPU, MSVC).  Build:
+`build_gravity.bat`.  Usage (cube): `gravity_probe EL SEP FRAMES SIEVE mag
+mode csv`; (tube, unequal edges, per-axis geometry + `tryAllocateTube`):
+`gravity_probe tube LX LY LZ SEP FRAMES SIEVE mag mode csv`.  Rows carry
+`frame,tick,d,dd,m0,m1,calls,s2b,pairs` (tick = automaton ticks).  Full
+design/log: `gravity_probe_DESIGN.md`; raw runs in the CSVs listed there.
+
+Key findings (all W=2 two-bubble, attract == repel in every configuration):
+
+1. Cube mini-sweep (S=64, L 11/15): with single-source bubbles there is no
+   distance law; evolution is a single contact event (collapse or recoil).
+   Bare two-bubble "mass" does not produce G1.
+2. Tube reach pilot (short 7x7, RMAX=3): unequal-edge runs are stable at
+   LX = 25/51/101; separation stays far below LX/2 inside the measured
+   windows (no wrap contamination).  Light frames scale with the long edge,
+   so comparisons must be tick-based.
+3. The force is a *collapse telegraph*: contact attempts fire on fixed
+   windows (~every 6 light frames, S-independent); d changes only on a light
+   frame whose window passes the sieve (s2B > 0) and then holds on a plateau.
+4. Telegraph S/SEP model (LX=51, 7x7): SEP = 2RMAX (shells touching) never
+   contacts (calls = 0 at any S); attempts = 120 in 16 frames for all S;
+   passes saturate identically at S <= 64 (36 passes, bursts +3 @t3890 and
+   +3 @t8558) and drop to zero at S >= 128 (static).
+5. Amplitude vs shell radius (RMAX=4, 9x9): first passed window arrives
+   later and jumps further at the same overlap depth (+8 @t10990 vs +3 @t3890
+   at RMAX=3).  A 45-frame run (SEP=4, S=64, 35 kticks) captured 8 passed
+   windows with burst sizes +8, -3, -8, +7, -3, -3, +21, -16: inward
+   collapse to d=1 and outward flight to d=22.3.  Outward (+36) and inward
+   (-33) burst totals nearly balance over the window (telegraph is symmetric
+   in the long run; the early outward bias is a transient).
+
+Status vs the six-candidate battery: the gravity campaign does not change
+the manuscript negatives.  It sharpens the mechanism — the only "force" is
+sieve-gated collapse, now resolved as a quantized, symmetric burst telegraph
+with an overlap gate at d = 2RMAX — and it retires the cube-wrap confounder
+for long-axis evolution by running on the rectangular tube.

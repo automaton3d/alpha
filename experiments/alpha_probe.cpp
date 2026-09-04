@@ -78,7 +78,7 @@ static void placeSource(unsigned w, unsigned x, unsigned y, unsigned z,
         automaton::Cell& cd = automaton::getCell(
             automaton::lattice_draft, a, b, c, (int)w);
         automaton::Cell& cm = automaton::getCell(
-            automaton::lattice_mirror, a, b, c, (int)w);
+            automaton::lattice_partner, a, b, c, (int)w);
         for (automaton::Cell* p : { &cc, &cd, &cm })
         {
           p->r2  = INF_R2;
@@ -112,7 +112,7 @@ static void placeSource(unsigned w, unsigned x, unsigned y, unsigned z,
   for (automaton::Cell* p :
        { &automaton::getCell(automaton::lattice_curr, (int)x, (int)y, (int)z, (int)w),
          &automaton::getCell(automaton::lattice_draft, (int)x, (int)y, (int)z, (int)w),
-         &automaton::getCell(automaton::lattice_mirror, (int)x, (int)y, (int)z, (int)w) })
+         &automaton::getCell(automaton::lattice_partner, (int)x, (int)y, (int)z, (int)w) })
   {
     p->r2   = 0;
     p->r    = 0;

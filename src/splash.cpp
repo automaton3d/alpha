@@ -377,6 +377,10 @@ void mouseButtonCallback(GLFWwindow*, int button, int action, int)
         if (automaton::tryAllocate(splash::lattice_size, splash::numLayers)) {
             currentMode = STATISTICS;
             gConfig.simulation.scenario = 0;   // the single scenario
+            glfwMaximizeWindow(splash::window);
+            int w, h;
+            glfwGetFramebufferSize(splash::window, &w, &h);
+            ProjectionManager::instance().setViewport(w, h);
             splash::shouldExit = true;
         } else {
             MessageBoxA(NULL, "Failed to allocate lattice.\nPlease try other parameters.", "Allocation Error", MB_OK | MB_ICONERROR);
