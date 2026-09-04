@@ -496,6 +496,24 @@ namespace automaton
       // the momentum direction, rescaled to |m| = L/2 (= RMAX).
       installAxis(w, bw[0] - (int)CENTER, bw[1] - (int)CENTER, bw[2] - (int)CENTER);
 
+      // Dynamic initialisation of Cell::m (inertia): publish the elected
+      // axis onto the source-centre cell.  |m| = RMAX.  The inertia path
+      // (encounter P×K / P×D, applyMomentum) treats m as immutable and
+      // only reads it to accumulate reloc impulses.
+      {
+        const int* ax = electedAxis(w);
+        if (ax)
+        {
+          const unsigned cx = lcenters[w][0];
+          const unsigned cy = lcenters[w][1];
+          const unsigned cz = lcenters[w][2];
+          Cell& src = getCell(lattice_curr, cx, cy, cz, w);
+          src.m[0] = ax[0];
+          src.m[1] = ax[1];
+          src.m[2] = ax[2];
+        }
+      }
+
       // Reset the second value lattice of this layer: 0 = never reached.
       for (unsigned x = 0; x < ELX; ++x)
       for (unsigned y = 0; y < ELY; ++y)
@@ -597,4 +615,3 @@ namespace automaton
     }
   } // namespace polarization
 } // namespace automaton
-

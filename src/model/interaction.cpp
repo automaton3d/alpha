@@ -435,8 +435,8 @@ namespace automaton
         // Different tribes: reemit, repel one light-step, exchange momentum.
         ++enc_repel;
         moveOneStepAway(currDraft, currCenter, partnerCenter);
-        // Simplified momentum exchange: add the partner's momentum direction
-        // to the target's relocation impulse. applyMomentum will update m.
+        // Momentum exchange via inertia path: add partner's m into reloc.
+        // m itself is immutable here; applyMomentum only consumes reloc.
         currDraft.reloc[0] += partnerSrc.m[0];
         currDraft.reloc[1] += partnerSrc.m[1];
         currDraft.reloc[2] += partnerSrc.m[2];

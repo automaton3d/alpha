@@ -138,23 +138,14 @@ void initGeneral()
                     cell.pair_idx   = NO_PAIR;
                     cell.pair_count = 0;
 
-                    // Each hosted bubble has a stable momentum-direction vector m and a
-                    // consumable relocation/impulse vector reloc.
-                    // The six Cartesian directions are distributed across layers in pairs:
-                    // two consecutive layers share the same axis and get opposite signs,
-                    // so the electric charge q = w0 ^ w1 determines the sign of m.
-                    // At t=0 the relocation impulse is zero; m is the long-term direction.
-                    if (cell.r == 0) {
-                        int axis  = (int)((w / 2u) % 3u);
-                        int sign  = q ? +1 : -1;
-                        cell.m[0] = (axis == 0) ? sign : 0;
-                        cell.m[1] = (axis == 1) ? sign : 0;
-                        cell.m[2] = (axis == 2) ? sign : 0;
-                        cell.reloc[0] = cell.reloc[1] = cell.reloc[2] = 0;
-                    } else {
-                        cell.m[0] = cell.m[1] = cell.m[2] = 0;
-                        cell.reloc[0] = cell.reloc[1] = cell.reloc[2] = 0;
-                    }
+                    // Momentum vector m and consumable relocation impulse reloc.
+                    // Static init always leaves m null; a non-zero m is written only by
+                    // the dynamic election path (polarization::elect / installAxis at
+                    // t == RMAX), which installs a vector of modulus RMAX = L/2.
+                    // The inertia mechanism treats m as immutable and only reads it to
+                    // accumulate impulses into reloc (see encounter P×K / P×D).
+                    cell.m[0] = cell.m[1] = cell.m[2] = 0;
+                    cell.reloc[0] = cell.reloc[1] = cell.reloc[2] = 0;
                 }
             }
         }

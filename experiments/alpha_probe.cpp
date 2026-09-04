@@ -119,8 +119,10 @@ static void placeSource(unsigned w, unsigned x, unsigned y, unsigned z,
     p->u    = 2048;                  // central wave source amplitude
     p->v    = 0;
     p->ch   = chWord;
+    // m is the immutable momentum.  reloc starts null; inertia fills it
+    // via encounter only (applyMomentum consumes reloc, does not rewrite m).
     p->m[0] = mx; p->m[1] = my; p->m[2] = mz;
-    p->reloc[0] = mx; p->reloc[1] = my; p->reloc[2] = mz;
+    p->reloc[0] = p->reloc[1] = p->reloc[2] = 0;
     p->t = 0; p->f = 0;
   }
 

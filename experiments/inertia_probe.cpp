@@ -6,8 +6,10 @@
  *
  * Notation (gravity_probe_DESIGN.md, section 13): pair (P) = SourceKind::P
  * neutral complementary pair (generic gauge fragment); propeller = the pair
- * role carrying momentum (reloc != 0); layer = structural unit; the island =
- * n_i layers (chief K + S).
+ * role carrying a non-zero momentum vector m (|m| = RMAX = L/2 along the
+ * push axis); layer = structural unit; the island = n_i layers (chief K + S).
+ * reloc starts at zero and accumulates only via encounter (P×K / P×D);
+ * applyMomentum consumes reloc without altering m.
  *
  * Usage:
  *   inertia_probe LX LY LZ n_i n_pi FRAMES SIEVE mode csv
@@ -115,8 +117,10 @@ static void plantBubble(unsigned w, int x, int y, int z,
     p->u    = 2048;
     p->v    = 0;
     p->ch   = chWord;
+    // m is the immutable momentum (harness may pre-load |m| = RMAX on
+    // propellers).  reloc starts null; inertia fills it via encounter.
     p->m[0] = mx; p->m[1] = my; p->m[2] = mz;
-    p->reloc[0] = mx; p->reloc[1] = my; p->reloc[2] = mz;
+    p->reloc[0] = p->reloc[1] = p->reloc[2] = 0;
     p->t = 0; p->f = 0;
     p->kind = kind;
     p->a = island ? 0u : automaton::W_USED;
@@ -265,7 +269,10 @@ int main(int argc, char** argv)
 
   // Propellers: n_pi complementary pairs on the left of the island, spaced so
   // their expanding pulses (max radius RMAX) can reach the island shells
-  // (distance D = xI - xp <= 2*RMAX), all carrying m = +1 along x.
+  // (distance D = xI - xp <= 2*RMAX).  Each half carries m = (+RMAX, 0, 0)
+  // — modulus L/2 along +x — matching the dynamic-election scale used by
+  // polarization::installAxis.  reloc stays zero until encounter transfers.
+  const int mProp = RMAXi > 0 ? RMAXi : 1;
   for (unsigned p = 0; p < n_pi; ++p)
   {
     const int span = xI - 1;                  // xp in [1, xI-1]
@@ -286,10 +293,10 @@ int main(int argc, char** argv)
     const unsigned char chA = chPropeller((int)p);
     const unsigned char chB =
         repel ? chA : (unsigned char)(~chA & 0x3F);
-    // Both halves carry m = +1 along x: a propeller pushing toward +x.
-    plantBubble(wa, xp, yp, zp, chA, 1, 0, 0,
+    // Both halves: propeller push toward +x with |m| = RMAX.
+    plantBubble(wa, xp, yp, zp, chA, mProp, 0, 0,
                 automaton::SourceKind::S, false);
-    plantBubble(wb, xp, yp, zp, chB, 1, 0, 0,
+    plantBubble(wb, xp, yp, zp, chB, mProp, 0, 0,
                 automaton::SourceKind::S, false);
   }
 

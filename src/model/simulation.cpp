@@ -470,25 +470,10 @@ namespace automaton
 
       Cell& nw = getCell(lattice_draft, (unsigned)nx, (unsigned)ny, (unsigned)nz, w);
 
-      // Update the long-term momentum direction from the consumed impulse.
-      // m stays a unit vector along one Cartesian axis, but its sign can flip
-      // to match the dominant component of the relocation impulse.
-      int new_m[3] = { old.m[0], old.m[1], old.m[2] };
-      if (dx != 0 || dy != 0 || dz != 0)
-      {
-        int abs_dx = (dx < 0) ? -dx : dx;
-        int abs_dy = (dy < 0) ? -dy : dy;
-        int abs_dz = (dz < 0) ? -dz : dz;
-        int axis = 0, best = abs_dx;
-        if (abs_dy > best) { axis = 1; best = abs_dy; }
-        if (abs_dz > best) { axis = 2; best = abs_dz; }
-        int sign = (axis == 0 ? dx : (axis == 1 ? dy : dz));
-        new_m[0] = new_m[1] = new_m[2] = 0;
-        new_m[axis] = (sign < 0) ? -1 : +1;
-      }
-
-      // Carry the source identity and the stable momentum direction m to the
-      // new center, and re-seed the pulsating wave there.
+      // Inertia: m is immutable here.  Only reloc is consumed.  Carry the
+      // existing momentum vector intact to the new source centre; dynamic
+      // (re)initialisation of m is owned by polarization::elect / installAxis.
+      // Carry the source identity to the new center and re-seed the wave.
       nw.kind        = old.kind;
       nw.parent      = old.parent;
       nw.spin_target = old.spin_target;
@@ -499,9 +484,9 @@ namespace automaton
       nw.f           = 0;
       nw.u           = 2048;
       nw.v           = 0;
-      nw.m[0]        = new_m[0];
-      nw.m[1]        = new_m[1];
-      nw.m[2]        = new_m[2];
+      nw.m[0]        = old.m[0];
+      nw.m[1]        = old.m[1];
+      nw.m[2]        = old.m[2];
       nw.reloc[0]    = nw.reloc[1] = nw.reloc[2] = 0;
 
       // The old cell is no longer a source center.

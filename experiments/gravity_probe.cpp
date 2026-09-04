@@ -16,7 +16,10 @@
  *     SEP   initial separation along x (default 5)
  *     FRAMES light frames   (default 120)
  *     SIEVE sieve modulus   (default 16384)
- *     mag   initial |momentum|, 0 = at rest (default 0)
+ *     mag   initial |m| component along x (default 0 = at rest).
+ *           Non-zero values should be RMAX-scale (L/2) to match the
+ *           dynamic-election modulus used by polarization::installAxis.
+ *           reloc is always planted at zero; inertia fills it via encounter.
  *     mode  "attract" (0x00 vs 0x3F) or "repel" (0x00 vs 0x00) (default attract)
  *     csv   output path (default gravity_run.csv)
  *
@@ -118,8 +121,10 @@ static void placeSource(unsigned w, unsigned x, unsigned y, unsigned z,
     p->u    = 2048;                  // central wave source amplitude
     p->v    = 0;
     p->ch   = chWord;
+    // m is the immutable momentum (mag along x when non-zero).
+    // reloc starts null; the inertia path fills it via encounter only.
     p->m[0] = mx; p->m[1] = my; p->m[2] = mz;
-    p->reloc[0] = mx; p->reloc[1] = my; p->reloc[2] = mz;
+    p->reloc[0] = p->reloc[1] = p->reloc[2] = 0;
     p->t = 0; p->f = 0;
   }
 
