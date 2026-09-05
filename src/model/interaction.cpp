@@ -20,8 +20,8 @@ namespace automaton
 
   bool ctrl = true; // debug
 
-  // Diagnostic counters for the controlled-scattering study (headless runner).
-  // Exposed so tests/scatter_main.cpp can print them.
+  // Diagnostic counters. Internal mechanical contacts count in enc_calls
+  // but bypass the electroweak counters; historical rates are not comparable.
   long long enc_calls = 0;       // encounter() invocations that passed active checks
   long long enc_s2b   = 0;       // ... that also passed the s2B gate
   long long enc_pair  = 0;       // ... that formed a pair (canFormPair && samePos && sameT)
@@ -43,6 +43,12 @@ namespace automaton
 
   namespace
   {
+    std::vector<Cell> sourceBefore, sourceAfter;
+    std::vector<std::pair<WIndex, WIndex>> internalContacts;
+    std::vector<unsigned char> contactSeen;
+    std::vector<std::array<long long,3>> transportDebt;
+    unsigned long long transportFrame = 0;
+
     inline const std::array<unsigned, 3>& sourceCenter(const Cell& c)
     {
       return lcenters[c.x[3]];
@@ -50,14 +56,12 @@ namespace automaton
 
     inline Cell& sourceCenterDraft(const Cell& c)
     {
-      const auto& p = sourceCenter(c);
-      return getCell(lattice_draft, p[0], p[1], p[2], c.x[3]);
+      return sourceAfter[c.x[3]];
     }
 
     inline Cell& sourceCenterCurr(const Cell& c)
     {
-      const auto& p = sourceCenter(c);
-      return getCell(lattice_curr, p[0], p[1], p[2], c.x[3]);
+      return sourceBefore[c.x[3]];
     }
 
     inline int shortestDelta(int a, int b, int mod)
@@ -136,13 +140,8 @@ namespace automaton
           cola == colb && cola != 0x00u && cola != 0x07u)
         return false;
 
-      // Propeller: a pair with a pending relocation impulse reloc (nonzero)
-      // is currently transferring momentum and cannot join a blob.  The
-      // intrinsic direction m is ignored here: every source centre carries
-      // a fixed unit step (initSim.cpp), so it cannot identify the
-      // transient propeller role.
-      if ((a.reloc[0] | a.reloc[1] | a.reloc[2]) != 0 ||
-          (b.reloc[0] | b.reloc[1] | b.reloc[2]) != 0)
+      // Affiliation and m identify a propeller, never a received impulse.
+      if (isBoundPropeller(a) || isBoundPropeller(b))
         return false;
 
       // Remaining allowed geometry: same sector w1, complementary q/w0/color.
@@ -214,9 +213,186 @@ namespace automaton
     }
   }
 
+  bool isBoundPropeller(const Cell& s)
+  {
+    return s.kind == SourceKind::P && s.a < W_USED &&
+           s.pair_idx < W_USED && s.pair_count > 0 &&
+           (s.m[0] != 0 || s.m[1] != 0 || s.m[2] != 0);
+  }
+
+  bool hadInternalContact(WIndex a, WIndex b)
+  {
+    if (a >= W_USED || b >= W_USED || contactSeen.size() != (size_t)W_USED * W_USED)
+      return false;
+    if (a > b) std::swap(a, b);
+    return contactSeen[(size_t)a * W_USED + b] != 0;
+  }
+
+  void resetSourceTransactions()
+  {
+    sourceBefore.clear();
+    sourceAfter.clear();
+    internalContacts.clear();
+    contactSeen.clear();
+    transportDebt.clear();
+    transportFrame = 0;
+  }
+
+  void beginSourceTick()
+  {
+    sourceBefore.resize(W_USED);
+    if (transportDebt.size() != W_USED) transportDebt.assign(W_USED, {0,0,0});
+    for (unsigned w = 0; w < W_USED; ++w) {
+      const auto& p = lcenters[w];
+      sourceBefore[w] = getCell(lattice_curr, p[0], p[1], p[2], w);
+    }
+    sourceAfter = sourceBefore;
+    if ((!lattice_curr.empty() && lattice_curr.front().k == 0) ||
+        contactSeen.size() != (size_t)W_USED * W_USED) {
+      internalContacts.clear();
+      contactSeen.assign((size_t)W_USED * W_USED, 0);
+    }
+  }
+
+  namespace {
+    bool body(const Cell& s) {
+      return s.kind == SourceKind::K || s.kind == SourceKind::D;
+    }
+
+    int delta(unsigned a, unsigned b, int axis) {
+      const unsigned edges[] = {ELX, ELY, ELZ};
+      return shortestDelta((int)lcenters[a][axis], (int)lcenters[b][axis],
+                           (int)edges[axis]);
+    }
+
+    // Select a face step, not a displacement of |m| cells. Rotating the
+    // tie breaker avoids privileging x for equal Cartesian components.
+    std::array<int, 3> faceStep(const int* v, unsigned turn) {
+      int axis = (int)(turn % 3);
+      for (int j = 1; j < 3; ++j) {
+        int k = (int)((turn + j) % 3);
+        if (std::abs(v[k]) > std::abs(v[axis])) axis = k;
+      }
+      std::array<int, 3> step{0, 0, 0};
+      step[axis] = sign(v[axis]);
+      return step;
+    }
+
+    bool sameIsland(const Cell& a, const Cell& b) {
+      return a.a < W_USED && a.a == b.a;
+    }
+
+    std::array<int,3> propellerStep(unsigned p, const int* m) {
+      // Integer DDA: distribute unit face-steps in proportion to |m|.
+      // Magnitude changes cannot turn one encounter into a long jump.
+      long long total=0;
+      for(int k=0;k<3;++k) {
+        const long long magnitude=m[k]<0?-(long long)m[k]:(long long)m[k];
+        transportDebt[p][k]+=magnitude; total+=magnitude;
+      }
+      int axis=(int)(transportFrame%3);
+      for(int k=0;k<3;++k)
+        if(transportDebt[p][k]>transportDebt[p][axis]) axis=k;
+      transportDebt[p][axis]-=total;
+      std::array<int,3> step{0,0,0}; step[axis]=sign(m[axis]);
+      return step;
+    }
+
+    void resolveInternalContacts()
+    {
+      // Contacts are voxel-independent events: one unordered source pair
+      // per light frame, regardless of shell area and mirrored W visits.
+      std::sort(internalContacts.begin(), internalContacts.end());
+      internalContacts.erase(std::unique(internalContacts.begin(), internalContacts.end()),
+                             internalContacts.end());
+      std::vector<std::array<int, 3>> moves(W_USED, {0, 0, 0});
+      std::vector<bool> moved(W_USED, false);
+
+      // K-D and D-D cohesion: reciprocal face steps reduce a separation
+      // greater than one cell without changing the body's centre of mass.
+      for (const auto& [a, b] : internalContacts) {
+        const Cell& sa = sourceAfter[a]; const Cell& sb = sourceAfter[b];
+        if (!body(sa) || !body(sb) || !sameIsland(sa, sb) || moved[a] || moved[b]) continue;
+        int d[3] = {delta(a,b,0), delta(a,b,1), delta(a,b,2)};
+        auto step = faceStep(d, (unsigned)transportFrame);
+        int axis = step[0] ? 0 : (step[1] ? 1 : 2);
+        if (std::abs(d[axis]) <= 1) continue;
+        moves[a] = step;
+        for (int k=0;k<3;++k) moves[b][k] = -step[k];
+        moved[a] = moved[b] = true;
+      }
+
+      // Each reciprocal P pair owns one kick opportunity. Prefer the rear
+      // eligible contact along m, so repeated kicks do not peel a leading
+      // constituent away from its K-D/D-D contacts. Ties rotate by frame.
+      for (unsigned p = 0; p < W_USED; ++p) {
+        const Cell& prop = sourceAfter[p];
+        if (!isBoundPropeller(prop) || p >= prop.pair_idx) continue;
+        const unsigned half = prop.pair_idx;
+        const Cell& other = sourceAfter[half];
+        if (!isBoundPropeller(other) || other.pair_idx != p || !sameIsland(prop, other)) continue;
+        if (effective_t(prop.t) == 0) continue;
+        unsigned target = W_USED;
+        unsigned followTarget = W_USED;
+        long long best = 0;
+        for (const auto& [a,b] : internalContacts) {
+          unsigned q = W_USED;
+          if (a == p || a == half) q = b;
+          else if (b == p || b == half) q = a;
+          if (q == W_USED || !body(sourceAfter[q]) ||
+              !sameIsland(prop, sourceAfter[q])) continue;
+          if (followTarget == W_USED) followTarget = q;
+          if (moved[q]) continue;
+          long long projection = 0;
+          for (int k=0;k<3;++k) projection += (long long)delta(p,q,k) * prop.m[k];
+          const auto rank = (q + W_USED - transportFrame % W_USED) % W_USED;
+          const auto oldRank = (target + W_USED - transportFrame % W_USED) % W_USED;
+          if (target == W_USED || projection < best || (projection == best && rank < oldRank)) {
+            target = q; best = projection;
+          }
+        }
+        if (target != W_USED) {
+          moves[target] = propellerStep(p, prop.m);
+          moved[target] = true;
+          followTarget = target;
+        }
+        if (followTarget == W_USED) continue;
+        // Recycle the bound photon pair toward the contacted constituent.
+        // Both halves take the same step; affiliation and m are preserved.
+        int follow[3];
+        for (int k=0;k<3;++k) follow[k] = delta(p,followTarget,k) + moves[followTarget][k];
+        moves[p] = moves[half] = faceStep(follow, (unsigned)transportFrame);
+        moved[p] = moved[half] = true;
+      }
+      for (unsigned w = 0; w < W_USED; ++w)
+        for (int k=0;k<3;++k) sourceAfter[w].reloc[k] += moves[w][k];
+      ++transportFrame;
+    }
+  }
+
+  void commitSourceTick()
+  {
+    if (!lattice_draft.empty() && lattice_draft.front().k == 0)
+      resolveInternalContacts();
+    for (unsigned w = 0; w < W_USED; ++w) {
+      const auto& p = lcenters[w];
+      Cell& dst = getCell(lattice_draft, p[0], p[1], p[2], w);
+      const Cell& s = sourceAfter[w];
+      dst.w = w; dst.ch = s.ch; dst.a = s.a; dst.leader_w = s.leader_w;
+      dst.kind = s.kind; dst.parent = s.parent; dst.spin_target = s.spin_target;
+      dst.pair_idx = s.pair_idx; dst.pair_count = s.pair_count; dst.bB = s.bB;
+      for (int k=0;k<3;++k) { dst.m[k] = s.m[k]; dst.reloc[k] = s.reloc[k]; }
+      if (s.t != sourceBefore[w].t) { dst.t = s.t; dst.f = s.f; }
+      else if (body(s) || isBoundPropeller(s)) {
+        dst.t = (s.t + (dst.k == 0 ? 1u : 0u)) % (2 * RMAX);
+        dst.f = effective_t(dst.t);
+      }
+    }
+  }
+
   /**
-   * Handles the pairwise encounter of two active wavefronts of distinct
-   * W-islands that coincide at one voxel.  Named encounter(), not convolution:
+   * Handles active wavefronts from distinct W addresses at one voxel,
+   * including equal-affinity internal mechanical contacts. Named encounter():
    * nothing is averaged here; the old name survives only in the conv_*
    * diagnostics counters so the campaign logs/scripts stay valid.
    *
@@ -229,18 +405,14 @@ namespace automaton
     if (!curr.active || !partner.active)
       return false;
 
-    // A source does not interact with itself (same W-island).
+    // A source does not interact with its own W address.
     if (curr.x[3] == partner.x[3])
     {
       ++enc_self;
       return false;
     }
 
-    // Sieve: the electroweak interaction channel is only active where s2B is set.
     ++enc_calls;
-    if (!curr.s2B)
-      return false;
-    ++enc_s2b;
 
     // Source state is stored in the source-center cell of each W-layer.
     Cell& currSrc  = sourceCenterCurr(curr);
@@ -251,10 +423,64 @@ namespace automaton
     const auto& currCenter  = sourceCenter(curr);
     const auto& partnerCenter = sourceCenter(partner);
 
+    // Equal-charge copies elect a chief through contact, not at birth.
+    // Existing leaders merge monotonically; a free S acquires that identity.
+    if (currSrc.kind != SourceKind::P && partnerSrc.kind != SourceKind::P &&
+        currSrc.ch == partnerSrc.ch && sameIsland(currSrc, partnerSrc)) {
+      WIndex leader = std::min(currSrc.w, partnerSrc.w);
+      if (body(currSrc)) leader = std::min(leader, currSrc.leader_w);
+      if (body(partnerSrc)) leader = std::min(leader, partnerSrc.leader_w);
+      for (Cell* s : {&currDraft, &partnerDraft}) {
+        leader = std::min(leader, body(*s) ? s->leader_w : s->w);
+      }
+      for (Cell* s : {&currDraft, &partnerDraft}) {
+        s->kind = (s->w == leader) ? SourceKind::K : SourceKind::D;
+        s->parent = (s->w == leader) ? NO_PARENT : leader;
+        s->leader_w = leader; // a is the charge-family identity, not the chief address.
+      }
+    }
+
+    const bool internal = sameIsland(currSrc, partnerSrc) &&
+      ((body(currDraft) && body(partnerDraft)) ||
+       (isBoundPropeller(currSrc) && body(partnerDraft)) ||
+       (isBoundPropeller(partnerSrc) && body(currDraft)) ||
+       (currSrc.kind == SourceKind::P && partnerSrc.kind == SourceKind::P));
+    if (internal) {
+      const WIndex a = std::min(currSrc.w, partnerSrc.w);
+      const WIndex b = std::max(currSrc.w, partnerSrc.w);
+      const size_t index = (size_t)a * W_USED + b;
+      if (!contactSeen[index]) {
+        contactSeen[index] = 1;
+        internalContacts.emplace_back(a, b);
+      }
+      return false;
+    }
+
+    // The electroweak sieve does not gate same-affinity mechanical contacts.
+    if (!curr.s2B) return false;
+    ++enc_s2b;
+
+    // A free pair may join a contacted island. Acquiring affinity is not
+    // an immediate kick, and receiving a kick never turns a K/D into P.
+    if ((currSrc.kind == SourceKind::P && body(partnerSrc)) ||
+        (partnerSrc.kind == SourceKind::P && body(currSrc))) {
+      const Cell& p = currSrc.kind == SourceKind::P ? currSrc : partnerSrc;
+      const Cell& target = currSrc.kind == SourceKind::P ? partnerSrc : currSrc;
+      if (p.a == W_USED && p.pair_idx < W_USED &&
+          sourceBefore[p.pair_idx].pair_idx == p.w) {
+        for (unsigned w : {p.w, p.pair_idx}) {
+          sourceAfter[w].a = target.a;
+          sourceAfter[w].leader_w = target.leader_w;
+          sourceAfter[w].parent = target.leader_w;
+        }
+      }
+      return false;
+    }
+
     bool samePos = (curr.x[0] == partner.x[0] &&
                     curr.x[1] == partner.x[1] &&
                     curr.x[2] == partner.x[2]);
-    bool sameT   = (curr.t == partner.t);
+    bool sameT   = (currSrc.t == partnerSrc.t);
 
     // ---------------------------------------------------------------
     // Pair formation (photon-like P sources).
@@ -262,7 +488,8 @@ namespace automaton
     // charges can form a pair. The pair is "dressing" if both bubbles already
     // share the same leader; otherwise it is a free photon.
     // ---------------------------------------------------------------
-    if (samePos && sameT && canFormPair(currSrc, partnerSrc))
+    if (samePos && sameT && currSrc.kind == SourceKind::S &&
+        partnerSrc.kind == SourceKind::S && canFormPair(currSrc, partnerSrc))
     {
       ++enc_pair;
       bool dressing = (currSrc.leader_w != NO_LEADER_W &&
@@ -453,37 +680,8 @@ namespace automaton
       return false;
     }
 
-    // 7. P x K / P x D / P x S (current = P, partner = ordinary source)
-    if (currSrc.kind == SourceKind::P &&
-        (partnerSrc.kind == SourceKind::K ||
-         partnerSrc.kind == SourceKind::S ||
-         partnerSrc.kind == SourceKind::D))
-    {
-      // P pair reemits at the contact point with phase 0.
-      reemitAtContact(currDraft, curr);
-
-      // Target receives a momentum impulse in the direction of P's momentum.
-      partnerDraft.reloc[0] += currSrc.m[0];
-      partnerDraft.reloc[1] += currSrc.m[1];
-      partnerDraft.reloc[2] += currSrc.m[2];
-      return false;
-    }
-
-    // 8. K/D/S x P (current = ordinary source, partner = P)
-    if ((currSrc.kind == SourceKind::K ||
-         currSrc.kind == SourceKind::S ||
-         currSrc.kind == SourceKind::D) &&
-        partnerSrc.kind == SourceKind::P)
-    {
-      // Target reemits on its own surface at the contact point and gets P's momentum.
-      reemitAtContact(currDraft, curr);
-      currDraft.reloc[0] += partnerSrc.m[0];
-      currDraft.reloc[1] += partnerSrc.m[1];
-      currDraft.reloc[2] += partnerSrc.m[2];
-      return false;
-    }
-
-    // P x P is suppressed.
+    // P x K/D transport and free-pair affiliation were handled above.
+    // A raw P/S contact does not confer the internal propeller role.
     return false;
   }
 

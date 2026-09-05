@@ -1,5 +1,5 @@
 @echo off
-rem build_inertia.bat - compiles the headless inertia_probe (Rev 2) harness.
+rem Builds production CPU sources once, then the probe and regression tests.
 call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul
 cd /d E:\alpha
 cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /I src\include /I src\include\zlib /I src ^
@@ -13,4 +13,13 @@ cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /I src\include /I src\include\zl
     src\model\simulation.cpp ^
     src\model\utils.cpp ^
     src\model\wavefront.cpp ^
-    /Fe:experiments\inertia_probe.exe
+    /Foobj\ /Fe:experiments\inertia_probe.exe
+if errorlevel 1 exit /b 1
+cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /I src\include /I src\include\zlib /I src ^
+    experiments\inertia_test.cpp obj\charges.obj obj\initSim.obj obj\interaction.obj ^
+    obj\polarization.obj obj\simulation.obj obj\utils.obj /Foobj\ /Fe:experiments\inertia_test.exe
+if errorlevel 1 exit /b 1
+cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /I src\include /I src\include\zlib /I src ^
+    experiments\seed_test.cpp obj\charges.obj obj\initSim.obj obj\interaction.obj ^
+    obj\polarization.obj obj\simulation.obj obj\utils.obj /Foobj\ /Fe:experiments\seed_test.exe
+exit /b %errorlevel%

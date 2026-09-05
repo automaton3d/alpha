@@ -47,7 +47,7 @@
 \maketitle
 \begin{abstract}
 \sloppy
-This work proposes a deterministic cellular-automaton model of physics on a finite 3-torus with a non-spatial internal dimension~$W$. Each cell carries a fixed-size bit string and evolves by strictly local, integer-only rules. From a deterministic Platonic seed, local updates generate spherical wavefronts at one cell per tick---the maximum information speed $v_{\max}$---and an emergent transverse polarisation pair reconstructed by integer arithmetic. The speed of light is not fundamental: it is the value an observer assigns to $v_{\max}$ under a round-trip convention. The reference implementation verifies shell-exact propagation, polarisation reconstruction, and charge-census closure. Interactions, inertia via momentum-carrying propeller pairs, and bound-state formation are specified as local rules; a parameter sweep demonstrates that the electroweak sieve gate opens and forms pairs when its modulus is lowered. Mechanisms not yet measured in simulation are confined to a clearly labelled conjectural section.
+This work proposes a deterministic cellular-automaton model of physics on a finite 3-torus with a non-spatial internal dimension~$W$. Local, integer-only evolution is a design objective; the reference CPU implementation currently uses host-coordinated source updates. Its Platonic seed initializes distances only at the sources, and dynamic initialization runs concurrently with evolution. The proposed inertial mechanism consists of a cohesive $1K+nD$ island propelled by affinity-bound photon-type pairs: their internal contacts sustain a mean translation while preserving the island's constituents. Prepared-island tests exercise rest, direction reversal, opposed propellers, affinity selectivity and the increase of speed with aligned propeller population. These tests establish behaviour of the reference algorithm, not Newtonian mechanics, a local realization of all coordination, or a derivation of mass. Earlier wavefront, charge-census and electroweak-sieve measurements are retained as historical results requiring revalidation after the transport revision. The interpretation of $v_{\max}$ and the emergent observer measurement $c$ remains a physical hypothesis.
 \medskip{}
 \end{abstract}
 \vfill
@@ -84,7 +84,7 @@ bubble & a spherical wavefront emitted by one source centre in one layer $w$; th
 \hline
 chief (K) & the leading source of a $W$-island; delegates (D) are attached to it, singletons (S) are free sources, and a pair (P) is a charge-complementary bonded pair of sources & \ref{subsec:pairs}\\
 \hline
-propeller & a pair carrying a non-zero momentum vector $\boldsymbol{m}$ ($\lvert\boldsymbol{m}\rvert=L/2$) that transfers impulses into partners' $\mathit{reloc}$; it cannot join a blob & \ref{subsubsec:propeller}\\
+propeller & an affinity-bound photon-type pair carrying $\boldsymbol{m}\ne\mathbf{0}$; its $P\times K$ and $P\times D$ contacts sustain island motion; it cannot join a blob & \ref{subsubsec:propeller}\\
 \hline
 blob & a group of superposed equal-status pairs with the gluon/photon charge geometry $R2$ & \ref{subsec:pairs}\\
 \hline
@@ -233,7 +233,7 @@ The rules of this universe are deliberately constrained so that the model remain
 \item[Simple initialization.] The initial state is set by fiat only at $t=0$: a small seed is planted in an otherwise blank lattice. All subsequent structure emerges from the local rule.
 \end{description}
 
-The present model is finite and defined on a 3-torus of side $L$, so $L$ and $W = 3L^2$ enter as topological data, not as free parameters of the rule. The transition function remains local, homogeneous, and free of size-dependent case distinctions. Consequently, the model is an $L$-parameterized finite CA in the sense surveyed by Das and Sikdar~\cite{das2025nonuniform}: the lattice size fixes the arena, not the logical form of the transition.
+These are target constraints, not properties already verified for the executable. In particular, the current inertial transport reference uses source snapshots, contact lists, a frame counter and periodic layer translations (Sect.~\ref{subsec:translation}); polarization preparation also uses host arithmetic. A local finite-state realization of this coordination remains open. The theoretical topology is parameterized by $L$ and $W=3L^2$, while the prepared-island experiments may allocate a reduced number of layers.
 
 \subsection{Charges}
 \label{subsec:charges}
@@ -269,10 +269,10 @@ The detailed dynamics of how these copies aggregate into $1K+nD$ islands, and ho
 Among the many possible choices, we select the following deterministic Platonic seed:
 \begin{itemize}
 \item The spatial address $\boldsymbol{x}$ is set to the appropriate Cartesian positive coordinates ($0\ldots L-1$).  Every source center is placed at the single lattice centre $\mathbf{c}=((L-1)/2,(L-1)/2,(L-1)/2)$, so that all bubbles are born superposed at one point with zero radius---deterministically and without random numbers.
-\item The internal address $w$ is immutable; the charge bits $w_{0}$, $w_{1}$, electric charge $q=w_{1}\oplus w_{0}$, and color are derived from $w$ as described above.
+\item The internal address $w$ is immutable; charge bits are derived from its charge-family index $\nu=\lfloor w/\ell\rfloor$, so copies of a family have equal charges. In the CPU seed, $w_0=\nu\bmod2$, $w_1=\lfloor\nu/2\rfloor\bmod2$, $q=w_1\oplus w_0$ and color $=\nu\bmod8$.
 \item The affinity $a$ and the auxiliary leader identity $\mathit{leader\_w}$ are initialized to the island index of the $W$-island to which $w$ belongs (Sect.~\ref{subsec:w-islands}).  A true chief ($K$) emerges later through encounter, as described in Section~\ref{sec:dynamic-charge-quantization}.
 \item The housekeeping counter $k$ and the wavefront counter $t$ are set to zero; the contraction/phase vectors $\mathbf{c}$ are zero and $s2B$ is reset.
-\item The momentum vector $\boldsymbol{m}$ is initialized to the null vector $\boldsymbol{0}$.  A non-zero value is written only by the dynamic election path (Sect.~\ref{sec:phase-step}): at each expansion limit $t=\mathrm{RMAX}$ the automaton elects a direction and installs $\boldsymbol{m}$ with modulus $\lvert\boldsymbol{m}\rvert=L/2$ on the source-centre cell.  The inertia mechanism treats $\boldsymbol{m}$ as immutable and never rewrites it.
+\item The momentum vector $\boldsymbol{m}$ is initialized to $\boldsymbol{0}$. The dynamic election path may install a direction at an expansion limit, once on the frame edge. Once a pair is an affinity-bound propeller with nonzero $\boldsymbol{m}$, its transport direction is preserved rather than replaced at every breathing cycle. Prepared-island probes explicitly seed that direction to isolate the inertial mechanism.
 \item The consumable translation impulse $\mathit{reloc}$ is zero.
 \item The wavefront data are seeded only at the source centers: $u=v=0$ and $r^{2}=0$, with a fixed amplitude $U_{0}$; all other cells have $r^{2}=\mathrm{INF}$ and $u=v=0$.
 \end{itemize}
@@ -280,7 +280,7 @@ Real numbers and high-level functions are used only as intermediaries to compute
 \subsection{What the seed does not contain}
 The seed contains no precomputed radius, no wave cloud, no $(\mathrm{pol}_u,\mathrm{pol}_v)$ pair, no $pB$/$sB$/$s2B$ pattern, no non-zero momentum $\boldsymbol{m}$, no interactions, and no randomized data.  Those are the first emergent consequences of the seed and are described in Sect.~\ref{sec:phase-step}.
 \subsection{The initial thermal bath}
-Before the dynamic patterns---the vectors $\boldsymbol{m}$, the charge islands, and the wave cloud---stabilize, the evolution is chaotic.  This early mixing is not a defect: it acts as a deterministic ``thermal bath'' that contributes to the apparent randomness of particle physics once the stable attractors are reached.
+Dynamic initialization and evolution operate concurrently: there is no global readiness barrier. Before the distance, polarization and island patterns settle into their operating regime, the system undergoes a preparation transient. Its proposed mixing role is a deterministic ``thermal bath''; homogeneity and loss of dependence on the seed must be measured, not inferred from irregular motion alone. Statistics intended to characterize inertia must exclude an explicitly reported preparation window and compare successive measurement windows. A discarded prefix alone is not evidence of equilibration.
 %%%%%%%% PHASE STEP %%%%%%%%%%
 \section{Phase step and emergent wave fields}\label{sec:phase-step}
 Once the Platonic seed is fixed, the first CA ticks generate the wavefront geometry that feeds the frame FSM of Sect.~\ref{sec:light-frame}.  The subsections below describe those emergent fields.
@@ -466,10 +466,9 @@ A \emph{bubble} is an expanding spherical wavefront of information organized acr
 Two bubbles are overlapping if they share the same spatial coordinates and $t_1=t_2$. Overlapping bubbles can form a \emph{pair} if they have the same affinity, that is, $a_1=a_2$; the two partners share a center and phase, and their charges are complementary or matching depending on the pair's role. Pairs may remain bound to a particle as \emph{dressing} pairs or propagate freely as photons; a free pair expands outward and is gradually consumed, releasing two singletons at distinct locations.
 \subsubsection{Propeller} \label{subsubsec:propeller}
 A pair can act as a \textit{propeller}, repositioning other bubbles and providing inertia.
-A propeller is identified by a non-zero momentum vector $\boldsymbol{m}$ with typical modulus $\lvert\boldsymbol{m}\rvert=L/2$ (the same scale installed by the election of Sect.~\ref{sec:phase-step}).
-Its role is to transfer that momentum into other sources without altering its own $\boldsymbol{m}$: each relevant encounter ($P\times K$, $P\times D$, $P\times S$) adds $\boldsymbol{m}$ into the partner's consumable impulse $\mathit{reloc}$, while $\boldsymbol{m}$ itself remains immutable.
-Few propellers (or poorly aligned $\boldsymbol{m}$) yield sparse kicks and low emergent velocity of an island; many nearly collinear propellers yield frequent coherent kicks and high velocity.
-The island's centre of mass is kept cohesive by $K\times D$ and $D\times D$ contacts; the propellers only push.
+A propeller is a reciprocal photon-type pair that has adopted the island's affinity $a$ and carries a non-zero transport vector $\boldsymbol{m}$, typically on the scale $L/2$. Neither a nonzero vector alone nor receiving a translation impulse makes a source a propeller. A free pair must first acquire the particle's affinity.
+Consider an island of $N=L/3$ equal charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without propellers its centre of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
+The CPU reference resolves each unordered source contact once per light frame, counting a reciprocal pair once rather than once per half or overlapping voxel. A pair can deliver at most one unit face-step to one contacted body element, in a direction selected from $\boldsymbol{m}$; receiving that step preserves the target's $K/D$ identity. $\boldsymbol{m}$ is not a displacement of $L/2$ cells and is retained while the pair remains a propeller. These mechanical, same-affinity contacts are not gated by the electroweak sieve.
 \subsubsection{Singleton}
 An unpaired bubble is called a \textit{singleton}; it is not a generic synonym for bubble.
 \subsubsection{Blob}
@@ -548,7 +547,7 @@ Else if two singletons have the same charge, we have fermion cohesion.
 One bubble is reissued from the contact point, while the other, from its active $sB$ site.
 Also, they become entangled ($a_1=a_2$).
 On the other hand, if the two bubbles share the same affinity, but have different charges, the bubble whose wavefront at the contact point has $pB=1$ is reissued from the contact point.
-The other bubble is reissued using the inertial-transported translation impulse, accumulated in the vector $\boldsymbol{\mathit{reloc}}$; the momentum vector $\boldsymbol{m}$ of the pushing source supplies the impulse ($\mathit{reloc}\mathrel{+}=\boldsymbol{m}$), while the translation vector $\boldsymbol{c}$ is consumed during the reissue step.
+For bound $P\times K/D$ transport, the pushing pair's $\boldsymbol{m}$ selects a unit step accumulated in $\boldsymbol{\mathit{reloc}}$, as specified in Sect.~\ref{subsec:translation}; copying the full magnitude of $\boldsymbol{m}$ as a displacement is not the inertial rule. The following contact-site reissue description concerns the other interaction channels.
 That is, one bubble is reissued from $\boldsymbol{x1}$, while the other from $(\boldsymbol{x_1}-\boldsymbol{x_2})\,\boldsymbol{mod}\,L$.
 For color-neutral combinations there are two cases: gluon$\times$gluon and quark$\times$gluon.
 In both cases, the two bubbles are reissued from the contact point and the partners colors are exchanged.
@@ -630,18 +629,16 @@ This timing is crucial to avoid the 'clean diamond' pattern with the new values 
 When the translation is complete, bubble variables are prepared for the next cycle.
 If the time frame completes, the $k$ counter resets to zero, preparing the system for the next iteration.
 At the conclusion of the process, all $\boldsymbol{c}$ vectors will have a null value.
-A propeller ($P$) can only be relocated to a point on its active surface. In a $P \times K$, $P \times D$ or $P \times S$ interaction, the $P$ source is reissued from the active contact cell where the two wavefronts overlap; this contact point is already reached at the maximum information speed $v_{\max}$, so no superluminal transfer of information is required---the encounter that reads the contact is itself superluminal in coordinate speed but strictly non-signaling.
-Inertia is acquired by an inertial-transport mechanism. The propeller transfers its momentum vector $\boldsymbol{m}$ into the partner's consumable translation impulse $\boldsymbol{\mathit{reloc}}$ ($\mathit{reloc}\mathrel{+}=\boldsymbol{m}$); $\boldsymbol{m}$ itself is not modified by this transfer.
-At the end of the light frame, \texttt{applyMomentum} shifts the partner's source centre by $\boldsymbol{\mathit{reloc}}$, zeros $\boldsymbol{\mathit{reloc}}$, and \emph{preserves} $\boldsymbol{m}$ on the new centre---it never rewrites or normalises $\boldsymbol{m}$.
-Dynamic (re)initialisation of $\boldsymbol{m}$ is owned exclusively by the election path of Sect.~\ref{sec:phase-step}.
-The $P$ source itself is reissued from the contact point; the partner ($K$, $D$ or $S$) keeps its source kind but receives the impulse.
-A single propeller kick acts on one bubble at a time: only the contacted partner source receives $\boldsymbol{\mathit{reloc}}$, while all other bubbles of the aggregate keep their centers. Let $N$ be the total number of bubbles composing the particle (the $3$D island plus its pair dressing). If $n$ bubbles receive an impulse during one light frame, the mean center of mass advances by
+For internal inertial transport, source contacts are gathered during the encounter window and resolved at the end of the light frame. The reference CPU implementation makes the following operational choices explicit. Reciprocal $K\times D$ and $D\times D$ face-steps reduce separations greater than one cell without changing the sum of body positions. Each body element can move at most once per frame. Each reciprocal propeller pair can push at most one contacted body element; among eligible contacts it prefers the rear element along $\boldsymbol{m}$, with a rotating address tie-break. An integer DDA distributes successive face-steps in proportion to the absolute components of $\boldsymbol{m}$, retaining their signs. Zero-radius phases have no extended propelling surface. Both halves of the bound pair recycle by the same bounded face-step toward the contacted constituent. These are reference transport rules to test the proposed mechanism, not a derivation of Newtonian mechanics or rotational invariance.
+The resulting unit step, rather than the full vector $\boldsymbol{m}$, enters $\boldsymbol{\mathit{reloc}}$. At the frame boundary, \texttt{applyMomentum} translates the bubble's layer state periodically, consumes the step and preserves its charge, affinity, source kind, pair identity, clock and transport vector. Translating the distance field together with its source avoids leaving a false source or stale distance minima. The source transaction commits after the voxel sweep so later cells cannot overwrite previously registered contacts or source changes. The partner rotation selects a $W$ identity; active flags are read at the current physical instant rather than from the preceding frame's shell.
+This implementation uses host-side source snapshots, contact arbitration and layer translations. A strictly local cellular realization of that coordination remains to be established; the mechanical tests below validate the reference algorithm, not the purity constraints of Sect.~\ref{subsec:purity}. Dynamic initialization is never suspended, but election does not overwrite the direction of an already bound propeller.
+Let $N$ denote the number of equal $K/D$ body elements, excluding the propeller dressing. For $n$ successful collinear unit kicks in a frame, with reciprocal cohesion contributing zero net displacement, the body's mean centre of mass advances by
 \begin{equation}
 \Delta_{\mathrm{CoM}} \;=\; \frac{n}{N}
 \end{equation}
-cells per frame, with $n \leq N$. Sub-luminal motion is therefore structural: a larger population responds less to the same kick rate --- the discrete counterpart of propeller contributions to mass --- whereas a photon blob, whose superposed pairs share a single center, attains $n/N \to 1$. When no kick arrives ($\boldsymbol{\mathit{reloc}}=\boldsymbol{0}$) the particle merely breathes at rest.
+cells per frame, with $n \leq N$. Oppositely directed steps enter with their signs; for general directions use $N^{-1}\sum_i\Delta\boldsymbol{x}_i$. This is a measured displacement identity, not a velocity assigned to the island or a mass law. Propeller-pair centres must be counted once each when separately measuring the dressed particle. Without propulsion, reciprocal cohesion preserves the body's centre of mass. Physical velocities are reported per light frame, not per housekeeping tick; changing $W$ changes the computational duration of a frame.
 Non-propeller pairs behave differently: in $K \times K$ or $D \times D$ between different tribes the source centers move one light-step away from each other, exchanging momentum through $\boldsymbol{\mathit{reloc}}$.
-The propeller (Sect.~\ref{subsubsec:propeller}) is a pair ($P$) that acts as a carrier of momentum. Free photon or graviton pairs may become propellers through the same $P$ source mechanism, but during interaction the source kind $P$ is treated as a single relocating source whose momentum is transferred to the non-$P$ partner.
+An unbound pair may acquire an island's affinity through an admissible encounter. Subsequent same-affinity contacts provide propulsion; a pair of a different affinity cannot act as that island's internal propeller. Receiving a displacement never promotes a $K/D$ source to $P$.
 \subsection{Annihilation and collapse}
 Annihilation and light-matter collapse both occur during the encounter stage. In annihilation, the affinity reverts to its default value $a=w$, and the resulting bubbles become raw material for new particles.
 This ontological collapse introduces an arrow of time at the fundamental level, reinforcing the second law of thermodynamics and pushing Poincar\'{e} recurrence far into the future (Sect.~\ref{sec-undecidability}).
@@ -728,7 +725,8 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \EndFor
 \EndFor
 \State \Call{ApplyChargeConjugation}{} \Comment{matter--antimatter turnaround hook; exact no-op when the bias $\varepsilon = 0$}
-\State \Call{ApplyMomentum}{} \Comment{consume one photon pair at $t=\mathrm{RMAX}$, release singletons; advance source centres by $\boldsymbol{\mathit{reloc}}$; preserve $\boldsymbol{m}$; re-seed the pulsating wave at the new centre}
+\State \Call{CommitSourceTick}{} \Comment{commit source changes; on the frame boundary resolve unique internal contacts}
+\State \Call{ApplyMomentum}{} \Comment{consume free photon pairs at turnaround; translate layer states by pending steps, preserving bound-pair identity and $\boldsymbol{m}$}
 \State \Call{SwapLattices}{} \Comment{$\mathrm{draft}\to\mathrm{curr}$; at $k=0$ refresh the partner ($M.f \gets \mathrm{effective\_t}(M.t)$); while $k<\mathrm{ENCOUNTER}$ rotate the partner $W$-slices (\textsc{RotatePartners})}
 \EndProcedure
 \end{algorithmic}
@@ -804,7 +802,7 @@ Some interaction details are now clarified.
 \subsubsection{Static interactions}
 A static interaction (Coulomb or magnetic) between two distant charges $q_1$ and $q_2$ begins when an orphan singleton from $q_1$ aligns with a vacuum graviton; both are reissued at the contact point. If the graviton then interacts with $q_2$, it is reissued there and acquires $q_2$'s affinity. Thus gravitons propagate along the flux of orphans from particle 1, increasing the chance of hitting $q_2$ and becoming one of its propellers. The same occurs in reverse.
 \subsubsection{Coulomb interaction} \label{subsec:Coulomb-interaction}
-Coulomb attraction and repulsion occur in two steps: (a) the wavefront of an orphan from the first charge, with $pB=1$, contacts an active cell of a graviton; if their position vectors are aligned or anti-aligned, the graviton is reissued from the contact point with the orphan's affinity; (b) the second charge's wavefront, also with $pB=1$, contacts the reissued graviton and receives a translation impulse in the direction of its momentum vector $\boldsymbol{m}$, becoming a propeller pointing in the correct direction.
+The proposed Coulomb mechanism involves orphan wavefronts guiding free pairs toward another particle. A pair becomes that particle's propeller only after acquiring its affinity; subsequent internal contacts can then transport its $K/D$ constituents in the pair's $\boldsymbol{m}$ direction. The receiving constituent does not become a propeller. The current internal-transport tests do not establish the external capture rates, charge-sign dependence or a Coulomb distance law.
 \subsubsection{Static magnetic interaction}
 The magnetic case uses $sB$ instead of $pB$ and applies to charged leptons, quarks and W bosons. Because propellers emphasize $pB$ over $sB$, fast particles tend to acquire a component perpendicular to their direction of motion.
 \subsubsection{Neutrino interactions}
@@ -993,6 +991,10 @@ splits the ledger into $9L$ charge families, each with $L/3$ identical copies. I
 %%%%%%%% RESULTS %%%%%%%%%%
 At this point, the core construction of the cellular automaton is complete.
 \section{Results}\label{sec:Results}
+\subsection{Prepared-island inertia: current CPU reference}\label{subsec:inertia-validation}
+The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in a $9\times5\times5$ periodic tube, one $K$ and two $D$, and reciprocal photon-type pairs ($0\mathrm{x}00$, $0\mathrm{x}1F$) with the same affinity. These are prepared initial conditions, not an electron assembled from the Platonic seed. For the $48$-frame baseline the first $12$ frames are excluded from means. Measured axial body velocities are $0$ without propellers, $+0.250000$ with one rightward pair, $+0.750000$ with three, and $-0.250000$ with one leftward pair, in cells per light frame. Two opposed pairs give zero mean velocity, and a pair of another affinity produces no internal propulsion. Each constituent takes at most one face-step per frame; charge, affinity, $K/D$ roles and reciprocal pair identities are checked after transport, including torus crossings. An initially separated body conserves its centre of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
+In $160$-frame runs with $40$ frames excluded, a five-element island in a $15\times9\times9$ tube moves at $0.175000$ with one pair and $0.700000$ with four; its maximum pairwise body separation is one cell. Eight aligned pairs driving the three-element island saturate at $0.750000$, rather than producing longer jumps. The speed depends on actual contact opportunities, phase and the transport schedule; no universal mass law follows from these values. Commands and validation limits are in \texttt{experiments/INERTIA.md}.
+\paragraph{Status of the following historical measurements.} The remaining numerical results in this section predate the seed and source-transport corrections. They are retained for provenance and do not validate the revised executable. In particular, the old $6996/18/0$ contact counts and the attractor tables must be rerun before any quantitative comparison with the new mechanics.
 We now give a few practical examples.
 \subsection{The maximum information speed and the size of the universe}
 We can now state the following constraint on the fundamental quantities:
@@ -1392,18 +1394,18 @@ Ongoing work simulates the geometric structures that emerge from these local, mu
 \subsection{Final thoughts}
 The model is an economical ontological framework\footnote{Especially when contrasted with the Many-Worlds Interpretation of quantum theory \cite{everett1957}.} operating at a deep subatomic scale. Observable reality is approximate and emergent, with continuous spacetime symmetries (Lie, Lorentz, diffeomorphism, CPT, etc.) arising from the dynamics. Each particle is composed of an enormous number of bubbles---each a miniature universe---so intrinsic non-locality provides a natural substrate for superposition-like behavior and qubit analogs. The theory remains to be refined computationally and tested against experiment; whether it can become a predictive, falsifiable, \emph{bona fide} physical theory is an open question.
 \subsection{Reproducibility}
-Every quantitative number reported in Sect.~\ref{sec:Results} is produced by a headless runner in the versioned source archive (Ref.~\cite{af_neto}; a DOI-stamped snapshot of the repository will be deposited on Zenodo at acceptance, with the exact commands below and the output logs):
+The current mechanical tests and the historical experiments must be distinguished. The source-transaction and seed revisions change the kernel, so the older wavefront, attractor and scattering tables below require rerunning before they can describe the current executable. Their original commands are retained for provenance; some historical runners are not present in this working tree. The current prepared-island experiment is \texttt{experiments/inertia\_probe.cpp}, with regression checks in \texttt{experiments/inertia\_test.cpp} and commands in \texttt{experiments/INERTIA.md}.
 \begin{itemize}
 \item \textbf{Wavefront fidelity ($L=7$, 50 layers):} \texttt{attractor\_main.cpp}, run \texttt{attract\_f1.exe 7 50 24} (seed 1, $\varepsilon=0$, $p_{\mathrm{base}}=1$); completeness, speed and Pearson correlation printed by \texttt{wavefront.cpp}.
 \item \textbf{Sieve sweep (Table~\ref{tab:sieve}):} \texttt{scatter\_main.cpp}, run \texttt{scatter.exe 7 4 200 120 $S$} for $S\in\{16384,8192,\dots,4\}$; the encounter counters \texttt{conv\_calls/conv\_s2b/conv\_pair} are printed at the end of each run, and each run additionally prints the ``DYNAMICAL MEASUREMENTS'' block (pair-lifetime episodes, per-bubble deflection angles, centre-of-mass response) reported in Sect.~\ref{subsec:s2b-sweep}.  The reference row ($S=16384$) reproduces the previously reported $6{,}996$/$18$/$0$.
 \item \textbf{Scaling study (Table~\ref{tab:scaling}):} \texttt{lorentz\_mm.cpp}, run \texttt{lorentz\_mm.exe $L$ 0 0 24} for $L=7,11,15,19,21$; the wavefront report is printed by \texttt{wavefront.cpp}.  (The control source is placed at the torus antipode, as documented in the source.)
 \item \textbf{Polarisation fidelity (Table~\ref{tab:polar-fidelity}):} \texttt{polar\_fidelity.cpp} (no arguments); the reconstruction formulas (Eqs.~\eqref{eq:polu}--\eqref{eq:polv}) and \texttt{isqrt} are copied verbatim from the transition kernel.
-\item \textbf{Larger lattices (CUDA):} the reference repository also ships a CUDA implementation of the same transition kernel (\texttt{src/cuda/}; built with \texttt{nmake USE\_CUDA=1}; kernels \texttt{phase\_step\_kernel}, \texttt{ca\_update\_kernel}, \texttt{updatePartnerKernel}, \texttt{rotatePartnersKernel}, driver \texttt{cudaSimulationStep}) to extend the accessible lattice sequence beyond $L=21$.  None of the numbers reported in this paper were produced by it.
+\item \textbf{CUDA status:} the archived GPU kernels do not implement the revised source transactions and internal transport. Runtime CUDA activation is disabled; the current reference executes on CPU, including builds made with \texttt{USE\_CUDA=1}. GPU parity requires a separate implementation and comparison.
 \item \textbf{Attractor ($N^{*}$, capture rate):} \texttt{attract\_f1.exe $L$ $W$ 24} with $W=63$ at $L=7$ and $W=18$ at $L=11$.
 \item \textbf{Sieve statistics (Eq.~\eqref{eq:sieve-prob}):} \texttt{s2b\_sweep\_main.cpp} (no arguments).
 \item \textbf{Charge census (Appendix~\ref{sec:charge-census-appendix}):} \texttt{combine.c [seed]} and \texttt{virada.c} (seed $2463534242$).
 \end{itemize}
-All runners use the same integer-only transition kernel (\texttt{simulation.cpp}), deterministic seeds, and the checkpoint/resume mechanism of \texttt{attractor\_main.cpp} for long runs; no floating-point arithmetic enters the transition rule.
+The current inertia probes call the production CPU simulation and encounter code. Diagnostic positions are unwrapped across torus seams and averages use floating-point arithmetic outside the transport rule. Host-side polarization preparation also uses floating-point operations; the implementation must not be described as a verified strictly local, integer-only transition. The inertia probe does not implement checkpoint/resume.
 
 \section*{Nomenclature}
 \begin{center}
@@ -1598,11 +1600,11 @@ Classifying the Orbis column into explicit matter and antimatter fragments (lept
 \end{table}
 \section{Controlled two-bubble scattering and the rectangular tube\label{app:gravity-probes}}
 
-This appendix reports the controlled-scattering campaign that measures the
+This appendix preserves a historical controlled-scattering campaign, preceding the inertia revision. Its numbers require revalidation with the current kernel. The campaign measures the
 two-bubble interaction in isolation and then removes the torus-wrap
 confounder by running the same geometry on a rectangular tube.  Every number
 below is produced by the headless runners \texttt{gravity\_probe} (cube and
-tube) of Ref.~\cite{af\_neto}, with the exact commands, the tick-stamped
+tube) of Ref.~\cite{af_neto}, with the exact commands, the tick-stamped
 CSVs, and the full design log archived in \texttt{experiments/}
 (\texttt{gravity\_probe\_DESIGN.md}, \texttt{RESULTS.md}).  Two complementary
 single-source bubbles ($W=2$) are planted at rest, $d_0$ cells apart on one

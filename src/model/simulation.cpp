@@ -256,7 +256,9 @@ namespace automaton
         // Active wavefront: shell of integer radius pulseR moving at one cell per
         // light frame.  c.r is propagated/corrected by square-boundary tests in
         // update_pulsating_wavefront, so no sqrt or isqrt is needed here.
-        int pulseR = (int)effective_t(c.t);
+        const auto& center = lcenters[w];
+        const Cell& source = getCell(lattice_curr, center[0], center[1], center[2], w);
+        int pulseR = (int)effective_t(source.t);
         bool active = (c.r2 != INF_R2 && c.r >= 0 && c.r == pulseR);
         // The cell wave phase is the triangular breathing phase f = effective_t(t):
         // it rises 0 -> L/2 on the ascending branch and falls back on the descending.
@@ -468,41 +470,25 @@ namespace automaton
       int ny = wrapCoordAxis((int)cy + dy, (int)ELY);
       int nz = wrapCoordAxis((int)cz + dz, (int)ELZ);
 
-      Cell& nw = getCell(lattice_draft, (unsigned)nx, (unsigned)ny, (unsigned)nz, w);
-
-      // Inertia: m is immutable here.  Only reloc is consumed.  Carry the
-      // existing momentum vector intact to the new source centre; dynamic
-      // (re)initialisation of m is owned by polarization::elect / installAxis.
-      // Carry the source identity to the new center and re-seed the wave.
-      nw.kind        = old.kind;
-      nw.parent      = old.parent;
-      nw.spin_target = old.spin_target;
-      nw.pair_idx    = old.pair_idx;
-      nw.pair_count  = old.pair_count;
-      nw.leader_w    = old.leader_w;
-      nw.t           = 0;
-      nw.f           = 0;
-      nw.u           = 2048;
-      nw.v           = 0;
-      nw.m[0]        = old.m[0];
-      nw.m[1]        = old.m[1];
-      nw.m[2]        = old.m[2];
-      nw.reloc[0]    = nw.reloc[1] = nw.reloc[2] = 0;
-
-      // The old cell is no longer a source center.
-      old.kind        = SourceKind::S;
-      old.parent      = NO_PARENT;
-      old.spin_target = 0;
-      old.pair_idx    = NO_PAIR;
-      old.pair_count  = 0;
-      old.leader_w    = NO_LEADER_W;
-      old.a           = W_USED;
-      old.t           = 0;
-      old.f           = 0;
-      old.u           = 0;
-      old.v           = 0;
-      old.m[0]        = old.m[1] = old.m[2] = 0;
-      old.reloc[0]    = old.reloc[1] = old.reloc[2] = 0;
+      // Translate this bubble's state bijectively on the torus. Moving only
+      // its centre left stale r2 minima and lost charge/affinity at the new
+      // centre. This is source transport, not a new emission or a clock reset.
+      old.reloc[0] = old.reloc[1] = old.reloc[2] = 0;
+      std::vector<Cell> shifted((size_t)ELX * ELY * ELZ);
+      for (unsigned x=0;x<ELX;++x)
+      for (unsigned y=0;y<ELY;++y)
+      for (unsigned z=0;z<ELZ;++z) {
+        const unsigned tx = wrapCoordAxis((int)x+dx, ELX);
+        const unsigned ty = wrapCoordAxis((int)y+dy, ELY);
+        const unsigned tz = wrapCoordAxis((int)z+dz, ELZ);
+        Cell& dest = shifted[((size_t)tx*ELY+ty)*ELZ+tz];
+        dest = getCell(lattice_draft,x,y,z,w);
+        dest.x[0]=tx; dest.x[1]=ty; dest.x[2]=tz; dest.x[3]=w;
+      }
+      for (unsigned x=0;x<ELX;++x)
+      for (unsigned y=0;y<ELY;++y)
+      for (unsigned z=0;z<ELZ;++z)
+        getCell(lattice_draft,x,y,z,w) = shifted[((size_t)x*ELY+y)*ELZ+z];
 
       lcenters[w][0] = (unsigned)nx;
       lcenters[w][1] = (unsigned)ny;
@@ -663,6 +649,7 @@ namespace automaton
     // the transverse pair on the NEXT tick.  Runs on the promoted live
     // lattice; the FSM below copies the stamps into draft/partner.
     polarization::tick();
+    beginSourceTick();
 
     // DEBUG: throttle a snapshot of the central cell so we can verify (u,v) are evolving.
     if (pulse_tick % 100 == 0) {
@@ -711,7 +698,11 @@ namespace automaton
             Cell &up      = curr.getNeighbor(UP);
 
             if (curr.k < ENCOUNTER) {
-                encounter(curr, draft, partner);
+                // W rotation selects the partner identity. Its wave flags
+                // must belong to this physical instant, not the preceding
+                // frame's shell (which never overlaps a synchronous shell).
+                Cell contactPartner = getCell(lattice_curr, x, y, z, partner.w);
+                encounter(curr, draft, contactPartner);
             } else if (curr.k < GSLOT_Z) {
                 // glider slots
             } else if (curr.k < DIFFUSION) {
@@ -738,6 +729,7 @@ namespace automaton
     // Fatia 2 — M/Mbar hook: conjugate islands at their breathing turnaround.
     // Runs BEFORE applyMomentum() so it sees the same draft t == RMAX state
     // the pair consumption uses.  Exact no-op when mm_eps == 0.
+    commitSourceTick();
     applyChargeConjugation();
 
     // Apply source-center momentum and update pulsation centers.

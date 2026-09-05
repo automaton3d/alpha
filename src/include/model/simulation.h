@@ -235,6 +235,12 @@ struct NeighborResult
   void replicate();
   bool simulation();
   bool encounter(Cell& curr, Cell &draft, Cell &partner);
+  // CPU source transactions: collect contacts without overwriting source writes.
+  void beginSourceTick();
+  void commitSourceTick();
+  void resetSourceTransactions();
+  bool isBoundPropeller(const Cell& source);
+  bool hadInternalContact(WIndex a, WIndex b); // last/current frame, read-only
   // Legacy declaration only (no definition in this tree; pre-rename API).
   bool encounter7(Cell& curr, Cell &draft, Cell &partner);
   void diffuse(Cell& curr, Cell &draft, Cell &forward, Cell &north, Cell &west, Cell &down, Cell &south, Cell &east, Cell &up);
@@ -415,4 +421,3 @@ extern std::vector<Cell> lattice_partner; // Add or verify
 }
 
 #endif /* SIMULATION_H_ */
-  

@@ -357,45 +357,6 @@
       \verb https://github.com/automaton3d/automaton
       \endverb
     \endentry
-    \entry{das2025nonuniform}{book}{}{}
-      \name{author}{2}{}{%
-        {{hash=16d9a1493ee512c4fda4833ee5e17467}{%
-           family={Das},
-           familyi={D\bibinitperiod},
-           given={Sukanta},
-           giveni={S\bibinitperiod}}}%
-        {{hash=81c78a7f82ad6d3120843374443ba0bb}{%
-           family={Sikdar},
-           familyi={S\bibinitperiod},
-           given={Biplab\bibnamedelima K.},
-           giveni={B\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
-      }
-      \list{location}{1}{%
-        {Cham}%
-      }
-      \list{publisher}{1}{%
-        {Springer}%
-      }
-      \strng{namehash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{fullhash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{fullhashraw}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{bibnamehash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{authorbibnamehash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{authornamehash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{authorfullhash}{367a98bd2eeb5f586449043e52a8ff4c}
-      \strng{authorfullhashraw}{367a98bd2eeb5f586449043e52a8ff4c}
-      \field{sortinit}{1}
-      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{series}{Emergence, Complexity and Computation}
-      \field{title}{{Non-Uniform Cellular Automata}}
-      \field{volume}{49}
-      \field{year}{2025}
-      \verb{doi}
-      \verb 10.1007/978-3-032-00257-0
-      \endverb
-    \endentry
     \entry{feynman-2}{book}{}{}
       \name{author}{3}{}{%
         {{hash=bc0435d3e01ddd86761bcf1fc818ecf1}{%
@@ -670,8 +631,8 @@
       \strng{authornamehash}{93ed8b754e9b3f332468bbbfa56e7602}
       \strng{authorfullhash}{93ed8b754e9b3f332468bbbfa56e7602}
       \strng{authorfullhashraw}{93ed8b754e9b3f332468bbbfa56e7602}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Zeitschrift für Physik}
@@ -1091,8 +1052,8 @@
       \strng{authornamehash}{24e19fcb486304b5f3ae073e97fecfd6}
       \strng{authorfullhash}{24e19fcb486304b5f3ae073e97fecfd6}
       \strng{authorfullhashraw}{24e19fcb486304b5f3ae073e97fecfd6}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Advances in Astrophysics}
@@ -1128,7 +1089,6 @@
       \range{pages}{-1}
     \endentry
   \enddatalist
-  \missing{af\_neto}
 \endrefsection
 \endinput
 

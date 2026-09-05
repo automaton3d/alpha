@@ -598,7 +598,10 @@ namespace automaton
         const unsigned cz = lcenters[w][2];
         unsigned tCentre  = getCell(lattice_curr, cx, cy, cz, w).t;
 
-        if (tCentre == (unsigned)RMAXi)
+        // A bound propeller retains its transport direction. Elect once on
+        // the frame edge, not on every housekeeping tick of the turnaround.
+        const Cell& source = getCell(lattice_curr, cx, cy, cz, w);
+        if (tCentre == (unsigned)RMAXi && source.k == 0 && !isBoundPropeller(source))
           elect(w);
 
         if (W.live)

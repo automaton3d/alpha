@@ -35,8 +35,6 @@ namespace automaton
    */
 void initGeneral()
 {
-    const double R = EL / 2.0;
-    
     printf("initGeneral: EL=%u, RMAX=%u\n", EL, RMAX);
 
     // Reset pulsating sphere tick counter
@@ -47,6 +45,7 @@ void initGeneral()
 
     // Reset emergent polarization broadcast state (walkers, elected axes).
     polarization::resetAll();
+    resetSourceTransactions();
     
     for (unsigned w = 0; w < W_USED; ++w)
     {
@@ -64,6 +63,8 @@ void initGeneral()
                 for (unsigned z = 0; z < ELZ; ++z)
                 {
                     Cell& cell = getCell(lattice_curr, x, y, z, w);
+                    // Reinitialization must discard the previous run's clocks and flags.
+                    cell = Cell{};
 
                     // Basic configuration
                     cell.w = static_cast<WIndex>(w);
@@ -72,42 +73,28 @@ void initGeneral()
                     unsigned island = islandOf(cell.w);
                     WIndex chiefW   = firstWOfIsland(island);
 
-                    char w0 = w % 2;
-                    char w1 = (w >> 1) % 2;
+                    char w0 = island % 2;
+                    char w1 = (island >> 1) % 2;
                     char q = w0 ^ w1;
                     
-                    cell.ch = (w % 8) | (q << 3) | (w0 << 4) | (w1 << 5);
+                    cell.ch = (island % 8) | (q << 3) | (w0 << 4) | (w1 << 5);
                     cell.x[0] = x;
                     cell.x[1] = y;
                     cell.x[2] = z;
                     cell.x[3] = w;
                     
-                    // Calculate squared distance from layer center
-                    int dx = (int)x - (int)cx;
-                    int dy = (int)y - (int)cy;
-                    int dz = (int)z - (int)cz;
-                    unsigned int dist_r2 = dx*dx + dy*dy + dz*dz;
-                    unsigned int R2 = RMAX * RMAX;
-                    
-                    if (dist_r2 <= R2) {
-                        // Affinity and leader identity are shared by the W-island.
-                        cell.leader_w = chiefW;
-                        cell.a = (unsigned)chiefW;
-                    } else {
-                        cell.a = W_USED;            // Orphan outside sphere
-                        cell.leader_w = NO_LEADER_W;
-                    }
-                    
-                    // Initialize r2 (squared distance from center, integer only)
-                    cell.r2 = dist_r2;
-                    unsigned int r = 0;
-                    while ((uint32_t)(r + 1u) * (uint32_t)(r + 1u) <= dist_r2)
-                        r++;
-                    cell.r = (int)r;
-                    cell.u = 0;
+                    // Static W-island identity, independent of spatial geometry.
+                    // This address does not assign the dynamical chief role K.
+                    cell.leader_w = chiefW;
+                    cell.a = (unsigned)chiefW;
+
+                    // Platonic seed: only the source knows its radius. All other
+                    // distances must be reached by update_pulsating_wavefront().
+                    const bool source = (x == cx && y == cy && z == cz);
+                    cell.r2 = source ? 0u : INF_R2;
+                    cell.r = source ? 0 : -1;
+                    cell.u = source ? 2048 : 0;
                     cell.v = 0;
-                    if (cell.r == 0)
-                        cell.u = 2048;  // seed the central wave source
                     cell.active = 0;
 
                     // Emergent polarization broadcast state
@@ -130,9 +117,8 @@ void initGeneral()
                     cell.c[1] = 0;
                     cell.c[2] = 0;
 
-                    // Spin-rev source model: default to singleton,
-                    // the first copy of each W-island is the seed chief (K).
-                    cell.kind       = (isIslandChief(cell.w) ? SourceKind::K : SourceKind::S);
+                    // No chief is selected by the static W address at birth.
+                    cell.kind       = SourceKind::S;
                     cell.parent     = NO_PARENT;
                     cell.spin_target= 0;
                     cell.pair_idx   = NO_PAIR;

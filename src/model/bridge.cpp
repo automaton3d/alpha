@@ -696,18 +696,8 @@ namespace automaton
 {
     bool tryEnableCuda()
     {
-        if (useCuda)
-            return true;
-
-        bool ok = initializeCudaSimulation();
-
-        if (ok)
-        {
-            useCuda = true;
-            printf("CUDA ENABLED\n");
-        }
-
-        return ok;
+        printf("CUDA unavailable: the island transport rules currently require the CPU backend.\n");
+        return false;
     }
 
     void disableCuda()
