@@ -21,6 +21,7 @@
  */
 
 #include "model/polarization.h"
+#include "model/polarization_candidate.h"
 
 #include <cmath>
 #include <vector>
@@ -70,7 +71,6 @@ namespace automaton
     static std::vector<Walker>        g_walk;
     // packed visited bits, (ELX*ELY*ELZ)/8 bytes per layer
     static std::vector<std::vector<uint8_t>> g_visit;
-    static unsigned                          g_seedDial = 0; // manuscript seed dial s
 
     // Lattice moves: 0:+x 1:-x 2:+y 3:-y 4:+z 5:-z
     static const int kMvx[6] = {  1, -1, 0,  0, 0,  0 };
@@ -99,7 +99,6 @@ namespace automaton
       g_axis.clear();
       g_walk.clear();
       g_visit.clear();
-      g_seedDial = 0;
     }
 
     bool walkLive(unsigned w)
@@ -114,17 +113,8 @@ namespace automaton
     }
 
     // ============================================================
-    // Fixed integer hash H (manuscript: score = H((nu+s) mod 9L, code))
+    // Polarization-only candidate selection (experimental).
     // ============================================================
-    static inline unsigned int hashH(unsigned int nu, unsigned int code)
-    {
-      unsigned int x = nu * 0x9E3779B9u ^ (code * 0x85EBCA6Bu);
-      x ^= x >> 13;
-      x *= 0xC2B2AE35u;
-      x ^= x >> 16;
-      return x;
-    }
-
     // ============================================================
     // installAxis — spiral_set_axis port.
     // ============================================================
@@ -458,39 +448,19 @@ namespace automaton
     // ============================================================
     static void elect(unsigned w)
     {
-      g_seedDial++;
-
-      unsigned int bestPayload = 0;
-      int bw[3] = { -1, -1, -1 };
-      bool any = false;
-
-      const unsigned int nineL = (ISLAND_COUNT > 0) ? (unsigned)ISLAND_COUNT
-                                                    : 9u * EL;
-      const int ELXi = (int)ELX, ELYi = (int)ELY, ELZi = (int)ELZ;
-
-      for (int x = 0; x < ELXi; ++x)
-      for (int y = 0; y < ELYi; ++y)
-      for (int z = 0; z < ELZi; ++z)
-      {
-        const Cell& c = getCell(lattice_curr, x, y, z, w);
-        if (!c.active)
-          continue;
-
-        unsigned int code    = (unsigned int)cellCode((unsigned)x, (unsigned)y, (unsigned)z);
-        unsigned int nu      = (unsigned)islandOf(c.w);
-        unsigned int score   = hashH((nu + g_seedDial) % nineL, code) & 0xFFu;
-        unsigned int payload = (score << 24) | (code & 0x00FFFFFFu);
-
-        if (!any || payload > bestPayload)
-        {
-          any = true;
-          bestPayload = payload;
-          bw[0] = x; bw[1] = y; bw[2] = z;
+      // Hypothesis: select from existing polarization only. No address,
+      // hash, global dial, or scan order may decide a tie.
+      PolarizationCandidate candidate;
+      int bw[3] = {-1,-1,-1};
+      for (unsigned x=0;x<ELX;++x)
+      for (unsigned y=0;y<ELY;++y)
+      for (unsigned z=0;z<ELZ;++z) {
+        const Cell& c=getCell(lattice_curr,x,y,z,w);
+        if (c.active && candidate.consider(c.pol_u,c.pol_v)) {
+          bw[0]=x; bw[1]=y; bw[2]=z;
         }
       }
-
-      if (!any)
-        return;  // no active shell this cycle: keep previous broadcast
+      if (!candidate.unique()) return;
 
       // Displacement from the lattice centre to the winning cell becomes
       // the momentum direction, rescaled to |m| = L/2 (= RMAX).

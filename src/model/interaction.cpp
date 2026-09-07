@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <utility>
 #include "model/simulation.h"
+#include "model/island_identity.h"
+#include "model/chief_transition.h"
 #include "globals.h"
 
 namespace automaton
@@ -278,7 +280,7 @@ namespace automaton
       return step;
     }
 
-    bool sameIsland(const Cell& a, const Cell& b) {
+    bool sameAffinity(const Cell& a, const Cell& b) {
       return a.a < W_USED && a.a == b.a;
     }
 
@@ -312,7 +314,7 @@ namespace automaton
       // greater than one cell without changing the body's centre of mass.
       for (const auto& [a, b] : internalContacts) {
         const Cell& sa = sourceAfter[a]; const Cell& sb = sourceAfter[b];
-        if (!body(sa) || !body(sb) || !sameIsland(sa, sb) || moved[a] || moved[b]) continue;
+        if (!body(sa) || !body(sb) || !shareChief(sa, sb) || moved[a] || moved[b]) continue;
         int d[3] = {delta(a,b,0), delta(a,b,1), delta(a,b,2)};
         auto step = faceStep(d, (unsigned)transportFrame);
         int axis = step[0] ? 0 : (step[1] ? 1 : 2);
@@ -330,7 +332,7 @@ namespace automaton
         if (!isBoundPropeller(prop) || p >= prop.pair_idx) continue;
         const unsigned half = prop.pair_idx;
         const Cell& other = sourceAfter[half];
-        if (!isBoundPropeller(other) || other.pair_idx != p || !sameIsland(prop, other)) continue;
+        if (!isBoundPropeller(other) || other.pair_idx != p || !sameAffinity(prop, other)) continue;
         if (effective_t(prop.t) == 0) continue;
         unsigned target = W_USED;
         unsigned followTarget = W_USED;
@@ -340,7 +342,7 @@ namespace automaton
           if (a == p || a == half) q = b;
           else if (b == p || b == half) q = a;
           if (q == W_USED || !body(sourceAfter[q]) ||
-              !sameIsland(prop, sourceAfter[q])) continue;
+              !sameAffinity(prop, sourceAfter[q])) continue;
           if (followTarget == W_USED) followTarget = q;
           if (moved[q]) continue;
           long long projection = 0;
@@ -402,7 +404,7 @@ namespace automaton
    */
   bool encounter(Cell& curr, Cell &draft, Cell &partner)
   {
-    if (!curr.active || !partner.active)
+    if (!curr.active || !partner.active || curr.r<=0 || partner.r<=0)
       return false;
 
     // A source does not interact with its own W address.
@@ -423,28 +425,20 @@ namespace automaton
     const auto& currCenter  = sourceCenter(curr);
     const auto& partnerCenter = sourceCenter(partner);
 
-    // Equal-charge copies elect a chief through contact, not at birth.
-    // Existing leaders merge monotonically; a free S acquires that identity.
-    if (currSrc.kind != SourceKind::P && partnerSrc.kind != SourceKind::P &&
-        currSrc.ch == partnerSrc.ch && sameIsland(currSrc, partnerSrc)) {
-      WIndex leader = std::min(currSrc.w, partnerSrc.w);
-      if (body(currSrc)) leader = std::min(leader, currSrc.leader_w);
-      if (body(partnerSrc)) leader = std::min(leader, partnerSrc.leader_w);
-      for (Cell* s : {&currDraft, &partnerDraft}) {
-        leader = std::min(leader, body(*s) ? s->leader_w : s->w);
-      }
-      for (Cell* s : {&currDraft, &partnerDraft}) {
-        s->kind = (s->w == leader) ? SourceKind::K : SourceKind::D;
-        s->parent = (s->w == leader) ? NO_PARENT : leader;
-        s->leader_w = leader; // a is the charge-family identity, not the chief address.
-      }
-    }
+    // Role transitions precede internal-contact early returns. Only the
+    // current draft is updated; reciprocal encounters update the other side.
+    chiefContact(currSrc,partnerSrc,currDraft);
+    if(currSrc.kind==SourceKind::K && partnerSrc.kind==SourceKind::K && currSrc.ch==partnerSrc.ch)
+      return false; // Preserve the clash transition through the remaining branches.
+    if(currSrc.kind==SourceKind::D && partnerSrc.kind==SourceKind::D && currSrc.ch==partnerSrc.ch)
+      return false; // The older generic branches must not overwrite this transition.
 
-    const bool internal = sameIsland(currSrc, partnerSrc) &&
-      ((body(currDraft) && body(partnerDraft)) ||
-       (isBoundPropeller(currSrc) && body(partnerDraft)) ||
+    const bool internal =
+      (body(currDraft) && body(partnerDraft) && shareChief(currDraft, partnerDraft)) ||
+      (sameAffinity(currSrc, partnerSrc) &&
+      ((isBoundPropeller(currSrc) && body(partnerDraft)) ||
        (isBoundPropeller(partnerSrc) && body(currDraft)) ||
-       (currSrc.kind == SourceKind::P && partnerSrc.kind == SourceKind::P));
+       (currSrc.kind == SourceKind::P && partnerSrc.kind == SourceKind::P)));
     if (internal) {
       const WIndex a = std::min(currSrc.w, partnerSrc.w);
       const WIndex b = std::max(currSrc.w, partnerSrc.w);
@@ -456,6 +450,11 @@ namespace automaton
       return false;
     }
 
+#ifdef ISLAND_SEED_EXPERIMENT
+    // Reduced experiment: retain contact-driven election and internal
+    // cohesion above; omit inter-family scattering and pair formation.
+    return false;
+#endif
     // The electroweak sieve does not gate same-affinity mechanical contacts.
     if (!curr.s2B) return false;
     ++enc_s2b;

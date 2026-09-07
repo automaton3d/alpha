@@ -9,7 +9,10 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <cstdint>
+#include <stdexcept>
 #include "model/simulation.h"
+#include "model/chief_transition.h"
 #include "model/polarization.h"
 #include "config.h"
 
@@ -622,8 +625,16 @@ namespace automaton
              pulse_tick, events, flips, netCellBias);
   }
 
+#ifdef COLOR_ENCOUNTER_FSM
+#include "color_fsm.inc"
+#endif
+
   void update_lattice_cpu()
   {
+#ifdef COLOR_ENCOUNTER_FSM
+    colorFsmTick();
+    return;
+#endif
     // Phase 1: CaRaSh-style incremental distance field (r2/r) from each
     // moving source center using only additions and square comparisons.
     update_pulsating_wavefront();
