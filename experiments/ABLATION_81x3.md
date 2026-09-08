@@ -39,6 +39,7 @@ Runs: `basic_seed_1`, `exc_cube_seed_1`, `exc_cube2_seed_1` (colour FSM);
 | sparse layout, same charge OUT of reach (no rule) | 2..4 | 81 / 162 | 81 | 0 | 81-204 | geometry-guaranteed islands |
 | spread81 (same charge adjacent), no rule | 2..4 | 8 / 235 | 57->9 | 171->27 | 81-235 | **merging** into 8 tribes (27/copy at f4) |
 | spread81 + EXCLUSION + push | 2..6 | 81 / 162 | **81** | 0 | 170-201 | 81 x 3 survives contact, distributed |
+| spread81 + EXCLUSION + push (12-frame stability run, `sp81xL`) | 2..12 | 81 / 162 | **81** | 0 | 170-215 | 81 x 3 stable across 12 frames |
 
 Runs: `sp81_seed_1` (sparse81), `s81t_seed_1` (spread81 no rule),
 `sp81x_seed_1` (spread81 + EXCLUSION + push).
