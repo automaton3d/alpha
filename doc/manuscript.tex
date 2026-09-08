@@ -48,7 +48,7 @@
 \maketitle
 \begin{abstract}
 \sloppy
-We introduce a fully specified deterministic cellular automaton as a concrete test of Wheeler's "it from bit" idea. Space is a three-dimensional torus with periodic boundaries, plus a non-spatial internal dimension split into two sectors. Each cell stores a fixed-length binary word that evolves through local rules built from classical logic and elementary arithmetic. Wave propagation is limited to a finite speed by updating cells in discrete layers.
+We introduce a fully specified deterministic cellular automaton as a concrete test of Wheeler's ``it from bit'' idea. Space is a three-dimensional torus with periodic boundaries, plus a non-spatial internal dimension split into two sectors. Each cell stores a fixed-length binary word that evolves through local rules built from classical logic and elementary arithmetic. Wave propagation is limited to a finite speed by updating cells in discrete layers.
 The model produces structures that resemble familiar physics. Waves obey a discrete wave equation with a tunable dispersion relation. Stable, self-reinforcing patterns behave like particles: they move, collide, exchange momentum, and can be created or destroyed in pairs, while conserving global counts. Interactions among these patterns show signs of attraction, repulsion, and orbit-like bound states. Probabilistic-looking behavior arises from deterministic rules because the finite state space can be coarse-grained in many equivalent ways. A built-in temporal direction comes from irreversible update steps and memory buffers. Charge-like quantum numbers appear as conservation laws tied to internal-sector symmetries; particle-antiparticle pairing arises from complementation rather than from any built-in asymmetry.
 We carefully label each claim as a postulate defining the model, a measured result of simulations, or a conjecture still to be proved. We do not claim to recover known physics; we report a complete discrete toy universe, the tests it passes and fails, and the ideas proposed to close the remaining gaps.
 \medskip{}
@@ -64,7 +64,7 @@ We carefully label each claim as a postulate defining the model, a measured resu
 %%%%%%%% INTRODUCTION %%%%%%%%%%
 \epigraph{``It always bothers me that, according to the laws as we understand them today, it takes a computing machine an infinite number of logical operations to figure out what goes on in no matter how tiny a region of space, and no matter how tiny a region of time. Why should it take an infinite amount of logic to figure out what one tiny piece of space-time is going to do? So I have often made the hypothesis that ultimately physics will not require a mathematical statement, that in the end the machinery will be revealed, and the laws will turn out to be simple, like the checkerboard with all its apparent complexities.''}{\textit{Richard Feynman}}
 \section{Introduction}
-John Archibald Wheeler's ``it from bit'' thesis proposes that the physical world may emerge from discrete information, with bits as the bedrock of reality~\cite{wheeler}. Cellular automata (CA) --- discrete models of space, time, and local rules --- provide a natural setting for exploring this idea, since simple rules can produce complex, physics-like behavior~\cite{wolfram,zuse,fredkin}.
+John Archibald Wheeler's 'it from bit' thesis proposes that the physical world may emerge from discrete information, with bits as the bedrock of reality~\cite{wheeler}. Cellular automata (CA) --- discrete models of space, time, and local rules --- provide a natural setting for exploring this idea, since simple rules can produce complex, physics-like behavior~\cite{wolfram,zuse,fredkin}.
 
 This work presents a deterministic cellular-automaton universe built from classical logic, elementary arithmetic, and a minimal 3-torus topology augmented by a non-spatial internal dimension. Each cell carries a fixed-size binary string whose ontological state evolves by local rules, producing spherical wavefronts, harmonic modes, and symmetry-breaking patterns. Wave propagation is confined to a spherical cavity inside the torus, suppressing corner artifacts while preserving periodic boundary conditions. We examine how these emergent structures reproduce features reminiscent of particles, interactions, and spacetime organization. The model is not offered as an interpretation of quantum mechanics, but as a primitive descriptive layer.
 
@@ -74,7 +74,7 @@ One interpretive choice governs the entire construction and should be stated fro
 
 Our construction extends foundational work in digital physics: Zuse's discrete universe~\cite{zuse}, Fredkin's reversible computation~\cite{fredkin}, and Wolfram's complex behavior from simple rules~\cite{wolfram}. The proposal is a layered 3-torus with explicit interaction rules; whether those rules reproduce quantum-like or relativistic effects is the question this paper tests, not an assumption.
 
-The paper is organized as follows. Section~\ref{sec:related-work} reviews previous work. Section~\ref{sec:space-and-time} defines the universal fabric, and Section~\ref{initial-state} builds the initial state. The phase step and the emergent wave fields are described in Section~\ref{sec:phase-step}; the light frame in Section~\ref{sec:light-frame}. Section~\ref{sec:Interactions} details bubble interactions; the composite-particle taxonomy is deferred to Appendix~\ref{sec:Particles}. Section~\ref{sec:dynamic-charge-quantization} addresses the dynamic organization of $W$-islands, and Section~\ref{sec:Results} reports the key results; the charge-combination census is deferred to Appendix~\ref{sec:charge-census-appendix}. The speculative bridge to the quantum-mechanics formalism is deferred to Appendix~\ref{sec:bridge}, Section~\ref{sec:Prospects-and-conjectures} outlines prospects and conjectures, and Section~\ref{sec:Discussion} closes with a synthetic interpretation.
+The paper is organized as follows. Section~\ref{sec:related-work} reviews previous work. Section~\ref{sec:space-and-time} defines the universal fabric, and Section~\ref{initial-state} builds the initial state. The phase step and the emergent wave fields are described in Section~\ref{sec:phase-step}; the light frame in Section~\ref{sec:light-frame}. Section~\ref{sec:Interactions} details bubble interactions; the composite-particle taxonomy is deferred to the single speculative Section~\ref{sec:Prospects-and-conjectures}. Section~\ref{sec:dynamic-charge-quantization} addresses the dynamic organization of $W$-islands, and Section~\ref{sec:Results} reports the key results; the charge-combination census is deferred to Appendix~\ref{sec:charge-census-appendix}. The speculative bridge to the quantum-mechanics formalism is likewise deferred to Section~\ref{sec:Prospects-and-conjectures}, which is the only conjectural chapter of the paper; Section~\ref{sec:Discussion} closes with a synthetic interpretation.
 
 \subsection*{Glossary of proprietary terms}
 For readability, the following model-specific terms are collected here with one-line definitions; the section in brackets is where each is first defined or used.
@@ -91,11 +91,11 @@ era & one complete wavefront expansion-and-contraction cycle; distinct from a li
 \hline
 chief (K) & the leading source of a $W$-island; delegates (D) are attached to it, singletons (S) are free sources, and a pair (P) is a charge-complementary bonded pair of sources & \ref{subsec:pairs}\\
 \hline
-propeller & an affinity-bound photon-type pair carrying $\boldsymbol{m}\ne\mathbf{0}$; its $P\times K$ and $P\times D$ contacts sustain island motion; it cannot join a blob & \ref{subsubsec:propeller}\\
+drive pair & an affinity-bound photon-type pair carrying $\boldsymbol{m}\ne\mathbf{0}$; its $P\times K$ and $P\times D$ contacts sustain island motion; it cannot join a cluster & \ref{subsubsec:drive pair}\\
 \hline
-blob & a group of superposed equal-status pairs with the gluon/photon charge geometry $R2$ & \ref{subsec:pairs}\\
+cluster & a group of superposed equal-status pairs with the gluon/photon charge geometry $R2$ & \ref{subsec:pairs}\\
 \hline
-hunting & the $hB$ flag stage of the light frame that drives the relocation vector $c$ toward a target & \ref{subsec:algorithm}\\
+homing & the $homB$ flag stage of the light frame that drives the relocation vector $c$ toward a target & \ref{subsec:algorithm}\\
 \hline
 $s2B$ sieve & the electroweak gate $((u\cdot t)\bmod S)<u$ that admits a fraction of the overlapping active cells to the interaction branch & \ref{sec:phase-step}\\
 \hline
@@ -114,12 +114,12 @@ The notion of a computing universe traces back to Zuse~\cite{zuse}, who proposed
 Because standard CA updates are often dissipative, Fredkin and Margolus~\cite{margolus} developed reversible computation frameworks. Margolus introduced block cellular automata (the Margolus neighborhood), demonstrating that permutations on shifting blocks can conserve mass, energy, and momentum directly from bit-level dynamics. These lattice-gas models proved that discrete, local, invertible rules can reproduce continuum equations at coarse-grained scales, establishing that CA-based frameworks are capable of capturing key symmetries of physical law.
 
 \subsection*{Modern interpretations and hypergraph models}
-More recently, the discrete hypothesis has been invoked to address foundational issues in quantum mechanics and spacetime. 't~Hooft~\cite{thooft} proposed a deterministic CA interpretation of quantum mechanics, wherein quantum states are coarse-grained equivalence classes of deterministic ontological CA states, and the Hilbert-space formalism is reconstructed from classical CA dynamics via information loss at the Planck scale. 
+More recently, the discrete hypothesis has been invoked to address foundational issues in quantum mechanics and spacetime. 't~Hooft~\cite{thooft} proposed a deterministic CA interpretation of quantum mechanics.  In that interpretation, quantum states are coarse-grained equivalence classes of deterministic ontological CA states, and the Hilbert-space formalism is reconstructed from classical CA dynamics via information loss at the Planck scale. 
 
 Concurrently, Wolfram~\cite{wolfram,wolfram2020physics} has championed the computational universe hypothesis, arguing that simple CA rules (such as Rule~110) can generate the complexity required for universal computation. His recent Wolfram Physics Project generalizes CA from grid cells to hypergraph nodes updated by rewrite rules, aiming to derive spacetime and relativistic invariance from pure graph rewriting. 
 
 \subsection*{Lattice-gas and lattice-Boltzmann automata}
-A distinct tradition uses reversible block cellular automata as lattice gases that reproduce continuum hydrodynamics from purely local integer rules.  Hardy, Pomeau and Pazzis introduced the HPP lattice gas \cite{hardy1976}, and Frisch, Hasslacher and Pomeau showed that a hexagonal lattice removes the spurious anisotropy of the square HPP model and yields the Navier--Stokes equation in the macroscopic limit \cite{frisch1986}; the FHP model is the paradigmatic example of a deterministic, local, integer rule whose coarse-grained dynamics are those of a continuous field theory.  The present work shares that philosophy---a strictly local, integer-only rule with emergent continuous behavior---but differs in the target and in the ontological status of the continuum.  A lattice gas is a discretization of a pre-existing field: the hydrodynamic limit is a theorem, and the discrete objects are computational devices, not the particles themselves.  Here, by contrast, particle-like objects (pairs of bubbles riding spherical wavefronts) are meant to emerge directly from the microscopic rule, without an intermediate continuum, so the price of the ambition is that our continuum limit (Sect.~\ref{sec:Prospects-and-conjectures}) remains a labeled conjecture rather than a proven limit.  The gain claimed is precisely the ``strict deterministic ontology without coarse-graining'' of Sect.~\ref{subsec:purity}: nothing in the rule refers to a fluid, a field, or a metric, and the emergent c is a reading of the fabric by an observer (Sect.~\ref{subsec:special-relativity}) rather than a parameter of a coarse-grained equation.
+A distinct tradition uses reversible block cellular automata as lattice gases that reproduce continuum hydrodynamics from purely local integer rules.  Hardy, Pomeau and Pazzis introduced the HPP lattice gas \cite{hardy1976}; Frisch, Hasslacher and Pomeau showed that a hexagonal lattice removes the spurious anisotropy of the square HPP model and yields the Navier--Stokes equation in the macroscopic limit \cite{frisch1986}.  The FHP model is the paradigmatic example of a deterministic, local, integer rule whose coarse-grained dynamics are those of a continuous field theory.  The present work shares that philosophy---a strictly local, integer-only rule with emergent continuous behavior---but differs in the target and in the ontological status of the continuum.  A lattice gas is a discretization of a pre-existing field: the hydrodynamic limit is a theorem, and the discrete objects are computational devices, not the particles themselves.  Here, by contrast, particle-like objects (pairs of bubbles riding spherical wavefronts) are meant to emerge directly from the microscopic rule, without an intermediate continuum.  The price of that ambition is that our continuum limit (Sect.~\ref{sec:Prospects-and-conjectures}) remains a labeled conjecture rather than a proven limit.  The gain claimed is precisely the ``strict deterministic ontology without coarse-graining'' of Sect.~\ref{subsec:purity}.  Nothing in the rule refers to a fluid, a field, or a metric, and the emergent $c$ is a reading of the fabric by an observer (Sect.~\ref{subsec:special-relativity}) rather than a parameter of a coarse-grained equation.
 
 \subsection*{Positioning of the present work}
 While these foundational works establish the plausibility of a computational substrate, they often leave the explicit mapping between bit-level rules and emergent particle phenomenology as an open program. Our work differs by proposing a concrete, strictly local, integer-arithmetic rule set on a 3-torus augmented by an internal dimension $W$. Unlike 't~Hooft's equivalence classes or Wolfram's hypergraphs, we maintain a strict deterministic ontology without coarse-graining, attempting to derive spherical wavefronts, polarization, and interaction gates (such as the electroweak sieve) directly from the microscopic transition rules.
@@ -168,7 +168,7 @@ The model performs operations---translation, encounter, and wavefront propagatio
 \item \textbf{Housekeeping tick ($k$)}: An atemporal clocking mechanism used for maintaining internal processes.
 \item \textbf{Sieve test result ($s2B$)}: A Boolean bit seeded at each wave step from the local wave displacement $u$ and the step counter $t$. For $u > 0$ on an active cell, the deterministic test $((u \cdot t) \bmod \mathrm{SHELL\_TARGET}) < u$ produces a trigger, where $\mathrm{SHELL\_TARGET} = 16384$. The stored value is gated by the active flag, $s2B = \mathit{active} \land \mathit{trigger}$. Electroweak interaction occurs only when this bit is true.
 \item \textbf{Collapse flag ($kB$)}: Indicates the occurrence of collapse in the interaction, warning the components of a particle.
-\item \textbf{Blob flag ($bB$)}: Indicates whether the pair can participate in a blob (a group of superposed pairs with the same affinity, same $bB$ bits, and the same active $pB$).
+\item \textbf{cluster flag ($bB$)}: Indicates whether the pair can participate in a cluster (a group of superposed pairs with the same affinity, same $bB$ bits, and the same active $pB$).
 \end{itemize}
 
 \begin{table}[htbp]
@@ -206,10 +206,10 @@ momentum vector & V & $\boldsymbol{m}$ & integer momentum, typically $\lvert\bol
 translation impulse & V & $\mathit{reloc}$ & consumable signed displacement; filled by encounter, applied by \texttt{applyMomentum} \\
 housekeeping tick & DN & $k$ & timeless clocking \\
 sieve test result & B & $s2B$ & seeded from $u$ and $t$, gated by $\mathit{active}$ \\
-sB hunting & B & $hB$ & flag to find the sB bit \\
+sB homing & B & $homB$ & flag to find the sB bit \\
 contraction flag & B & $cB$ & marks a bubble in the contraction phase \\
 collapse flag & B & $kB$ & hints collapse \\
-blob flag & B & $bB$ & marks pairs eligible for blob formation \\
+cluster flag & B & $bB$ & marks pairs eligible for cluster formation \\
 \hline
 \textbf{Source model} & & & \\
 \hline
@@ -279,7 +279,7 @@ Among the many possible choices, we select the following deterministic Platonic 
 \item The internal address $w$ is immutable; charge bits are derived from its charge-family index $\nu=\lfloor w/\ell\rfloor$, so copies of a family have equal charges. In the seed used for the numerical experiments, $w_0=\nu\bmod2$, $w_1=\lfloor\nu/2\rfloor\bmod2$, $q=w_1\oplus w_0$ and color $=\nu\bmod8$.
 \item The affinity $a$ and the auxiliary leader identity $\mathit{leader\_w}$ are initialized to the island index of the $W$-island to which $w$ belongs (Sect.~\ref{subsec:w-islands}).  A true chief ($K$) emerges later through encounter, as described in Section~\ref{sec:dynamic-charge-quantization}.
 \item The housekeeping counter $k$ and the wavefront counter $t$ are set to zero; the contraction/phase vectors $\mathbf{c}$ are zero and $s2B$ is reset.
-\item The momentum vector $\boldsymbol{m}$ is initialized to $\boldsymbol{0}$. The dynamic election path may install a direction at an expansion limit, once on the frame edge. Once a pair is an affinity-bound propeller with nonzero $\boldsymbol{m}$, its transport direction is preserved rather than replaced at every era. Prepared-island probes explicitly seed that direction to isolate the inertial mechanism.
+\item The momentum vector $\boldsymbol{m}$ is initialized to $\boldsymbol{0}$. The dynamic election path may install a direction at an expansion limit, once on the frame edge. Once a pair is an affinity-bound drive pair with nonzero $\boldsymbol{m}$, its transport direction is preserved rather than replaced at every era. Prepared-island probes explicitly seed that direction to isolate the inertial mechanism.
 \item The consumable translation impulse $\mathit{reloc}$ is zero.
 \item The wavefront data are seeded only at the source centers: $u=v=0$ and $r^{2}=0$, with a fixed amplitude $U_{0}$; all other cells have $r^{2}=\mathrm{INF}$ and $u=v=0$.
 \end{itemize}
@@ -373,7 +373,7 @@ Each pass lets every cell adopt the greatest payload among its six face neighbor
 \[
 \mathrm{payload}(x)\;\leftarrow\;\max\bigl(\mathrm{payload}(x),\;\mathrm{payload}(x\pm e_i)\bigr),
 \]
-with alternating sweep directions; $2R+8$ passes guarantee full coverage of the lattice.  The true winner---the \emph{seeded} cell holding the greatest payload---is identified once, at sowing time, while the payloads are still unique; the diffusion flood merely transports the news and never redefines the winner.  The displacement from the lattice center to the winning cell becomes the momentum vector $\boldsymbol{m}$: it is rescaled to $\lvert\boldsymbol{m}\rvert=L/2$ and written onto the source-center cell of the layer.  That write is the sole dynamic initialization of $\boldsymbol{m}$; thereafter the inertia path (Sect.~\ref{subsubsec:propeller}) treats $\boldsymbol{m}$ as immutable and only reads it to accumulate $\mathit{reloc}$ impulses.  The same elected axis drives the helical walker of Stage~2.  The next expansion limit may elect a fresh direction; nothing is prescribed at the Platonic seed, and the orientation is read off the automaton's own ledger at the instant the wave reaches its limit.
+with alternating sweep directions; $2R+8$ passes guarantee full coverage of the lattice.  The true winner---the \emph{seeded} cell holding the greatest payload---is identified once, at sowing time, while the payloads are still unique; the diffusion flood merely transports the news and never redefines the winner.  The displacement from the lattice center to the winning cell becomes the momentum vector $\boldsymbol{m}$: it is rescaled to $\lvert\boldsymbol{m}\rvert=L/2$ and written onto the source-center cell of the layer.  That write is the sole dynamic initialization of $\boldsymbol{m}$; thereafter the inertia path (Sect.~\ref{subsubsec:drive pair}) treats $\boldsymbol{m}$ as immutable and only reads it to accumulate $\mathit{reloc}$ impulses.  The same elected axis drives the helical walker of Stage~2.  The next expansion limit may elect a fresh direction; nothing is prescribed at the Platonic seed, and the orientation is read off the automaton's own ledger at the instant the wave reaches its limit.
 
 \paragraph{Stage 2: Broadcast.}  As soon as $\boldsymbol{m}$ exists, a helical walker traces the spiral arm on the pulsating bubble.  It advances one cell per tick around the cylinder whose axis is the elected direction, keeping the radial error within about one cell by purely local comparisons among its six neighbors.  The walker is an arbitrary-axis integer helix (implementation details in the source code: \texttt{spiral/spiral.c}).  During the walk, each newly computed spiral point writes one plus the current tick into its own cell of a second value lattice, reserving $b(x)=0$ for ``never reached''.
 
@@ -467,27 +467,27 @@ $REISSUE + 3(L-1)$: final synchronization of the three lattices.
 \item \textbf{FRAME}\\
 Same value as $FLOOD$; total duration of the light step.
 \item \textbf{effective\_t}\\
-Triangular breathing phase (the active-shell radius): $\mathrm{effective\_t}(t)=t\bmod L$ for $t\bmod L\le L/2$, and $L-(t\bmod L)$ otherwise; one era has period $L$ in $t$, with amplitude $L/2$.
+Triangular breathing phase (the active-shell radius): $\mathrm{effective\_t}(t)=t\bmod L$ for $t\bmod L\le L/2$, and $L-(t\bmod L)$ otherwise.  The active-shell radius therefore advances one cell per step of the local tick $t$---i.e., per light frame---from $0$ up to the amplitude $L/2=\mathrm{RMAX}$ on the expansion branch and back to $0$ on the contraction branch; each branch lasts $L/2$ frames, so one era (one full expansion-and-contraction cycle) has period $L=2\,\mathrm{RMAX}$ in $t$ and spans $L$ light frames.  An era is distinct from a light frame and from the housekeeping tick $k$.
 \end{itemize}
-\subsection{Bubble, pair, singleton, and blob} \label{subsec:pairs}
+\subsection{Bubble, pair, singleton, and cluster} \label{subsec:pairs}
 A \emph{bubble} is an expanding spherical wavefront of information organized across cells within a common layer. Spherical propagation is determined by comparing the dynamic radius $r$ to the wavefront tick $t$.
 \subsubsection{Pair}
 Two bubbles are overlapping if they share the same spatial coordinates and $t_1=t_2$. Overlapping bubbles can form a \emph{pair} if they have the same affinity, that is, $a_1=a_2$; the two partners share a center and phase, and their charges are complementary or matching depending on the pair's role. Pairs may remain bound to a particle as \emph{dressing} pairs or propagate freely as photons; a free pair expands outward and is gradually consumed, releasing two singletons at distinct locations.
-\subsubsection{Propeller} \label{subsubsec:propeller}
-A pair can act as a \textit{propeller}, repositioning other bubbles and providing inertia.
-A propeller is a reciprocal photon-type pair that has adopted the island's affinity $a$ and carries a non-zero transport vector $\boldsymbol{m}$, typically on the scale $L/2$. Neither a nonzero vector alone nor receiving a translation impulse makes a source a propeller. A free pair must first acquire the particle's affinity.
-Consider an island of $N=L/3$ equal charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without propellers its center of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
-The reference simulation algorithm resolves each unordered source contact once per light frame, counting a reciprocal pair once rather than once per half or overlapping voxel. A pair can deliver at most one unit face-step to one contacted body element, in a direction selected from $\boldsymbol{m}$; receiving that step preserves the target's $K/D$ identity. $\boldsymbol{m}$ is not a displacement of $L/2$ cells and is retained while the pair remains a propeller. These mechanical, same-affinity contacts are not gated by the electroweak sieve.
+\subsubsection{drive pair} \label{subsubsec:drive pair}
+A pair can act as a \textit{drive pair}, repositioning other bubbles and providing inertia.
+A drive pair is a reciprocal photon-type pair that has adopted the island's affinity $a$ and carries a non-zero transport vector $\boldsymbol{m}$, typically on the scale $L/2$. Neither a nonzero vector alone nor receiving a translation impulse makes a source a drive pair. A free pair must first acquire the particle's affinity.
+Consider an island of $N=L/3$ equal charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without drive pairs its center of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
+The reference simulation algorithm resolves each unordered source contact once per light frame, counting a reciprocal pair once rather than once per half or overlapping voxel. A pair can deliver at most one unit face-step to one contacted body element, in a direction selected from $\boldsymbol{m}$; receiving that step preserves the target's $K/D$ identity. $\boldsymbol{m}$ is not a displacement of $L/2$ cells and is retained while the pair remains a drive pair. These mechanical, same-affinity contacts are not gated by the electroweak sieve.
 \subsubsection{Singleton}
 An unpaired bubble is called a \textit{singleton}; it is not a generic synonym for bubble.
-\subsubsection{Blob}
-The \textit{blob} is a group of superposed pairs having the same affinity, same true $bB$ bits and the same (active) pBits.
+\subsubsection{cluster}
+The \textit{cluster} is a group of superposed pairs having the same affinity, same true $bB$ bits and the same (active) pBits.
 \subsubsection{Specialized pairs} \label{subsec:specialized-pairs}
-Certain pair combinations are not allowed to form blobs:
+Certain pair combinations are not allowed to form clusters:
 \begin{itemize}
 \item Neutrino and antineutrino pairs possess color values $N, N$ and $\bar{N}, \bar{N}$, respectively.
 \item The up quark fragments $u$ exhibit equal, nontrivial colors and a positive charge in the case of Orbis.
-\item The propeller adds to the relativistic mass of the propelled fermion.\footnote{This mirrors a Kantian view: particles do not self-move but require an external cause---here, interaction with fragments---to change their state.}
+\item The drive pair adds to the relativistic mass of the propelled fermion.\footnote{This mirrors a Kantian view: particles do not self-move but require an external cause---here, interaction with fragments---to change their state.}
 \item Pairs with fully complementary charges are \emph{gravitons}. They operate in both Orbis and Umbra,\footnote{Orbis and Umbra coexist spatially.} have fixed oscillation frequency $2$, and mediate static cross-sector interactions; without them, Umbra matter would appear inert in Orbis. Graviton-induced gravity is detailed in Sect.~\ref{subsec:emergence-of-gravity}.
 \end{itemize}
 \subsection{Interaction principles}
@@ -529,7 +529,7 @@ These rules implement the formation of pairs, as defined in Sect. \ref{subsec:pa
 If pairs are detected, one frequency unit is registered on the pair stack (Sect.~\ref{bosons}); the wave phase $f$ itself remains the triangular breathing phase of the local tick.
 $s2B$ is updated as $s2B' = s2B \ \textbf{and} \ \mathit{active}$.
 Notice that the pairs are formed in two steps: first, cell $a$ compares with cell $b$, and later, cell $b$ compares with cell $a$ (reciprocity).
-The formation of blobs is made during this step too, also following the reciprocity principle.
+The formation of clusters is made during this step too, also following the reciprocity principle.
 Pairs are allowed to superpose if they are equal and were formed by the two first rules above.
 \subsubsection{Distinct bubbles} \label{subsec:distinct}
 The $w_1$ bit separates distinct-bubble interactions into same-sector ($w_1^1=w_1^2$) and inter-sector cases; we first treat same-sector interactions.
@@ -556,7 +556,7 @@ Three coupled tasks close the frame---diffusion, translation, and collapse handl
 
 Diffusion propagates the information needed for translation, ending at the \texttt{DIFFUSION} tick (Figure~\ref{fig:diffusion}). If any collapse bit $kB$ is set, it spreads to all bubbles sharing the same affinity, identifying every contributor to the collapsing particle.
 The wave phase $f$ is not diffused: it is the local triangular breathing phase $\mathrm{effective\_t}(t)$ of each cell (Sect.~\ref{sec:light-frame}). Phases incremented by multiples of the era period interact with the wave-cloud sieve to form concentric bubbles; the active wavefront point ($t=d$) is forwarded to the Euclidean bubble through $s2B$.
-At the same time, the translation vector $\mathbf{c}$ diffuses through the layer: each cell copies the first non-trivial $\mathbf{c}$ found among its neighbors. Finally, $sB$ hunting increments $\boldsymbol{c}$ along any axis where a neighbor has $hB=1$, but only when the local cell has $sB=0$. By the end of diffusion, $\boldsymbol{c}$ is ready for translation.
+At the same time, the translation vector $\mathbf{c}$ diffuses through the layer: each cell copies the first non-trivial $\mathbf{c}$ found among its neighbors. Finally, $sB$ homing increments $\boldsymbol{c}$ along any axis where a neighbor has $homB=1$, but only when the local cell has $sB=0$. By the end of diffusion, $\boldsymbol{c}$ is ready for translation.
 \begin{figure}
 \begin{center}
 \begin{tikzpicture}[
@@ -570,7 +570,7 @@ arrow/.style={-{Latex[length=2mm]}, thick, blue!60}
 In 3D:\\
 Propagate orphans outward\\
 Propagate cB inward\\
-Hunting sB using hB
+homing sB using homB
 };
 \node[phase, below=0.9cm of t1] (t2) {
 \textbf{Time slot 2}\\
@@ -621,16 +621,16 @@ This timing is crucial to avoid the 'clean diamond' pattern with the new values 
 When the translation is complete, bubble variables are prepared for the next cycle.
 If the time frame completes, the $k$ counter resets to zero, preparing the system for the next iteration.
 At the conclusion of the process, all $\boldsymbol{c}$ vectors will have a null value.
-For internal inertial transport, source contacts are gathered during the encounter window and resolved at the end of the light frame. The numerical experiments use the following operational choices to evaluate the proposed transport mechanism. Reciprocal $K\times D$ and $D\times D$ face-steps reduce separations greater than one cell without changing the sum of body positions. Each body element can move at most once per frame. Each reciprocal propeller pair can push at most one contacted body element; among eligible contacts it prefers the rear element along $\boldsymbol{m}$, with a rotating address tie-break. An integer DDA distributes successive face-steps in proportion to the absolute components of $\boldsymbol{m}$, retaining their signs. Zero-radius phases have no extended propelling surface. Both halves of the bound pair recycle by the same bounded face-step toward the contacted constituent. These are reference transport rules to test the proposed mechanism, not a derivation of Newtonian mechanics or rotational invariance.
+For internal inertial transport, source contacts are gathered during the encounter window and resolved at the end of the light frame. The numerical experiments use the following operational choices to evaluate the proposed transport mechanism. Reciprocal $K\times D$ and $D\times D$ face-steps reduce separations greater than one cell without changing the sum of body positions. Each body element can move at most once per frame. Each reciprocal drive pair pair can push at most one contacted body element; among eligible contacts it prefers the rear element along $\boldsymbol{m}$, with a rotating address tie-break. An integer DDA distributes successive face-steps in proportion to the absolute components of $\boldsymbol{m}$, retaining their signs. Zero-radius phases have no extended propelling surface. Both halves of the bound pair recycle by the same bounded face-step toward the contacted constituent. These are reference transport rules to test the proposed mechanism, not a derivation of Newtonian mechanics or rotational invariance.
 The resulting unit step, rather than the full vector $\boldsymbol{m}$, enters $\boldsymbol{\mathit{reloc}}$. At the frame boundary, \texttt{applyMomentum} translates the bubble's layer state periodically, consumes the step and preserves its charge, affinity, source kind, pair identity, clock and transport vector. Translating the distance field together with its source avoids leaving a false source or stale distance minima. The source transaction commits after the voxel sweep so later cells cannot overwrite previously registered contacts or source changes. The partner rotation selects a $W$ identity; active flags are read at the current physical instant rather than from the preceding frame's shell.
-The simulation algorithm uses globally coordinated source snapshots, contact arbitration, and layer translations. A strictly local cellular realization of that coordination remains to be established; the mechanical tests below validate the reference algorithm, not the purity constraints of Sect.~\ref{subsec:purity}. Dynamic initialization is never suspended, but election does not overwrite the direction of an already bound propeller.
-Let $N$ denote the number of equal $K/D$ body elements, excluding the propeller dressing. For $n$ successful collinear unit kicks in a frame, with reciprocal cohesion contributing zero net displacement, the body's mean center of mass advances by
+The simulation algorithm uses globally coordinated source snapshots, contact arbitration, and layer translations. A strictly local cellular realization of that coordination remains to be established; the mechanical tests below validate the reference algorithm, not the purity constraints of Sect.~\ref{subsec:purity}. Dynamic initialization is never suspended, but election does not overwrite the direction of an already bound drive pair.
+Let $N$ denote the number of equal $K/D$ body elements, excluding the drive pair dressing. For $n$ successful collinear unit kicks in a frame, with reciprocal cohesion contributing zero net displacement, the body's mean center of mass advances by
 \begin{equation}
 \Delta_{\mathrm{CoM}} \;=\; \frac{n}{N}
 \end{equation}
-cells per frame, with $n \leq N$. Oppositely directed steps enter with their signs; for general directions use $N^{-1}\sum_i\Delta\boldsymbol{x}_i$. This is a measured displacement identity, not a velocity assigned to the island or a mass law. Propeller-pair centers must be counted once each when separately measuring the dressed particle. Without propulsion, reciprocal cohesion preserves the body's center of mass. The displacements reported here are measured in cells per light frame. The housekeeping counter $k$ indexes the internal stages of that frame and is not the physical time used in these measurements.
-Non-propeller pairs behave differently: in $K \times K$ or $D \times D$ between different tribes the source centers move one light-step away from each other, exchanging momentum through $\boldsymbol{\mathit{reloc}}$.
-An unbound pair may acquire an island's affinity through an admissible encounter. Subsequent same-affinity contacts provide propulsion; a pair of a different affinity cannot act as that island's internal propeller. Receiving a displacement never promotes a $K/D$ source to $P$.
+cells per frame, with $n \leq N$. Oppositely directed steps enter with their signs; for general directions use $N^{-1}\sum_i\Delta\boldsymbol{x}_i$. This is a measured displacement identity, not a velocity assigned to the island or a mass law. drive pair-pair centers must be counted once each when separately measuring the dressed particle. Without propulsion, reciprocal cohesion preserves the body's center of mass. The displacements reported here are measured in cells per light frame. The housekeeping counter $k$ indexes the internal stages of that frame and is not the physical time used in these measurements.
+Non-drive pair pairs behave differently: in $K \times K$ or $D \times D$ between different tribes the source centers move one light-step away from each other, exchanging momentum through $\boldsymbol{\mathit{reloc}}$.
+An unbound pair may acquire an island's affinity through an admissible encounter. Subsequent same-affinity contacts provide propulsion; a pair of a different affinity cannot act as that island's internal drive pair. Receiving a displacement never promotes a $K/D$ source to $P$.
 \medskip\noindent\textbf{Annihilation and collapse.} Annihilation and light-matter collapse both occur during the encounter stage. In annihilation, the affinity reverts to its default value $a=w$, and the resulting bubbles become raw material for new particles.
 This ontological collapse introduces an arrow of time at the fundamental level, reinforcing the second law of thermodynamics and pushing Poincar\'{e} recurrence far into the future (Sect.~\ref{sec-undecidability}).
 \paragraph{Reversibility.} Because Fredkin and Margolus are cited as bases (Sect.~\ref{sec:related-work}), the reversibility status should be stated explicitly.  The transition is \emph{not} injective: (i) the $s2B$ sieve discards information (the gate result is a single bit derived from a product modulo $S$); (ii) collapse sets $kB$ and reverts affinity to its default, and reissue resets the local clock $t$; (iii) relocation moves source centers and the flood stage synchronizes the three lattices by overwrite.  Each of these steps is many-to-one, so the map from one light frame to the next is not reversible, and no inverse step is defined.  This is a deliberate difference from Fredkin's reversible-computation programme: the model is a dissipative deterministic automaton with an explicit arrow of time (see above), and it is not a candidate for Landauer-free computation.  The claim is that the irreversible steps are confined to the hidden coordination fields and to the aggregate bookkeeping, so that the \emph{physical} (readable) evolution keeps its local, causal character (Sect.~\ref{subsec:nosignaling-formal}); reversibility of the whole map is neither assumed nor required.
@@ -678,7 +678,7 @@ At the end of each $k$ tick, the draft lattice is transferred to main. If $k$ li
 \caption{Model architecture. \label{fig:architecture} Left: the $L\times L\times L$ 3-torus (spatial fabric), with one source center per layer emitting a spherical wavefront.  Middle: the internal dimension of $W$ layers; each layer carries one bubble and the layers are compared by the encounter stage.  Right: the light-frame pipeline of the finite-state machine---\textsc{Encounter} (interaction rules), diffusion of affinity and flags, relocation of sources, reissue, and flood---executed in $\mathrm{FRAME}$ housekeeping ticks $k$; the wavefront advances exactly one cell per tick, at the maximum information speed $v_{\max}$.}
 \end{figure}
 \subsection{Algorithmic summary of one light frame}\label{subsec:algorithm}
-For reproducibility, Algorithms~\ref{alg:lightframe}--\ref{alg:blob} give a self-contained account of one complete light frame: Algorithm~\ref{alg:lightframe} is the frame driver (incremental distance field, integer wave update, the six interaction stages, the charge-conjugation hook, momentum and lattice swap), and Algorithms~\ref{alg:pair}--\ref{alg:blob} give the interaction rules invoked by the \textsc{Encounter} stage.  Together they define the full transition function; the repository (Ref.~\cite{af_neto}, \texttt{simulation.cpp}, \texttt{interaction.cpp}) is not needed to reproduce the dynamics.  The notation follows Table~\ref{tab:Cell-structure}: a charge word is written $w_{1}\,w_{0}\,q\,c_{2}\,c_{1}\,c_{0}$ (most significant first), $c_{2}c_{1}c_{0}$ is the color, $000\mathrm{B}=N$ and $111\mathrm{B}=\bar{N}$, and $\overline{ca}$ denotes the six-bit complement of the charge word $ca$.  Subscripts $a$ and $b$ label the two interacting bubbles, so $q_a$ is bit $q$ of bubble $a$, $w_{1,a}$ bit $w_{1}$ of bubble $a$, and so on.
+For reproducibility, Algorithms~\ref{alg:lightframe}--\ref{alg:cluster} give a self-contained account of one complete light frame: Algorithm~\ref{alg:lightframe} is the frame driver (incremental distance field, integer wave update, the six interaction stages, the charge-conjugation hook, momentum and lattice swap), and Algorithms~\ref{alg:pair}--\ref{alg:cluster} give the interaction rules invoked by the \textsc{Encounter} stage.  Together they define the full transition function; the repository (Ref.~\cite{af_neto}, \texttt{simulation.cpp}, \texttt{interaction.cpp}) is not needed to reproduce the dynamics.  The notation follows Table~\ref{tab:Cell-structure}: a charge word is written $w_{1}\,w_{0}\,q\,c_{2}\,c_{1}\,c_{0}$ (most significant first), $c_{2}c_{1}c_{0}$ is the color, $000\mathrm{B}=N$ and $111\mathrm{B}=\bar{N}$, and $\overline{ca}$ denotes the six-bit complement of the charge word $ca$.  Subscripts $a$ and $b$ label the two interacting bubbles, so $q_a$ is bit $q$ of bubble $a$, $w_{1,a}$ bit $w_{1}$ of bubble $a$, and so on.
 \begin{algorithm}[ht]
 \caption{One complete light frame (the full per-cell transition function, one synchronous $k$-tick).}
 \label{alg:lightframe}
@@ -697,15 +697,15 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \For{each cell $(x,y,z)$ in the 3-torus}
 \State $C \gets lattice\_curr(x,y,z,w)$; $D \gets C$; $M \gets lattice\_partner(x,y,z,w)$ \Comment{$M$: the partner cell}
 \If{$k < \mathrm{ENCOUNTER}$}
-\State \Call{Encounter}{$C,D,M$} \Comment{interaction rules R1--R6, Algorithms~\ref{alg:pair}--\ref{alg:blob}; source-kind (K/S/D/P) contact re-emission and momentum impulse}
+\State \Call{Encounter}{$C,D,M$} \Comment{interaction rules R1--R6, Algorithms~\ref{alg:pair}--\ref{alg:cluster}; source-kind (K/S/D/P) contact re-emission and momentum impulse}
 \ElsIf{$k < \mathrm{GSLOT\_Z}$}
 \State glider slots \Comment{reserved for the antipodal transport schedule; not exercised by the reference simulation algorithm}
 \ElsIf{$k < \mathrm{DIFFUSION}$}
-\State \Call{Diffuse}{$C,D$} \Comment{orphan expansion ($a \gets W$ from a full neighbor); hunting $hB \to$ translation vector $\boldsymbol{c}$; $\boldsymbol{c}$ and $kB$ transport; affinity settle}
+\State \Call{Diffuse}{$C,D$} \Comment{orphan expansion ($a \gets W$ from a full neighbor); homing $homB \to$ translation vector $\boldsymbol{c}$; $\boldsymbol{c}$ and $kB$ transport; affinity settle}
 \ElsIf{$k < \mathrm{RELOC}$}
 \State \Call{Relocate}{$C,D$} \Comment{consume the translation vector $\boldsymbol{c}$ along the three axes (north, west, down)}
 \ElsIf{$k < \mathrm{REISSUE}$}
-\State \Call{Reissue}{$C,D$} \Comment{reset $kB,hB,bB$; propagate affinity outward from $active$ cells; consume the contraction flag $cB$ (reset $t$)}
+\State \Call{Reissue}{$C,D$} \Comment{reset $kB,homB,bB$; propagate affinity outward from $active$ cells; consume the contraction flag $cB$ (reset $t$)}
 \Else
 \State \Call{Flood}{$C,D$} \Comment{synchronize the light clock: $D.t \gets \min$ of the six neighbor $t$}
 \EndIf
@@ -749,20 +749,20 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \end{algorithmic}
 \end{algorithm}
 \begin{algorithm}[ht]
-\caption{Blob formation, electric/magnetic channels, and collapse (superposing and distinct bubbles).}
-\label{alg:blob}
+\caption{cluster formation, electric/magnetic channels, and collapse (superposing and distinct bubbles).}
+\label{alg:cluster}
 \begin{algorithmic}[1]
-\Function{CanFormBlob}{$a,b$}
+\Function{CanFormcluster}{$a,b$}
 \State $ca \gets a.ch$; $cb \gets b.ch$
-\If{$ca = cb = 000000\mathrm{B}$ \textbf{or} $ca = cb = 111111\mathrm{B}$} \Comment{R3/R4 never blob}
+\If{$ca = cb = 000000\mathrm{B}$ \textbf{or} $ca = cb = 111111\mathrm{B}$} \Comment{R3/R4 never cluster}
 \State \Return \textbf{false}
-\ElsIf{$\overline{ca} = cb$} \Comment{R1 graviton never blobs}
+\ElsIf{$\overline{ca} = cb$} \Comment{R1 graviton never clusters}
 \State \Return \textbf{false}
 \EndIf
 \State decode $(q,w_{1},w_{0})$ and $col$ of $ca,cb$ as in Algorithm~\ref{alg:pair}
-\If{$q_a = q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} = w_{0,b}$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5/R6 up quark never blobs}
+\If{$q_a = q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} = w_{0,b}$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5/R6 up quark never clusters}
 \State \Return \textbf{false}
-\ElsIf{$a.\mathit{reloc} \neq 0$ \textbf{or} $b.\mathit{reloc} \neq 0$} \Comment{propeller never blobs}
+\ElsIf{$a.\mathit{reloc} \neq 0$ \textbf{or} $b.\mathit{reloc} \neq 0$} \Comment{drive pair never clusters}
 \State \Return \textbf{false}
 \EndIf
 \State \Return $w_{1,a} = w_{1,b}$ \textbf{and} $q_a \neq q_b$ \textbf{and} $w_{0,a} \neq w_{0,b}$ \textbf{and} $col_a \oplus col_b = 111\mathrm{B}$ \Comment{only the R2 geometry}
@@ -772,8 +772,8 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \If{$samePos$ \textbf{and} $sameT$ \textbf{and} \Call{CanFormPair}{$C,M$}}
 \State $D.kind \gets M.kind \gets P$; $D.pair\_idx \gets M.w$; $M.pair\_idx \gets C.w$ \Comment{form a pair}
 \State $D.a \gets M.a \gets$ shared affinity; \Call{ReemitAtContact}{$D,M$}; reset $t$
-\If{$newCount > 1$ \textbf{and} \Call{CanFormBlob}{$C,M$} \textbf{and} $C.pB = M.pB$ \textbf{and} $C.sB = M.sB$ \textbf{and} $C.bB = M.bB$}
-\State $D.bB \gets M.bB \gets \textbf{true}$ \Comment{blob}
+\If{$newCount > 1$ \textbf{and} \Call{CanFormcluster}{$C,M$} \textbf{and} $C.pB = M.pB$ \textbf{and} $C.sB = M.sB$ \textbf{and} $C.bB = M.bB$}
+\State $D.bB \gets M.bB \gets \textbf{true}$ \Comment{cluster}
 \EndIf
 \ElsIf{$C.pB$ \textbf{or} $M.pB$ \textbf{or} $C.sB$ \textbf{or} $M.sB$} \Comment{electric/magnetic contact}
 \If{$C.pB \wedge M.pB$ \textbf{or} $C.sB \wedge M.sB$} \Comment{collapse}
@@ -791,11 +791,11 @@ As given in Sect.~\ref{subsec:updating}, \textsc{SwapLattices} transfers the dra
 Some interaction details are now clarified.
 \subsection{Charge driven interactions}
 \subsubsection{Static interactions}
-A static interaction (Coulomb or magnetic) between two distant charges $q_1$ and $q_2$ begins when an orphan singleton from $q_1$ aligns with a vacuum graviton; both are reissued at the contact point. If the graviton then interacts with $q_2$, it is reissued there and acquires $q_2$'s affinity. Thus gravitons propagate along the flux of orphans from particle 1, increasing the chance of hitting $q_2$ and becoming one of its propellers. The same occurs in reverse.
+A static interaction (Coulomb or magnetic) between two distant charges $q_1$ and $q_2$ begins when an orphan singleton from $q_1$ aligns with a vacuum graviton; both are reissued at the contact point. If the graviton then interacts with $q_2$, it is reissued there and acquires $q_2$'s affinity. Thus gravitons propagate along the flux of orphans from particle 1, increasing the chance of hitting $q_2$ and becoming one of its drive pairs. The same occurs in reverse.
 \subsubsection{Coulomb interaction} \label{subsec:Coulomb-interaction}
-The proposed Coulomb mechanism involves orphan wavefronts guiding free pairs toward another particle. A pair becomes that particle's propeller only after acquiring its affinity; subsequent internal contacts can then transport its $K/D$ constituents in the pair's $\boldsymbol{m}$ direction. The receiving constituent does not become a propeller. The current internal-transport tests do not establish the external capture rates, charge-sign dependence or a Coulomb distance law.
+The proposed Coulomb mechanism involves orphan wavefronts guiding free pairs toward another particle. A pair becomes that particle's drive pair only after acquiring its affinity; subsequent internal contacts can then transport its $K/D$ constituents in the pair's $\boldsymbol{m}$ direction. The receiving constituent does not become a drive pair. The current internal-transport tests do not establish the external capture rates, charge-sign dependence or a Coulomb distance law.
 \subsubsection{Static magnetic interaction}
-The magnetic case uses $sB$ instead of $pB$ and applies to charged leptons, quarks and W bosons. Because propellers emphasize $pB$ over $sB$, fast particles tend to acquire a component perpendicular to their direction of motion.
+The magnetic case uses $sB$ instead of $pB$ and applies to charged leptons, quarks and W bosons. Because drive pairs emphasize $pB$ over $sB$, fast particles tend to acquire a component perpendicular to their direction of motion.
 \subsubsection{Neutrino interactions}
 Let $q_{0,1}$ be a complementary electric-bit pair. A neutrino fragment has charge content $q_{0,1}=00000B$; an antineutrino has $q_{0,1}=01111B$. (Anti)neutrino fragments interact only with (right-)left-handed particles.
 \subsubsection{The up quark and down quark fragments}
@@ -943,7 +943,7 @@ In an admissible $D\times D$ encounter between equal-charge delegates, one deleg
 
 Conversely, an admissible equal-charge $K\times K$ clash leaves one chief and demotes the other to a delegate of the surviving chief. In the reference experiment, the smaller W address survives; among several encountered chiefs, the smallest eligible address is retained. This is an explicit deterministic tie-break, not a demonstrated physical origin of symmetry breaking. Existing delegates of a demoted chief are not reassigned remotely by this transition. The propagation of their updated membership and the resulting balance between chief creation and removal remain subjects of the coagulation experiment.
 
-Here $n$ counts delegates associated with the chief; the propeller dressing is excluded. The population $1+n=L/3$, or $n=(L/3)-1$, and a tendency to maintain it are hypotheses for the aggregation dynamics to test. They do not follow from complete membership of a seed family. In particular, $9L$ spatial islands of $L/3$ constituents are a proposed outcome to investigate, not a partition imposed by initialization or election.
+Here $n$ counts delegates associated with the chief; the drive pair dressing is excluded. The population $1+n=L/3$, or $n=(L/3)-1$, and a tendency to maintain it are hypotheses for the aggregation dynamics to test. They do not follow from complete membership of a seed family. In particular, $9L$ spatial islands of $L/3$ constituents are a proposed outcome to investigate, not a partition imposed by initialization or election.
 
 The chief gives the island its identity. Each bubble retains its intrinsic address $w$; its parent and auxiliary leader identity record its association with a chief. Sharing affinity alone neither joins two islands nor makes an $S$ a delegate. Counting chiefs and their delegates measures associations; spatial localization and persistence must be measured separately before those associations can be called stable islands. The seed bookkeeping identity is
 \begin{equation}
@@ -961,7 +961,7 @@ A stable attractor $N_*$ then appears near
 \Gamma_{\mathrm{cap}}(N_*) \simeq \Gamma_{\mathrm{esc}}(N_*),
 \end{equation}
 without any global counter. The characteristic charge of a particle is the statistically preferred population of this attractor, dressed by the required photon pairs.
-The coordinated translation of Sect.~\ref{subsec:translation} is what prevents premature deterioration of such localized particles across scales, from a resting aggregate up to parton-level probing: because a kick displaces a single bubble while the mean center of mass advances only by $\Delta_{\mathrm{CoM}}=n/N$, no constituent ever outruns the affinity that recaptures it; and identity survives every collapse-and-reissue because the intrinsic address $w$ is immutable while only the auxiliary \texttt{leader\_w} converges. Robustness is thus distributed over homeostasis ($N_*$), continuous affinity re-propagation at reissue, and conservative encounter rules --- not stored in any fragile global state.
+The coordinated translation of Sect.~\ref{subsec:translation} is what prevents premature deterioration of such localized particles across scales, from a resting aggregate up to parton-level probing.  Because a kick displaces a single bubble while the mean center of mass advances only by $\Delta_{\mathrm{CoM}}=n/N$, no constituent ever outruns the affinity that recaptures it.  Identity survives every collapse-and-reissue because the intrinsic address $w$ is immutable while only the auxiliary \texttt{leader\_w} converges. Robustness is thus distributed over homeostasis ($N_*$), continuous affinity re-propagation at reissue, and conservative encounter rules --- not stored in any fragile global state.
 \subsection{Origin of $W$ and FSM addressing}
 The non-spatial dimension has size
 \begin{equation}
@@ -976,18 +976,18 @@ splits the ledger into $9L$ charge families, each with $L/3$ identical copies. I
 At this point, the core construction of the cellular automaton is complete.
 \section{Results}\label{sec:Results}
 \subsection{Prepared-island inertia: numerical evaluation}\label{subsec:inertia-validation}
-The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in a $9\times5\times5$ periodic tube, one $K$ and two $D$, and reciprocal photon-type pairs ($0\mathrm{x}00$, $0\mathrm{x}1F$) with the same affinity. These are prepared initial conditions, not an electron assembled from the Platonic seed. For the $48$-frame baseline the first $12$ frames are excluded from means. Measured axial body velocities are $0$ without propellers, $+0.250000$ with one rightward pair, $+0.750000$ with three, and $-0.250000$ with one leftward pair, in cells per light frame. Two opposed pairs give zero mean velocity, and a pair of another affinity produces no internal propulsion. Each constituent takes at most one face-step per frame; charge, affinity, $K/D$ roles and reciprocal pair identities are checked after transport, including torus crossings. An initially separated body conserves its center of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
+The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in a $9\times5\times5$ periodic tube, one $K$ and two $D$, and reciprocal photon-type pairs ($0\mathrm{x}00$, $0\mathrm{x}1F$) with the same affinity. These are prepared initial conditions, not an electron assembled from the Platonic seed. For the $48$-frame baseline the first $12$ frames are excluded from means. Measured axial body velocities are $0$ without drive pairs, $+0.250000$ with one rightward pair, $+0.750000$ with three, and $-0.250000$ with one leftward pair, in cells per light frame. Two opposed pairs give zero mean velocity, and a pair of another affinity produces no internal propulsion. Each constituent takes at most one face-step per frame; charge, affinity, $K/D$ roles and reciprocal pair identities are checked after transport, including torus crossings. An initially separated body conserves its center of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
 In $160$-frame runs with $40$ frames excluded, a five-element island in a $15\times9\times9$ tube moves at $0.175000$ with one pair and $0.700000$ with four; its maximum pairwise body separation is one cell. Eight aligned pairs driving the three-element island saturate at $0.750000$, rather than producing longer jumps. The speed depends on actual contact opportunities, phase and the transport schedule; no universal mass law follows from these values. Commands and validation limits are in \texttt{experiments/INERTIA.md}.
 \paragraph{Status of the following historical measurements.} The remaining numerical results in this section predate the seed and source-transport corrections. They are retained for provenance and do not validate the revised executable. In particular, the old $6996/18/0$ contact counts and the attractor tables must be rerun before any quantitative comparison with the new mechanics.
 We now give a few practical examples.
 \subsection{The maximum information speed and the size of the universe}
 We can now state the following constraint on the fundamental quantities:
 \[
-\frac{X}{\mathcal{L}}=v_{\max},
+\frac{X}{N_t}=v_{\max},
 \]
-where $v_{\max}$ is the maximum speed of information transmission---the constant speed at which the spherical wavefronts expand, one cell per frame---and $\mathcal{L}$ is the number of ticks per frame.
+where $v_{\max}$ is the maximum speed of information transmission---the constant speed at which the spherical wavefronts expand, one cell per frame---and $N_t$ is the number of ticks per frame.
 This velocity is a fundamental constant of the fabric and must not be read as the speed of light. The speed of light $c$ is emergent: it is the value an observer (Sect.~\ref{subsec:observers}) assigns to $v_{\max}$ when distances and times are measured by the round-trip convention of Sect.~\ref{subsec:special-relativity}. The photon of Sect.~\ref{subsec:pairs}, a pair of bubbles riding the wavefront, propagates at $v_{\max}$; an observer measuring it reads that motion as the speed of light. In the vacuum limit the emergent $c$ coincides numerically with $v_{\max}$ in the same units, but the two quantities differ in status: $v_{\max}$ is an input of the transition rule, $c$ is a reading of it.
-Estimates for the values of \emph{X} and \emph{L} are taken from Appendix \ref{sec:Calculation-of-X}; to order of magnitude,
+Estimates for the values of $X$ and $L$ are taken from Appendix \ref{sec:Calculation-of-X}; to order of magnitude,
 \[
 X=l_{P}
 \]
@@ -997,7 +997,7 @@ L\sim10^{61},
 \]
 where $l_{P}$ is the Planck length.  Appendix~\ref{sec:Calculation-of-X} derives this from the single surviving relation, the geometric route $O=\sqrt{3}\,L\,X$ of Eq.~\eqref{eq:obs}: the \emph{Grand Cube} diagonal equals the observed diameter $O=8.8\times10^{26}\,m$ by construction, so with $X=l_{P}$ one finds $L\approx3.1\times10^{61}$ (the mnemonic $L\approx2^{202}\approx6\times10^{60}$ is within a factor $\sim5$ of this value).  A second, bookkeeping route that counts the baryon and photon content fails by $\sim31$ orders of magnitude and is reported in Appendix~\ref{sec:Calculation-of-X} as a negative result: content-based counting cannot fix the scale.  The main text therefore quotes only the order of magnitude and reads the number as a \emph{scale of consistency}, not a prediction.  Two caveats, both developed in Appendix~\ref{sec:Calculation-of-X}, should be stated here.  First, $X=l_{P}$ is an \emph{input hypothesis}, not a prediction of the model: the appendix fixes the cell scale by \emph{assuming} the Planck length and calibrates $L$ against the observed diameter.  Second, the numbers carry no error bars: each input is taken at face value, so the result is a \emph{scale of consistency} (a check that the assumed cell scale reproduces the observed cosmic scale) and not a prediction.  The sensitivity of $L$ to the input hypotheses is quantified in Appendix~\ref{sec:Calculation-of-X}.
 \subsection{A charge-conjugation census (combinatorial study)}\label{subsec:charge-census}
-The census of this subsection is \emph{not} an output of the automaton. It is an independent combinatorial/stochastic study (programs \texttt{combine.c} and \texttt{virada.c}, Appendix~B) that randomly recombines the six-bit charge words and tabulates the resulting species; it is kept here as a one-paragraph summary so that the reader can locate the claim, while Appendix~B carries the full tables and the explicit caveats. The single conclusion it supports is arithmetic: random completion of mutually complementary charge words closes the matter--antimatter balance, and the $83{:}3$ ratio between charged matter and antimatter fragments is a kinematic consequence of building pairs by complement, not a net charge--conjugation asymmetry of the model. In particular, the $6$-bit charge algebra yields $1187$ for the proton--electron mass ratio in both sectors, against $1836$ (CODATA~\cite{codata}): a $35\%$ deviation that is presented in Appendix~B as a scale-of-consistency coincidence, not as a prediction. Because these numbers derive from hand-chosen combination probabilities ($0.001$ up, $0.999$ gluon, $\varepsilon=0.30$), they carry no dynamical weight and should not be read as model output.
+The census of this subsection is \emph{not} an output of the automaton. It is an independent combinatorial/stochastic study (programs \texttt{combine.c} and \texttt{virada.c}, Appendix~B) that randomly recombines the six-bit charge words and tabulates the resulting species; it is kept here as a one-paragraph summary so that the reader can locate the claim, while Appendix~B carries the full tables and the explicit caveats. The single conclusion it supports is arithmetic: random completion of mutually complementary charge words closes the matter--antimatter balance, and the $83{:}3$ ratio between charged matter and antimatter fragments is a kinematic consequence of building pairs by complement, not a net charge--conjugation asymmetry of the model. Because these numbers derive from hand-chosen combination probabilities ($0.001$ up, $0.999$ gluon, $\varepsilon=0.30$), they carry no dynamical weight and should not be read as model output.
 % (Table of charge-combination results moved to Appendix~B, per referee item M4.)
 \subsection{Proof of concept in a small lattice}\label{subsec:proof-of-concept}
 The values $X=l_{P}$ and $L\sim10^{61}$ (to order of magnitude, Sect.~\ref{sec:Results}) are boundary conditions for the physical interpretation: per the purity constraints (Sect.~\ref{subsec:purity}) they are fixed once at initialization as topological data and are not quantities the executable instantiates.  The reference implementation (Ref.~\cite{af_neto}, source code and executable) is a small-lattice proof of concept that exhibits the mechanisms of the model at accessible scales.  This subsection documents its parameters, the phenomena it reproduces, and the metrics it reports.
@@ -1021,7 +1021,7 @@ with a light frame of $\mathrm{FRAME}$ ticks (the encounter window of length $W$
 1 & Relocation & re-emission at $t=\mathrm{RMAX}/2$ & 15 & 33{,}750 & 1{,}228{,}500\\
 2 & Orphan expansion & orphan seeding, affinity $=W$ & 19 & 68{,}590 & 2{,}496{,}676\\
 3 & Contraction & orphan $+$ contraction flag & 19 & 68{,}590 & 2{,}496{,}676\\
-4 & Hunting & $hB$ hunt $\rightarrow$ vector $c$ & 19 & 68{,}590 & 2{,}496{,}676\\
+4 & homing & $homB$ hunt $\rightarrow$ vector $c$ & 19 & 68{,}590 & 2{,}496{,}676\\
 5 & Reissue & $pB$ $+$ affinity mismatch reissue & 19 & 68{,}590 & 2{,}496{,}676\\
 6 & Dispersion & inter-sector overlap reissue & 19$^{*}$ & 68{,}590 & 2{,}496{,}676\\
 7 & Full simulation & all interaction channels & 21 & 92{,}610 & 3{,}371{,}004\\
@@ -1031,9 +1031,9 @@ with a light frame of $\mathrm{FRAME}$ ticks (the encounter window of length $W$
 {\small \emph{Note on diagnostic lattice sizes.} The quantitative diagnostics of this section use $L=5$ and $L=7$---the smallest odd sides on which the mechanisms can be exercised within the computational budget of the numerical experiments---whereas the scenario table above lists the lattice size each scenario is \emph{suggested} for (help.cpp) when run interactively.  The two lists are not in conflict: the scenario sizes are convenience presets for the GUI selector, and the scaling study of Sect.~\ref{subsec:scaling} reports how the measured metrics evolve across $L=7,11,15,19,21$.}
 \end{table}
 \subsubsection{Observed phenomena}
-Each of the eight run scenarios (wavefront propagation, relocation, orphan expansion, contraction, hunting, reissue, dispersion, and full encounter) exercises one stage of the light frame.  The reproduced behaviors include:
+Each of the eight run scenarios (wavefront propagation, relocation, orphan expansion, contraction, homing, reissue, dispersion, and full encounter) exercises one stage of the light frame.  The reproduced behaviors include:
 \begin{itemize}
-\item constant-speed spherical wavefronts advancing one cell per tick from the seed centers at the maximum information speed $v_{\max}$, realizing the relation $X/\mathcal{L}=v_{\max}$ of Sect.~\ref{sec:Results};
+\item constant-speed spherical wavefronts advancing one cell per tick from the seed centers at the maximum information speed $v_{\max}$, realizing the relation $X/N_t=v_{\max}$ of Sect.~\ref{sec:Results};
 \item an emergent transverse polarization pair $(u,v)$ reconstructed by integer arithmetic only (Sect.~\ref{subsec:polarization-pair});
 \item W-island aggregation into $1K+nD$ islands, with the per-island population $N(t)$ tracked by the attractor instrumentation in Ref.~\cite{af_neto};
 \item a live charge census whose closure identity $D_{\mathrm{tot}}=d_{\mathrm{pair}}+d_{\mathrm{free}}$ is verified every $256$ ticks, showing no net matter--antimatter excess emerging from the six charge bits.
@@ -1043,7 +1043,7 @@ The charge-combination census of Sect.~\ref{subsec:charge-census} (full tables i
 \subsubsection{In-simulation diagnostics}
 To complement the standalone studies above, we report diagnostics produced by the cellular automaton itself, using the headless runner \texttt{attractor\_main.cpp} of Ref.~\cite{af_neto}.  Runs used $L=5$, $W=75$ ($\mathrm{BLOCK}=9{,}375$ cells, $W$-islands of size $1$) over $24$ light frames for the charge and bound-state diagnostics, and $L=7$, $W=50$ ($\mathrm{RMAX}=3$) over $24$ frames for the wavefront diagnostics.
 \paragraph{Charge conservation.} At every census tick (every $256$ light ticks) the in-simulation ledger verifies the closure identity $D_{\mathrm{tot}}=d_{\mathrm{pair}}+d_{\mathrm{free}}$.  It held \emph{exactly} in all $29$ checkpoints of the run, with $D_{\mathrm{tot}}=+375$ (final split $D_{\mathrm{isl}}=+279$, $D_{\mathrm{orph}}=+96$), sector imbalances $D_{\mathrm{Orb}}=+2500$ and $D_{\mathrm{Umb}}=-2125$, and free populations $\mathrm{freeM}=4875$, $\mathrm{freeA}=4500$ all \emph{constant} across the run.  Conservation is therefore verified exactly.
-\paragraph{Spontaneous pair formation.} No pair formation was registered in any checkpoint ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{blob}=0$): from this seed the six-bit charge composition does not rearrange.  The conservation law holds, but trivially so.  This is an honest limitation of the present small-lattice run, not evidence of pair dynamics; spontaneous pair formation from the seed remains unobserved.
+\paragraph{Spontaneous pair formation.} No pair formation was registered in any checkpoint ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{cluster}=0$): from this seed the six-bit charge composition does not rearrange.  The conservation law holds, but trivially so.  This is an honest limitation of the present small-lattice run, not evidence of pair dynamics; spontaneous pair formation from the seed remains unobserved.
 \paragraph{Bound-state stability.} The island-population attractor samples the population $N(t)$ of each $W$-island every frame.  Over the pooled $1{,}725$ points the regression $dN\sim N$ has slope $-0.695\pm0.021$ with $r^{2}=0.383$, i.e.\ restoring dynamics with an equilibrium population $N^{*}\approx80$ cells per island.  The mean affiliated population is $5{,}781$ of $9{,}375$ cells ($61.7\%$), with gross turnover $187.5$ captures per frame and zero escapes.  Sector fluxes (Orbis $\mathrm{capM}{:}\mathrm{capA}=22.5{:}72.5$; Umbra $67.5{:}25.0$ per frame) show islands steadily netting matter in Orbis and antimatter in Umbra, consistent with the constant sector census.  Because the seed is layer-symmetric, all $75$ islands are statistically identical; this reflects a configuration choice, not a property of the dynamics.
 \paragraph{Wavefront fidelity.} The pulsating front is compared, at each light frame and for every layer, against the integer shell of radius $r=\mathrm{effective\_t}(t)$ centered on that layer's source.  Shell completeness (observed active cells divided by the theoretical count of lattice points on the shell, $r^{2}\le dx^{2}+dy^{2}+dz^{2}<(r+1)^{2}$) is \emph{exactly} $1.0000$ at every radius $r=1,2,3$ of the $L=7$ run: the propagating front fills precisely the shell the information clock prescribes, with no missing or stray cells.  The radial amplitude profile $\langle|u|\rangle(r)$ decays from $95.0$ at $r=1$ to $20.6$ at $r=2$ and is forced to zero at the outermost radius $r=\mathrm{RMAX}$ by the radial dead-zone boundary condition, with a Pearson correlation of $0.9458$ against the $\sin(r)/r$ envelope; the mean distance from the amplitude peak to the target radius is $0.83$ cells.  The constant-speed claim of Sect.~\ref{sec:Results}---the wavefront advances at the maximum information speed $v_{\max}$---is therefore supported at the level of the active shell geometry, while the amplitude profile follows the expected envelope.  A direct speed measurement confirms this: the wavefront instrumentation of Ref.~\cite{af_neto} (\texttt{wavefront.cpp}) records, on the ascending branch of the information clock, the outermost active-shell radius at every frame, and the per-tick advance of that front.  Across all $50$ layers of the $L=7$ run the measured propagation speed is $1.0000$ cells per tick with zero variance ($\sigma=0.0000$), i.e. the front advances by exactly one cell per tick---the maximum information speed---at every step.  Figure~\ref{fig:snapshot} shows a snapshot of the emergent spherical wavefront.
 \begin{figure}[ht]
@@ -1073,7 +1073,7 @@ P(u,S) \;=\; \frac{\lceil u/g\rceil}{S/g} \;=\; \frac{g\,\lceil u/g\rceil}{S},
 which reduces to $P=u/S$ when $\gcd(u,S)=1$ and to $P=1$ whenever $u\ge S$ (every residue is then $<u$).  The closed form was verified by direct enumeration over two full periods for all $u=1,\dots,4096$ and all moduli of Table~\ref{tab:sieve} (maximum error $0$; program \texttt{s2b\_sweep\_main.cpp}, archived with the source).
 \textbf{Why the reference modulus blocks the channel.}  In the $L=7$ run the measured radial profile decays from $\langle|u|\rangle\approx95$ at $r=1$ to $20.6$ at $r=2$ and is forced to $0$ in the radial dead zone; the per-active-cell throughput is therefore at most $P\le95/16384\approx0.58\%$.  Weighting the theoretical shell populations ($6$, $26$, $98$ lattice points at $r=1,2,3$) by this profile gives an expected $\approx18$ $s2B$ passes over the two-bubble overlap, matching the measured $18/6996$; the pair branch additionally needs a $samePos\wedge sameT$ coincidence with complementary charges, so its expected count at the reference modulus is far below one.  This is the quantitative content of the earlier ``dormant channel'' statement.
 \textbf{Opening the channel.}  Because $P(u,S)\approx u/S$, the gate opens when $S$ is lowered toward the amplitude scale or when the amplitude $U_0$ is raised toward $S$.  The runner \texttt{scatter\_main.cpp} now accepts the modulus as a run-time parameter (\texttt{s2b\_target}), and Table~\ref{tab:sieve} tabulates the full sweep at fixed geometry ($L=7$, $SEP=4$, $200$ frames).  The pair-formation branch fires for $S=4096$ (9 pairs), $S=128$ (9), $S=64$ (10) and $S=32$ (27); the firing is non-monotonic in $S$ because pair formation also requires the geometric coincidence of the two fronts, which resonates at discrete moduli.  The same experiment at $L=9$ fires at $S=64$ (1 pair).  This is the first observation of $\mathrm{form}>0$ in the automaton proper: the electroweak channel of Sect.~\ref{sec:Interactions} moves from an untested postulate to a mechanism \emph{demonstrated} in a parameter regime.  In the terminology fixed in the abstract, demonstration establishes that the branch can fire; it does not by itself \emph{verify} the interaction phenomena (scattering, decays, bound states) that the branch was built to mediate, which still require measurements of the produced pairs.
-\paragraph{First quantitative measurements on the open channel.}  The same runner now also samples, once per light frame, the source kinds, pair stacks and toroidal displacements of the two bubbles, and prints a ``DYNAMICAL MEASUREMENTS'' block with three diagnostics (program \texttt{scatter\_main.cpp}, Reproducibility).  \emph{Pair lifetime.}  The durable pair state (kind $P$ or a non-empty pair stack) is transient at weak coupling and stable at strong coupling: at $S=4096$ and $S=128$ it is present in only $2$ of $200$ frames despite $9$ pair-formation events each (one episode of $2$ frames; mean lifetime $2$ frames --- the branch fires and the state immediately dissolves), whereas at $S=64$ and $S=32$ it appears in $194/200$ and $195/200$ frames respectively (one episode each), so the lifetime is $\ge194$ and $\ge195$ frames, censored by the run length: the pair is still bound at the last frame and the two sources no longer separate (outgoing mean speed $|v|<0.13$ cells/frame).  \emph{Scattering angles.}  The angle between the incoming and outgoing mean velocity of each bubble is $86.7^{\circ}$ and $121.5^{\circ}$ at $S=32$; at $S=64$ the outgoing speed collapses to zero (bound pair), so the deflection is undefined there.  \emph{Center-of-mass response.}  The center-of-mass velocity of the two-bubble system responds to the interaction by $|\Delta v_{\mathrm{CoM}}|=0.442$ cells/frame at $S=32$ and $0.114$ at $S=64$: the head-on configuration is not perfectly symmetric after the interaction, so the propeller kicks leave a residual center-of-mass impulse.  These are the first quantitative dynamical measurements of the open channel: pair formation is transient at weak coupling and produces a bound pair at strong coupling within the $200$-frame window.
+\paragraph{First quantitative measurements on the open channel.}  The same runner now also samples, once per light frame, the source kinds, pair stacks and toroidal displacements of the two bubbles, and prints a ``DYNAMICAL MEASUREMENTS'' block with three diagnostics (program \texttt{scatter\_main.cpp}, Reproducibility).  \emph{Pair lifetime.}  The durable pair state (kind $P$ or a non-empty pair stack) is transient at weak coupling and stable at strong coupling: at $S=4096$ and $S=128$ it is present in only $2$ of $200$ frames despite $9$ pair-formation events each (one episode of $2$ frames; mean lifetime $2$ frames --- the branch fires and the state immediately dissolves), whereas at $S=64$ and $S=32$ it appears in $194/200$ and $195/200$ frames respectively (one episode each), so the lifetime is $\ge194$ and $\ge195$ frames, censored by the run length: the pair is still bound at the last frame and the two sources no longer separate (outgoing mean speed $|v|<0.13$ cells/frame).  \emph{Scattering angles.}  The angle between the incoming and outgoing mean velocity of each bubble is $86.7^{\circ}$ and $121.5^{\circ}$ at $S=32$; at $S=64$ the outgoing speed collapses to zero (bound pair), so the deflection is undefined there.  \emph{Center-of-mass response.}  The center-of-mass velocity of the two-bubble system responds to the interaction by $|\Delta v_{\mathrm{CoM}}|=0.442$ cells/frame at $S=32$ and $0.114$ at $S=64$: the head-on configuration is not perfectly symmetric after the interaction, so the drive pair kicks leave a residual center-of-mass impulse.  These are the first quantitative dynamical measurements of the open channel: pair formation is transient at weak coupling and produces a bound pair at strong coupling within the $200$-frame window.
 \begin{table}[h]
 \centering
 \caption{Parameter sweep of the electroweak sieve modulus $S$ (controlled two-bubble run: $L=7$ lattice, bubbles $SEP=4$ cells apart, $200$ light frames, complementary Rule~1 charges).  Column meanings: $S$ is the value of the sieve modulus $\mathrm{s2b\_target}$ in Eq.~\eqref{eq:sieve} ($16384$ is the reference value used throughout this paper); ``overlapping events'' counts the cell-frame events in which the two active shells occupy the same cell and enter the encounter; ``$s2B$ passes'' counts how many of those also satisfy the gate condition of Eq.~\eqref{eq:sieve}; ``pairs formed'' counts firings of the pair-formation branch of the encounter---a nonzero value means the electroweak channel opened.  By Eq.~\eqref{eq:sieve-prob} the gate is fully open whenever $S\le u$ (the wave amplitude), which is why the $s2B$ count approaches the overlap count for small $S$.}
@@ -1160,14 +1160,6 @@ islands that the complete-system version of this story requires (the pB/sB
 electric channel is pre-empted by the identity merge in the current
 encounter order; see the experiment log).
 
-\section{Conjectures and prospects\label{sec:Prospects-and-conjectures}}
-The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).
-\subsection{Discrete to continuous transition}
-Localized particles are conjectured to be assemblies of many discrete fragments, so macroscopic properties such as total momentum and angular momentum might emerge from collective configurations rather than from individual bubbles. These global quantities would then be best described by real numbers, just as statistical mechanics bridges discrete atomic events to continuous thermodynamic variables.
-A free electron's average motion, for example, may follow a direction vector that cannot be expressed with only discrete modulo-$L$ components; continuous descriptors are thus necessary idealizations at large scales. The same holds for isotropy: it looks uniform at macroscopic scales even though the lattice is fundamentally granular.
-\subsection{Color quantization}
-Color quantization is presented as an extension of the electromagnetic case.
-Hadrons would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
 \subsection{Special relativity}\label{subsec:special-relativity}
 The measurement prescriptions for time intervals, spatial separations and clock synchronization \emph{follow those of} Einstein's special relativity \cite{Einstein1905} as a \emph{reading convention}: time is read by ideal clocks, distances by round-trip light-travel times, and coordinate time by a network of synchronized clocks. This convention describes how an external observer interprets the automaton output; it is not a symmetry of the transition rule, which evolves on a fixed lattice with a single global clock.
 This is precisely the sense in which the speed of light is emergent in this model. The transition rule contains a single fundamental velocity, the maximum information speed $v_{\max}$ of Sect.~\ref{sec:Results} (one cell per tick), and knows nothing of light. An observer (Sect.~\ref{subsec:observers}) that lays down synchronized clocks and measures distances by round-trip light signals \emph{reads} the photon of Sect.~\ref{subsec:pairs}---a pair of bubbles riding the wavefront---as moving at $v_{\max}$ and names the resulting constant $c$. A different observer structure would in principle read a different value; $c$ is therefore a property of the measuring structure, not of the rule.
@@ -1223,15 +1215,23 @@ with measured slopes $0.248$, $0.175$ and $0.125$ for integer shifts $s=4,5,6$, 
 \label{eq:dispersion-correction}
 \end{equation}
 the generic suppression of Lorentz symmetry by the square of the lattice (Planck) scale.  The substrate wave speed $v_{\mathrm{wave}}$ is strictly subluminal with respect to $v_{\max}$: the field cannot be used to exceed the causal boundary.  In the model the integer shift varies radially ($s=\mathrm{DIFF\_SHIFT}+1-(r\gg\mathrm{diffDivShift})$, clamped), so $v_{\mathrm{wave}}$ acquires a radial profile; the probe uses a constant shift $s$ to isolate the intrinsic dispersion of a homogeneous substrate.
+\section{Conjectures and prospects\label{sec:Prospects-and-conjectures}}
+The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).  The measured probes that anchor the time-dilation derivation (front isotropy and dispersion) are reported in Sect.~\ref{sec:Results}; the naming taxonomy and the bridge to the quantum formalism, formerly appendices, close this section under the same conjectural status.
+\subsection{Discrete to continuous transition}
+Localized particles are conjectured to be assemblies of many discrete fragments, so macroscopic properties such as total momentum and angular momentum might emerge from collective configurations rather than from individual bubbles. These global quantities would then be best described by real numbers, just as statistical mechanics bridges discrete atomic events to continuous thermodynamic variables.
+A free electron's average motion, for example, may follow a direction vector that cannot be expressed with only discrete modulo-$L$ components; continuous descriptors are thus necessary idealizations at large scales. The same holds for isotropy: it looks uniform at macroscopic scales even though the lattice is fundamentally granular.
+\subsection{Color quantization}
+Color quantization is presented as an extension of the electromagnetic case.
+Hadrons would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
 \subsection{Emergence of gravity}\label{subsec:emergence-of-gravity}
 General-relativistic spacetime is here conjectured to be an effective, coarse-grained approximation of the discrete lattice (a speculative projection). Gravity is proposed to arise as a residual effect of electromagnetic interactions, mediated by the gravitons of Sect.~\ref{subsec:specialized-pairs}---pairs with fully complementary charge words---which couple to both \emph{Orbis} and \emph{Umbra}. Ordinary photons are sector-specific, but gravitons provide cross-sector connectivity; being charge-neutral by construction, a graviton's electric and weak contributions cancel at leading order, leaving a residual geometry-driven attraction. Under this conjecture, free objects would follow emergent timelike geodesics under the observer's round-trip reading convention (Sect.~\ref{subsec:observers}), and graviton redistribution of energy and charge might mimic dark-matter effects such as flat rotation curves. None of these behaviors has been observed in the implementation.
-In the same coarse-grained picture, photons may also lose energy through minor, non-collapsing interactions with singletons and electrons as they propagate---an intrinsic \textit{aging} that would parallel cosmic redshift. In the model a photon's frequency is an integer pair population (Sect.~\ref{bosons}), so each interaction that removes one pair lowers the emergent frequency read by an Observer by one quantized even step. Zwicky already proposed a redshift mechanism independent of expansion \cite{zwicky1929redshift}; in principle the model could realize it without the image-blurring problem he raised, offering a redshift explanation that does not require dark energy. The propeller mechanism of Sect.~\ref{subsubsec:propeller} might likewise make acceleration equivalent across frames, in line with the equivalence principle. These are suggestions, not measured effects.
+In the same coarse-grained picture, photons may also lose energy through minor, non-collapsing interactions with singletons and electrons as they propagate---an intrinsic \textit{aging} that would parallel cosmic redshift. In the model a photon's frequency is an integer pair population (Sect.~\ref{bosons}), so each interaction that removes one pair lowers the emergent frequency read by an Observer by one quantized even step. Zwicky already proposed a redshift mechanism independent of expansion \cite{zwicky1929redshift}; in principle the model could realize it without the image-blurring problem he raised, offering a redshift explanation that does not require dark energy. The drive pair mechanism of Sect.~\ref{subsubsec:drive pair} might likewise make acceleration equivalent across frames, in line with the equivalence principle. These are suggestions, not measured effects.
 \subsection{Weak quantization}
 Because weak interactions are rare, weak quantization may appear at cosmological scales, for instance in a constant ratio between the average galaxy separation and galactic bulge size. This large-scale granularity could be reinterpreted as gravitational quantization and may eventually yield an effective cosmological constant $\Lambda$ and metric tensor $g_{\mu\nu}$.
 \subsection{Stochastic behavior and the uncertainty principle}
 The initial chaos created by the deterministic collision of many regular patterns, together with the large number of bubbles per particle, may make individual outcomes effectively unpredictable. Each measurement would then sample one instance from this fine-grained distribution, so measured values could carry irreducible uncertainty, analogous to the Heisenberg principle \cite{Heisenberg1927}:
 \[
-\sigma_x \sigma_p \leq \frac{\hbar}{2}.
+\sigma_x \sigma_p \geq \frac{\hbar}{2}.
 \]
 \subsection{Black holes}
 The quintessential idea of a black hole in this model can be illustrated by two electrons, each with radius $R$, so close to each other $d<2R$ that the quantization is broken and they simply fuse, forming a particle with radius $R'=2^{1/3}R$ with a dominant affinity value.
@@ -1243,45 +1243,45 @@ The toy picture above contains no mechanism that would obviously discard informa
 In this model, spin is conjecturally identified with the coherent radial alignment of the pBit $pB$ (local in-phase sign) and the transverse polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$. The positive in-phase half-cycle marked by $pB$ alternates outward and inward as the wave oscillates, while the phase of $(\mathrm{pol}_u,\mathrm{pol}_v)$ winds once around the wavefront. This radial helix would define the two spin states, aligned consistently across the particle's constituent bubbles. This identification is a structural conjecture; the model's spin has not been measured against Stern--Gerlach-type experiments.
 \subsection{The Hofer effect}\label{subsec:hofer}
 A key test would be the \emph{Hofer effect}, named after W.~A.~Hofer \cite{hofer}: the predicted tendency of all individual spins of a localized particle to align radially inward or outward (spin down/up), i.e.\ the radial alignment of the polarization bits of Sect.~\ref{subsec:polarization-pair} around a spherical aggregate. Hofer argues that magnetic effects arise from breaking the spherical symmetry of this pattern, offering an interpretation of the Stern--Gerlach experiment. Whether the model reproduces this effect is not yet demonstrated.  (Accessible reference: J.~Phys. Conf.~Ser.~\textbf{504}, 012014 (2014), DOI 10.1088/1742-6596/504/1/012014.)
-\subsection{Particle zoo panorama}
+\subsection{Speculative particle spectrum and decay channels}
 As a heuristic exercise, this model offers a framework to speculate on the composition of known particles; the identifications below are structural analogies based on the six-bit charge code, none produced by the small-lattice implementation.
 In the discussion that follows, the fragments will be characterized by their charge content: \(q, w1, w0, c2, c1, c0\).
 For example, we designate the fragment \(100000\) as \(-L\) and \(001111\) as \(-\bar{L}\), and so forth.
 Whether these compositions actually occur under the evolution rules is not demonstrated by the current implementation; it remains to be established by future simulations.
-\subsubsection{The electron neutrino}
-The electron neutrino $\nu_e$ is conjectured to be formed by a single [$+L:-L$] pair and additional propellers.
+\paragraph{The electron neutrino.}
+The electron neutrino $\nu_e$ is conjectured to be formed by a single [$+L:-L$] pair and additional drive pairs.
 Yet the anti-electron neutrino $\bar{\nu}$ would use the pair [$+\bar{L}:-\bar{L}$].
-\subsubsection{The electron}
-The electron $e^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of electron neutrinos $\nu_e$, and a variable number of propellers (see Figure \ref{fig:electron}). The positron, or anti-electron, would use $+\bar{L}$ fragments instead. These are for Orbis, in the case of Umbra, all bits are inverted.
+\paragraph{The electron.}
+The electron $e^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of electron neutrinos $\nu_e$, and a variable number of drive pairs (see Figure \ref{fig:electron}). The positron, or anti-electron, would use $+\bar{L}$ fragments instead. These are for Orbis, in the case of Umbra, all bits are inverted.
 \begin{figure}
 \begin{center}
 \includegraphics[width=\linewidth]{fig3}
 \end{center}
-\caption{The free electron (artistic impression, not a rendered simulation). \label{fig:electron} Conjectured composition of a free electron as an aggregate of charge fragments.  The red bubbles are propellers; the red arrow marks the resultant direction of their momentum vectors (the electron's net propagation direction, not a magnetic field line).  The blue bubbles are negative-charge singletons, and the gray bubbles are electron--neutrino pairs.  Length scale is arbitrary; the figure is a schematic of the six-bit charge algebra, not an output of the automaton.}
+\caption{The free electron (artistic impression, not a rendered simulation). \label{fig:electron} Conjectured composition of a free electron as an aggregate of charge fragments.  The red bubbles are drive pairs; the red arrow marks the resultant direction of their momentum vectors (the electron's net propagation direction, not a magnetic field line).  The blue bubbles are negative-charge singletons, and the gray bubbles are electron--neutrino pairs.  Length scale is arbitrary; the figure is a schematic of the six-bit charge algebra, not an output of the automaton.}
 \end{figure}
-\subsubsection{The muon neutrino}
-The muon neutrino $\nu_{\mu}$ is conjectured to be formed as $\nu_{\mu}=2\nu_e+\bar{\nu}_e$ plus additional propellers.
+\paragraph{The muon neutrino.}
+The muon neutrino $\nu_{\mu}$ is conjectured to be formed as $\nu_{\mu}=2\nu_e+\bar{\nu}_e$ plus additional drive pairs.
 It would be like an electron neutrino, but with a compensated antimatter part.
-\subsubsection{The muon}
-The muon $\mu^-$ is conjectured to consist of a quantized number of $-L$ fragments, a large number of muon neutrinos $\nu_{\mu}$, and a variable number of propellers.
+\paragraph{The muon.}
+The muon $\mu^-$ is conjectured to consist of a quantized number of $-L$ fragments, a large number of muon neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
 The classical study conducted by It\^{o} in \cite{ito} suggests that this configuration stabilizes at the second harmonic of the electron's radial vibrational state.
-\subsubsection{The tau neutrino}
-The tau neutrino $\nu_{\tau}$ is conjectured to be formed as $\nu_{\tau}=3\nu_e+2\bar{\nu}_e$ plus additional propellers.
+\paragraph{The tau neutrino.}
+The tau neutrino $\nu_{\tau}$ is conjectured to be formed as $\nu_{\tau}=3\nu_e+2\bar{\nu}_e$ plus additional drive pairs.
 It would also be like an electron neutrino, but with a compensated antimatter-enriched part.
-\subsubsection{The tau}
-The tau $\tau^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of tau neutrinos $\nu_{\mu}$, and a variable number of propellers.
-\subsubsection{Gauge bosons}
+\paragraph{The tau.}
+The tau $\tau^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of tau neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
+\paragraph{Gauge bosons.}
 These bosons were described in Sect. \ref{bosons}.
-\subsection{Leptons decay}
+\paragraph{Leptons decay.}
 In the Standard Model (SM), the decay products typically include one neutrino or antineutrino.
 In our model, one might conjecture that the large number of neutrinos in a particle is entangled by a common affinity, so that when one neutrino interacts via the weak force, all other entangled neutrinos collapse to the same point.
 Under that conjecture, the observable outcome would be indistinguishable from a single, energetic neutrino, in agreement with the SM prediction.
 If the neutrino belongs to the other sector (Orbis/Umbra), spontaneous decay might follow.  None of this behavior has been observed in the implementation.
-\subsection{Electronic decay}
+\paragraph{Electronic decay.}
 After the absorption of (part of) a photon, the electron would, under the model, enter an excited state, dynamically stabilizing in a suitable spherical harmonic configuration.
 When the common components of the photon and electron are reissued, the odds of a configuration corresponding to the original photon are less than one.
-As time passes, after many cohesion interactions, the proper configuration of charges and pBits may occur, forming a single photonic blob and allowing the emitted photon to escape the frequent reissue mechanism, fleeing away from the electron cloud, which eventually settles into its ground state.
-\subsection{Compound particles half-lives}
+As time passes, after many cohesion interactions, the proper configuration of charges and pBits may occur, forming a single photonic cluster and allowing the emitted photon to escape the frequent reissue mechanism, fleeing away from the electron cloud, which eventually settles into its ground state.
+\paragraph{Compound particles half-lives.}
 Protons, electrons, and electron neutrinos are, under the model, composed exclusively of bubbles, without their corresponding anti-bubbles.
 This unique composition is offered as a key factor in their exceptionally long half-lives, potentially making them stable.
 In contrast, particles containing both bubbles and anti-bubbles are conjectured to be significantly less stable.
@@ -1291,22 +1291,22 @@ This is offered as a possible explanation of the free neutron decay.
 \[
 n^0\rightarrow\,p^{+}+e^{-}+\nu_e
 \]
-\subsection{Nuclear decay}
+\paragraph{Nuclear decay.}
 In this model, nuclear decay processes emerge from the internal structure and composition of compound particles representing atomic nuclei.
 These instabilities trigger reorganizations via the electroweak collapse mechanism, where the sieve test result ($s2B$) determines the feasibility of transformations.
 The decay process is similar to the free neutron decay seen above.
 The perturbing particles are typically neutrinos and Z bosons that permeate the vacuum. Once again, if these perturbing particles belong to the other sector (Orbis/Umbra), then we have spontaneous decay.
 This internal annihilation mechanism is offered as a possible account of decay processes; whether it reproduces the empirical tables of nuclides is not established, since no nuclear-scale configuration has been simulated.
-\subsection{Heavier quarks}
-The framework speculatively suggests that the other quarks could follow the composition of leptons, with additional neutrinos and antineutrinos, besides a variable number of propellers.
-\subsection{Atoms}
+\paragraph{Heavier quarks.}
+The framework speculatively suggests that the other quarks could follow the composition of leptons, with additional neutrinos and antineutrinos, besides a variable number of drive pairs.
+\paragraph{Atoms.}
 Bound states of protons, neutrons, and electrons might naturally be expected in this scenario; their formation is not demonstrated by the current implementation.
-\subsection{The abundance of neutrinos}
+\paragraph{The abundance of neutrinos.}
 Despite the relatively small number of neutrinos observed in Table \ref{tab:color-combination}, their large cosmic abundance reflects their low mass, approximately five million times smaller than the mass of an electron.
 This characteristic allows neutrinos to exist in enormous quantities across the universe, even if their presence appears limited.
-\subsection{Partons}
-The inertia mechanism adopted here implies that the collective action of a large number of identical propellers produces a high--energy configuration. This stretches the propelled mass along the direction of motion, thereby forming a \textit{parton} structure.
-\subsection{Quest for qubits} \label{subsection:qubits}
+\subsection{Partons and the quest for qubits}
+The inertia mechanism adopted here implies that the collective action of a large number of identical drive pairs produces a high--energy configuration. This stretches the propelled mass along the direction of motion, thereby forming a \textit{parton} structure.
+\paragraph{Quest for qubits.} \label{subsection:qubits}
 An electron may be conceived as a vast ensemble of dynamic \textit{nanostates}, collectively manifesting as a single particle through their shared affinity.
 When two electrons share the same affinity (totally or partially), they become distinguishable only through the constraints imposed by quantization dynamics.
 However, if one momentarily relaxes these constraints, such a pair could in principle be interpreted as a system of qubits; this is a speculative reading, not a demonstrated computational capability.
@@ -1317,7 +1317,7 @@ This broader perspective suggests a behavior akin to an intricate network of Tur
 The computation results are being revealed by interpreting correlations.
 Such an interpretation might offer insight into quantum computing, but no computation has been performed in this framework.
 \subsection{Observers and spacetime}\label{subsec:observers}
-This framework extends Wheeler's "it from bit" concept by providing a mechanism through which information constitutes physical entities, albeit from an omniscient perspective.
+This framework extends Wheeler's 'it from bit' concept by providing a mechanism through which information constitutes physical entities, albeit from an omniscient perspective.
 To address the internal viewpoint, we now define inner observers or simply \textit{observers}.
 \subsubsection{Minimal observer definition}
 Here, we formalize the concept of a \emph{minimal observer}, following the framework introduced in Hatem Elshatlawy et al. \cite{elshatlawy2025towards}.
@@ -1350,7 +1350,7 @@ Importantly, this framework abstracts away from higher-order capabilities such a
 As established, the spacetime of this model is inherently flat and regular.
 One may conjecture that the spacetime perceived by observers and laboratory instruments would nevertheless appear curved, in analogy with General Relativity.
 How can this apparent discrepancy be reconciled?
-A proposed resolution lies in the role of propellers, which contribute both to motion and to mass-energy content.
+A proposed resolution lies in the role of drive pairs, which contribute both to motion and to mass-energy content.
 Their interactions create a framework in which observers, laboratory instruments, and the environment mutually influence one another.
 If their interactions generated effective potentials, clocks would tick slower near concentrations of mass.
 Whether this actually reproduces the \textit{timescape} scenario \cite{duley2013timescape}---curved spacetime emerging from relational dynamics in a flat background---is an open conjecture that the current implementation cannot test.
@@ -1364,6 +1364,44 @@ The non-signaling claim is asserted narratively above; the referee asked for a f
 \textbf{Proof.}  By Lemma~1, $\Phi(A,k)$ is a function of the initial state on the past light cone of $A$ of radius $v_{\max}(k-k_{0})$, together with any $\Psi$ values entering that cone.  A $\Psi$ change originating in $B$ can enter the cone of $A$ only through the local transition of Lemma~1, which advances one cell per tick (Lemma~2); before frame $k_{0}+d(A,B)/v_{\max}$ no such change has reached $A$.  Since the marginal $M_{A}(k)$ is a function of $\Phi(A,k)$ alone, it is unchanged. \hfill$\blacksquare$
 Two remarks.  (i) The argument does \emph{not} use the speed of the encounter sweep: it uses only the readability split and the locality of the physical transition, so the superluminal-coordinate character of the coordinated updates is exactly what the proposition neutralizes.  (ii) The split is a postulate of the model, not a theorem of the implementation: an observer that could read $\Psi$ directly (e.g., resolve the W-ledger) would falsify the conclusion.  Likewise, the host-side scheduler (whole-layer translation, source snapshots) is not the idealised local transition, so the proposition does not cover it; verifying a local realisation remains open work (Sect.~\ref{subsec:translation}).  The referee's requested ``intervention in $B$ outside the $v_{\max}$ cone leaves the readable marginal in $A$ invariant'' is exactly the content of the proposition.
 Given the mutual dependence of all system components and the absence of free external variables, one might speculate that the model, if interpreted as a complete physical theory, would align with superdeterministic readings of reality as discussed by Hossenfelder and Palmer \cite{hossenfelder2020rethinking}.
+\subsection{Particles}\label{sec:Particles}
+\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
+Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as drive pairs for transport.
+In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
+\subsubsection{Fermions}
+A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
+Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
+Specialized pairs do not form clusters and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus drive pair contributions.
+\subsubsection{Bosons}\label{bosons}
+A boson is made of one or more clusters. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles.
+A photon is a single cluster with all pairs superposed. In this model the frequency of a photon is not a continuous parameter but a count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs therefore has frequency $2n$. A multifrequency photon is a superposition of several such stacks, or a cluster containing populations at different even frequencies $2,4,6,\dots$. There are no harmonics in the continuous sense; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such clusters, combined in time and space.}
+The automaton reads this frequency as a population, not as a waveform. During encounter (Sect.~\ref{subsec:encounter}) each detected pair registers one frequency unit on the stack; a stack of $n$ superposed pairs therefore accumulates $n$ times the frequency of a single pair, and the same factor multiplies the firing rate of the sieve bit $s2B$ (Sect.~\ref{subsec:Sine}), which is gated by the active flag and grows with the local amplitude $u$. A multifrequency photon thus presents, at its active surface, the summed population of all its stacks: each even mode contributes its own pair count, and the interaction machinery responds to the total, not to a continuous spectrum. Because pair formation requires the same wavefront tick $t_1=t_2$, the different modes are sampled at their respective ticks of the local clock. This superposition is read by encounter, which is superluminal in coordinate terms but strictly non-signaling and non-manipulable (Sect.~\ref{subsec:observers}): the coexistence of modes is a fact of the fabric, not a channel any observer can steer, so causality is unaffected. The frequency an observer reports in laboratory units is an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}); the underlying quantity is always the count $2n$.
+$W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several clusters sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
+Orphans ($a=W$) do not interact with photons but do interact with gravitons. Neutral orphan pairs do not interact electromagnetically.
+%%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
+
+\subsection{Cellular automata and quantum formalism}\label{sec:bridge}
+\emph{Status (C).} The mapping proposed in this section is speculative: it is not reconciled with the automaton's irreversible, dissipative dynamics (Sect.~\ref{sec-undecidability} and the reversibility paragraph of Sect.~\ref{subsec:translation}), and it is not claimed as a derivation.
+For local events, we follow 't Hooft's cellular-automaton world-model approach \cite{thooft}. Ontological CA states ($\mathcal{OS}$) do not superpose: each evolves into another ontological state. An orthonormal set of ontological states can nevertheless serve as a Hilbert-space basis.
+The general operator-mechanics recipe is:
+\begin{itemize}
+\item Find a permutation operator as a matrix containing a single 1 in any row or column.
+\item Diagonalize it, obtaining the eigenvalues and eigenvector matrices.
+\item Identify a Hamiltonian matrix as the exponent in $\hat{U}=e^{-i\hat{H}T}$.
+\item Use the eigenvalue matrix to bring this Hamiltonian back to the ontological basis.
+\item Form linear combinations of the ontological states $\ket{A}$.
+\[
+\ket{\psi} = \sum_A \lambda_A \ket{A}, \quad \sum_A |\lambda_A|^2 \equiv 1,
+\]
+where $\ket{\psi}$ is a quantum state or ``template,'' and $\lambda_A$ is a complex coefficient.
+\end{itemize}
+With this operator machinery, the Schr\"{o}dinger equation governs the deterministic evolution of the wave function:
+\[
+\frac{d}{dt}\ket{\psi} = -i\hat{H}\ket{\psi}.
+\]
+The Born rule follows once superposition states are accepted; it predicts the final eigenstate after measurement. This is a simplified picture; details are in \cite{thooft,Elze2019,rizzo2020perturbing}.
+%%%%%%%% PROSPECTS AND CONJECTURES %%%%%%%%%%
+
 %%%%%%%% CONCLUSION %%%%%%%%%%
 \section{Conclusion\label{sec:Discussion}}
 \subsection{Undecidability and long-term dynamics}\label{sec-undecidability}
@@ -1382,9 +1420,9 @@ The model retains a discrete lattice while capturing quantum and relativistic fe
 \subsection{Limitations and open problems}
 For clarity, we collect here what the current implementation cannot yet do.  These are structural limitations of the code as it stands (small lattice, reference-modulus electroweak gate), not of the model idea; each is stated with the corresponding evidence from Sect.~\ref{sec:Results}.
 \begin{itemize}
-\item \textbf{No measured bound-state properties yet.}  The in-simulation census registers no pair formation at the reference parameters ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{blob}=0$; Sect.~\ref{subsec:proof-of-concept}), and the controlled two-bubble experiment yields a quantitative null result there: of $6{,}996$ overlapping cell-frame events only $18$ ($0.26\%$) pass the $s2B$ sieve and none triggers the pair branch.  The parameter sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair branch \emph{can} fire ($\mathrm{form}>0$ for $S=4096,128,64,32$ at $L=7$ and $S=64$ at $L=9$), so the pair-formation channel is now a demonstrated mechanism in a parameter regime; the interaction phenomena it would mediate at the reference settings, and the properties of the produced pairs (binding energies, decay rates, cross-sections), remain unmeasured.  Bound states such as hadrons and atoms therefore remain conjectural; the aggregates that do persist (the $1K+nD$ islands of Sect.~\ref{sec:dynamic-charge-quantization}) are affinity-driven populations, not charge-bound composite particles.
+\item \textbf{No measured bound-state properties yet.}  The in-simulation census registers no pair formation at the reference parameters ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{cluster}=0$; Sect.~\ref{subsec:proof-of-concept}), and the controlled two-bubble experiment yields a quantitative null result there: of $6{,}996$ overlapping cell-frame events only $18$ ($0.26\%$) pass the $s2B$ sieve and none triggers the pair branch.  The parameter sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair branch \emph{can} fire ($\mathrm{form}>0$ for $S=4096,128,64,32$ at $L=7$ and $S=64$ at $L=9$), so the pair-formation channel is now a demonstrated mechanism in a parameter regime; the interaction phenomena it would mediate at the reference settings, and the properties of the produced pairs (binding energies, decay rates, cross-sections), remain unmeasured.  Bound states such as hadrons and atoms therefore remain conjectural; the aggregates that do persist (the $1K+nD$ islands of Sect.~\ref{sec:dynamic-charge-quantization}) are affinity-driven populations, not charge-bound composite particles.
 \item \textbf{Continuum limit absent.}  The model is defined on a finite $3$-torus of side $L\le31$ with a single cell as the unit of length.  There is no procedure for taking $L\to\infty$ (or the cell size to zero), no coarse-graining scheme, and no derivation of a partial-differential or field-theory limit.  The $r\cdot\sin(r)$ wave cloud (Sect.~\ref{subsec:Sine}) is an emergent lattice pattern, not a solution of a continuum equation.
-\item \textbf{No quantitative comparison with measured cross-sections.}  No scattering amplitude, cross-section, or decay rate has been computed from the automaton; the single dimensionless number available ($m_{p}/m_{e}\approx1187$ vs.~the empirical $\approx1836$) is a kinematic census ratio, not a prediction derived from the interaction rules.  Units are defined only up to the lattice scale $X$ (Appendix~\ref{sec:Calculation-of-X}); there is no mapping from cells-per-tick to physical velocities or energies.
+\item \textbf{No quantitative comparison with measured cross-sections.}  No scattering amplitude, cross-section, or decay rate has been computed from the automaton, and no quantitative particle-physics prediction follows from the model's rules; the only dimensionless comparison reported in this work (Appendix~\ref{sec:charge-census-appendix}) is a kinematic census ratio without predictive value.  Units are defined only up to the lattice scale $X$ (Appendix~\ref{sec:Calculation-of-X}); there is no mapping from cells-per-tick to physical velocities or energies.
 \item \textbf{Small-lattice and boundary effects.}  The reported runs use $L=7$ (Sect.~\ref{subsec:proof-of-concept}); the spherical cavity and the radial dead-zone at $r=\mathrm{RMAX}$ suppress corner artifacts by construction, but also truncate long-range phenomena.  The layer-symmetric seed makes all $75$ islands statistically identical, a configuration choice rather than a property of the dynamics.
 \item \textbf{Electroweak channel dormant at the reference modulus only.}  The $s2B$ sieve admits fewer than $1\%$ of overlaps at the reference amplitudes and modulus (Sect.~\ref{subsec:s2b-sweep}), so weak phenomena---neutrino interactions, $W/Z$ fragments, decay chains, and the inter-sector rules of Sect.~\ref{subsec:distinct}---are not observed at the default settings; the sweep shows the channel firing at coarser moduli, so the reference dormancy is a parameter choice, not a structural impossibility.
 \item \textbf{Open problems.}  (i)~Measure the properties (binding energy, lifetime, scattering behavior) of the pairs produced by the open $s2B$ channel, and study how the pair-formation rate depends on $S$, $U_0$, $L$ and the impact parameter; (ii)~define a continuum limit and derive effective equations; (iii)~turn the charge-combination census into genuine cross-section predictions with a unit mapping; (iv)~scale the lattice to test multi-particle dynamics beyond two bubbles; (v)~derive the model constants ($U_{0}$, sieve thresholds, $\mathrm{phase\_full}$) rather than setting them by hand.
@@ -1421,15 +1459,15 @@ $X$ & cell size & m\\
 $k$ & housekeeping (global) tick & dimensionless\\
 $t$ & wavefront (local) tick & dimensionless\\
 $f$ & wave phase, $f=\mathrm{effective\_t}(t)$ & dimensionless\\
-$\mathcal{L}$ & ticks per light frame & ticks\\
-$v_{\max}$ & maximum information speed, $v_{\max}=X/\mathcal{L}$ & cells per tick\\
+$N_t$ & ticks per light frame & ticks\\
+$v_{\max}$ & maximum information speed, $v_{\max}=X/N_t$ & cells per tick\\
 $c$ & emergent speed of light (observer reading of $v_{\max}$) & m\,s$^{-1}$\\
 $r$, $r^{2}$ & dynamic radius and squared radius from the source & cells, cells$^{2}$\\
 $u$, $v$ & wave displacement and quadrature & dimensionless\\
 $\mathrm{pol}_u$, $\mathrm{pol}_v$ & reconstructed transverse polarization pair & dimensionless\\
 $pB$, $sB$ & polarization sign bits & boolean\\
 $s2B$ & electroweak sieve test bit & boolean\\
-$hB$, $cB$, $kB$, $bB$ & hunting, contraction, collapse, blob flags & boolean\\
+$homB$, $cB$, $kB$, $bB$ & homing, contraction, collapse, cluster flags & boolean\\
 $b(x)$ & broadcasted arrival stamp of the elected momentum & ticks\\
 $ch$ & six-bit charge word ($w_1 w_0 q c_2 c_1 c_0$) & bits\\
 $a$ & affinity (not spatial island identity) & dimensionless\\
@@ -1496,11 +1534,11 @@ R6 & $110001$ & $110001$ & up quark ($q{=}1$, $w_1{=}1$, $w_0{=}0$, color $R$)\\
 \end{tabular}
 \end{table}
 \section{Calculation of X and L\label{sec:Calculation-of-X}}
-Estimates for the value of \emph{X} and the distance between the cells
-and \emph{L} (see Sect. \ref{sec:space-and-time}), the granularity
+Estimates for the value of $X$ and the distance between the cells
+and $L$ (see Sect. \ref{sec:space-and-time}), the granularity
 of the grid, will be developed in this appendix.
 Note that the calculations below are derivation-only: per the purity constraints (Sect.~\ref{subsec:purity}), real numbers serve solely as intermediaries to compute integer parameters and are never invoked inside the runtime transition rule.  The values of $X$ and $L$ obtained here are rounded to integers and used once at initialization as fixed topological data.
-The empirical inputs used below---in particular the measured speed of light $c$ and the observed diameter of Eq.~\eqref{eq:obs}---are observer-measured quantities in the sense of Sect.~\ref{subsec:observers}: $c$ is the emergent speed read from the fabric's fundamental constant $v_{\max}=X/\mathcal{L}$ (Sect.~\ref{sec:Results}). The appendix therefore calibrates the cell scale $X$ and the lattice side $L$ against observed data without altering the transition rule.
+The empirical inputs used below---in particular the measured speed of light $c$ and the observed diameter of Eq.~\eqref{eq:obs}---are observer-measured quantities in the sense of Sect.~\ref{subsec:observers}: $c$ is the emergent speed read from the fabric's fundamental constant $v_{\max}=X/N_t$ (Sect.~\ref{sec:Results}). The appendix therefore calibrates the cell scale $X$ and the lattice side $L$ against observed data without altering the transition rule.
 The diameter of the observable universe \cite{halpbern} is compared
 to the diagonal of the lattice.
 \begin{equation}
@@ -1571,7 +1609,7 @@ The calculation above rests on five explicit hypotheses, none of which the model
 \item[H4] $m_{p}$: the proton rest mass (CODATA); enters only the failed bookkeeping route.
 \item[H5] $Ed=10^{80}$: the Eddington number of protons in the universe; enters only the failed bookkeeping route.
 \end{itemize}
-Sensitivity of the surviving route: from $\ln L=\ln O-\ln\sqrt{3}-\ln X$ one has $\delta\ln L=\delta\ln O-\delta\ln X$; a relative change in either input propagates one-to-one into $L$.  A factor-2 uncertainty in $O$ or in the assumed cell scale $X$ changes $L$ by a factor 2, so the exponent is meaningful only to its order of magnitude: $L\sim10^{61}$.  The proton--electron ratio $1187$ of Appendix~\ref{sec:charge-census-appendix} carries the same status: a coincidence of scale, not a derived prediction.
+Sensitivity of the surviving route: from $\ln L=\ln O-\ln\sqrt{3}-\ln X$ one has $\delta\ln L=\delta\ln O-\delta\ln X$; a relative change in either input propagates one-to-one into $L$.  A factor-2 uncertainty in $O$ or in the assumed cell scale $X$ changes $L$ by a factor 2, so the exponent is meaningful only to its order of magnitude: $L\sim10^{61}$.  The proton--electron ratio quoted in Appendix~\ref{sec:charge-census-appendix} carries the same status: a coincidence of scale, not a derived prediction.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The charge-conjugation census: definitions, tables, and caveats\label{sec:charge-census-appendix}}
 This appendix documents the combinatorial charge census summarized in Sect.~\ref{subsec:charge-census}.  It is \emph{not} a simulation of the automaton: no lattice is evolved here, and the numbers below are the output of hand-scripted random recombination of the six-bit charge words.  They are reported in full so that the reader can verify both the arithmetic and its limits.
@@ -1700,44 +1738,5 @@ long-axis evolution, and leaves structured aggregates as the next necessary
 step before any gravitational claim can be tested.
 
 
-
-% ---- moved by lote 6 (conjecture-labelled appendices) ----
-\section{Particles\label{sec:Particles}}
-\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
-Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as propellers for transport.
-In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
-\subsection{Fermions}
-A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus propeller pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
-Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
-Specialized pairs do not form blobs and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus propeller contributions.
-\subsection{Bosons}\label{bosons}
-A boson is made of one or more blobs. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles.
-A photon is a single blob with all pairs superposed. In this model the frequency of a photon is not a continuous parameter but a count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs therefore has frequency $2n$. A multifrequency photon is a superposition of several such stacks, or a blob containing populations at different even frequencies $2,4,6,\dots$. There are no harmonics in the continuous sense; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such blobs, combined in time and space.}
-The automaton reads this frequency as a population, not as a waveform. During encounter (Sect.~\ref{subsec:encounter}) each detected pair registers one frequency unit on the stack; a stack of $n$ superposed pairs therefore accumulates $n$ times the frequency of a single pair, and the same factor multiplies the firing rate of the sieve bit $s2B$ (Sect.~\ref{subsec:Sine}), which is gated by the active flag and grows with the local amplitude $u$. A multifrequency photon thus presents, at its active surface, the summed population of all its stacks: each even mode contributes its own pair count, and the interaction machinery responds to the total, not to a continuous spectrum. Because pair formation requires the same wavefront tick $t_1=t_2$, the different modes are sampled at their respective ticks of the local clock. This superposition is read by encounter, which is superluminal in coordinate terms but strictly non-signaling and non-manipulable (Sect.~\ref{subsec:observers}): the coexistence of modes is a fact of the fabric, not a channel any observer can steer, so causality is unaffected. The frequency an observer reports in laboratory units is an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}); the underlying quantity is always the count $2n$.
-$W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several blobs sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
-Orphans ($a=W$) do not interact with photons but do interact with gravitons. Neutral orphan pairs do not interact electromagnetically.
-%%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
-
-\section{Cellular automata and quantum formalism} \label{sec:bridge}
-\emph{Status (C).} The mapping proposed in this section is speculative: it is not reconciled with the automaton's irreversible, dissipative dynamics (Sect.~\ref{sec-undecidability} and the reversibility paragraph of Sect.~\ref{subsec:translation}), and it is not claimed as a derivation.
-For local events, we follow 't Hooft's cellular-automaton world-model approach \cite{thooft}. Ontological CA states ($\mathcal{OS}$) do not superpose: each evolves into another ontological state. An orthonormal set of ontological states can nevertheless serve as a Hilbert-space basis.
-The general operator-mechanics recipe is:
-\begin{itemize}
-\item Find a permutation operator as a matrix containing a single 1 in any row or column.
-\item Diagonalize it, obtaining the eigenvalues and eigenvector matrices.
-\item Identify a Hamiltonian matrix as the exponent in $\hat{U}=e^{-i\hat{H}T}$.
-\item Use the eigenvalue matrix to bring this Hamiltonian back to the ontological basis.
-\item Form linear combinations of the ontological states $\ket{A}$.
-\[
-\ket{\psi} = \sum_A \lambda_A \ket{A}, \quad \sum_A |\lambda_A|^2 \equiv 1,
-\]
-where $\ket{\psi}$ is a quantum state or "template," and $\lambda_A$ is a complex coefficient.
-\end{itemize}
-With this operator machinery, the Schr\"{o}dinger equation governs the deterministic evolution of the wave function:
-\[
-\frac{d}{dt}\ket{\psi} = -i\hat{H}\ket{\psi}.
-\]
-The Born rule follows once superposition states are accepted; it predicts the final eigenstate after measurement. This is a simplified picture; details are in \cite{thooft,Elze2019,rizzo2020perturbing}.
-%%%%%%%% PROSPECTS AND CONJECTURES %%%%%%%%%%
 
 \end{document}

@@ -98,7 +98,7 @@ static void placeSource(unsigned w, unsigned x, unsigned y, unsigned z,
           p->a          = automaton::W_USED;   // orphan: no pre-existing island
           p->t = 0; p->f = 0;
           p->pB = p->sB = p->s2B = false;
-          p->kB = p->bB = p->hB = p->cB = false;
+          p->kB = p->bB = p->homB = p->cB = false;
           p->gB = false;
           p->c[0] = p->c[1] = p->c[2] = 0;
           p->g[0] = p->g[1] = p->g[2] = 0;

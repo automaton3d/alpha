@@ -770,15 +770,15 @@ namespace automaton
         draft.a = W_USED;
         draft.leader_w = NO_LEADER_W;
       }
-      /*--- Hunting using hB ---*/
+      /*--- Homing using homB ---*/
       if (curr.active)
       {
-        if (north.hB) { draft.c[0] = (north.c[0] + 1) % ELX; curr.sB = !draft.hB; }
-        else if (west.hB)  { draft.c[1] = (west.c[1] + 1) % ELY; curr.sB = !draft.hB; }
-        else if (down.hB)  { draft.c[2] = (down.c[2] + 1) % ELZ; curr.sB = !draft.hB; }
-        else if (south.hB) { draft.c[1] = (south.c[1] + 1) % ELY; curr.sB = !draft.hB; }
-        else if (east.hB)  { draft.c[0] = (east.c[0] + 1) % ELX; curr.sB = !draft.hB; }
-        else if (up.hB)    { draft.c[2] = (up.c[2] + 1) % ELZ; curr.sB = !draft.hB; }
+        if (north.homB) { draft.c[0] = (north.c[0] + 1) % ELX; curr.sB = !draft.homB; }
+        else if (west.homB)  { draft.c[1] = (west.c[1] + 1) % ELY; curr.sB = !draft.homB; }
+        else if (down.homB)  { draft.c[2] = (down.c[2] + 1) % ELZ; curr.sB = !draft.homB; }
+        else if (south.homB) { draft.c[1] = (south.c[1] + 1) % ELY; curr.sB = !draft.homB; }
+        else if (east.homB)  { draft.c[0] = (east.c[0] + 1) % ELX; curr.sB = !draft.homB; }
+        else if (up.homB)    { draft.c[2] = (up.c[2] + 1) % ELZ; curr.sB = !draft.homB; }
       }
     }
     /****** SLOT III ******/
@@ -940,7 +940,7 @@ namespace automaton
   {
       // Reset propagation status
       draft.kB = false;
-      draft.hB = false;
+      draft.homB = false;
       draft.bB = false;
       // Propagate normal affinity outward, overwriting normal or orphan
       if (curr.active)

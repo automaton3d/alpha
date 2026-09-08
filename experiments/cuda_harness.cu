@@ -66,7 +66,7 @@ static void toDevice(const automaton::Cell& s, CellDevice& d)
   d.s2B = s.s2B ? 1 : 0;
   d.kB  = s.kB ? 1 : 0;
   d.bB  = s.bB ? 1 : 0;
-  d.hB  = s.hB ? 1 : 0;
+  d.homB  = s.homB ? 1 : 0;
   d.cB  = s.cB ? 1 : 0;
   d.gB  = s.gB ? 1 : 0;
   for (int i = 0; i < 3; ++i) d.g[i] = (int32_t)s.g[i];
@@ -103,7 +103,7 @@ static void toHost(const CellDevice& s, automaton::Cell& d)
   d.s2B = s.s2B != 0;
   d.kB  = s.kB != 0;
   d.bB  = s.bB != 0;
-  d.hB  = s.hB != 0;
+  d.homB  = s.homB != 0;
   d.cB  = s.cB != 0;
   d.gB  = s.gB != 0;
   for (int i = 0; i < 3; ++i) d.g[i] = s.g[i];
@@ -146,7 +146,7 @@ static void clearLayer(unsigned w)
           p->a = automaton::W_USED;
           p->t = 0; p->f = 0;
           p->pB = p->sB = p->s2B = false;
-          p->kB = p->bB = p->hB = p->cB = false;
+          p->kB = p->bB = p->homB = p->cB = false;
           p->gB = false;
           for (int i = 0; i < 3; ++i) { p->c[i] = 0; p->g[i] = 0; }
           p->spin_target = 0;

@@ -111,7 +111,7 @@ void initGeneral()
                     cell.s2B = false;
                     cell.kB = false;
                     cell.bB = false;
-                    cell.hB = false;
+                    cell.homB = false;
                     cell.cB = false;
                     cell.c[0] = 0;
                     cell.c[1] = 0;

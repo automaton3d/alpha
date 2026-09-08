@@ -127,7 +127,7 @@ static void convertCellToCellDevice(const automaton::Cell& src,
     dst.s2B = src.s2B ? 1 : 0;
     dst.kB  = src.kB  ? 1 : 0;
     dst.bB  = src.bB  ? 1 : 0;
-    dst.hB  = src.hB  ? 1 : 0;
+    dst.homB  = src.homB  ? 1 : 0;
     dst.cB  = src.cB  ? 1 : 0;
 
     dst.gB  = src.gB  ? 1 : 0;
@@ -169,7 +169,7 @@ static void convertCellDeviceToCell(const CellDevice& src,
     dst.s2B = (src.s2B != 0);
     dst.kB  = (src.kB != 0);
     dst.bB  = (src.bB != 0);
-    dst.hB  = (src.hB != 0);
+    dst.homB  = (src.homB != 0);
     dst.cB  = (src.cB != 0);
 
     dst.gB  = (src.gB != 0);

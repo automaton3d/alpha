@@ -118,7 +118,7 @@ under the current production rules, and forming them requires either an
 initial spatial asymmetry (prepared seed) or enabling a deterministic
 symmetry-breaking mechanism (candidate mechanisms catalogued in the session
 log: polarization broadcast dormant behind an impossible precondition, the
-hB/gB directional producers never set, the disabled M/Mbar hook, the
+homB/gB directional producers never set, the disabled M/Mbar hook, the
 color-FSM impulses outside the ordinary build, and the old GPU momentum
 semantics).
 

@@ -126,7 +126,7 @@ namespace automaton
             dst.s2B  = src.s2B;
             dst.kB   = src.kB;
             dst.bB   = src.bB;
-            dst.hB   = src.hB;
+            dst.homB   = src.homB;
             dst.cB   = src.cB;
 
             // Broadcast ledger is cell-carried state: the arrival stamp

@@ -472,7 +472,7 @@ __device__ inline void dev_encounter4(::CellDevice& curr, ::CellDevice& draft,
     if (curr.active && dev_effective_t(curr.t) == dev_RMAX / 2 && curr.sB && w == 0)
     {
         int old = atomicExch(&dev_ctrl, 0);
-        if (old == 1) draft.hB = 1;
+        if (old == 1) draft.homB = 1;
     }
 }
 
@@ -523,7 +523,7 @@ __device__ inline void dev_encounter6(::CellDevice& curr, ::CellDevice& draft,
                 }
                 else if (curr.sB && !partner.pB)
                 {
-                    draft.hB = 1;
+                    draft.homB = 1;
                     draft.cB = 1;
                     draft.a = dev_W_USED;
                     draft.leader_w = DEV_NO_LEADER_W;
@@ -561,7 +561,7 @@ __device__ inline void dev_encounter7_legacy(::CellDevice& curr, ::CellDevice& d
                 // Who has pB false interacts with the last pB true
                 if (!curr.pB && partner.pB)
                 {
-                    draft.hB = 1;
+                    draft.homB = 1;
                     draft.cB = 1;
                 }
             }
@@ -678,7 +678,7 @@ __device__ inline void dev_encounter7_legacy(::CellDevice& curr, ::CellDevice& d
                     }
                     else
                     {
-                        draft.hB = 1;
+                        draft.homB = 1;
                         draft.a = min(curr.a, partner.a);
                     }
                 }
@@ -1226,14 +1226,14 @@ __global__ void ca_update_kernel(::CellDevice* d_curr, ::CellDevice* d_draft, ::
                 draft.a = dev_W_USED;
                 draft.leader_w = DEV_NO_LEADER_W;
             }
-            // Hunting using hB (matches CPU: active wavefront condition)
+            // Homing using homB (matches CPU: active wavefront condition)
             if (curr.active) {
-                if (north.hB) { draft.c[0] = north.c[0] + 1; curr.sB = !draft.hB; }
-                else if (west.hB)  { draft.c[1] = west.c[1] + 1; curr.sB = !draft.hB; }
-                else if (down.hB)  { draft.c[2] = down.c[2] + 1; curr.sB = !draft.hB; }
-                else if (south.hB) { draft.c[1] = south.c[1] + 1; curr.sB = !draft.hB; }
-                else if (east.hB)  { draft.c[0] = east.c[0] + 1; curr.sB = !draft.hB; }
-                else if (up.hB)    { draft.c[2] = up.c[2] + 1; curr.sB = !draft.hB; }
+                if (north.homB) { draft.c[0] = north.c[0] + 1; curr.sB = !draft.homB; }
+                else if (west.homB)  { draft.c[1] = west.c[1] + 1; curr.sB = !draft.homB; }
+                else if (down.homB)  { draft.c[2] = down.c[2] + 1; curr.sB = !draft.homB; }
+                else if (south.homB) { draft.c[1] = south.c[1] + 1; curr.sB = !draft.homB; }
+                else if (east.homB)  { draft.c[0] = east.c[0] + 1; curr.sB = !draft.homB; }
+                else if (up.homB)    { draft.c[2] = up.c[2] + 1; curr.sB = !draft.homB; }
             }
         }
         // SLOT III
@@ -1362,7 +1362,7 @@ __global__ void ca_update_kernel(::CellDevice* d_curr, ::CellDevice* d_draft, ::
     // ===================================================================
     else if (curr.k < REISSUE) {
         draft.kB = 0;
-        draft.hB = 0;
+        draft.homB = 0;
         draft.bB = 0;
         if (curr.active) {
             if (north.r2 > curr.r2) { draft.a = north.a; draft.leader_w = (north.a == dev_W_USED ? DEV_NO_LEADER_W : north.a); }
@@ -1936,7 +1936,7 @@ namespace automaton
         dst.s2B = src.s2B ? 1 : 0;
         dst.kB = src.kB ? 1 : 0;
         dst.bB = src.bB ? 1 : 0;
-        dst.hB = src.hB ? 1 : 0;
+        dst.homB = src.homB ? 1 : 0;
         dst.cB = src.cB ? 1 : 0;
         dst.gB = src.gB ? 1 : 0;
         for (int i = 0; i < 3; ++i) dst.g[i] = static_cast<int32_t>(src.g[i]);
@@ -1971,7 +1971,7 @@ namespace automaton
         dst.s2B = src.s2B != 0;
         dst.kB = src.kB != 0;
         dst.bB = src.bB != 0;
-        dst.hB = src.hB != 0;
+        dst.homB = src.homB != 0;
         dst.cB = src.cB != 0;
         dst.gB = src.gB != 0;
         for (int i = 0; i < 3; ++i) dst.g[i] = static_cast<int>(src.g[i]);

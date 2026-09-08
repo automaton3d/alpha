@@ -155,7 +155,7 @@ struct NeighborResult
       // Interaction control
       bool kB;            // Collapse flag
       bool bB;            // Blob flag
-      bool hB;            // Hunt flag
+      bool homB;          // Homing flag
       bool cB;            // Contraction flag
       // Glider (antipodal transport)
       bool gB;            // Glider active flag
@@ -182,7 +182,7 @@ struct NeighborResult
         : w(0), leader_w(NO_LEADER_W), is_core(false),
           ch(0), pB(false), sB(false), a(0),
           d(0), phiB(false), t(0), f(0),
-          k(0), s2B(false), kB(false), bB(false), hB(false), cB(false),
+          k(0), s2B(false), kB(false), bB(false), homB(false), cB(false),
           gB(false), r2(0xFFFFFFFFu), r(-1), u(0), v(0), active(0),
           bstamp(0), pol_u(0), pol_v(0),
           kind(SourceKind::S), parent(NO_PARENT), spin_target(0), pair_idx(NO_PAIR), pair_count(0)
