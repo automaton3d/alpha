@@ -30,6 +30,14 @@ namespace automaton
     /// first election.  Host-side read-only view for GUI/debug.
     const int* electedAxis(unsigned w);
 
+    /// Experimental bootstrap: install axis (ax,ay,az) on layer w and start
+    /// its helical broadcast walker immediately, so phase_step() begins to
+    /// reconstruct pol_u/pol_v (and thus pB/sB) without waiting for the
+    /// self-election that cannot bootstrap from zero polarisation.  The axis
+    /// is a topological initial datum for prepared runs (dressed-island
+    /// experiment); ordinary seeds do not call this.
+    bool seedAxis(unsigned w, int ax, int ay, int az);
+
     /// Reconstruction stage: convert an arrival stamp into the transverse
     /// polarisation pair approximating the circle pol_u^2 + pol_v^2 = R^4.
     /// Stamps store (arrival tick + 1), so 0 unambiguously means "never

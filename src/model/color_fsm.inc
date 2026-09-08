@@ -14,6 +14,29 @@ static std::vector<unsigned char> delegatePromotion, delegatePromotionNext;
 // This is not part of the automaton's proposed physical rule.
 void coagulationIntervene();
 #endif
+#ifdef LIGHT_MATTER_FSM
+// Provisional light-matter decoupling stand-in (pB/sB channel).  The real
+// polarisation broadcast that would set pB/sB is deferred; the harness
+// assigns each source a deterministic random light-matter label instead
+// (same SplitMix64 pattern as the coagulation experiment).  At a bound,
+// coincident, equal-charge contact whose labels differ, the matched
+// impulse (zero at coincidence) is overridden by one antisymmetric
+// separation step, so superposed constituents decouple.
+void lightMatterInit();
+int lightMatterKick(unsigned a, unsigned w, int axis);
+#endif
+#ifdef EXCLUSION_FSM
+// Pauli-like identity hard core (experimental candidate).  Equal-charge
+// sources from DIFFERENT seed families (w/3, the L/3 identical copies of a
+// W-island) cannot share a chief: their contact is not recorded for
+// election, cohesion or colour kicks, so one family island can never absorb
+// another into a charge-word tribe.  Copies inside the same family interact
+// normally (they must elect their own 1K+nD island).  This is a candidate
+// identity rule, not the current manuscript election rule.
+static unsigned long long exclusionContacts = 0;
+static std::vector<uint64_t> colorExcl, colorExclNext;  // cross-family sets
+unsigned long long colorExclusionTotal() { return exclusionContacts; }
+#endif
 #ifdef INERTIA_MATCHED_FSM
 #include "inertia_contact.inc"
 #endif
@@ -62,6 +85,10 @@ static void colorFsmTick() {
     colorContacts.assign(size_t(BLOCK)*words,0);
     colorContactsNext.resize(colorContacts.size());
     colorReemit.assign(W_USED,0);
+#ifdef EXCLUSION_FSM
+    colorExcl.assign(size_t(BLOCK)*words,0);
+    colorExclNext.resize(colorExcl.size());
+#endif
 #ifdef KK_CLASH_FSM
     clashChief.assign(BLOCK,NO_PARENT);clashChiefNext.resize(BLOCK);
 #endif
@@ -102,6 +129,16 @@ static void colorFsmTick() {
       }
 #endif
       if(a.ch!=b.ch) continue;
+#ifdef EXCLUSION_FSM
+      // Hard-core identity exclusion between different seed families: the
+      // contact is kept only for the exclusion push, never for election,
+      // cohesion or colour kicks, so families cannot merge into tribes.
+      if (a.w / 3u != b.w / 3u) {
+        ++exclusionContacts;
+        colorExcl[i*words+b.w/64] |= uint64_t(1)<<(b.w%64);
+        continue;
+      }
+#endif
 #ifdef KK_CLASH_FSM
       if(demotesChief(a,b)) clashChief[i]=std::min(clashChief[i],b.w);
 #endif
@@ -137,6 +174,9 @@ static void colorFsmTick() {
     }
   } else if(k<ENCOUNTER+diameter) {
     colorContactsNext=colorContacts;
+#ifdef EXCLUSION_FSM
+    colorExclNext=colorExcl;
+#endif
 #ifdef KK_CLASH_FSM
     clashChiefNext=clashChief;
 #endif
@@ -183,9 +223,16 @@ static void colorFsmTick() {
 #endif
         for(size_t b=0;b<words;++b)
           colorContactsNext[i*words+b] |= colorContacts[j*words+b];
+#ifdef EXCLUSION_FSM
+        for(size_t b=0;b<words;++b)
+          colorExclNext[i*words+b] |= colorExcl[j*words+b];
+#endif
       }
     }
     colorContacts.swap(colorContactsNext);
+#ifdef EXCLUSION_FSM
+    colorExcl.swap(colorExclNext);
+#endif
 #ifdef KK_CLASH_FSM
     clashChief.swap(clashChiefNext);
 #endif
@@ -248,9 +295,33 @@ static void colorFsmTick() {
 #ifdef COLOR_MATCHED_FSM
           step=colorMatchedImpulse(i,w,axis);
 #endif
+#ifdef LIGHT_MATTER_FSM
+          { const int lm=lightMatterKick(a.w,w,axis); if(lm) step=lm; }
+#endif
           d.c[axis]=(int(d.c[axis])+step+int(edges[axis]))%edges[axis];
         }
       }
+#ifdef EXCLUSION_FSM
+      // Exclusion push: one antisymmetric separation step for each
+      // equal-charge cross-family contact, along the axis of largest
+      // shortest-torus separation (W-derived axis when coincident).
+      for(unsigned w=0;w<W_USED;++w)
+        if(colorExcl[i*words+w/64] & (uint64_t(1)<<(w%64))) {
+          int sep[3]={0,0,0}; int best=0,bestAbs=-1;
+          for(int axis=0;axis<3;++axis){
+            int dlt=int(lcenters[w][axis])-int(lcenters[a.w][axis]);
+            if(dlt>int(edges[axis]/2)) dlt-=edges[axis];
+            if(dlt<-int(edges[axis]/2)) dlt+=edges[axis];
+            sep[axis]=dlt;
+            int ad=dlt<0?-dlt:dlt;
+            if(ad>bestAbs){bestAbs=ad;best=axis;}
+          }
+          int axis, sgn;
+          if(bestAbs>0){ axis=best; sgn= sep[axis]>0 ? -1 : 1; }
+          else { axis=int((uint64_t(a.w)+w)%3u); sgn= a.w<w ? -1 : 1; }
+          d.c[axis]=(int(d.c[axis])+sgn+int(edges[axis]))%edges[axis];
+        }
+#endif
     }
 #ifdef COAGULATION_RANDOM_FSM
     coagulationIntervene();

@@ -294,6 +294,18 @@ namespace automaton
       origin.bstamp = pulse_tick + 1u;
     }
 
+    bool seedAxis(unsigned w, int ax, int ay, int az)
+    {
+      if (W_USED == 0 || w >= W_USED || EL == 0)
+        return false;
+      ensureSized();
+      g_walk[w] = Walker{};
+      std::memset(g_visit[w].data(), 0, g_visit[w].size());
+      installAxis(w, ax, ay, az);
+      initWalker(w);
+      return true;
+    }
+
     // ============================================================
     // applyMove — commit lattice move m (additions/shifts only).
     //

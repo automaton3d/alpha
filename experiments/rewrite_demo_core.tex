@@ -1,0 +1,174 @@
+% ============================================================================
+% DEMO FRAGMENT -- new writing style for doc/manuscript.tex
+% Merges, in prose, the current fragments:
+%   - "The cell structure"  (subsec 136; subsubs 141,149,159: physical
+%     properties / wavefront shaping / operational variables)
+%   - "The light frame"     (419-422) + "Definitions" (447-468)
+%   - "Interaction principles" (490-498) and the encounter description
+%     "Superposing/Distinct bubbles" (502-568) condensed to one subsection;
+%     the pair-formation rule tables move to an appendix.
+% NOT standalone compilable; labels and macros are illustrative.  The goal is
+% to show: one idea per paragraph, one notation table, claim->mechanism->role
+% order, and explicit Postulate vs Derived wording.
+% ============================================================================
+
+\subsection{The cell state}
+\label{subsec:cell-state-demo}
+
+Every cell of the 4-dimensional lattice (three spatial torus directions plus
+the internal dimension $W$) carries one fixed-size bit string.  That string
+plays three distinct roles, and we state them once here so that the rest of
+the model can be read without a glossary:
+
+\begin{enumerate}
+\item \textbf{Physical role.}  A six-bit charge word $ch$ is constant per
+      $W$-layer and is partitioned into electric ($q$), weak ($w_1w_0$) and
+      colour ($c_2c_1c_0$) sectors (Sect.~\ref{subsec:charges}).  Two derived
+      bits, $pB=(pol_u>0)$ and $sB=(pol_v>0)$, mark the sign of the
+      reconstructed polarisation pair and trigger the electric and magnetic
+      interaction channels respectively.  The affinity $a$ labels the
+      aggregate (island) a cell currently belongs to.
+\item \textbf{Wavefront role.}  The squared radius $r^2$ and the integer
+      radius $r$ are maintained incrementally from each moving source centre;
+      a cell lies on the active spherical front iff $r$ equals the local
+      frame radius $\mathrm{effective\_t}(t)$.  This radius grows by exactly
+      one lattice cell per frame --- a postulate of the information clock,
+      not an emergent speed (see Sect.~\ref{subsec:light-frame-demo}).
+\item \textbf{Operational role.}  Two clocks coexist: the housekeeping tick
+      $k$, incremented synchronously in every cell and used to schedule the
+      FSM stages, and the local wavefront tick $t$, reset at each re-emitted
+      source.  The vector $\mathbf{c}$ carries the pending translation, and
+      $m$/$reloc$ the momentum and consumable displacement used by the
+      inertial channel (Sect.~\ref{subsec:translation}).
+\end{enumerate}
+
+For reference, Table~\ref{tab:cell-state-demo} lists the same fields in one
+place; it is a notation table, not a set of assumptions.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lll}
+\hline
+Field & Role & Comment\\
+\hline
+$ch$      & physical & six-bit charge word, constant per $W$-layer\\
+$pB,sB$   & physical & signs of reconstructed $(pol_u,pol_v)$; electric/magnetic channels\\
+$a$       & physical & island/affinity label\\
+$r^2,r$   & wavefront & incremental distance from source centre\\
+$\mathit{active}$ & wavefront & true on the shell $r=\mathrm{effective\_t}(t)$\\
+$t$, $f$  & wavefront & local clock and triangular breathing phase\\
+$k$       & operational & global FSM stage counter\\
+$\mathbf{c}$ & operational & pending translation offset\\
+$m$, $reloc$ & operational & inertial momentum and consumable displacement\\
+\hline
+\end{tabular}
+\caption{The cell bit string, grouped by role (single notation table).}
+\label{tab:cell-state-demo}
+\end{table}
+
+Two clarifications are needed because the current text spreads them over
+several short paragraphs.  First, all distances are toroidal and per-axis:
+spatial edges are $L$ by default and the rectangular-tube allocator sets
+them separately.  Second, the wavefront machinery is \emph{incremental}: it
+never stores a full distance field, only the radius and its squared value
+propagated through the six-neighbourhood with local square-boundary tests.
+
+\subsection{Two clocks and the light frame}
+\label{subsec:light-frame-demo}
+
+The model separates \emph{timescales} from \emph{scheduling}.  An era is one
+full expansion--contraction of a front; a light frame is one update cycle of
+the whole lattice; an inertial re-emission occupies only a few housekeeping
+ticks.  Every light frame advances the information clock by one unit: the
+front moves exactly one lattice cell per frame by construction.  We therefore
+do \emph{not} report a measured ``speed of one cell per tick'' as an emergent
+result; that value is the definition of the clock, and the only empirical
+question is whether the shell is complete at every radius.
+
+Scheduling is handled by the global tick $k$, which walks through the five
+stages of a frame: \textsc{encounter}, \textsc{diffusion}, \textsc{reloc},
+\textsc{reissue} and \textsc{flood}.  Because $k$ is common to every cell,
+encounter can compare the whole lattice along the internal dimension in one
+sweep.  This comparison is \emph{non-local in scheduling}, and the text must
+state plainly that no signalling claim follows from it: what needs proof is
+that these scheduled reads never enter any cell's causal future in an
+observable way, and the current implementation does not yet supply that proof
+(its arbitration is host-side).  We therefore defer the ``no-signalling''
+claim to a limitations paragraph rather than presenting it as established.
+
+\subsection{Encounter and interaction principles}
+\label{subsec:encounter-demo}
+
+Encounter is the only place where two sources interact.  Its rules follow a
+small number of principles, which the current text scatters across many short
+subsections; we state them here and keep the detailed rule tables in the
+appendix.
+
+\begin{description}
+\item[Reciprocity.]  Every interaction is evaluated twice, once with each
+      source as the current cell; nothing writes the partner's draft.
+\item[Identity before force.]  Equal-charge contacts first settle identity:
+      an S/S pair elects a chief, a D/D pair promotes the lower address, and
+      a K/K pair clashes so that the higher address becomes a delegate.  Only
+      contacts that survive identity handling reach the charge/EM branches.
+\item[Charge sectors.]  Complementary charges can annihilate into a
+      pair (with a registered frequency unit); opposite-field singletons of
+      the same sector merge under a dominant leader; same-field singletons
+      repel one step.  The $s2B$ electroweak sieve gates only the
+      electroweak channels and is gated by the active shell.
+\item[Superposition vs distinctness.]  Equal pairs may superpose (blob);
+      distinct-bubble rules separate same-sector, inter-sector and
+      colour-neutral cases.  The colour-neutral rules exchange colour and
+      reissue from the contact point; dispersion/singularization act at
+      $t=RMAX/2$ between sectors.
+\item[Light-matter channel.]  $pB$/$sB$ select electric/magnetic behaviour.
+      When both bits are set the contact collapses ($kB=1$); when only one
+      meets the other's surface the interaction is adiabatic: the sources
+      exchange affinity and clock and relocate toward each other.
+\end{description}
+
+Diffusion then propagates the flags and contact information produced by
+encounter synchronously through the six spatial neighbours, and translation
+moves the source centres according to the accumulated $\mathbf{c}$ and the
+inertial $reloc$ channel.  Because the encounter comparisons are scheduled
+non-locally (above), the claim that the full cycle is a strictly local
+finite-state rule is \emph{not} asserted for the present implementation; it
+is listed as an open requirement in the limitations.
+
+\subsection{Diffusion, translation and collapse in one reading}
+\label{subsec:diffusion-demo}
+
+Diffusion broadcasts the three things the next stage needs: the collapse bit
+$kB$, the translation vector $\mathbf{c}$, and direction information.  A
+collapse spreads to every bubble that shares the affinity of the collapsing
+source, thereby marking the whole particle.  Independently, each cell copies
+the first non-trivial $\mathbf{c}$ found among its six neighbours, so that by
+the end of the stage every layer carries a single ready-to-use displacement;
+$sB$-hunting increments $\mathbf{c}$ along any axis where a neighbour has
+$hB=1$ and the local $sB=0$.  The phase $f$ is deliberately not diffused: it
+is the local breathing value $\mathrm{effective\_t}(t)$ of each cell.
+
+Translation consumes that displacement.  A bubble is copied from the
+neighbour in the direction of $\mathbf{c}$ while the draft decrements
+$\mathbf{c}$, so a source pattern shifts as a rigid block instead of being
+rebuilt cell by cell; the inertial channel is separate and accumulates unit
+steps into the consumable vector $reloc$ rather than a multi-cell jump.
+Reissue then resets $t=0$ at the new source centre and forwards $f$ and the
+active flag to the partner lattice; the old front continues until it fades,
+and that leftover is what the text calls an \emph{orphan}.  Annihilation and
+collapse complete the picture: a contact that sets $kB$ ends by re-emitting
+the two bubbles from the contact point, which is how a front is reset rather
+than teleported.  Exact slot numbers and the full transition function remain
+in the algorithmic summary; this prose is meant as the map to that summary,
+not as a replacement for it.
+
+% --- what this demo merged, for the editor response --------------------------
+% merged: subsubs "Physical/Wavefront/Operational" -> one subsection + one table
+%         "Light frame" + "Definitions" paragraphs -> one subsection
+%         "Interaction principles" + superposing/distinct fragments -> one
+%           subsection with a principles list; pair tables -> appendix
+%         "Diffusion"/"Translation"/"Annihilation and collapse" -> one subsection
+% shortened: no-signalling claim downgraded; "measured 1 cell/tick" reframed
+%            as clock definition (answers the circularity objection).
+

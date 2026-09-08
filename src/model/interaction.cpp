@@ -370,12 +370,48 @@ namespace automaton
         for (int k=0;k<3;++k) sourceAfter[w].reloc[k] += moves[w][k];
       ++transportFrame;
     }
+
+#ifdef EXCLUSION_FSM
+    // Frame-edge separation push for cross-family equal-charge pairs
+    // recorded by the identity hard core.  One antisymmetric unit step per
+    // pair per light frame, along the axis of largest shortest-torus
+    // separation (W-derived axis when coincident).  Bound same-chief pairs
+    // are never pushed.
+    void resolveExclusionPush()
+    {
+      for (const auto& [a, b] : internalContacts) {
+        if (a / 3u == b / 3u) continue;                 // same family
+        const Cell& sa = sourceAfter[a];
+        const Cell& sb = sourceAfter[b];
+        if (sa.ch != sb.ch) continue;                   // equal charge only
+        WIndex ca = islandChief(sa), cb = islandChief(sb);
+        if (ca != NO_PARENT && ca == cb) continue;      // already one island
+        int sep[3];
+        int best = 0, bestAbs = -1;
+        for (int axis = 0; axis < 3; ++axis) {
+          const int d = delta(a, b, axis);
+          sep[axis] = d;
+          const int ad = d < 0 ? -d : d;
+          if (ad > bestAbs) { bestAbs = ad; best = axis; }
+        }
+        int axis, sgn;
+        if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
+        else { axis = (int)(((uint64_t)a + b) % 3u); sgn = a < b ? -1 : 1; }
+        sourceAfter[a].reloc[axis] += sgn;
+        sourceAfter[b].reloc[axis] -= sgn;
+      }
+    }
+#endif
   }
 
   void commitSourceTick()
   {
-    if (!lattice_draft.empty() && lattice_draft.front().k == 0)
+    if (!lattice_draft.empty() && lattice_draft.front().k == 0) {
       resolveInternalContacts();
+#ifdef EXCLUSION_FSM
+      resolveExclusionPush();
+#endif
+    }
     for (unsigned w = 0; w < W_USED; ++w) {
       const auto& p = lcenters[w];
       Cell& dst = getCell(lattice_draft, p[0], p[1], p[2], w);
@@ -427,6 +463,23 @@ namespace automaton
 
     // Role transitions precede internal-contact early returns. Only the
     // current draft is updated; reciprocal encounters update the other side.
+#ifdef EXCLUSION_FSM
+    // Pauli-like identity hard core (candidate, ported from the colour FSM):
+    // equal-charge sources from DIFFERENT seed families never share identity
+    // and are not allowed to merge through chiefContact/promotion/clash.
+    // The pair is recorded (deduplicated per light frame) for the separation
+    // push applied at the frame edge; everything else is skipped.
+    if (currSrc.ch == partnerSrc.ch && currSrc.w / 3u != partnerSrc.w / 3u) {
+      const WIndex a = std::min(currSrc.w, partnerSrc.w);
+      const WIndex b = std::max(currSrc.w, partnerSrc.w);
+      const size_t index = (size_t)a * W_USED + b;
+      if (!contactSeen[index]) {
+        contactSeen[index] = 1;
+        internalContacts.emplace_back(a, b);
+      }
+      return false;
+    }
+#endif
     chiefContact(currSrc,partnerSrc,currDraft);
     if(currSrc.kind==SourceKind::K && partnerSrc.kind==SourceKind::K && currSrc.ch==partnerSrc.ch)
       return false; // Preserve the clash transition through the remaining branches.

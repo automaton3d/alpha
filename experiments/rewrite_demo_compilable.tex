@@ -1,0 +1,22 @@
+% Standalone compilable demo of the proposed merged writing style.
+% Compile with:  pdflatex rewrite_demo_compilable.tex
+% The fragment rewrite_demo_core.tex is input as-is (it is not part of
+% doc/manuscript.tex; the real .tex stays frozen).
+\documentclass[11pt]{article}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\pagestyle{plain}
+\begin{document}
+
+\begin{center}
+{\Large\bfseries Rewritten core blocks (demonstration)}\\[2mm]
+{\small Merged writing style for doc/manuscript.tex --- for review only; not
+applied to the manuscript.}
+\end{center}
+\vspace{4mm}
+
+\section{Demonstration}
+\input{rewrite_demo_core.tex}
+
+\end{document}
