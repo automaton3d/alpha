@@ -416,71 +416,6 @@
       \field{title}{{Value: Electron Mass}}
       \field{year}{2018}
     \endentry
-    \entry{Elze2019}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=9a8fa026213c3f7ba7f6bec5face4e5d}{%
-           family={Elze},
-           familyi={E\bibinitperiod},
-           given={H.-T.},
-           giveni={H\bibinithyphendelim T\bibinitperiod}}}%
-      }
-      \strng{namehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{fullhash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{fullhashraw}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{bibnamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{authorbibnamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{authornamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{authorfullhash}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \strng{authorfullhashraw}{9a8fa026213c3f7ba7f6bec5face4e5d}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{International Journal of Quantum Information}
-      \field{number}{8}
-      \field{title}{{Qubit Exchange Interactions from Permutations of Classical Bits}}
-      \field{volume}{17}
-      \field{year}{2019}
-      \field{pages}{1941003}
-      \range{pages}{1}
-      \verb{doi}
-      \verb 10.1142/S021974991941003X
-      \endverb
-    \endentry
-    \entry{rizzo2020perturbing}{online}{}{}
-      \name{author}{1}{}{%
-        {{hash=60683f497a88d449567cd4cebcb8493c}{%
-           family={Rizzo},
-           familyi={R\bibinitperiod},
-           given={Bianca},
-           giveni={B\bibinitperiod}}}%
-      }
-      \strng{namehash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{fullhash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{fullhashraw}{60683f497a88d449567cd4cebcb8493c}
-      \strng{bibnamehash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{authorbibnamehash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{authornamehash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{authorfullhash}{60683f497a88d449567cd4cebcb8493c}
-      \strng{authorfullhashraw}{60683f497a88d449567cd4cebcb8493c}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{eprintclass}{quant-ph}
-      \field{eprinttype}{arxiv}
-      \field{title}{{How Perturbing a Classical 3-Spin Chain Can Lead to Quantum Features}}
-      \field{year}{2020}
-      \verb{eprint}
-      \verb 2012.15187
-      \endverb
-      \verb{urlraw}
-      \verb https://arxiv.org/abs/2012.15187
-      \endverb
-      \verb{url}
-      \verb https://arxiv.org/abs/2012.15187
-      \endverb
-    \endentry
     \entry{Einstein1905}{article}{}{}
       \name{author}{1}{}{%
         {{hash=3ebf53e52a3ce84f0ffb8553200a6a63}{%
@@ -662,8 +597,8 @@
       \strng{authornamehash}{2be8e4f9a1eec9e94013d9d674ce8962}
       \strng{authorfullhash}{2be8e4f9a1eec9e94013d9d674ce8962}
       \strng{authorfullhashraw}{2be8e4f9a1eec9e94013d9d674ce8962}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Physical Review D}
@@ -690,8 +625,8 @@
       \strng{authornamehash}{30ea08d8c41b9d4cedb212534a38d0ee}
       \strng{authorfullhash}{30ea08d8c41b9d4cedb212534a38d0ee}
       \strng{authorfullhashraw}{30ea08d8c41b9d4cedb212534a38d0ee}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Reviews of Modern Physics}
@@ -718,8 +653,8 @@
       \strng{authornamehash}{b914804f1414db36cff11d04f2fa32b3}
       \strng{authorfullhash}{b914804f1414db36cff11d04f2fa32b3}
       \strng{authorfullhashraw}{b914804f1414db36cff11d04f2fa32b3}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Journal of Physics: Conference Series}
@@ -1077,8 +1012,8 @@
       \strng{authornamehash}{9c290c6799d004e8e0a0f3d290e65bb1}
       \strng{authorfullhash}{9c290c6799d004e8e0a0f3d290e65bb1}
       \strng{authorfullhashraw}{9c290c6799d004e8e0a0f3d290e65bb1}
-      \field{sortinit}{4}
-      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Astronomy and Astrophysics}
@@ -1087,6 +1022,71 @@
       \field{year}{2003}
       \field{pages}{L19\bibrangedash L23}
       \range{pages}{-1}
+    \endentry
+    \entry{Elze2019}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=9a8fa026213c3f7ba7f6bec5face4e5d}{%
+           family={Elze},
+           familyi={E\bibinitperiod},
+           given={H.-T.},
+           giveni={H\bibinithyphendelim T\bibinitperiod}}}%
+      }
+      \strng{namehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{fullhash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{fullhashraw}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{bibnamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{authorbibnamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{authornamehash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{authorfullhash}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \strng{authorfullhashraw}{9a8fa026213c3f7ba7f6bec5face4e5d}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{International Journal of Quantum Information}
+      \field{number}{8}
+      \field{title}{{Qubit Exchange Interactions from Permutations of Classical Bits}}
+      \field{volume}{17}
+      \field{year}{2019}
+      \field{pages}{1941003}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1142/S021974991941003X
+      \endverb
+    \endentry
+    \entry{rizzo2020perturbing}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=60683f497a88d449567cd4cebcb8493c}{%
+           family={Rizzo},
+           familyi={R\bibinitperiod},
+           given={Bianca},
+           giveni={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{fullhash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{fullhashraw}{60683f497a88d449567cd4cebcb8493c}
+      \strng{bibnamehash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{authorbibnamehash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{authornamehash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{authorfullhash}{60683f497a88d449567cd4cebcb8493c}
+      \strng{authorfullhashraw}{60683f497a88d449567cd4cebcb8493c}
+      \field{sortinit}{4}
+      \field{sortinithash}{9381316451d1b9788675a07e972a12a7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{quant-ph}
+      \field{eprinttype}{arxiv}
+      \field{title}{{How Perturbing a Classical 3-Spin Chain Can Lead to Quantum Features}}
+      \field{year}{2020}
+      \verb{eprint}
+      \verb 2012.15187
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2012.15187
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2012.15187
+      \endverb
     \endentry
   \enddatalist
 \endrefsection
