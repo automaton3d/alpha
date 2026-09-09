@@ -10,13 +10,25 @@
  *     conv_s2b   (s2B passes)    = 18     -> 18/6996 ~ 1/388.7
  *
  * Usage:
- *   alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon]
+ *   alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon] [repel] [mag]
+ *              [pol] [axis]
  *
  *   With a sixth argument equal to "canon", runs the full canonical
  *   configuration (Platonic seed): W = 3*EL^2 layers, all source centres
  *   superposed at the lattice centre, no two-bubble overwrite.  SEP is then
  *   ignored.  This is the configuration in which the polarization
  *   election/broadcast/reconstruction is active.
+ *
+ *   A ninth argument equal to "pol" enables the experimental polarization
+ *   bootstrap (polarization::seedAxis, the pbsb_two pattern): the default
+ *   self-election cannot start from the zero-polarisation seed, so phase_step
+ *   never reconstructs pol_u/pol_v and pB/sB stay false (alpha_D = 0 in the
+ *   two-bubble geometry).  seedAxis installs a topological initial axis per
+ *   layer and starts the helical broadcast walker immediately.  The optional
+ *   tenth argument selects the axis source: "m" follows each bubble's
+ *   momentum (canonical fallback +z), "z" uses +z for every layer, "za"
+ *   alternates +z/-z by layer parity.  Without "pol" the run is the
+ *   bit-identical reference (validation numbers of RESULTS.md).
  *
  * Only files under e:\alpha are touched.  e:\automaton is read-only input.
  *
@@ -35,6 +47,7 @@
 #include <numeric>
 
 #include "model/simulation.h"
+#include "model/polarization.h"
 #include "config.h"
 
 // ---------------------------------------------------------------------------
@@ -162,6 +175,10 @@ int main(int argc, char** argv)
   int  mag = (argc > 8) ? atoi(argv[8]) : 1;   // initial |momentum|
   if (mag < 1) mag = 1;
 
+  // Experimental polarization bootstrap ("pol"); see the header comment.
+  const bool pol = (argc > 9) && (strcmp(argv[9], "pol") == 0);
+  const char* axisKind = (argc > 10) ? argv[10] : "m";
+
   if (EL_in < 3 || EL_in > 31 || (EL_in % 2) == 0)
   {
     fprintf(stderr, "EL must be an odd value in [3,31]\n");
@@ -178,6 +195,8 @@ int main(int argc, char** argv)
   printf("EL=%u W_USED=%u RMAX=%u frames=%u sieve=%d mode=%s mag=%d\n",
          EL_in, W_in, EL_in / 2u, FRAMES, SIEVE,
          canonical ? "canon" : (repel ? "repel" : "scatter"), mag);
+  if (pol)
+    printf("polarization bootstrap: axis=%s (seedAxis)\n", axisKind);
 
   automaton::calculateParameters(EL_in, W_in);
   automaton::s2b_target = SIEVE;
@@ -203,6 +222,46 @@ int main(int argc, char** argv)
 
     placeSource(0, C - off, C, C,  +mag, 0, 0, chA);  // left, moving right
     placeSource(1, C + off, C, C,  -mag, 0, 0, chB);  // right, moving left
+  }
+
+  // ------------------------------------------------------------------
+  // Polarization bootstrap ("pol"): install a topological initial axis
+  // on every layer and start the helical broadcast walker immediately, so
+  // phase_step() reconstructs pol_u/pol_v (and thus pB/sB) on the shells.
+  // The unseeded self-election cannot boot from zero polarisation, which
+  // is why alpha_D reads 0 in the reference two-bubble geometry.  This is
+  // the pbsb_two pattern; ordinary reference runs do not call it.
+  // ------------------------------------------------------------------
+  if (pol)
+  {
+    for (unsigned w = 0; w < W_in; ++w)
+    {
+      const automaton::Cell& s = automaton::getCell(
+          automaton::lattice_curr,
+          automaton::lcenters[w][0], automaton::lcenters[w][1],
+          automaton::lcenters[w][2], w);
+      int ax, ay, az;
+      if (strcmp(axisKind, "z") == 0)
+      {
+        ax = 0; ay = 0; az = 1;
+      }
+      else if (strcmp(axisKind, "za") == 0)
+      {
+        ax = 0; ay = 0; az = (w & 1u) ? -1 : 1;
+      }
+      else
+      {
+        // "m": follow the source momentum; canonical seeds have m = 0,
+        // so fall back to +z (installAxis normalises to |axis| = RMAX).
+        ax = s.m[0]; ay = s.m[1]; az = s.m[2];
+        if (ax == 0 && ay == 0 && az == 0) az = 1;
+      }
+      if (!automaton::polarization::seedAxis(w, ax, ay, az))
+        fprintf(stderr, "warning: polarization::seedAxis(w=%u) failed\n", w);
+    }
+    // Propagate the fresh source stamps to draft/partner so the first
+    // encounter window sees a coherent partner snapshot.
+    automaton::replicate();
   }
 
   const auto t0 = std::chrono::steady_clock::now();
@@ -232,7 +291,8 @@ int main(int argc, char** argv)
 
   // Per-frame records for the collision window (two-bubble mode).
   struct FrameRec { double d; long long calls; long long s2b;
-                    long double expP; unsigned long long act; };
+                    long double expP; unsigned long long act;
+                    unsigned long long pB, sB; };
   std::vector<FrameRec> recs;
   if (!canonical) recs.reserve(FRAMES);
 
@@ -305,7 +365,7 @@ int main(int argc, char** argv)
         if (dy >  h) dy -= (int)EL_in; else if (dy < -h) dy += (int)EL_in;
         if (dz >  h) dz -= (int)EL_in; else if (dz < -h) dz += (int)EL_in;
         dsep = std::sqrt((double)(dx*dx + dy*dy + dz*dz));
-        recs.push_back({ dsep, dCalls, dS2b, frameSum, nActive });
+        recs.push_back({ dsep, dCalls, dS2b, frameSum, nActive, nPB, nSB });
       }
 
       const double secs = std::chrono::duration<double>(
@@ -365,11 +425,13 @@ int main(int argc, char** argv)
     long long winCalls = 0, winS2b = 0;
     long double winExpP = 0.0L;
     unsigned long long winAct = 0, winFrames = 0;
+    unsigned long long winPB = 0, winSB = 0;
     for (const FrameRec& r : recs)
       if (r.d <= dmin + 1.5)
       {
         winCalls += r.calls; winS2b += r.s2b;
-        winExpP += r.expP; winAct += r.act; ++winFrames;
+        winExpP += r.expP; winAct += r.act;
+        winPB += r.pB; winSB += r.sB; ++winFrames;
       }
 
     printf("closest approach: %.2f cells at frame %u of %u (max separation %.2f)\n",
@@ -384,6 +446,14 @@ int main(int argc, char** argv)
              " samples  (1/exp = %.9Lf)\n",
              winExpP / (long double)winAct, winAct,
              1.0L / (winExpP / (long double)winAct));
+    if (winPB > 0)
+      printf("window alpha_D = sB/pB (total) = %llu/%llu = %.9Lf"
+             "  (1/alpha_D = %.9Lf)\n",
+             winSB, winPB, (long double)winSB / (long double)winPB,
+             (long double)winPB / (long double)winSB);
+    else
+      printf("window alpha_D: no pB cells inside the collision window"
+             " (polarization broadcast inactive?)\n");
   }
 
   // u-histogram over active cells (exact values): print nonzero entries.

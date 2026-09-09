@@ -5,7 +5,9 @@ The model defines a SINGLE scenario (the full dynamics).  The two-bubble
 initial-condition probes within that one scenario, not separate scenarios.
 
 Harness: `alpha_probe.cpp` (headless, CPU, MSVC). Build: `build_probe.bat`.
-Usage: `alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon]`
+Usage: `alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon] [repel]
+[mag] [pol] [axis]` (`pol`/`axis`: experimental polarization bootstrap via
+`polarization::seedAxis`, see the alpha_D notes below)
 
 > **Naming note (code, Sep 2026).** The interaction kernel was renamed
 > `convolute()` -> `encounter()`, and its primary counters `conv_*` ->
@@ -15,16 +17,80 @@ Usage: `alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon]`
 > harness, and the manuscripts stay matched.  All quantities in this file
 > are unchanged by the rename.
 
-## Validation (reference run of the "It from bit" manuscript)
+## Current-HEAD re-validation (9 Sep 2026)
+
+**Why this section exists.** The validation numbers that matched the
+manuscript (6996 active passes / 18 s2B at EL=7) were produced by the state
+recorded at commit `5adede3` ("Experiments", 4 Sep 2026) - the tree behind
+the `alpha_probe.exe` of 3 Sep that generated this log.  A rebuild from the
+current HEAD sources no longer reproduces them: the two *inertia-correction*
+commits changed the controlled two-bubble dynamics.  Everything in this
+section was re-run from current HEAD (MSVC /O2, deterministic).
+
+Reference configuration, re-run at current HEAD:
+
+    EL=7 SEP=4 FRAMES=200 SIEVE=16384
+    conv_calls (active passes) = 6468      (recorded at 5adede3: 6996)
+    conv_s2b   (s2B passes)    = 0         (recorded at 5adede3: 18)
+    conv_pair                  = 0
+    alpha_A = 0.003756878  -> 1/alpha_A = 266.18   (recorded: 236.96)
+
+Drift by commit (worktree builds of this exact configuration):
+
+| commit | date | calls / s2B / pairs | note |
+|--------|------|---------------------|------|
+| `5adede3` | 4 Sep | 6996 / 18 / 0 | **MATCH** - state of the original campaign log |
+| `e0048ca` | 4 Sep | 7439 / 13 / 8 | first deviation; "Inércia corrigida": static birth momentum `m` removed (initSim.cpp), `m` made immutable with only `reloc` consumed (`applyMomentum`, simulation.cpp), `m` published only by the dynamic polarization election (polarization.cpp) |
+| `381c1b4` | 5 Sep | 6468 / 0 / 0 | "Inertia corrections": encounter/role rewrite (interaction.cpp); **value stable since** |
+| `cb9d676`, `c1441bd`, `ca1416c` (= HEAD model) | 7-8 Sep | 6468 / 0 / 0 | unchanged |
+
+Re-validation sweep at current HEAD (SEP=4, SIEVE=16384):
+
+| L | frames | calls | s2B | pairs | alpha_A | 1/alpha_A | alpha_D (sB/pB) |
+|---|--------|-------|-----|-------|---------|-----------|-----------------|
+| 7 | 200 | 6468 | 0 | 0 | 0.003756878 | 266.18 | 0 (unobservable) |
+| 9 | 200 | 7700 | 0 | 0 | 0.003739413 | 267.42 | 0 (unobservable) |
+| 11| 200 | 12382 | 32 | 32 | 0.009334646 | 107.13 | 0 (unobservable) |
+| 13| 100 | 10520 | 80 | 80 | 0.009865940 | 101.36 | 0 (unobservable) |
+
+Updated interpretation at current HEAD:
+
+- alpha_A stays strongly L-dependent (1/a = 266, 267, 107, 101) -> the
+  candidate **still FAILS** by the pre-registered criterion; only the
+  specific numbers shifted from the historical table below (236, 234, 100,
+  96).
+- alpha_D is now **fully unobservable** in the plain two-bubble probe at
+  every tested L: no reconstructed polarization appears at all (nPol = 0,
+  pB = sB = 0), because the polarization broadcast no longer self-bootstraps
+  in this probe after the inertia rework.  Force-seeding an axis with the
+  experimental bootstrap (`alpha_probe ... pol`, added Sep 2026, using
+  `polarization::seedAxis`) does reconstruct the pair, but always on a
+  single frozen phase branch of the broadcast: sB/pB = 0 at EL=11 (R=3,
+  pol_u <= 0 everywhere) and exactly 1.0 at EL=15 (R=5, pol_u > 0 and
+  pol_v > 0 on the same cells) - degenerate, never near 1/137.
+- The two-bubble contact is no longer purely sticky at L >= 11 (closest
+  approach: EL=11 d=1 @ frame 163, max sep 5; EL=13 d=0 @ frame 43, max
+  sep 6), but every s2B pass that fires is consumed by complementary-pair
+  formation (pairs == s2B), so the electric/magnetic collapse channel still
+  never opens at SIEVE=16384.
+
+The historical sections below record the original campaign at `5adede3`
+(the manuscript-match state) and are kept unchanged as a record; the
+**current numbers are the ones above**.
+
+---
+
+## Historical validation (recorded at commit 5adede3, 4 Sep 2026)
+
+Superseded by the current-HEAD re-validation above.  At this recorded state
+the e:\alpha model sources were bit-identical to the reference and the
+harness reproduced the manuscript's quantitative null result exactly:
 
     EL=7 SEP=4 FRAMES=200 SIEVE=16384
     conv_calls (active passes) = 6996      (manuscript: 6996)      MATCH
     conv_s2b   (s2B passes)    = 18        (manuscript: 18)        MATCH
     conv_pair                  = 0                                  MATCH
     18/6996 = 1/388.667                                              MATCH
-
-The e:\alpha model sources are bit-identical to the reference: the harness
-reproduces the manuscript's quantitative null result exactly.
 
 ## Candidate alpha_A = <P(u,S)> over active cells, frame-averaged
 
