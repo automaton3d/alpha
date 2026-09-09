@@ -212,9 +212,10 @@ comes out, not in which it is put in secretly \cite{feynman1985}.
         probability $P(u,S) = g\lceil u/g\rceil/S$, $g=\gcd(u,S)$
         \cite{itfrombit}.
   \item \textbf{Conditional contact ratio.} $\alpha_B$ as in
-        \eqref{eq:alpha}. The reference run already yields the proto-value
-        $18/6996 \approx 1/388.7$ \cite{itfrombit}; the task is its
-        $L$-dependence.
+        \eqref{eq:alpha}. The reference run at the campaign state yielded the proto-value
+        $18/6996 \approx 1/388.7$ \cite{itfrombit}; at the current kernel the
+        same run has no $s2B$ pass at the reference modulus
+        (Table~\ref{tab:alphaA}); the task is its $L$-dependence.
   \item \textbf{Lattice Wyler ratio.} $\alpha_C$: a ratio of integer
         ``volumes'' forced by the rule---shell counts, $W=3L^2$,
         $\phi_{\mathrm{full}}=2R^2$, the $9L$ election seed---in the spirit
@@ -364,22 +365,25 @@ measurements.
 two-bubble geometry}
 
 The same runs sample the magnetic/electric bit populations $\langle sB\rangle$
-and $\langle pB\rangle$ at each light frame. The candidate is unstable and
-non-monotonic ($\langle sB\rangle/\langle pB\rangle$ by total counts: $0$,
-$3.44$, $0.56$, $0.81$ at $L=7,9,11,13$). At $L=7$ the transverse bit is
-never set in the controlled two-bubble configuration, i.e.\ the magnetic
-channel is not populated there; for $L\ge9$ the per-frame ratios are
-dominated by frames with tiny denominators. Candidate $\alpha_D$ as defined
-in Section~\ref{sec:candidates} is therefore not measurable in the two-bubble
-geometry. The canonical Platonic-seed configuration ($L=5$, $W=3L^2=75$,
-$400$ light frames) likewise never populates the magnetic channel
-($\langle sB\rangle=0$), and with all source centres superposed it produces
-no encounter overlap at all ($conv\_calls=0$): the sources do not separate
-within $400$ frames in the headless default. The only runs so far in which
-$sB>0$ are the two-bubble geometries at $L=9,11$, where the ratio is unstable.
-Observability of $\alpha_D$ therefore requires separated sources, which the
-single-scenario dynamics produces from suitably separated initial conditions
-(as in the two-bubble probe) or only after far longer canonical evolution.
+and $\langle pB\rangle$ at each light frame.  At the current kernel the
+controlled two-bubble probe never populates either bit at any tested size:
+the reconstructed pair never appears ($n_{\mathrm{pol}}=0$;
+$\langle pB\rangle=\langle sB\rangle=0$ at $L=7,9,11,13$), because the
+polarization broadcast does not bootstrap in this probe after the inertia
+corrections.  At the campaign state (commit \texttt{5adede3}) the candidate
+was already rejected as unstable and non-monotonic: by total counts $0$,
+$3.44$, $0.56$, $0.81$ at $L=7,9,11,13$, with the transverse bit never set
+at $L=7$ and ratios at $L\ge9$ dominated by frames with tiny denominators.
+Force-seeding an axis (the experimental \texttt{pol} bootstrap of
+\texttt{alpha\_probe}, i.e.\ \texttt{polarization::seedAxis}) does
+reconstruct the pair, but only on a single frozen phase branch of the
+broadcast: $\langle sB\rangle/\langle pB\rangle=0$ at $L=11$ ($R=3$) and
+exactly $1$ at $L=15$ ($R=5$)---degenerate, never near $1/137$.  The
+canonical Platonic-seed configuration ($L=5$, $W=3L^2=75$, $400$ light
+frames; campaign state) likewise never populates the magnetic channel, and
+with all source centres superposed it produces no encounter overlap at all.
+Candidate $\alpha_D$ as defined in Section~\ref{sec:candidates} is therefore
+not measurable in any geometry tested so far.
 
 
 
@@ -401,17 +405,17 @@ $1/137.035999177$ to at least eight digits).}
 Candidate & Outcome \\
 \hline
 $\alpha_A$: $\langle P(u,S)\rangle$ frame-averaged
-          & $1/237\ldots 1/96$ ($L=7\ldots 13$); $1/273$ canonical $L=5$ \\
+          & $1/266\ldots 1/101$ ($L=7\ldots 13$, current kernel); $1/273$ canonical $L=5$ (campaign state) \\
 $\alpha_B$: force events per contact
-          & collapse/gate $=1$; reduces to $1/388.7$ \\
+          & no collapse in current probes: realized $0/6468$ at $L=7$; gate passes form pairs ($L\ge11$: pairs $=$ s2B); campaign state read $1/388.7$ \\
 $\alpha_C$: Wyler-on-lattice, integer ratios
           & $\to 1/137.03608$ (six digits); best ratio $135.0$ at $L=15$ \\
 $\alpha_D$: $\langle sB\rangle/\langle pB\rangle$
-          & $0$ (weak coupling); $\sim 1$ (open channel) \\
+          & $0$ at every tested $L$ (no reconstructed pair); axis-seeded: $0$ or $1$ (degenerate) \\
 $\alpha_E$: $\langle pol_v^2\rangle/\langle pol_u^2\rangle$
           & $\to 2$ exactly (analytic, $R\to\infty$) \\
 $\alpha_F$: $U_0/S^*$, sieve fixed point
-          & $S^*=\langle u\rangle$ ($48$, $38$) $\to 1/23$, $1/54$ \\
+          & $S^*=\langle u\rangle$ re-measured: $41$ ($L=7$), $30$ ($L=9$) $\to \alpha_F \approx 50$, $68$ \\
 \hline
 \end{tabular}
 \end{table}
@@ -424,7 +428,10 @@ $\alpha_F$: $U_0/S^*$, sieve fixed point
         mean-of-ratios variant is ill-defined ($u=0$ on pure-transverse cells
         at even $R$). A related degeneracy explains the $\alpha_D$ nulls:
         $R=R_{\max}-2=L/2-2$, so $L=7$ gives $R=1$ and the reconstruction
-        collapses to $pol_v\equiv0$.
+        collapses to $pol_v\equiv0$.  In the current-kernel two-bubble probe
+        the pair never reconstructs at any tested $L$ without the
+        axis-seeded \texttt{pol} bootstrap, so this analytic ratio is not
+        observable there.
   \item \textbf{$\alpha_C$.} Feeding the lattice value of $\pi$ (integer
         sphere-point counts) into Wyler's volume expression converges to
         Wyler's numerology $1/137.036082$---six digits, below the criterion;
@@ -432,14 +439,22 @@ $\alpha_F$: $U_0/S^*$, sieve fixed point
         $L\le31$ (closest $135.0$ at $L=15$).
   \item \textbf{$\alpha_F$.} The fixed point $S^*$ of the normalized
         throughput map equals the run's mean active amplitude
-        $\langle u\rangle$ ($48$ at $L=7$, $38$ at $L=9$), so
-        $\alpha_F=U_0/S^*\sim1/50$ is geometry-locked.
-  \item \textbf{$\alpha_B$.} Read-only counters at the force-branch decisions
-        show that every gate-passing contact collapses (reissues):
-        collapse/s2B $=1.0$ at the reference and $0.995$ with the channel
-        open; repulsion is never reached in these probes. The only force of
-        the model is sieve-gated collapse, so $\alpha_B$ reduces to the
-        realized throughput $1/388.7$.
+        $\langle u\rangle$, re-measured at the current kernel as $41$ at
+        $L=7$ and $30$ at $L=9$, so $\alpha_F=U_0/S^*$ ($U_0=2048$) is
+        geometry-locked ($\alpha_F\approx50$ and $68$).
+  \item \textbf{$\alpha_B$.} At the campaign state read-only counters at the
+        force-branch decisions showed every gate-passing contact collapsing
+        (reissues): collapse/s2B $=1.0$ at the reference and $0.995$ with the
+        channel open.  At the current kernel the probes read differently:
+        the $L=7$ reference run has no gate pass (realized throughput
+        $0/6468$), and the gate passes that do fire are consumed by
+        complementary-pair formation (pairs $=$ s2B: $32/32$ at $L=11$,
+        $80/80$ at $L=13$; with the channel open at $S=64$, $1{,}144$ pairs
+        from $3{,}322$ passes at $L=7$ and $1{,}148$ from $3{,}952$ at
+        $L=9$) while the collapse and repulsion counters stay zero.
+        $\alpha_B$ therefore reduces to a pair-formation throughput that is
+        $L$- and $S$-dependent and far from $1/137$, not to a collapse
+        throughput.
 \end{itemize}
 
 All six pre-registered definitions fail the criterion. This is the primary
@@ -457,15 +472,24 @@ conclusion.
 \textbf{Structural findings.} (i)~$L=7$ is degenerate for the emergent
 polarization pair: $R=R_{\max}-2=1$, so the reconstructed circle collapses
 and $pol_v\equiv0$; every earlier $\alpha_D=0$ null at $L=7$ is a
-consequence, not a signal. (ii)~The two-bubble contact is ``sticky'': the
-adiabatic (non-collapse) branch drifts sources toward each other at every
-shell coincidence, so isolated bubbles never separate at weak coupling and no
-clean pre/post collision window exists. (iii)~The initial momentum magnitude
-is inert: sources advance one cell per tick regardless of $|m|$, so the
-emergent maximum information speed cannot be exceeded by construction.
-(iv)~The only force of the model is sieve-gated collapse: every event that
-passes the $s2B$ gate reissues; repulsion is structurally unreachable in the
-probes tested.
+consequence, not a signal.  At the current kernel the unseeded two-bubble
+probe shows no reconstructed pair at any tested $L$ (the broadcast does not
+bootstrap there), and the axis-seeded experimental bootstrap reconstructs
+only a single frozen branch. (ii)~At the campaign state the two-bubble
+contact was ``sticky''---the adiabatic (non-collapse) branch drifts sources
+toward each other at every shell coincidence, so isolated bubbles never
+separate at weak coupling and no clean pre/post collision window exists; the
+current-kernel re-runs reproduce that only at small $L$ with a closed gate
+($L\le9$, $S=16384$: $d$ constant over the run), while at $L\ge11$ the gate
+opens and the pair recoils the bubbles (closest approach $d=1$ at $L=11$,
+$d=0$ at $L=13$). (iii)~The initial momentum magnitude is inert: sources
+advance one cell per tick regardless of $|m|$, so the emergent maximum
+information speed cannot be exceeded by construction. (iv)~At the campaign
+state the only registered force was sieve-gated collapse (every gate pass
+reissued); at the current kernel the reference probes instead consume gate
+passes by complementary-pair formation (pairs $=$ s2B at $L\ge11$, zero
+passes at $L=7$), and repulsion counters remain zero; $\alpha_B$ therefore
+reduces to a pair-formation throughput, not to collapse.
 
 \textbf{Methodological conclusion.} Six pre-registered candidate definitions,
 six clean falsifications, none at the $1/137.036$ level. The negative battery
