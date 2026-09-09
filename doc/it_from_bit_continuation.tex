@@ -296,15 +296,26 @@ integer-shell anisotropy at $L\ge11$ \cite{itfrombit}).
 A headless CPU harness (\texttt{alpha\_probe}, shipped with the source)
 replays the controlled two-bubble scattering of [1] at the reference
 parameters ($L=7$, $SEP=4$, $200$ light frames, sieve modulus $16384$,
-complementary charges). The encounter counters reproduce the manuscript
-exactly:
+complementary charges).  At the campaign state that matched [1] (commit
+\texttt{5adede3}; log in \texttt{experiments/RESULTS.md}) the encounter
+counters reproduced the manuscript exactly:
 \begin{center}
   \texttt{active-passes} $= 6996$, \quad \texttt{s2B-passes} $= 18$, \quad
   \texttt{pairs-formed} $= 0$,
 \end{center}
 i.e.\ a realized overlap throughput of $18/6996 \approx 1/388.7$, the
-quantitative null result of [1]. Bit-for-bit reproduction is the first check
-any measurement must pass: the second paper is only as good as its harness.
+quantitative null result of [1].  After the kernel's inertia corrections
+(commits \texttt{e0048ca} and \texttt{381c1b4}) the same run at the current
+HEAD re-measures to (9 Sep 2026; re-run log in
+\texttt{experiments/RESULTS.md})
+\begin{center}
+  \texttt{active-passes} $= 6468$, \quad \texttt{s2B-passes} $= 0$, \quad
+  \texttt{pairs-formed} $= 0$,
+\end{center}
+so the realized throughput at the reference modulus is zero there.
+Bit-for-bit reproduction of a reference is the first check any measurement
+must pass; the tables below therefore state the kernel state they were
+recorded at.
 
 % ----------------------------------------------------------------------------
 \subsection{Candidate \texorpdfstring{$\alpha_A$}{alphaA}: first lattice sweep}
@@ -321,27 +332,29 @@ population, frame-averaged (encounter counts are cumulative over the run).}
 \hline
 $L$ & frames & active passes & $s2B$ passes & $\alpha_A$ & $1/\alpha_A$ \\
 \hline
- 7 & 200 & 6996  & 18 & 0.004220105 & 236.96 \\
- 9 & 200 & 9300  &  0 & 0.004265223 & 234.45 \\
-11 & 200 & 11920 & 40 & 0.009991230 & 100.09 \\
-13 & 100 & 7392  &  0 & 0.010428519 &  95.89 \\
+ 7 & 200 & 6468  &  0 & 0.003756878 & 266.18 \\
+ 9 & 200 & 7700  &  0 & 0.003739413 & 267.42 \\
+11 & 200 & 12382 & 32 & 0.009334646 & 107.13 \\
+13 & 100 & 10520 & 80 & 0.009865940 & 101.36 \\
 \hline
 \end{tabular}
 \end{table}
 
 Two facts follow. First, the harness is consistent with the closed-form gate
 probability of [1]. Second, and decisive for the program: $1/\alpha_A$ is
-\emph{not} constant in $L$ ($236.96, 234.45, 100.09, 95.89$). Under the
+\emph{not} constant in $L$ ($266.18, 267.42, 107.13, 101.36$, re-measured
+at the current kernel). Under the
 pre-registered acceptance criterion of Section~\ref{sec:candidates} this
 candidate, in this crude form, is \emph{not} a derivation of the
 fine-structure constant. The non-monotonicity mirrors the non-monotonicity in
 the sieve modulus reported in [1] (discrete resonances of the overlap), and
 the fixed $SEP=4$ while $L$ grows changes the collision geometry run to run.
 A fifth data point from the canonical superposed seed ($L=5$, $W=75$,
-$400$ frames) gives $1/\alpha_A = 272.9$, again frame-dependent and far from
-$1/137.036$. Both the realized ($1/388.7$) and the theoretical ($1/237$ at
-$L=7$) throughputs are nevertheless of the same order as $1/137.036$, so the
-search space is not empty; the remaining candidates of
+$400$ frames; recorded at the campaign state) gave $1/\alpha_A = 272.9$,
+again frame-dependent and far from $1/137.036$.  At the current kernel the
+realized throughput at $L=7$ is zero (no $s2B$ pass in the re-run), while
+the theoretical throughput $1/\alpha_A(L{=}7) = 1/266.18$ remains within a
+factor of $\sim$2 of $1/137.036$, so the search space is not empty; the remaining candidates of
 Section~\ref{sec:candidates} and the $SEP\propto L$ scaling are the next
 measurements.
 

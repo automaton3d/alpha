@@ -2,6 +2,17 @@
 
 Status: **design / pre-registration** (nothing implemented yet).
 
+> **Reference-state note (9 Sep 2026).**  Every "bit-identical (6996/18/0)"
+> re-validation entry below was recorded at the pre-inertia kernel state
+> (commit `5adede3`; campaign log in `RESULTS.md`).  At the current HEAD the
+> cube reference re-runs to **6468/0/0** (verified 9 Sep 2026 on both
+> `alpha_probe` and `gravity_probe`: EL=7 SEP=4 S=16384, 200 frames) after
+> the inertia-correction commits `e0048ca` and `381c1b4`.  The S1/tube
+> parity gate below must therefore be re-run at the current kernel (expected
+> reference 6468/0/0) before any unequal-edge result is trusted
+> quantitatively; the past-tense re-validation entries are retained as the
+> development log of that earlier state.
+
 ## 1. Motivation
 
 The manuscripts propose gravity as a *conjectured* residual effect of the
@@ -88,7 +99,8 @@ summary table, in the style of `alpha_probe`.
 1. **S0 — pilot on cube**: two complementary aggregates at rest, $SEP$ cells
    apart, small $L$; measure $d(t)$ and $a(t)$; validate G0 and the CSV path.
 2. **S1 — tube allocator**: per-axis edges (CPU path first), keep the cubic
-   path as the default configuration; re-run the L=7 reference (6996/18/0)
+   path as the default configuration; re-run the L=7 reference
+   (6468/0/0 at the current kernel; 6996/18/0 was the pre-inertia record)
    to prove bit-identical behaviour when ELX=ELY=ELZ.
 3. **S2 — tube runs**: reach sweep $LX = 25, 51, 101, 201, 401$ at fixed
    short side and $W$; estimate $\beta$ per reach.
@@ -131,8 +143,10 @@ Required code slices (CPU path first, cube kept as default):
    ELX/ELY/ELZ (simulation.h, geometry, neighbor access).
 3. Wavefront/distance-field + phase-step absorbing limit keyed to the short
    sides; relocation and pair-consumption bounds per axis.
-4. Re-validation: with ELX=ELY=ELZ the reference run must stay bit-identical
-   (6996/18/0); only then unequal-edge runs are trusted.
+4. Re-validation: with ELX=ELY=ELZ the reference run must stay
+   bit-identical to the current-kernel cube reference (6468/0/0; the
+   original 6996/18/0 refers to the pre-inertia state); only then
+   unequal-edge runs are trusted.
 5. CUDA bridge updated in lock-step (or tube is CPU-only initially).
 
 **Slice 1 — done (Sep 2026).** Globals `ELX/ELY/ELZ` added (cube default
