@@ -461,6 +461,108 @@ namespace automaton
     const auto& currCenter  = sourceCenter(curr);
     const auto& partnerCenter = sourceCenter(partner);
 
+#ifdef EM_FIRST_FSM
+    // ==============================================================
+    // Experimental /D EM_FIRST_FSM: decide the electroweak channel BEFORE
+    // the identity merge for equal-charge contacts that carry live pB/sB
+    // and pass the s2B gate.  In the reference order the identity path
+    // (chiefContact / K-K / D-D, and the EXCLUSION gate) preempts these
+    // branches, so two equal-charge islands always merge before any EM
+    // response can act (PBSB_ISLANDS.md).  This block mirrors the tail EM
+    // semantics for the equal-charge subset (collapse vs adiabatic; S/S
+    // same-Q repel; K/K repel; D/D cross-tribe repel; S attaches to a
+    // K/D chief) and is compiled only under this macro.
+    // ==============================================================
+    if (currSrc.ch == partnerSrc.ch && curr.s2B &&
+        (curr.pB || partner.pB || curr.sB || partner.sB))
+    {
+      const bool electricCollapse = curr.pB && partner.pB;
+      const bool magneticCollapse = curr.sB && partner.sB;
+      const bool collapse          = electricCollapse || magneticCollapse;
+
+      if (collapse)
+      {
+        ++enc_collapse;
+        draft.kB = true;            // collapse flag: inward reissue
+        draft.cB = true;
+      }
+      else
+      {
+        ++enc_adiah;
+        WIndex minLeader = dominantLeader(currSrc, partnerSrc);
+        adoptLeader(currDraft, minLeader);
+        adoptLeader(partnerDraft, minLeader);
+        std::swap(currDraft.t, partnerDraft.t);
+        moveOneStep(currDraft, currCenter, partnerCenter);
+        moveOneStep(partnerDraft, partnerCenter, currCenter);
+        return false;
+      }
+
+      if (currSrc.kind == SourceKind::K && partnerSrc.kind == SourceKind::K)
+      {
+        ++enc_repel;
+        moveOneStepAway(currDraft, currCenter, partnerCenter);
+        return false;
+      }
+
+      if (currSrc.kind == SourceKind::S && partnerSrc.kind == SourceKind::S)
+      {
+        if (currSrc.Q() == partnerSrc.Q())
+        {
+          ++enc_repel;               // equal field sign -> repel one step
+          moveOneStepAway(currDraft, currCenter, partnerCenter);
+        }
+        else
+        {
+          WIndex leader = dominantLeader(currSrc, partnerSrc);
+          currDraft.kind  = SourceKind::D;
+          partnerDraft.kind = SourceKind::D;
+          currDraft.parent  = leader;
+          partnerDraft.parent = leader;
+          adoptLeader(currDraft, leader);
+          adoptLeader(partnerDraft, leader);
+        }
+        return false;
+      }
+
+      if (currSrc.kind == SourceKind::D && partnerSrc.kind == SourceKind::D)
+      {
+        if (currSrc.parent != partnerSrc.parent)
+        {
+          ++enc_repel;
+          moveOneStepAway(currDraft, currCenter, partnerCenter);
+          currDraft.reloc[0] += partnerSrc.m[0];
+          currDraft.reloc[1] += partnerSrc.m[1];
+          currDraft.reloc[2] += partnerSrc.m[2];
+        }
+        return false;
+      }
+
+      // S x K / S x D and mirrors: the S attaches as a D of the chief.
+      if ((currSrc.kind == SourceKind::S &&
+           (partnerSrc.kind == SourceKind::K || partnerSrc.kind == SourceKind::D)) ||
+          (partnerSrc.kind == SourceKind::S &&
+           (currSrc.kind == SourceKind::K || currSrc.kind == SourceKind::D)))
+      {
+        Cell& sDraft  = (currSrc.kind == SourceKind::S) ? currDraft : partnerDraft;
+        Cell& dSrc    = (currSrc.kind == SourceKind::S) ? partnerSrc : currSrc;
+        Cell& dDraft  = (currSrc.kind == SourceKind::S) ? partnerDraft : currDraft;
+        const auto& sCenter = (currSrc.kind == SourceKind::S) ? currCenter : partnerCenter;
+        const auto& dCenter = (currSrc.kind == SourceKind::S) ? partnerCenter : currCenter;
+        WIndex leader = (dSrc.leader_w == NO_LEADER_W ? dSrc.parent : dSrc.leader_w);
+        if (leader == NO_LEADER_W) leader = dSrc.w;
+        sDraft.kind = SourceKind::D;
+        sDraft.parent = dSrc.parent == NO_PARENT ? leader : dSrc.parent;
+        adoptLeader(sDraft, leader);
+        moveOneStep(sDraft, sCenter, dCenter);
+        moveOneStep(dDraft, dCenter, sCenter);
+        return false;
+      }
+
+      return false;
+    }
+#endif
+
     // Role transitions precede internal-contact early returns. Only the
     // current draft is updated; reciprocal encounters update the other side.
 #ifdef EXCLUSION_FSM
