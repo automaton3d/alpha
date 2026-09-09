@@ -11,7 +11,14 @@
  *
  * Usage:
  *   alpha_probe [EL] [SEP] [FRAMES] [SIEVE] [budget] [canon] [repel] [mag]
- *              [pol] [axis]
+ *              [pol] [axis] [ch]
+ *
+ *   An optional eleventh argument [ch] (decimal 0..63) sets the SAME charge
+ *   word on both bubbles (same-charge duo, e.g. 0x01 = 1), overriding the
+ *   complementary 0x00/0x3F (scatter) or the neutral 0x00/0x00 (repel)
+ *   defaults.  Together with [mag] it places a controlled equal-charge
+ *   contact that cannot form a pair (Rules R1-R6), so the electric/magnetic
+ *   channel (collapse/adiabatic/repel) is the only possible response.
  *
  *   With a sixth argument equal to "canon", runs the full canonical
  *   configuration (Platonic seed): W = 3*EL^2 layers, all source centres
@@ -179,6 +186,9 @@ int main(int argc, char** argv)
   const bool pol = (argc > 9) && (strcmp(argv[9], "pol") == 0);
   const char* axisKind = (argc > 10) ? argv[10] : "m";
 
+  // Optional equal charge word for both bubbles (same-charge duo, 0..63).
+  int chArg = (argc > 11) ? atoi(argv[11]) : -1;
+
   if (EL_in < 3 || EL_in > 31 || (EL_in % 2) == 0)
   {
     fprintf(stderr, "EL must be an odd value in [3,31]\n");
@@ -186,6 +196,8 @@ int main(int argc, char** argv)
   }
   if (SEP < 2) SEP = 2;
   if (SIEVE < 1) SIEVE = 1;
+  if (chArg < 0) chArg = -1;
+  else if (chArg > 63) chArg = 63;
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in : 2u;
 
@@ -195,6 +207,8 @@ int main(int argc, char** argv)
   printf("EL=%u W_USED=%u RMAX=%u frames=%u sieve=%d mode=%s mag=%d\n",
          EL_in, W_in, EL_in / 2u, FRAMES, SIEVE,
          canonical ? "canon" : (repel ? "repel" : "scatter"), mag);
+  if (chArg >= 0)
+    printf("same-charge duo: ch = 0x%02X on both bubbles\n", (unsigned)chArg);
   if (pol)
     printf("polarization bootstrap: axis=%s (seedAxis)\n", axisKind);
 
@@ -216,9 +230,18 @@ int main(int argc, char** argv)
   {
     const unsigned C   = automaton::CENTER;
     const unsigned off = SEP / 2u;
-    const unsigned char chSame = 0x00;   // repel mode: both neutral (Q=0)
-    const unsigned char chA = 0x00;      // layer 0 word (complement pair)
-    const unsigned char chB = repel ? chSame : 0x3F;
+    unsigned char chA, chB;
+    if (chArg >= 0)
+    {
+      // Same-charge duo with an arbitrary word (e.g. 0x01): equal charge,
+      // not neutral, cannot form a pair under R1-R6.
+      chA = chB = (unsigned char)chArg;
+    }
+    else
+    {
+      chA = 0x00;                                   // layer 0 word (Rule-1 pair)
+      chB = repel ? 0x00 : 0x3F;                    // repel / complementary
+    }
 
     placeSource(0, C - off, C, C,  +mag, 0, 0, chA);  // left, moving right
     placeSource(1, C + off, C, C,  -mag, 0, 0, chB);  // right, moving left
