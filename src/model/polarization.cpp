@@ -72,6 +72,23 @@ namespace automaton
     // packed visited bits, (ELX*ELY*ELZ)/8 bytes per layer
     static std::vector<std::vector<uint8_t>> g_visit;
 
+#ifdef POLAR_BOOTSTRAP_ADDRESS
+    // One-shot bootstrap bookkeeping (experimental): per layer, whether the
+    // deterministic address-derived axis has already been installed.
+    static std::vector<uint8_t> g_boot;
+
+    // 26 non-zero neighbour directions; axis index = w % 26.  Consecutive
+    // W addresses (the copies of a family) map to distinct directions.
+    static const int kBootDir[26][3] = {
+      {-1,-1,-1},{-1,-1, 0},{-1,-1, 1},{-1, 0,-1},{-1, 0, 0},{-1, 0, 1},
+      {-1, 1,-1},{-1, 1, 0},{-1, 1, 1},
+      { 0,-1,-1},{ 0,-1, 0},{ 0,-1, 1},{ 0, 0,-1},{ 0, 0, 1},
+      { 0, 1,-1},{ 0, 1, 0},{ 0, 1, 1},
+      { 1,-1,-1},{ 1,-1, 0},{ 1,-1, 1},{ 1, 0,-1},{ 1, 0, 0},{ 1, 0, 1},
+      { 1, 1,-1},{ 1, 1, 0},{ 1, 1, 1}
+    };
+#endif
+
     // Lattice moves: 0:+x 1:-x 2:+y 3:-y 4:+z 5:-z
     static const int kMvx[6] = {  1, -1, 0,  0, 0,  0 };
     static const int kMvy[6] = {  0,  0, 1, -1, 0,  0 };
@@ -91,6 +108,9 @@ namespace automaton
         g_visit.assign(W_USED, std::vector<uint8_t>());
         for (unsigned w = 0; w < W_USED; ++w)
           g_visit[w].assign((((size_t)ELX * ELY * ELZ) + 7) / 8, 0);
+#ifdef POLAR_BOOTSTRAP_ADDRESS
+        g_boot.assign(W_USED, 0);
+#endif
       }
     }
 
@@ -99,6 +119,9 @@ namespace automaton
       g_axis.clear();
       g_walk.clear();
       g_visit.clear();
+#ifdef POLAR_BOOTSTRAP_ADDRESS
+      g_boot.clear();
+#endif
     }
 
     bool walkLive(unsigned w)
@@ -462,6 +485,57 @@ namespace automaton
     {
       // Hypothesis: select from existing polarization only. No address,
       // hash, global dial, or scan order may decide a tie.
+#ifdef POLAR_BOOTSTRAP_ADDRESS
+      // --------------------------------------------------------------
+      // One-shot deterministic bootstrap (experimental, /D
+      // POLAR_BOOTSTRAP_ADDRESS).  The zero-polarisation seed is a fixed
+      // point of the election->broadcast->reconstruction loop: no axis can
+      // be elected without existing (pol_u,pol_v), and none can be
+      // reconstructed without broadcast stamps.  Break that fixed point
+      // exactly once per layer by installing a topological initial axis
+      // derived from the immutable W address (copies of a family map to
+      // distinct directions), so the first helical broadcast can run;
+      // subsequent eras use the classic election below (real pol).
+      // --------------------------------------------------------------
+      if (w < g_boot.size() && !g_boot[w])
+      {
+        g_boot[w] = 1;
+        bool hasPol = false;
+        for (unsigned x = 0; x < ELX && !hasPol; ++x)
+        for (unsigned y = 0; y < ELY && !hasPol; ++y)
+        for (unsigned z = 0; z < ELZ && !hasPol; ++z)
+        {
+          const Cell& c = getCell(lattice_curr, x, y, z, w);
+          if (c.active && (c.pol_u != 0 || c.pol_v != 0)) hasPol = true;
+        }
+        if (!hasPol)
+        {
+          const int (&d)[3] = kBootDir[w % 26u];
+          installAxis(w, d[0], d[1], d[2]);
+
+          // Publish m on the source centre (same tail as the classic path).
+          {
+            const int* ax = electedAxis(w);
+            if (ax)
+            {
+              const unsigned cx = lcenters[w][0];
+              const unsigned cy = lcenters[w][1];
+              const unsigned cz = lcenters[w][2];
+              Cell& src = getCell(lattice_curr, cx, cy, cz, w);
+              src.m[0] = ax[0]; src.m[1] = ax[1]; src.m[2] = ax[2];
+            }
+          }
+          // Reset the arrival stamps and start the helical broadcast.
+          for (unsigned x = 0; x < ELX; ++x)
+          for (unsigned y = 0; y < ELY; ++y)
+          for (unsigned z = 0; z < ELZ; ++z)
+            getCell(lattice_curr, x, y, z, w).bstamp = 0;
+          std::memset(g_visit[w].data(), 0, g_visit[w].size());
+          initWalker(w);
+          return;
+        }
+      }
+#endif
       PolarizationCandidate candidate;
       int bw[3] = {-1,-1,-1};
       for (unsigned x=0;x<ELX;++x)
@@ -510,9 +584,22 @@ namespace automaton
 
 
     // ============================================================
-    // Broadcast diffusion — every other tick, alternating sweep order,
-    // b(x) <- max(b(x), b(x +/- e_i)) over the six face neighbours only.
-    // Returns true when at least one stamp changed (monotonic growth).
+    // Broadcast diffusion — every other tick, alternating sweep order.
+    //
+    // Default (no /D POLAR_BROADCAST_WAVE): the original monotone max
+    // relaxation b(x) <- max(b(x), b(x +/- e_i)); arrival stamps converge
+    // to the final walker stamp (the validated reference behaviour).
+    //
+    // With /D POLAR_BROADCAST_WAVE (experimental): first-arrival distance
+    // wave b(x) <- min over the six face neighbours of (b(n) + 1), with 0
+    // reserved for "never reached".  The walker stamps the helix with
+    // monotonically increasing ticks (one cell per tick), so the converged
+    // field is  b(x) = min over helix cells p of (t_p + dist(x,p)), i.e.
+    // each cell latches the sweep time of the helix arm nearest to it in
+    // space-time.  That preserves the spatial phase gradient (the azimuth
+    // of the broadcasted axis) instead of collapsing to the single final
+    // stamp, which the max relaxation did.
+    // Returns true when at least one stamp changed.
     // ============================================================
     static bool diffusePass(unsigned w)
     {
@@ -525,6 +612,29 @@ namespace automaton
         return getCell(lattice_curr, (unsigned)x, (unsigned)y, (unsigned)z, w).bstamp;
       };
 
+#ifdef POLAR_BROADCAST_WAVE
+      auto relax = [&](int x, int y, int z)
+      {
+        unsigned int cur = stampAt(x, y, z);
+        unsigned int best = cur;                 // 0 == never reached
+        auto upd = [&](int xx, int yy, int zz)
+        {
+          unsigned int n = stampAt(xx, yy, zz);
+          if (n != 0u)
+          {
+            unsigned int cand = n + 1u;
+            if (cand < best) best = cand;
+          }
+        };
+        if (x > 0)             upd(x - 1, y, z);
+        if (x < ELXi - 1)      upd(x + 1, y, z);
+        if (y > 0)             upd(x, y - 1, z);
+        if (y < ELYi - 1)      upd(x, y + 1, z);
+        if (z > 0)             upd(x, y, z - 1);
+        if (z < ELZi - 1)      upd(x, y, z + 1);
+        if (best != cur) { stampAt(x, y, z) = best; changed = true; }
+      };
+#else
       auto relax = [&](int x, int y, int z)
       {
         unsigned int best = stampAt(x, y, z);
@@ -538,6 +648,7 @@ namespace automaton
         unsigned int& cur = stampAt(x, y, z);
         if (best != cur) { cur = best; changed = true; }
       };
+#endif
 
       if (W.sweepForward)
       {
