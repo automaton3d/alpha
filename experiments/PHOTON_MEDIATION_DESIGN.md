@@ -54,13 +54,16 @@ with it being the always-attractive channel.
 
 1. **Orphan flux**: after each reissue the particle sheds a concentric
    orphan shell (`a == W_USED`) — its EM field.
-2. **Engagement**: the gate is the **electromagnetic interaction**.  The
-   half of the free pair that **provokes attraction** (charge-complementary
-   in the electric sense to the orphaned source's charge) engages first and
-   is drawn into the field.
-3. **Guidance**: the engaged pair is directed along the flux toward the
-   other body (needs a directed step; today free P pairs only expand and
-   are consumed at radius).
+2. **Engagement (relay)**: the gate is the **electromagnetic interaction**.
+   The half of the free pair that **provokes attraction** (charge-complementary
+   in the electric sense to the charge of the orphan region) engages first.
+   Per manuscript.tex:794, the engaged orphan and the pair half are **both
+   reissued at the contact point** (reusing `reemitAtContact`); the relay then
+   advances along the flux toward the other body — no invented gradual
+   "guidance" step.
+3. **Relay advance**: the reissue point moves along the flux toward the other
+   body (today free P pairs only expand and are consumed at radius; the relay
+   replaces that with directed reissue).
 4. **Affinity handover**: on reaching the target the pair acquires its
    affinity and becomes one of its drive pairs (existing P-join path);
    internal P x K/D contacts then transport the target's constituents in
@@ -88,6 +91,10 @@ voxel).  Carriers never annihilate charges at a distance.
    dial); the observable-defined exponent must be fixed by measurement
    (potential 1/r; force 1/r^2).
 5. Annihilation only on **D x D core overlap** (one D per particle).
+6. **Engagement semantics = relay** (agreed Sep 2026): the engaged orphan
+   region and the pair half are both **reissued at the contact point**
+   (manuscript.tex:794), reusing `reemitAtContact` and the existing
+   affinity handover — no gradual guidance rule.
 
 Still open (implementation detail, not conceptual):
 (a) **orphan creation/retention rule** — today `a == W_USED` is written only
