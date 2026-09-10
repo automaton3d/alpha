@@ -53,8 +53,13 @@ with it being the always-attractive channel.
 
 ## 3. Mechanism (consolidated rules; not yet implemented)
 
-1. **Orphan flux**: after each reissue the particle sheds a concentric
-   orphan shell (`a == W_USED`) — its EM field.
+1. **Orphan field**: the region **ahead of the active wavefront**
+   (`r < R`, `r > f = effective_t(t)`), concentric with the source and
+   **co-moving** — the translation moves the active front and all its orphans
+   together, so at the destination address they remain concentric.  It
+   persists until the expanding front naturally overlaps it, and is renewed
+   as the front breathes.  (The older "fades through wrapping" phrasing is
+   superseded by the spherical cavity.)
 2. **Engagement (relay)**: the gate is the **electromagnetic interaction**.
    The half of the free pair that **provokes attraction** (charge-complementary
    in the electric sense to the charge of the orphan region) engages first.
@@ -116,12 +121,16 @@ annihilate charges at a distance.
    momentum) only; the sign has **no** dependence on dress orientation
    (m/pB-sB) or on which relay arrives first.  Derived falsifiable control:
    swapping the dress orientations must leave the sign unchanged (section 6d).
-8. **Orphan origin/retention (F1, agreed Sep 2026)**: on reissue/translation
-   a layer is first orphaned (`a = W`) and the affinity is then re-propagated
-   outward from the active shell; whatever lies beyond the propagation reach
-   stays ghost.  This yields concentric orphan shells renewed at every
-   reissue, kind-agnostic (S/D/K), using the existing local stages
-   (manuscript.tex:616/620).
+8. **Orphan field (F1 revised, agreed Sep 2026)**: with the spherical cavity
+   an orphan does not "fade through wrapping"; it is the region **ahead of
+   the active wavefront** (`r < R` and `r > f = effective_t(t)`), persisting
+   until the expanding front overlaps it, renewed as the front breathes.
+   **Translation moves everything** (active front + orphans) so the shells
+   stay concentric with the source at the destination address.
+   Implementation: mark `a = W` for cells ahead of the front using the
+   per-cell `f` that `phase_step` already writes for every cell; and let the
+   affinity reissue propagate **only attached (non-orphan) affinity**, so the
+   ghost does not bleed inward.
 9. **Observable (E1, agreed Sep 2026)**: `d(t)` between the two island
    centres; the pre-contact window lasts while **no annihilation** occurs
    (rule 5); a new `recruit_events` counter records orphan-field x pair
@@ -178,8 +187,9 @@ CoM conservation (resolveInternalContacts / propeller); EM branches
 
 To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
 - orphan region (cells with `a == W_USED`, any kind S/D/K) as the recruiter;
-- an orphan creation/retention rule so K/D islands carry a concentric ghost
-  region (see section 4a);
+- orphan field = cells ahead of the active front (`a = W`, using the per-cell
+  `f` from `phase_step`); co-moving with translation; reissue propagates only
+  attached affinity so the ghost does not bleed inward (section 4, item 8);
 - EM-gated engagement that selects the attracting half of the free pair;
 - directed re-emission/guidance of the engaged pair along the flux;
 - R2 dress-exchange bookkeeping between two dressed bodies;
