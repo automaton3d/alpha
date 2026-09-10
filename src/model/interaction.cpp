@@ -218,6 +218,20 @@ namespace automaton
       reemitSourceAt(srcDraft, sign(dx), sign(dy), sign(dz));
     }
 
+    // One light-step toward another centre WITHOUT resetting the clock (the
+    // clock-preserving twin of moveOneStep, used by the relay shuttle).
+    void reseatStepToward(Cell& srcDraft, const std::array<unsigned, 3>& self,
+                          const std::array<unsigned, 3>& other)
+    {
+      const int dx = shortestDelta((int)self[0], (int)other[0], (int)ELX);
+      const int dy = shortestDelta((int)self[1], (int)other[1], (int)ELY);
+      const int dz = shortestDelta((int)self[2], (int)other[2], (int)ELZ);
+      srcDraft.reloc[0] += sign(dx);
+      srcDraft.reloc[1] += sign(dy);
+      srcDraft.reloc[2] += sign(dz);
+      chargesMarkInteraction((unsigned)srcDraft.x[3]);
+    }
+
     // Reemit at the contact voxel (curr position) without changing kind.
     void reemitAtContact(Cell& srcDraft, const Cell& contact)
     {
@@ -670,28 +684,28 @@ namespace automaton
         if (onShell)
         {
           ++recruit_events;
+          // Mediator state (shared by the relay and the shuttle below).
+          const Cell& medSrc = sourceAfter[pho->x[3]];
+          const unsigned mw0 = pho->x[3];
+          const unsigned mw1 = (medSrc.pair_idx < W_USED &&
+                                medSrc.pair_idx != mw0)
+                                   ? (unsigned)medSrc.pair_idx : W_USED;
+          auto freeAtRest = [](const Cell& c)
+          {
+            return c.leader_w == NO_LEADER_W &&
+                   c.m[0] == 0 && c.m[1] == 0 && c.m[2] == 0;
+          };
+          const bool medFree = freeAtRest(medSrc) &&
+                               (mw1 >= W_USED || freeAtRest(sourceAfter[mw1]));
           // Relay only for a WHOLLY free mediator pair at rest (a photon in the
           // vacuum): the pair is seated at the contact point WITHOUT resetting
           // its clock, so it keeps propagating (resetting t would re-pin the
           // photon to phase 0 on every engagement).
           {
-            const Cell& medSrc = sourceAfter[pho->x[3]];
-            const unsigned mw0 = pho->x[3];
-            const unsigned mw1 = (medSrc.pair_idx < W_USED &&
-                                  medSrc.pair_idx != mw0)
-                                     ? (unsigned)medSrc.pair_idx : W_USED;
-            auto freeAtRest = [](const Cell& c)
-            {
-              return c.leader_w == NO_LEADER_W &&
-                     c.m[0] == 0 && c.m[1] == 0 && c.m[2] == 0;
-            };
-            const bool medFree = freeAtRest(medSrc) &&
-                                 (mw1 >= W_USED || freeAtRest(sourceAfter[mw1]));
 #ifndef ORPHAN_NO_RELAY
 #if defined(ORPHAN_RELAY_KEEPT)
             // Variant B (opt-in): seat the mediator at the contact point but
-            // KEEP its clock, so it keeps propagating.  Gives a monotone
-            // distance law but loses the repulsion (the pair is consumed).
+            // KEEP its clock, so it keeps propagating.
             if (medFree) reseatAtContact(sourceCenterDraft(*pho), *pho);
 #elif defined(ORPHAN_RELAY_NOOP)
             // Variant C (opt-in): the relay does not touch the mediator at all.
@@ -790,6 +804,16 @@ namespace automaton
             }
 #endif
           }
+#ifdef ORPHAN_RELAY_SHUTTLE
+          // Relay-shuttle (manuscript 794: "the relay advances along the flux
+          // toward the other body"): send the mediator one light-step toward
+          // the OTHER island, clock preserved, so it shuttles between the two
+          // fields and keeps engaging.  The transit time scales with the
+          // separation - the hoped-for distance law.
+          if (medFree && bw < W_USED)
+            reseatStepToward(sourceCenterDraft(*pho),
+                             lcenters[pho->x[3]], lcenters[bw]);
+#endif
 #endif
         }
       }

@@ -573,3 +573,43 @@ monotone law) or **B + stack** (steepest law) for the distance-law work.  A
 single regime with both would need the momentum transfer to be integrated over
 the window (per-engagement momentum), which is a mechanism change beyond this
 iteration.
+
+### Scheme E: relay-shuttle (candidate tried, negative result)
+
+`ORPHAN_RELAY_SHUTTLE` (+ C's macros): at each engagement the mediator is seated
+at the contact point AND given one light-step TOWARD THE OTHER ISLAND
+(`reseatStepToward`, a clock-preserving `moveOneStep`), implementing the
+manuscript's sentence "the relay advances along the flux toward the other body"
+(tex 794).  The idea was a photon shuttling between the two fields: continuous
+engagement (A's strength) plus a transit time proportional to d (the distance
+law).
+
+Result: it does NOT work in this discrete geometry - the mediator leaves the
+thin overlap ring of the two expanding shells and walks into empty space, so the
+engagements die.
+  NEAR (EL=11): photon engagements drop 872 -> 130 and the bodies merge
+  (min d 0.00); EL=9 min d 1.00; EL=13 0.00.
+Variant A re-verified after the refactor (photon 3.00 / graviton 0.00 / bare
+0.00) and the default build is unchanged (6468/0/0).
+
+Five-scheme table:
+
+| scheme | mediator | NEAR min d EL 9/11/13 | parked d=2/4/5 |
+|---|---|---|---|
+| A (default, validated) | clock frozen, relay resets it | **1.00 / 3.00 / 4.00** | 484 / 354 / 272 |
+| B + stack | propagating, `pair_count = 8` | 1.00 / 1.00 / 0.00 | 8438 / 3934 / 2505 |
+| C self-sustaining | propagating, `pair_count = 1`, re-emitted | 1.00 / 1.00 / 0.00 | 9341 / 5190 / 4650 |
+| D flux kick | C + kick proportional to the event count | 0.00 / 1.00 / 0.00 | 9341 / 6107 / 6115 |
+| E relay-shuttle | C + step toward the other island | 1.00 / 0.00 / 0.00 | (engagements die) |
+
+**Final verdict of this line of candidates**: the strength tension is geometric,
+not a coding deficiency.  Two expanding shells overlap on a thin ring; a
+mediator either stays on that ring (pinned, variant A: a kick every tick, hence
+the strongest repulsion, no clean law) or leaves it (propagating: intermittent
+windows, a monotone law but weak repulsion).  A single regime with both would
+need the momentum transfer to be carried BY the mediator (per-engagement
+momentum, integrated over the window) rather than applied to the islands by the
+gate - a mechanism change that is the documented next candidate, outside this
+iteration.  Recommendation unchanged: use **A** for the repulsion
+(quantization-hunt) runs and **C** (cleanest mechanism) or **B + stack**
+(steepest law) for the distance-law work.
