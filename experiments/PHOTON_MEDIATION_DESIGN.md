@@ -1,6 +1,7 @@
 # Photon/graviton-mediated interaction between composite particles through the orphan flux — design note v2
 
-Status: **design** (no code yet).  Branch: `polarization-broadcast-fix`.
+Status: **design agreed** (A1, B1, C, D, E1, F1) — implementation next.
+Branch: `polarization-broadcast-fix`.
 Supersedes v1 (commit 11e24ec) which concluded the carrier "must be R1
 graviton, not R2 photon".  The consolidated rules (Sep 2026) split the
 picture: the **graviton (R1) is always attractive and universal** (residual
@@ -115,18 +116,22 @@ annihilate charges at a distance.
    momentum) only; the sign has **no** dependence on dress orientation
    (m/pB-sB) or on which relay arrives first.  Derived falsifiable control:
    swapping the dress orientations must leave the sign unchanged (section 6d).
+8. **Orphan origin/retention (F1, agreed Sep 2026)**: on reissue/translation
+   a layer is first orphaned (`a = W`) and the affinity is then re-propagated
+   outward from the active shell; whatever lies beyond the propagation reach
+   stays ghost.  This yields concentric orphan shells renewed at every
+   reissue, kind-agnostic (S/D/K), using the existing local stages
+   (manuscript.tex:616/620).
+9. **Observable (E1, agreed Sep 2026)**: `d(t)` between the two island
+   centres; the pre-contact window lasts while **no annihilation** occurs
+   (rule 5); a new `recruit_events` counter records orphan-field x pair
+   encounters separately from `enc_*`; swapping dress orientations is a null
+   control (rule 7).
 
 Still open (implementation detail, not conceptual):
-(a) **orphan creation/retention rule** — today `a == W_USED` is written only
-by the diffuse orphan-propagation slots (which require an existing orphan
-seed) and by the free-pair release in `applyMomentum` (which orphans the two
-released S singletons).  The Platonic seed writes `a = island index` for
-every cell and **no K/D is ever orphaned**.  For the physical picture (a
-field of concentric orphans around a K/D island) an explicit
-creation/retention rule is required;
-(b) where the island charge is read at the gate (the charge word shared by
+(a) where the island charge is read at the gate (the charge word shared by
 the island's members);
-(c) measuring the 1/r vs 1/r^2 exponent.
+(b) measuring the 1/r vs 1/r^2 exponent.
 
 ## 5. Physics dashboard
 
