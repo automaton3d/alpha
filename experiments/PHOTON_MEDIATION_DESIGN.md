@@ -100,7 +100,7 @@ annihilate charges at a distance.
    indiscriminately — with **different parents** (`islandChief` differs),
    **opposite charges, in any sector**, at the same site -> both **demoted
    to S**, reissued at the contact point, affinity default **`a = W`**
-   (orphan; assumption flagged: `a = W` rather than `a = w`).  This
+   (orphan; agreed Sep 2026: `a = W`, not `a = w`).  This
    supersedes the manuscript's same-sector-only annihilation and the
    inter-sector "singularization" split (tex :536/:551 to be reconciled);
    the tex affinity wording (:497 "revert to layer indices" vs "a=W marks an
