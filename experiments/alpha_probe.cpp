@@ -119,6 +119,23 @@ static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1,
 }
 
 // ---------------------------------------------------------------------------
+// probeImpulse: add a consumable relocation impulse (+-1 cell on one axis) to a
+// layer's source centre in the current and draft lattices.  Probe-level driver
+// used by the "two" scenario to bring two bodies of distinct islands into
+// contact (the role the R2 dresses play in the real setup).
+// ---------------------------------------------------------------------------
+static void probeImpulse(unsigned w, int axis, int delta)
+{
+  for (auto* lat : { &automaton::lattice_curr, &automaton::lattice_draft })
+  {
+    const auto& ctr = automaton::lcenters[w];
+    automaton::Cell& c = automaton::getCell(
+        *lat, (int)ctr[0], (int)ctr[1], (int)ctr[2], (int)w);
+    c.reloc[axis] += delta;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // markChief: turn a layer's source centre into its own island chief (K) with a
 // prescribed charge word.  Used by the "annih" scenario (two chiefs of
 // different islands overlapping at one site with opposite charges).
@@ -284,6 +301,10 @@ int main(int argc, char** argv)
   // "annih": deterministic annihilation scenario - two island chiefs (K) at
   // the SAME site with opposite charges, so the rule-5 branch must demote both.
   const bool duoAnnih = (strcmp(duoKind, "annih") == 0);
+  // "two": two bodies only, planted in DISTINCT families (w=0 and w=3 with
+  // W = 6) and no mediator - the cleanest reachable annihilation scenario under
+  // trigger (a): opposite charges in different islands that come into contact.
+  const bool duoTwo   = (strcmp(duoKind, "two") == 0);
   // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
   // effect of the P bookkeeping from the effect of the actual pair link.
   const bool duoBroken = (strcmp(duoKind, "broken") == 0);
@@ -291,7 +312,7 @@ int main(int argc, char** argv)
   // the kind bookkeeping from the pair-count/frequency bookkeeping.
   const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
   const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0 ||
-                   duoDressed || duoAnnih;
+                   duoDressed || duoAnnih || duoTwo;
   // Optional 13th argument: displace the planted mediator off the line of
   // centres (along z) so its CORE never contacts the bodies and only the
   // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
@@ -309,12 +330,14 @@ int main(int argc, char** argv)
   // families of three layers - W must stay a multiple of 3), bodies w=0
   // (island 0) and w=3 (island 1), mediator w=6/7 (island 2).
   const bool duoFar = (argc > 14) && (strcmp(argv[14], "far") == 0);
-  const unsigned bodyBw = (duoFar || duoDressed) ? 3u : 1u;  // 2nd body layer
+  const unsigned bodyBw = (duoFar || duoDressed || duoTwo) ? 3u : 1u;  // 2nd body
   const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in
                                   : (duoAnnih ? 2u
-                                     : (duo ? (duoDressed ? 6u : (duoFar ? 9u : 4u))
+                                     : (duo ? (duoDressed ? 6u
+                                                         : ((duoFar || duoTwo) ? (duoTwo ? 6u : 9u)
+                                                                               : 4u))
                                             : 2u));
 
   printf("=== alpha probe: %s ===\n",
@@ -380,6 +403,16 @@ int main(int argc, char** argv)
       automaton::replicate();
     }
 
+    if (duoTwo)
+    {
+      // Two island chiefs in DISTINCT families (w=0 and w=3, families 0 and 1)
+      // starting apart; the probe driver closes the gap so the rule-5
+      // annihilation branch can be exercised at contact.
+      markChief(0, chA);
+      markChief(bodyBw, chB);
+      automaton::replicate();
+    }
+
     if (duo)
     {
       // Free mediator pair: both halves superposed at the midpoint with the
@@ -401,7 +434,7 @@ int main(int argc, char** argv)
         markFreePair(4, 5, true, 1, 3u);   // dress of body B
         automaton::replicate();
       }
-      else
+      else if (!duoTwo)
       {
         placeSource(medW,     C, C, C + (unsigned)duoOff, 0, 0, 0,
                     duoSwap ? pB : pA);
@@ -498,6 +531,29 @@ int main(int argc, char** argv)
     if (newFrame)
     {
       ++frame;
+
+#ifdef ORPHAN_GUIDANCE_FSM
+      if (duoTwo)
+      {
+        // Close the gap one light-step per body per frame so the two distinct
+        // islands actually contact (probe-level driver).  The first axis with a
+        // non-zero separation is used.
+        int axis = -1;
+        for (int k = 0; k < 3; ++k)
+        {
+          const int d = (int)automaton::lcenters[bodyBw][k] -
+                        (int)automaton::lcenters[0][k];
+          if (d != 0) { axis = k; break; }
+        }
+        if (axis >= 0)
+        {
+          const int step = ((int)automaton::lcenters[bodyBw][axis] >
+                            (int)automaton::lcenters[0][axis]) ? +1 : -1;
+          probeImpulse(0, axis, step);
+          probeImpulse(bodyBw, axis, -step);
+        }
+      }
+#endif
 
       // conv deltas accumulated during this frame's ticks.
       const long long dCalls = automaton::conv_calls - prevCalls;

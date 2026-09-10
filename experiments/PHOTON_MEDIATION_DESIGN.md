@@ -291,6 +291,22 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   representatives (the moment the identity merge would fire) when the charges
   are opposite, or (b) restrict to D x D contacts (which in practice sit behind
   the `s2B` gate).
+  **RESOLVED with trigger (a)** (agreed): "distinct islands" is read as
+  different `islandChief` once both exist, otherwise different charge FAMILIES
+  (`w/3`, the island grouping before the chief election).  The probe scenario
+  `two` (W = 6, two CHIEFS planted at w=0 and w=3 - families 0 and 1 - with a
+  probe-level driver closing the gap one light-step per frame) exercises it:
+  - opposite charges (0x00 vs 0x3F): **`ann = 18`** annihilation events in the
+    first census window, the two bodies demoted to S and reissued, d(t)
+    oscillating (4,1,3,5,3) - the islands keep re-forming and re-annihilating;
+  - equal charges (0x08 both): **`ann = 0`** with the two bodies merging
+    normally - the exact design prediction, and a clean control.
+  The equal-charge merge also confirms the branch does not over-fire.
+  Remaining: the opposite-charge run SEGFAULTS a few frames after the burst
+  (tick ~1021), i.e. in the post-annihilation state (two demoted S sources
+  sharing a site); this is the next investigation item and may share a root
+  cause with the `dressed` crash below.
+
 - **OPEN BUG in the `dressed` layout** (bound R2 dresses, W = 6): it segfaults
   with the macro (equal and complementary body charges alike) while the default
   build runs the same layout clean.  Bisection: `ORPHAN_GATE_ONLY` (no record,

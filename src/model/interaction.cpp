@@ -692,8 +692,13 @@ namespace automaton
                              curr.x[2] == partner.x[2]);
       const WIndex ca = islandChief(currSrc);
       const WIndex cb = islandChief(partnerSrc);
-      if (sameSite && body(currSrc) && body(partnerSrc) &&
-          ca != NO_PARENT && cb != NO_PARENT && ca != cb &&
+      // Distinct islands: different chiefs once both exist, otherwise different
+      // charge FAMILIES (w/3), which is the island grouping before the chief
+      // election.  This is the reachable reading of "different parents".
+      const bool diffParents =
+          (ca != NO_PARENT && cb != NO_PARENT) ? (ca != cb)
+                                               : (curr.x[3] / 3u != partner.x[3] / 3u);
+      if (sameSite && body(currSrc) && body(partnerSrc) && diffParents &&
           antimatter(currSrc.ch) != antimatter(partnerSrc.ch))
       {
         ++annihilations;
