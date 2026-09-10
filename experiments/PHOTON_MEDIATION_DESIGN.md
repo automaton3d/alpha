@@ -415,3 +415,45 @@ mag = 0 (`alpha_probe_orphan EL 4 20 16384 120 no no 0 no m 8 photon`):
   frame (open).
 
 
+
+### Parked probe (distance law) and the frozen mediator
+
+Probe mode `park`: the two bodies are placed in DISTINCT families (the `far`
+layout, W = 9: bodies w=0 and w=3, free mediator pair w=6/7) and are **re-pinned
+to their sites at the start of every frame** by a bijective layer shift (the same
+transport `applyMomentum` performs), so the separation is exactly the pinned one
+while the shells keep cycling.  It logs `d`, both shell radii and the per-frame
+engagement count (`[park]`, `[recruit]`).
+
+Measured (EL=11, 12 frames, equal-charge bodies, R2 mediator, d pinned):
+
+| pinned d | engagements (12 frames) | per frame |
+|---|---|---|
+| 2 | 484  | 40.3 |
+| 4 | 354  | 29.5 |
+| 5 | 272  | 22.7 |
+
+- Genuine **monotone distance dependence**, but **no clean power law**: the local
+  log-log slope is about -0.45 between d=2 and 4 and -1.18 between 4 and 5, i.e.
+  between 1/d^(1/2) and 1/d.
+- The engagements do NOT follow the two-expanding-shells intersection geometry
+  (events occur at radii where the two ISLAND shells cannot meet), because the
+  **mediator is not a propagating wave**:
+
+**Root cause of the absent distance law - the mediator's clock is pinned.**
+Two independent mechanisms freeze the free pair's clock:
+1. `commitSourceTick()` advances `t` only for `body(s) || isBoundPropeller(s)`; a
+   free pair is neither, so it would stay at its initial `t` for ever.
+2. The recruit RELAY itself: `reemitAtContact()` sets `t = 0` and fires on every
+   engagement, so it re-pins the pair to t=0 continuously.
+Evidence: with the new `ORPHAN_MEDIATOR_PROPAGATES` build (a free pair advances
+its clock like a body) the parked counts are EXACTLY the same (484/354/272) -
+the relay still pins the clock.  With `ORPHAN_MEDIATOR_PROPAGATES +
+ORPHAN_NO_RELAY` the count at d=2 jumps from 484 to **10576** (~20x): the photon
+then really propagates and engages an order of magnitude more often.
+
+**Consequence**: any distance-law measurement needs the relay to stop resetting
+the mediator's clock (reissue without `t=0`, or relay only the orphan side).
+Until then the "photon in the vacuum" is a stationary marker and the observed
+rate is set by the ISLAND fronts sweeping it - hence the irregular exponent.
+The default build is unaffected (`ORPHAN_*` macros only).

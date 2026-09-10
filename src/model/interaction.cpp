@@ -454,7 +454,16 @@ namespace automaton
       dst.pair_idx = s.pair_idx; dst.pair_count = s.pair_count; dst.bB = s.bB;
       for (int k=0;k<3;++k) { dst.m[k] = s.m[k]; dst.reloc[k] = s.reloc[k]; }
       if (s.t != sourceBefore[w].t) { dst.t = s.t; dst.f = s.f; }
-      else if (body(s) || isBoundPropeller(s)) {
+      else if (body(s) || isBoundPropeller(s)
+#ifdef ORPHAN_MEDIATOR_PROPAGATES
+               // Experimental: let a FREE pair (the mediator in the vacuum)
+               // advance its clock too, so the photon actually propagates and
+               // expands instead of sitting frozen at r = 0 (see design note
+               // section 9: the frozen mediator is why the engagement rate
+               // showed no geometric distance law).
+               || (s.kind == SourceKind::P && s.a == W_USED)
+#endif
+              ) {
         dst.t = (s.t + (dst.k == 0 ? 1u : 0u)) % (2 * RMAX);
         dst.f = effective_t(dst.t);
       }

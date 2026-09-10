@@ -136,6 +136,54 @@ static void probeImpulse(unsigned w, int axis, int delta)
 }
 
 // ---------------------------------------------------------------------------
+// parkLayer: force a layer's source centre back to a pinned site by bijectively
+// shifting the whole layer (the same transport applyMomentum performs), then
+// clearing momentum/relocation so the body cannot drift.  Used by the "park"
+// scenario to measure the engagement rate at a FIXED separation.
+// ---------------------------------------------------------------------------
+static void parkLayer(unsigned w, unsigned px, unsigned py, unsigned pz)
+{
+  const int ELi = (int)automaton::EL;
+  auto wrapC = [ELi](int v) { v %= ELi; return v < 0 ? v + ELi : v; };
+  const auto cur = automaton::lcenters[w];
+  int dx = (int)px - (int)cur[0];
+  int dy = (int)py - (int)cur[1];
+  int dz = (int)pz - (int)cur[2];
+  const int h = ELi / 2;
+  if (dx >  h) dx -= ELi; else if (dx < -h) dx += ELi;
+  if (dy >  h) dy -= ELi; else if (dy < -h) dy += ELi;
+  if (dz >  h) dz -= ELi; else if (dz < -h) dz += ELi;
+
+  for (auto* lat : { &automaton::lattice_curr, &automaton::lattice_draft,
+                     &automaton::lattice_partner })
+  {
+    if (dx != 0 || dy != 0 || dz != 0)
+    {
+      std::vector<automaton::Cell> shifted((size_t)ELi * ELi * ELi);
+      for (int x = 0; x < ELi; ++x)
+      for (int y = 0; y < ELi; ++y)
+      for (int z = 0; z < ELi; ++z)
+      {
+        const int tx = wrapC(x + dx), ty = wrapC(y + dy), tz = wrapC(z + dz);
+        automaton::Cell& dest = shifted[((size_t)tx * ELi + ty) * ELi + tz];
+        dest = automaton::getCell(*lat, x, y, z, (int)w);
+        dest.x[0] = (unsigned)tx; dest.x[1] = (unsigned)ty;
+        dest.x[2] = (unsigned)tz; dest.x[3] = w;
+      }
+      for (int x = 0; x < ELi; ++x)
+      for (int y = 0; y < ELi; ++y)
+      for (int z = 0; z < ELi; ++z)
+        automaton::getCell(*lat, x, y, z, (int)w) =
+            shifted[((size_t)x * ELi + y) * ELi + z];
+    }
+    automaton::Cell& c = automaton::getCell(*lat, (int)px, (int)py, (int)pz, (int)w);
+    c.m[0] = c.m[1] = c.m[2] = 0;
+    c.reloc[0] = c.reloc[1] = c.reloc[2] = 0;
+  }
+  automaton::lcenters[w] = { px, py, pz };
+}
+
+// ---------------------------------------------------------------------------
 // markDelegate: turn a layer's source centre into a DELEGATE (D) of a chief
 // that lives in another layer, keeping the island anchor alive.  Used by the
 // "twod" scenario (D x D annihilation between two distinct islands).
@@ -333,6 +381,12 @@ int main(int argc, char** argv)
   // driver closes the delegates.  This is the manuscript's D x D overlap and it
   // keeps both island anchors alive through the annihilation.
   const bool duoTwoD  = (strcmp(duoKind, "twod") == 0);
+  // "park": the geometric-sweep probe.  Layout `far` (W = 9: bodies in DISTINCT
+  // families so there is no cohesion drift, mediator free in the third family)
+  // with the two bodies RE-PINNED every frame, so the separation stays fixed
+  // while the shells keep cycling.  Logs d, both shell radii and the per-frame
+  // engagement count for the distance-law fit.
+  const bool duoPark  = (strcmp(duoKind, "park") == 0);
   // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
   // effect of the P bookkeeping from the effect of the actual pair link.
   const bool duoBroken = (strcmp(duoKind, "broken") == 0);
@@ -340,7 +394,7 @@ int main(int argc, char** argv)
   // the kind bookkeeping from the pair-count/frequency bookkeeping.
   const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
   const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0 ||
-                   duoDressed || duoAnnih || duoTwo || duoTwoD;
+                   duoDressed || duoAnnih || duoTwo || duoTwoD || duoPark;
   // Optional 13th argument: displace the planted mediator off the line of
   // centres (along z) so its CORE never contacts the bodies and only the
   // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
@@ -358,15 +412,16 @@ int main(int argc, char** argv)
   // families of three layers - W must stay a multiple of 3), bodies w=0
   // (island 0) and w=3 (island 1), mediator w=6/7 (island 2).
   const bool duoFar = (argc > 14) && (strcmp(argv[14], "far") == 0);
-  const unsigned bodyBw = (duoFar || duoDressed || duoTwo || duoTwoD) ? 3u : 1u;
-  const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
+  const unsigned bodyBw = (duoFar || duoDressed || duoTwo || duoTwoD ||
+                           duoPark) ? 3u : 1u;
+  const unsigned medW   = (duoFar || duoPark) ? 6u : 2u;  // mediator layer
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in
                                   : (duoAnnih ? 2u
                                      : (duo ? (duoDressed ? 6u
-                                                         : ((duoFar || duoTwo || duoTwoD)
-                                                                ? (duoFar ? 9u : 6u)
-                                                                : 4u))
+                                                         : ((duoFar || duoPark)
+                                                                ? 9u
+                                                                : (duoTwo || duoTwoD ? 6u : 4u)))
                                             : 2u));
 
   printf("=== alpha probe: %s ===\n",
@@ -576,9 +631,18 @@ int main(int argc, char** argv)
       ++frame;
 
 #ifdef ORPHAN_GUIDANCE_FSM
-      // Per-frame recruitment rate (E1 flux instrument): how many orphan-shell
-      // x mediator engagements happened during this frame, and at what
-      // separation.  Used by the geometric sweep to fit the distance law.
+      // Parked geometric probe: re-pin the two bodies at their initial sites at
+      // the START of the frame, so the separation is exactly the pinned one for
+      // the whole frame while the shells keep cycling.  The frame's engagement
+      // count therefore belongs to a well-defined separation.
+      if (duoPark)
+      {
+        const unsigned parkC   = automaton::CENTER;
+        const unsigned parkOff = SEP / 2u;
+        parkLayer(0, parkC - parkOff, parkC, parkC);
+        parkLayer(bodyBw, parkC + parkOff, parkC, parkC);
+      }
+      // Per-frame recruitment rate (E1 flux instrument).
       {
         static long long prevRecruit = 0;
         const long long now = automaton::recruit_events;
@@ -691,6 +755,21 @@ int main(int argc, char** argv)
         if (dy >  h) dy -= (int)EL_in; else if (dy < -h) dy += (int)EL_in;
         if (dz >  h) dz -= (int)EL_in; else if (dz < -h) dz += (int)EL_in;
         dsep = std::sqrt((double)(dx*dx + dy*dy + dz*dz));
+#ifdef ORPHAN_GUIDANCE_FSM
+        // Parked probe: log the pinned separation and both shell radii.
+        if (duoPark)
+        {
+          const auto& cA = automaton::lcenters[0];
+          const auto& cB = automaton::lcenters[bodyBw];
+          const automaton::Cell& sA = automaton::getCell(
+              automaton::lattice_curr, (int)cA[0], (int)cA[1], (int)cA[2], 0);
+          const automaton::Cell& sB = automaton::getCell(
+              automaton::lattice_curr, (int)cB[0], (int)cB[1], (int)cB[2],
+              (int)bodyBw);
+          printf("[park] frame=%u d=%.2f fA=%u fB=%u\n",
+                 frame, dsep, sA.f, sB.f);
+        }
+#endif
 #if defined(ORPHAN_GUIDANCE_FSM) || defined(ORPHAN_PRINT_ONLY)
         printf("[sep] frame=%u d=%.2f\n", frame, dsep);   // E1 observable
         // Source-state diagnostic for the dressed-duo probe: reveals whether
