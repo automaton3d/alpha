@@ -70,8 +70,11 @@ with it being the always-attractive channel.
    the pair's m direction (inertia: 0.25/0.75 cells/frame; CoM conserved).
 5. **Reciprocity**: the same happens from the target toward the source
    ("The same occurs in reverse", manuscript.tex:794).  Net effect:
-   - R2 photon channel: sign by charge — **equal charges repel**;
+   - R2 photon channel: **the sign is decided by the two quantized islands
+     alone** (their charge words): equal charge -> repel, opposite -> attract;
    - R1 graviton channel: **always attractive**;
+   - the dresses/drive pairs are only the **vehicle** (relay + momentum);
+     their orientation does not enter the sign decision;
    - both symmetric in the mean (drive-pair transport conserves CoM).
 
 **Annihilation boundary**: true annihilation happens **only when a D
@@ -95,6 +98,12 @@ voxel).  Carriers never annihilate charges at a distance.
    region and the pair half are both **reissued at the contact point**
    (manuscript.tex:794), reusing `reemitAtContact` and the existing
    affinity handover — no gradual guidance rule.
+7. **The sign is decided by the two quantized islands alone** (agreed Sep
+   2026): equal charge -> repel, opposite -> attract, read from the islands'
+   charge words.  The dresses/drive pairs are the vehicle (relay and
+   momentum) only; the sign has **no** dependence on dress orientation
+   (m/pB-sB) or on which relay arrives first.  Derived falsifiable control:
+   swapping the dress orientations must leave the sign unchanged (section 6d).
 
 Still open (implementation detail, not conceptual):
 (a) **orphan creation/retention rule** — today `a == W_USED` is written only
@@ -104,15 +113,15 @@ released S singletons).  The Platonic seed writes `a = island index` for
 every cell and **no K/D is ever orphaned**.  For the physical picture (a
 field of concentric orphans around a K/D island) an explicit
 creation/retention rule is required;
-(b) the m/pB-sB orientation rule that makes the photon exchange repulsive
-for equal charges (antiparallel drive pairs);
+(b) where the island charge is read at the gate (the charge word shared by
+the island's members);
 (c) measuring the 1/r vs 1/r^2 exponent.
 
 ## 5. Physics dashboard
 
 | Interaction | Carrier | Sign | Reaches before cores meet | Requires |
 |---|---|---|---|---|
-| EM (charge sign) | R2 photon (dress) | by charge: equal repel | yes (field/flux) | dress exchange via EM gate + orientation (m/pB-sB) |
+| EM (charge sign) | R2 photon (dress) | by the two islands' charge: equal repel | yes (field/flux) | dress relay via EM gate; sign read from the islands |
 | Static/gravity residual | R1 graviton (vacuum) | always attractive | yes | orphan flux + reciprocity |
 | Annihilation | — (cores) | neutral | no — only D x D overlap | complementary delegates in one voxel |
 
@@ -135,7 +144,8 @@ Controls:
 (b) dresses but no orphan flux (no reissues);
 (c) free R1 pair only (graviton) -> always-attractive behaviour expected
     (d decreases or merge), separating the two channels;
-(d) orientations of the drive pairs swapped (sign/orientation rule).
+(d) dress orientations swapped: expected **null control** — the sign must not
+    change (it is set by the two islands' charges alone).
 
 Success: d grows monotonically while both bodies keep their K/D cores (no
 identity merge, no D x D overlap), CoM conserved in the mean, reproducible
@@ -159,7 +169,8 @@ To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
 - R2 dress-exchange bookkeeping between two dressed bodies;
 - affinity handover on approach (may reuse the existing P-join on contact);
 - symmetric reverse bookkeeping (a pair may flip target);
-- sign/orientation law for the photon channel (m/pB-sB of the dresses);
+- island-charge comparison at the gate for the sign (equal -> repel, opposite
+  -> attract); no dress-orientation dependence;
 - annihilation strictly on D x D core overlap (no distant annihilation).
 
 References: manuscript.tex:491, 616, 794-796, 1229, 1374, 1382;
