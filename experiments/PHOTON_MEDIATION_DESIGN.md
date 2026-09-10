@@ -39,10 +39,13 @@ with it being the always-attractive channel.
 - **Island**: 1K+nD cores of charge Q (the body; annihilation-capable only
   on D x D core overlap).
 - **Dresses**: bound R2 photon pairs (drive pairs) carried by the island.
-- **Field**: the concentric orphan shell (`a = W_USED`, ghost, affinity
-  disabled, non-collapsing; manuscript.tex:616, 1374).  The recruiter of
-  free pairs is an **orphaned source** (an S bubble with `a = W_USED`,
-  post-reissue) whose concentric shell is the flux.
+- **Field**: the concentric orphan region — cells with **affinity disabled
+  (`a == W_USED`)**, ghost, non-collapsing (manuscript.tex:616, 1374).
+  The definition is **cell-level and kind-agnostic**: it applies to the
+  orphan region of ANY source kind, **S, D and K alike** (a particle's
+  island cores are K/D, so its field is the orphan region around them).
+  P pairs are the carriers/dresses, not recruiters.  The recruiter of free
+  pairs is therefore this orphan region, not an "S-only" object.
 - **Mediators**: free R2 photon pair (dressing/EM channel) and free R1
   graviton pair (universal attractive channel), present in the vacuum
   between the two particles.
@@ -86,9 +89,16 @@ voxel).  Carriers never annihilate charges at a distance.
    (potential 1/r; force 1/r^2).
 5. Annihilation only on **D x D core overlap** (one D per particle).
 
-Still open (implementation detail, not conceptual): (a) orphaned-source
-semantics as recruiter; (b) the m/pB-sB orientation rule that makes the
-photon exchange repulsive for equal charges (antiparallel drive pairs);
+Still open (implementation detail, not conceptual):
+(a) **orphan creation/retention rule** — today `a == W_USED` is written only
+by the diffuse orphan-propagation slots (which require an existing orphan
+seed) and by the free-pair release in `applyMomentum` (which orphans the two
+released S singletons).  The Platonic seed writes `a = island index` for
+every cell and **no K/D is ever orphaned**.  For the physical picture (a
+field of concentric orphans around a K/D island) an explicit
+creation/retention rule is required;
+(b) the m/pB-sB orientation rule that makes the photon exchange repulsive
+for equal charges (antiparallel drive pairs);
 (c) measuring the 1/r vs 1/r^2 exponent.
 
 ## 5. Physics dashboard
@@ -134,7 +144,9 @@ CoM conservation (resolveInternalContacts / propeller); EM branches
 (bootstrap + first-arrival wave + EM-first builds).
 
 To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
-- orphaned-source (`S`, `a == W_USED`) shell as the recruiter;
+- orphan region (cells with `a == W_USED`, any kind S/D/K) as the recruiter;
+- an orphan creation/retention rule so K/D islands carry a concentric ghost
+  region (see section 4a);
 - EM-gated engagement that selects the attracting half of the free pair;
 - directed re-emission/guidance of the engaged pair along the flux;
 - R2 dress-exchange bookkeeping between two dressed bodies;
