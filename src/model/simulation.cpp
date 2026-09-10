@@ -425,6 +425,24 @@ namespace automaton
           old.t == (unsigned)RMAX &&
           old.w < old.pair_idx)
       {
+#ifdef ORPHAN_MEDIATOR_SUSTAIN
+          // Self-sustaining mediator (experimental): a FREE pair that reaches
+          // the turnaround is RE-EMITTED in place (phase reset to 0) instead of
+          // being consumed, so the vacuum photon keeps propagating indefinitely
+          // and the mediated channel neither dies nor needs a seeded stack.
+          old.t = 0;
+          old.f = 0;
+          {
+            const WIndex pw0 = old.pair_idx;
+            Cell& partner0 = getCell(lattice_draft,
+                                     (unsigned)lcenters[pw0][0],
+                                     (unsigned)lcenters[pw0][1],
+                                     (unsigned)lcenters[pw0][2],
+                                     pw0);
+            partner0.t = 0;
+            partner0.f = 0;
+          }
+#else
           if (old.pair_count > 0)
               old.pair_count--;
 
@@ -460,6 +478,7 @@ namespace automaton
               // The stack still holds pairs; keep the remaining count in sync.
               partner.pair_count = old.pair_count;
           }
+#endif
       }
 
       int dx = old.reloc[0];

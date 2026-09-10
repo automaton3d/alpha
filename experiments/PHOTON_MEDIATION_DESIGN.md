@@ -506,3 +506,35 @@ turnaround.  Build `build_probe_keepprop.bat` =
   until a single configuration achieves both at all scales (candidate: a
   self-sustaining mediator that re-emits at the turnaround instead of a large
   seed stack).
+
+### Self-sustaining mediator (implemented)
+
+`ORPHAN_MEDIATOR_SUSTAIN` (in `applyMomentum`): a FREE pair that reaches the
+turnaround (`t == RMAX`) is RE-EMITTED in place (phase reset to 0) instead of
+being consumed - the manuscript's reissue-at-maximum-radius with replenishment -
+so the vacuum photon propagates indefinitely with `pair_count = 1` and no seeded
+stack.  Build `build_probe_sustain.bat` = `ORPHAN_GUIDANCE_FSM +
+ORPHAN_MEDIATOR_PROPAGATES + ORPHAN_RELAY_KEEPT + ORPHAN_MEDIATOR_SUSTAIN`.
+
+Three regimes, all measured with the same probes (parked = distance law,
+NEAR = repulsion, equal-charge bodies, R2 mediator):
+
+| regime | mediator | NEAR min d (EL 9/11/13) | parked d=2/4/5 | local slope |
+|---|---|---|---|---|
+| A (default, validated) | clock frozen, relay resets it | **1.00 / 3.00 / 4.00** | 484 / 354 / 272 | -0.45 / -1.18 |
+| B + stack | propagating, `pair_count = 8` | 1.00 / 1.00 / 0.00 | 8438 / 3934 / 2505 | -1.10 / -2.05 |
+| C = self-sustaining | propagating, `pair_count = 1`, re-emitted at the turnaround | 1.00 / 1.00 / 0.00 | **9341 / 5190 / 4650** | -0.85 / -0.49 |
+
+- The self-sustaining mediator is the physically self-consistent configuration
+  (no seeded stack: the photon is replenished by re-emission) and it keeps the
+  channel alive and the distance dependence monotone.
+- It does NOT beat variant A on the repulsion (A holds the separation up to
+  EL = 13; B and C merge at 13): with a propagating, phase-reset mediator the
+  engagement windows are rarer than with a frozen one permanently swept by the
+  island fronts, so the net impulse is weaker.
+- Verdict: keep **A** as the default for repulsion (quantization-hunt) runs;
+  **B + stack** remains the best distance-law configuration (steepest, closest
+  to 1/d^2); **C** is the cleanest physical mechanism and the natural base for
+  the next refinement (e.g. relaying an impulse per engagement window instead of
+  one per pair per tick).  All three are macro-guarded; the default build is
+  untouched (6468/0/0).
