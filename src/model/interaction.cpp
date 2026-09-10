@@ -58,10 +58,11 @@ namespace automaton
     std::vector<std::array<long long,3>> transportDebt;
     unsigned long long transportFrame = 0;
 #ifdef ORPHAN_GUIDANCE_FSM
-    // Island pairs already given their one-step recruit impulse in this tick
-    // (the shell coincidence is seen by many lattice cells; the impulse must
-    // land once per pair per tick).  Cleared by beginSourceTick().
-    std::vector<std::array<unsigned, 2>> recruitApplied;
+    // Experimental P2: island pairs whose mediator engaged a shell during this
+    // frame, with the requested sign (+1 repel / -1 attract).  Collected by
+    // encounter() and applied once per pair per frame by resolveRecruitPush()
+    // at the frame edge (the internalContacts / resolveExclusionPush pattern).
+    std::vector<std::array<int, 3>> recruitPushes;
 #endif
 
     inline const std::array<unsigned, 3>& sourceCenter(const Cell& c)
@@ -256,9 +257,6 @@ namespace automaton
   void beginSourceTick()
   {
     sourceBefore.resize(W_USED);
-#ifdef ORPHAN_GUIDANCE_FSM
-    recruitApplied.clear();
-#endif
     if (transportDebt.size() != W_USED) transportDebt.assign(W_USED, {0,0,0});
     for (unsigned w = 0; w < W_USED; ++w) {
       const auto& p = lcenters[w];
@@ -268,6 +266,9 @@ namespace automaton
     if ((!lattice_curr.empty() && lattice_curr.front().k == 0) ||
         contactSeen.size() != (size_t)W_USED * W_USED) {
       internalContacts.clear();
+#ifdef ORPHAN_GUIDANCE_FSM
+      recruitPushes.clear();
+#endif
       contactSeen.assign((size_t)W_USED * W_USED, 0);
     }
   }
@@ -418,6 +419,52 @@ namespace automaton
       }
     }
 #endif
+
+#ifdef ORPHAN_GUIDANCE_FSM
+    // Frame-edge application of the recruit channel impulse (P2).  One
+    // antisymmetric unit face step per engaged island pair per frame, along
+    // the axis of largest shortest-torus separation, exactly like
+    // resolveExclusionPush: the centre of mass is conserved and the frame-edge
+    // commit machinery (commitSourceTick) consumes the reloc.  The sign comes
+    // from the two islands' charge words (or is always attractive for the R1
+    // graviton mediator) and was decided in encounter().
+    void resolveRecruitPush()
+    {
+      if (recruitPushes.empty()) return;
+      std::vector<std::array<int, 3>> list = recruitPushes;
+      std::sort(list.begin(), list.end(),
+                [](const std::array<int, 3>& x, const std::array<int, 3>& y)
+                { return (x[0] != y[0]) ? (x[0] < y[0]) : (x[1] < y[1]); });
+      list.erase(std::unique(list.begin(), list.end(),
+                [](const std::array<int, 3>& x, const std::array<int, 3>& y)
+                { return x[0] == y[0] && x[1] == y[1]; }), list.end());
+      for (const auto& e : list)
+      {
+        const unsigned a = (unsigned)e[0], b = (unsigned)e[1];
+        if (a >= W_USED || b >= W_USED || a == b) continue;
+#ifdef ORPHAN_NO_PUSH_APPLY
+        // Bisection build: record the engagement but never move anything.
+        continue;
+#endif
+        const int sign = e[2];                 // +1 repel / -1 attract
+        int sep[3];
+        int best = 0, bestAbs = -1;
+        for (int axis = 0; axis < 3; ++axis)
+        {
+          const int d = delta(a, b, axis);
+          sep[axis] = d;
+          const int ad = d < 0 ? -d : d;
+          if (ad > bestAbs) { bestAbs = ad; best = axis; }
+        }
+        int axis, sgn;
+        if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
+        else continue;      // coincident centres: no defined push direction
+        sourceAfter[a].reloc[axis] += sign * sgn;
+        sourceAfter[b].reloc[axis] -= sign * sgn;
+        if (sign > 0) ++recruit_repel; else ++recruit_attract;
+      }
+    }
+#endif
   }
 
   void commitSourceTick()
@@ -426,6 +473,9 @@ namespace automaton
       resolveInternalContacts();
 #ifdef EXCLUSION_FSM
       resolveExclusionPush();
+#endif
+#ifdef ORPHAN_GUIDANCE_FSM
+      resolveRecruitPush();
 #endif
     }
     for (unsigned w = 0; w < W_USED; ++w) {
@@ -528,8 +578,16 @@ namespace automaton
         if (onShell)
         {
           ++recruit_events;
-          // Relay: reissue the photon half at the contact point.
-          reemitAtContact(sourceCenterDraft(*pho), *pho);
+          // Relay only for a FREE mediator AT REST: a bound dress is already
+          // co-located with its body, and a driving pair (m != 0) must not have
+          // its two halves' clocks desynchronised.
+          {
+            const Cell& medSrc = sourceAfter[pho->x[3]];
+            const bool medFree = (medSrc.leader_w == NO_LEADER_W) &&
+                                 medSrc.m[0] == 0 && medSrc.m[1] == 0 &&
+                                 medSrc.m[2] == 0;
+            if (medFree) reemitAtContact(sourceCenterDraft(*pho), *pho);
+          }
 
           // ---------------------------------------------------------------
           // Sign and the dual impulse (design section 4, rules 5-7).  The
@@ -593,28 +651,16 @@ namespace automaton
           {
             // The impulse acts on ISLANDS (any non-mediator source): a lone
             // source is an island of one until the chief election groups it.
+            // It is only RECORDED here and applied once per island pair per
+            // frame by resolveRecruitPush() at the frame edge, exactly like
+            // the EXCLUSION push (no reloc writes in the middle of the phase
+            // sequence).
             const bool islands = sourceAfter[aw].kind != SourceKind::P &&
                                  sourceAfter[bw].kind != SourceKind::P;
-            const std::array<unsigned, 2> key{ aw, bw };
-            if (islands &&
-                std::find(recruitApplied.begin(), recruitApplied.end(), key) ==
-                recruitApplied.end())
+            if (islands)
             {
-              recruitApplied.push_back(key);
               const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
-              const auto& cA = lcenters[aw];
-              const auto& cB = lcenters[bw];
-              if (pushSign > 0)          // equal charges -> repel one step
-              {
-                moveOneStepAway(sourceAfter[aw], cA, cB);
-                moveOneStepAway(sourceAfter[bw], cB, cA);
-              }
-              else                       // opposite charges / graviton -> attract
-              {
-                moveOneStep(sourceAfter[aw], cA, cB);
-                moveOneStep(sourceAfter[bw], cB, cA);
-              }
-              if (pushSign > 0) ++recruit_repel; else ++recruit_attract;
+              recruitPushes.push_back({ (int)aw, (int)bw, pushSign });
             }
           }
 #endif

@@ -541,7 +541,9 @@ int main(int argc, char** argv)
         printf("[sep] frame=%u d=%.2f\n", frame, dsep);   // E1 observable
         // Source-state diagnostic for the dressed-duo probe: reveals whether
         // the planted mediator binds to a body (a/leader_w) and whether its
-        // clock advances.
+        // clock advances.  Off by default (it is a probe-only dump; enable
+        // with -D ORPHAN_DUMP_SRC when investigating).
+#ifdef ORPHAN_DUMP_SRC
         if (duo)
         {
           for (unsigned w = 0; w < automaton::W_USED; ++w)
@@ -558,6 +560,7 @@ int main(int argc, char** argv)
                    sc.reloc[0], sc.reloc[1], sc.reloc[2], (unsigned)sc.ch);
           }
         }
+#endif
 #endif
         recs.push_back({ dsep, dCalls, dS2b, frameSum, nActive, nPB, nSB });
       }

@@ -252,19 +252,32 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   `ORPHAN_GATE_ONLY` build: gate-only runs clean).  Using `moveOneStepAway` /
   `moveOneStep` on the two ISLAND centres fixes it (no crash in any mode) - the
   same guarded helpers the electroweak branches use.
-- **Mediator that is a BOUND dress (section 6 primary setup)**: the probe mode
-  `dressed` plants the design's own configuration - W = 6, family A = {0,1,2}
-  at the left site (w=0 the body, w=1/2 its R2 dress pair bound to it) and
-  family B = {3,4,5} at the right site.  The gate now accepts any P source that
-  is not part of the engaged island (free photon/graviton or the OTHER island's
-  dress) and uses the dress's own leader as island B, which is exact.
-  Measured: the gate fires (732 events) but the impulse SEGFAULTS in this
-  layout (bisected with the gate-only build again: gate-only is clean).  Same
-  signature as the earlier `far` crash, still open: the impulse must be made
-  safe for the bound-dress arrangement.  The working configuration (free
-  mediator, W = 4) is unaffected by the new gate code (re-verified:
-  photon min d = 3.00 over 30 frames, graviton and bare merge, default
-  6468/0/0).
+- **Impulse reformulated to the production pattern (frame edge)**: the gate now
+  only RECORDS each engagement (island A, island B, sign) in `recruitPushes`;
+  `resolveRecruitPush()` applies one antisymmetric face step per island pair
+  per frame inside `commitSourceTick`, exactly like `resolveExclusionPush`
+  (centre of mass conserved, no reloc writes in the middle of the phase
+  sequence).  Coincident centres are skipped (no defined push direction), and
+  the relay now fires only for a FREE mediator AT REST (a bound dress is
+  already co-located with its body; a driving pair must not have its halves'
+  clocks desynchronised).
+  Verified after the change (EL=11 SEP=4, bodies 0x08, 30 frames):
+  | mode | recruit | signals | min d |
+  |---|---|---|---|
+  | bare | 351 | - | 0.00 (merge) |
+  | R2 photon (equal charge -> repel) | 202 | repel = 4 | **1.00 (never fully merges)** |
+  | R1 graviton | 39 | attract = 2 | 0.00 (merge) |
+  and the default build is unchanged (6468/0/0).
+- **OPEN BUG in the `dressed` layout** (bound R2 dresses, W = 6): it segfaults
+  with the macro (equal and complementary body charges alike) while the default
+  build runs the same layout clean.  Bisection: `ORPHAN_GATE_ONLY` (no record,
+  no push) still crashes for ch = -1, `ORPHAN_NO_PUSH_APPLY` (record but never
+  move) is clean for ch = 8, and the probe's `[src]` dump is now off by default
+  (`ORPHAN_DUMP_SRC`).  So for ch = 8 the push is implicated and for ch = -1
+  something else in the dressed flow is (possibly a latent fragility of the
+  bound-dress + identity machinery that the macro's timing exposes).  Builds
+  for the investigation: build_probe_gateonly.bat, build_probe_noapply.bat.
+
 
 
 - **What still merges the bodies**: the two planted bodies start unaffiliated
