@@ -576,6 +576,18 @@ int main(int argc, char** argv)
       ++frame;
 
 #ifdef ORPHAN_GUIDANCE_FSM
+      // Per-frame recruitment rate (E1 flux instrument): how many orphan-shell
+      // x mediator engagements happened during this frame, and at what
+      // separation.  Used by the geometric sweep to fit the distance law.
+      {
+        static long long prevRecruit = 0;
+        const long long now = automaton::recruit_events;
+        printf("[recruit] frame=%u n=%lld\n", frame, now - prevRecruit);
+        prevRecruit = now;
+      }
+#endif
+
+#ifdef ORPHAN_GUIDANCE_FSM
       if (duoTwo || duoTwoD)
       {
         // Close the gap one light-step per body per frame so the two distinct

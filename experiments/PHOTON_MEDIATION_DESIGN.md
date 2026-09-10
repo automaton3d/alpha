@@ -374,3 +374,44 @@ Build scripts: `experiments/build_probe.bat` (default reference),
 `experiments/build_probe_em.bat` (`EM_FIRST_FSM`),
 `experiments/build_probe_orphan.bat` (`ORPHAN_GUIDANCE_FSM`).
 
+## 9. Geometric sweep
+
+Impulse granularity settled: the mediated push is **one light-step per TICK**,
+applied inline in `encounter()` through `moveOneStepAway()` / `moveOneStep()`
+(production helpers, CoM conserved), deduplicated per tick and skipped for
+coincident or adjacent centres.  The earlier frame-edge variant (one step per
+FRAME) did not scale with the frame's tick count and gave geometry-dependent
+outcomes (EL=13 merged where EL=9/11 held); scaling it by the frame's tick
+count overshot badly and was discarded.
+
+Bodies 0x08 (equal charge), mediator = R2 photon pair, initial d = 4, 20 frames,
+mag = 0 (`alpha_probe_orphan EL 4 20 16384 120 no no 0 no m 8 photon`):
+
+| EL | photon min d | photon signals | graviton min d | bare min d |
+|---|---|---|---|---|
+| 9  | 1.00 | repel    | 0.00 | 0.00 |
+| 11 | 3.00 | repel 38 | 0.00 | 0.00 |
+| 13 | 4.00 | repel 30 | 0.00 | 0.00 |
+| 15 | 4.00 | repel 18 | 0.00 | 0.00 |
+
+- **The R2 channel holds or increases the separation at every scale**; the R1
+  graviton and the W-matched bare control always merge.
+- **Control (b) - new `ORPHAN_NO_SHELL` build** (the orphan shell is switched
+  off): EL=11 SEP=4 photon -> `recruit = 0`, `repel = 0`, `attract = 0`,
+  min d = 0.00: the channel DISAPPEARS and the bodies merge like the bare
+  control.  The effect therefore requires the orphan flux.
+- **Regression suite (per-tick build)**: default `6468/0/0`; NEAR (W=4) photon
+  min d = 3.00 / graviton 0.00 / bare 0.00; `dressed` (W=6) equal charges
+  min d = 1.00, opposite 0.00; `twod` annihilation `ann = 1368` vs 0 (equal),
+  no crash.
+- **Distance law (no clean power law)**: the engagement rate per frame, pooled
+  over the photon runs and binned by separation, is ~36 events/frame for
+  d <= 4 and 18 at d = 5 - essentially flat, not 1/d^2.  Two reasons: the
+  impulse magnitude is a saturated one light-step per tick (force
+  distance-independent by construction), and the number of coincidence cells of
+  two expanding shells depends on the wavefront RADIUS as much as on d (the
+  intersection circle has radius sqrt(r^2 - (d/2)^2)).  Fixing the exponent
+  needs a dedicated probe that parks the bodies and logs the shell radius per
+  frame (open).
+
+

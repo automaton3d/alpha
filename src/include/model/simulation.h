@@ -390,9 +390,16 @@ struct NeighborResult
   // light-matter channel as rare as it is in nature.
   inline bool isOrphanShell(const Cell& c)
   {
+#ifdef ORPHAN_NO_SHELL
+      // Control (b) of section 6: the orphan flux is switched off, so the
+      // recruit gate must never fire and the mediated channel disappears.
+      (void)c;
+      return false;
+#else
       return c.r2 > 0u && c.r2 != INF_R2 &&
              c.r >= 0 && c.r == (int)c.f + 1 &&
              c.r <= (int)RMAX;
+#endif
   }
 #endif
 
