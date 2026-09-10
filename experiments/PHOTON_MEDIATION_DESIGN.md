@@ -36,8 +36,8 @@ with it being the always-attractive channel.
 
 ## 2. Actors: particle = island + dresses + field
 
-- **Island**: 1K+nD cores of charge Q (the body; annihilation-capable only
-  on D x D core overlap).
+- **Island**: 1K+nD cores of charge Q (the body; annihilation involves any
+  representative — K or D — of two particles with opposite charge).
 - **Dresses**: bound R2 photon pairs (drive pairs) carried by the island.
 - **Field**: the concentric orphan region — cells with **affinity disabled
   (`a == W_USED`)**, ghost, non-collapsing (manuscript.tex:616, 1374).
@@ -77,9 +77,12 @@ with it being the always-attractive channel.
      their orientation does not enter the sign decision;
    - both symmetric in the mean (drive-pair transport conserves CoM).
 
-**Annihilation boundary**: true annihilation happens **only when a D
-delegate of each particle overlaps** (complementary cores, D x D at one
-voxel).  Carriers never annihilate charges at a distance.
+**Annihilation boundary**: annihilation requires two representatives of the
+two particles — **K or D indiscriminately**, different parents
+(`islandChief` differs), **opposite charges, in any sector** — overlapping
+the same site.  Both are then **demoted to S** and reissued at the contact
+point, with affinity default `a = W` (orphan singleton).  Carriers never
+annihilate charges at a distance.
 
 ## 4. Consolidated rules (v2) — agreed
 
@@ -93,7 +96,15 @@ voxel).  Carriers never annihilate charges at a distance.
 4. Distance dependence is **automatic and geometric** (spherical flux, no
    dial); the observable-defined exponent must be fixed by measurement
    (potential 1/r; force 1/r^2).
-5. Annihilation only on **D x D core overlap** (one D per particle).
+5. **Annihilation** (revised, agreed): two representatives — K or D
+   indiscriminately — with **different parents** (`islandChief` differs),
+   **opposite charges, in any sector**, at the same site -> both **demoted
+   to S**, reissued at the contact point, affinity default **`a = W`**
+   (orphan; assumption flagged: `a = W` rather than `a = w`).  This
+   supersedes the manuscript's same-sector-only annihilation and the
+   inter-sector "singularization" split (tex :536/:551 to be reconciled);
+   the tex affinity wording (:497 "revert to layer indices" vs "a=W marks an
+   orphan") also needs one consistent statement.
 6. **Engagement semantics = relay** (agreed Sep 2026): the engaged orphan
    region and the pair half are both **reissued at the contact point**
    (manuscript.tex:794), reusing `reemitAtContact` and the existing
@@ -136,8 +147,8 @@ shells.  Boot macros optional; EM_FIRST_FSM off for the pure dressing test.
 Measure: do the bodies repel (d grows) through **dress exchange between the
 two fields** before any core contact?  Per-frame: R2 dress-pair affinity
 flips (a dress joins the other body), source kinds, d(t), CoM, enc_*
-counters, pair consumption/annihilation events (annihilation expected only
-if two D delegates overlap).
+counters, pair consumption/annihilation events (annihilation only when two
+representatives of different parents meet with opposite charge).
 
 Controls:
 (a) bodies without dresses -> merge baseline (d -> 0, identity contact);
@@ -171,7 +182,9 @@ To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
 - symmetric reverse bookkeeping (a pair may flip target);
 - island-charge comparison at the gate for the sign (equal -> repel, opposite
   -> attract); no dress-orientation dependence;
-- annihilation strictly on D x D core overlap (no distant annihilation).
+- annihilation branch (K or D indiscriminately, different parents, opposite
+  charges, any sector) with demotion to S and orphan affinity (`a = W`); no
+  distant annihilation;
 
 References: manuscript.tex:491, 616, 794-796, 1229, 1374, 1382;
 experiments/PBSB_ISLANDS.md (decision rule: EXCLUSION stays the stand-in
