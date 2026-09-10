@@ -483,3 +483,26 @@ the channel alive and the repulsion working, but kills any clean distance law.
 - Regression suite re-verified on variant A: default 6468/0/0; NEAR photon 3.00 /
 graviton 0.00 / bare 0.00; dressed equal 1.00 / opposite 0.00; control (b)
 `ORPHAN_NO_SHELL` recruit = 0 and min d = 0.00; `twod` annihilation 1368 vs 0.
+
+### Winning combination found: distance law AND repulsion (with a stacked mediator)
+
+Adding a STACKED mediator removes the B/C collapse: `photonp` plants the same R2
+pair with `pair_count = 8`, so a propagating photon is not consumed at the first
+turnaround.  Build `build_probe_keepprop.bat` =
+`ORPHAN_GUIDANCE_FSM + ORPHAN_RELAY_KEEPT + ORPHAN_MEDIATOR_PROPAGATES`.
+
+| configuration | NEAR min d (EL=9/11/13) | parked d=2/4/5 | slope |
+|---|---|---|---|
+| A (default, validated) | 1.00 / 3.00 / 4.00 | 484 / 354 / 272 | -0.45 / -1.18 |
+| B + stack (`photonp`) | 1.00 / 1.00 / 0.00 | **8438 / 3934 / 2505** | **-1.10 / -2.05** |
+
+- The stacked propagating mediator **recovers the repulsion** (NEAR photonp:
+  min d = 1.00 with 639 engagements vs 84 and min d = 0.00 for the consumed
+  pair) **and** keeps the monotone distance law (approaching 1/d^2 at larger d).
+- The two regimes trade strength: variant A holds the separation up to EL = 13
+  but has no clean law; B + stack gives the law and repels up to EL = 11.
+- Recommendation: use **B + stack** for the theory/distance-law work and keep
+  **A** as the validated default for the repulsion (quantization-hunt) runs,
+  until a single configuration achieves both at all scales (candidate: a
+  self-sustaining mediator that re-emits at the turnaround instead of a large
+  seed stack).

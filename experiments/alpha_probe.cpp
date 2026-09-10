@@ -357,7 +357,11 @@ int main(int argc, char** argv)
   // Control (d) of section 6: swapping the dress orientation must be a NULL
   // control, because the sign is read from the two islands, not the vehicle.
   const bool duoSwap   = (strcmp(duoKind, "photonswap") == 0);
-  const bool duoPhoton = (strcmp(duoKind, "photon") == 0) || duoSwap;
+  const bool duoPhoton = (strcmp(duoKind, "photon") == 0) || duoSwap ||
+                         (strcmp(duoKind, "photonp") == 0);
+  // "photonp": R2 pair planted as a STACK (pair_count = 8) so a propagating
+  // mediator is not consumed at the first turnaround.
+  const bool duoPhotoP = (strcmp(duoKind, "photonp") == 0);
   const bool duoGrav   = (strcmp(duoKind, "grav") == 0);
   // "bare": the two extra W layers are planted as two INDEPENDENT sources (no
   // pair link).  This is the W-matched control: it separates the effect of the
@@ -540,7 +544,8 @@ int main(int argc, char** argv)
                     duoSwap ? pA : pB);
         if (!duoBare)
         {
-          markFreePair(medW, medW + 1, !duoBroken, duoFreq0 ? 0 : 1);
+          markFreePair(medW, medW + 1, !duoBroken,
+                       duoPhotoP ? 8 : (duoFreq0 ? 0 : 1));
           automaton::replicate();
         }
       }
