@@ -284,6 +284,18 @@ namespace automaton
             continue;
         }
 
+#ifdef ORPHAN_GUIDANCE_FSM
+        // Experimental: the orphan field is the region AHEAD of the active
+        // wavefront, inside the spherical cavity.  It is concentric with the
+        // source and co-moving (applyMomentum translates the whole layer),
+        // and is renewed as the front breathes.
+        if (c.r > pulseR)
+        {
+            d.a = W_USED;
+            d.leader_w = NO_LEADER_W;
+        }
+#endif
+
         int u = c.u;
         int v = c.v;
         int r = c.r;
