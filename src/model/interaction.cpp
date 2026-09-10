@@ -36,6 +36,8 @@ namespace automaton
   // recruitment events.  Kept apart from the enc_* family so the campaign
   // logs stay comparable; always zero without the macro.
   long long recruit_events = 0;
+  long long recruit_repel  = 0;   // ... whose impulse repelled the two islands
+  long long recruit_attract = 0;  // ... whose impulse attracted the two islands
 
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
@@ -55,6 +57,12 @@ namespace automaton
     std::vector<unsigned char> contactSeen;
     std::vector<std::array<long long,3>> transportDebt;
     unsigned long long transportFrame = 0;
+#ifdef ORPHAN_GUIDANCE_FSM
+    // Island pairs already given their one-step recruit impulse in this tick
+    // (the shell coincidence is seen by many lattice cells; the impulse must
+    // land once per pair per tick).  Cleared by beginSourceTick().
+    std::vector<std::array<unsigned, 2>> recruitApplied;
+#endif
 
     inline const std::array<unsigned, 3>& sourceCenter(const Cell& c)
     {
@@ -248,6 +256,9 @@ namespace automaton
   void beginSourceTick()
   {
     sourceBefore.resize(W_USED);
+#ifdef ORPHAN_GUIDANCE_FSM
+    recruitApplied.clear();
+#endif
     if (transportDebt.size() != W_USED) transportDebt.assign(W_USED, {0,0,0});
     for (unsigned w = 0; w < W_USED; ++w) {
       const auto& p = lcenters[w];
@@ -505,6 +516,81 @@ namespace automaton
           ++recruit_events;
           // Relay: reissue the photon half at the contact point.
           reemitAtContact(sourceCenterDraft(*pho), *pho);
+
+          // ---------------------------------------------------------------
+          // Sign and the dual impulse (design section 4, rules 5-7).  The
+          // sign is decided by the TWO ISLANDS' charge words alone; the
+          // mediator is only the vehicle, so the orientation of its two
+          // halves cannot matter:
+          //   R1 graviton pair (fully complementary words, charge-neutral)
+          //       -> ALWAYS attractive;
+          //   R2 photon pair (same sector w1, complementary q/w0/color)
+          //       -> equal island charge repels, opposite charge attracts.
+          // The impulse is ONE antisymmetric face step per island pair per
+          // tick (centre of mass conserved), the same one-light-step
+          // granularity as the existing electroweak branches, applied
+          // through sourceAfter[] (the sanctioned remote-impulse channel).
+          // ---------------------------------------------------------------
+          const unsigned aw = isl->x[3];
+          const unsigned pw0 = pho->x[3];
+          // The pair link is authoritative in the source centre, not on the
+          // wavefront cell.
+          const unsigned pw1 = (sourceAfter[pw0].pair_idx < W_USED &&
+                                sourceAfter[pw0].pair_idx != pw0)
+                                 ? (unsigned)sourceAfter[pw0].pair_idx : W_USED;
+          const unsigned char aCh = sourceAfter[aw].ch;     // island A charge
+          const unsigned char q0  = sourceAfter[pw0].ch;    // mediator words
+          const unsigned char q1  = (pw1 < W_USED) ? sourceAfter[pw1].ch : 0x00;
+          const bool graviton = (pw1 < W_USED) &&
+                                (((q0 ^ q1) & 0x3Fu) == 0x3Fu);
+
+          // The other island: nearest source centre belonging to a different
+          // island (mediators excluded).
+          unsigned bw = W_USED;
+          unsigned char bCh = 0;
+          int bestD = -1;
+          for (unsigned w = 0; w < W_USED; ++w)
+          {
+            if (w == aw) continue;
+            const Cell& sc = sourceAfter[w];
+            if (sc.kind == SourceKind::P) continue;
+            const WIndex chief = islandChief(sc);
+            if (chief != NO_PARENT && chief == islandChief(sourceAfter[aw]))
+              continue;                       // same island
+            int d = 0;
+            for (int axis = 0; axis < 3; ++axis)
+            {
+              const int dd = delta(aw, w, axis);
+              d += dd * dd;
+            }
+            if (bestD < 0 || d < bestD) { bestD = d; bw = w; bCh = sc.ch; }
+          }
+
+          if (bw < W_USED)
+          {
+            const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
+            const std::array<unsigned, 2> key{ aw, bw };
+            if (std::find(recruitApplied.begin(), recruitApplied.end(), key) ==
+                recruitApplied.end())
+            {
+              recruitApplied.push_back(key);
+              int sep[3], best = 0, bestAbs = -1;
+              for (int axis = 0; axis < 3; ++axis)
+              {
+                const int d = delta(aw, bw, axis);
+                sep[axis] = d;
+                const int ad = d < 0 ? -d : d;
+                if (ad > bestAbs) { bestAbs = ad; best = axis; }
+              }
+              int axis, sgn;
+              if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
+              else { axis = (int)(((uint64_t)aw + bw) % 3u);
+                     sgn  = aw < bw ? -1 : 1; }
+              sourceAfter[aw].reloc[axis] += pushSign * sgn;
+              sourceAfter[bw].reloc[axis] -= pushSign * sgn;
+              if (pushSign > 0) ++recruit_repel; else ++recruit_attract;
+            }
+          }
         }
       }
     }

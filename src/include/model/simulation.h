@@ -276,6 +276,8 @@ struct NeighborResult
   extern long long enc_adiah;
   extern long long enc_repel;
   extern long long recruit_events;
+  extern long long recruit_repel;
+  extern long long recruit_attract;
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;

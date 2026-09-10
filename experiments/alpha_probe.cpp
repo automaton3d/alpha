@@ -215,8 +215,8 @@ int main(int argc, char** argv)
   double   budget = (argc > 5) ? atof(argv[5]) : 900.0;
   const bool canonical = (argc > 6) && (strcmp(argv[6], "canon") == 0);
   const bool repel = (argc > 7) && (strcmp(argv[7], "repel") == 0);
-  int  mag = (argc > 8) ? atoi(argv[8]) : 1;   // initial |momentum|
-  if (mag < 1) mag = 1;
+  int  mag = (argc > 8) ? atoi(argv[8]) : 1;   // initial |momentum| (0 = at rest)
+  if (mag < 0) mag = 1;
 
   // Experimental polarization bootstrap ("pol"); see the header comment.
   const bool pol = (argc > 9) && (strcmp(argv[9], "pol") == 0);
@@ -475,6 +475,9 @@ int main(int argc, char** argv)
         if (dy >  h) dy -= (int)EL_in; else if (dy < -h) dy += (int)EL_in;
         if (dz >  h) dz -= (int)EL_in; else if (dz < -h) dz += (int)EL_in;
         dsep = std::sqrt((double)(dx*dx + dy*dy + dz*dz));
+#ifdef ORPHAN_GUIDANCE_FSM
+        printf("[sep] frame=%u d=%.2f\n", frame, dsep);   // E1 observable
+#endif
         recs.push_back({ dsep, dCalls, dS2b, frameSum, nActive, nPB, nSB });
       }
 
@@ -506,6 +509,9 @@ int main(int argc, char** argv)
          (long long)automaton::conv_repel);
   printf("recruit_events=%lld (orphan-shell x free-photon; macro ORPHAN_GUIDANCE_FSM)\n",
          (long long)automaton::recruit_events);
+  printf("recruit_repel=%lld  recruit_attract=%lld\n",
+         (long long)automaton::recruit_repel,
+         (long long)automaton::recruit_attract);
 
   if (automaton::conv_calls > 0)
     printf("realized overlap throughput = %lld/%lld = 1/%.3f\n",
