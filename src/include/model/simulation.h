@@ -374,6 +374,23 @@ struct NeighborResult
           return cycle - phase;
   }
 
+#ifdef ORPHAN_GUIDANCE_FSM
+  // Experimental P1: the ORPHAN SHELL.  With the spherical cavity the orphan
+  // field is the thin concentric layer just AHEAD of the active wavefront
+  // (radius f + 1, inside the cavity), i.e. the part of the layer that has not
+  // yet been overlapped by the front.  It is DERIVED, not stored: no lattice
+  // write is needed, the predicate is local, and concentricity is automatic
+  // under translation (r is recomputed against the layer centre every tick, so
+  // the shell moves with it).  Keeping the shell one cell thick keeps the
+  // light-matter channel as rare as it is in nature.
+  inline bool isOrphanShell(const Cell& c)
+  {
+      return c.r2 > 0u && c.r2 != INF_R2 &&
+             c.r >= 0 && c.r == (int)c.f + 1 &&
+             c.r <= (int)RMAX;
+  }
+#endif
+
 
 /// Cross variables ///
 extern std::vector<Cell> lattice_curr;

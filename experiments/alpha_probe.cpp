@@ -367,6 +367,26 @@ int main(int argc, char** argv)
         }
       }
       if (nActive > 0) sumA += frameSum / (long double)nActive;
+#ifdef ORPHAN_GUIDANCE_FSM
+      // Experimental P1: the orphan shell is the thin band just AHEAD of each
+      // layer's active front (r == f + 1), derived rather than stored.  A
+      // concentric thin shell shows up as a compact r-band, not a volume.
+      {
+        unsigned long long nShell = 0;
+        unsigned long long perR[64] = {0};
+        for (size_t i = 0; i < automaton::BLOCK; ++i)
+        {
+          const automaton::Cell& c = automaton::lattice_curr[i];
+          if (!automaton::isOrphanShell(c)) continue;
+          ++nShell;
+          int rr = c.r; if (rr < 0) rr = 0; if (rr > 63) rr = 63;
+          ++perR[rr];
+        }
+        printf("[orphan] frame=%u shell=%llu active=%llu r:", frame, nShell, nActive);
+        for (int rr = 0; rr < 64; ++rr) if (perR[rr]) printf(" %d=%llu", rr, perR[rr]);
+        printf("\n");
+      }
+#endif
       totExpP   += frameSum;
       totActive += nActive;
       sumPB += nPB;

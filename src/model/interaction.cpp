@@ -83,15 +83,6 @@ namespace automaton
       return (v > 0) - (v < 0);
     }
 
-#ifdef ORPHAN_GUIDANCE_FSM
-    // Experimental: the reissue stage propagates only ATTACHED affinity, so
-    // the ghost field (a == W_USED, ahead of the active front) does not bleed
-    // inward.  Without the macro this is a constant-true no-op.
-    inline bool attachedAffinity(unsigned a) { return a != W_USED; }
-#else
-    inline bool attachedAffinity(unsigned) { return true; }
-#endif
-
     // Pair-formation test from the six superposing-bubble rules.
     bool canFormPair(const Cell& a, const Cell& b)
     {
@@ -1056,33 +1047,33 @@ namespace automaton
       // Propagate normal affinity outward, overwriting normal or orphan
       if (curr.active)
       {
-          if (north.r2 > curr.r2 && attachedAffinity(north.a))
+          if (north.r2 > curr.r2)
           {
               // Copy a from inner to outer cell
               draft.a = north.a;
               draft.leader_w = (north.a == W_USED ? NO_LEADER_W : (WIndex)north.a);
           }
-          if (south.r2 > curr.r2 && attachedAffinity(south.a))
+          if (south.r2 > curr.r2)
           {
               draft.a = south.a;
               draft.leader_w = (south.a == W_USED ? NO_LEADER_W : (WIndex)south.a);
           }
-          if (east.r2 > curr.r2 && attachedAffinity(east.a))
+          if (east.r2 > curr.r2)
           {
               draft.a = east.a;
               draft.leader_w = (east.a == W_USED ? NO_LEADER_W : (WIndex)east.a);
           }
-          if (west.r2 > curr.r2 && attachedAffinity(west.a))
+          if (west.r2 > curr.r2)
           {
               draft.a = west.a;
               draft.leader_w = (west.a == W_USED ? NO_LEADER_W : (WIndex)west.a);
           }
-          if (up.r2 > curr.r2 && attachedAffinity(up.a))
+          if (up.r2 > curr.r2)
           {
               draft.a = up.a;
               draft.leader_w = (up.a == W_USED ? NO_LEADER_W : (WIndex)up.a);
           }
-          if (down.r2 > curr.r2 && attachedAffinity(down.a))
+          if (down.r2 > curr.r2)
           {
               draft.a = down.a;
               draft.leader_w = (down.a == W_USED ? NO_LEADER_W : (WIndex)down.a);

@@ -53,13 +53,15 @@ with it being the always-attractive channel.
 
 ## 3. Mechanism (consolidated rules; not yet implemented)
 
-1. **Orphan field**: the region **ahead of the active wavefront**
-   (`r < R`, `r > f = effective_t(t)`), concentric with the source and
-   **co-moving** — the translation moves the active front and all its orphans
-   together, so at the destination address they remain concentric.  It
-   persists until the expanding front naturally overlaps it, and is renewed
-   as the front breathes.  (The older "fades through wrapping" phrasing is
-   superseded by the spherical cavity.)
+1. **Orphan field (thin shell)**: the thin concentric layer **just ahead of
+   the active wavefront** (`r == f + 1`, `f = effective_t(t)`, inside the
+   cavity), i.e. the part of the layer not yet **overlapped** by the front.
+   Concentric with the source and **co-moving** — the translation moves the
+   active front and its shell together, so at the destination address they
+   remain concentric — and renewed as the front breathes.  One cell thick, so
+   light-matter events stay as **rare** as they are in nature (a thin shell,
+   not a volume).  (The older "fades through wrapping" phrasing is superseded
+   by the spherical cavity.)
 2. **Engagement (relay)**: the gate is the **electromagnetic interaction**.
    The half of the free pair that **provokes attraction** (charge-complementary
    in the electric sense to the charge of the orphan region) engages first.
@@ -121,16 +123,22 @@ annihilate charges at a distance.
    momentum) only; the sign has **no** dependence on dress orientation
    (m/pB-sB) or on which relay arrives first.  Derived falsifiable control:
    swapping the dress orientations must leave the sign unchanged (section 6d).
-8. **Orphan field (F1 revised, agreed Sep 2026)**: with the spherical cavity
-   an orphan does not "fade through wrapping"; it is the region **ahead of
-   the active wavefront** (`r < R` and `r > f = effective_t(t)`), persisting
-   until the expanding front overlaps it, renewed as the front breathes.
-   **Translation moves everything** (active front + orphans) so the shells
-   stay concentric with the source at the destination address.
-   Implementation: mark `a = W` for cells ahead of the front using the
-   per-cell `f` that `phase_step` already writes for every cell; and let the
-   affinity reissue propagate **only attached (non-orphan) affinity**, so the
-   ghost does not bleed inward.
+8. **Orphan field (F1, agreed Sep 2026; P1 implemented)**: with the spherical
+   cavity an orphan does not "fade through wrapping": it is the thin
+   concentric layer **just ahead of the active wavefront** (`r == f + 1`,
+   inside the cavity), the part of the layer not yet overlapped by the front.
+   It persists until the front naturally overlaps it and is renewed as the
+   front breathes.  **Translation moves everything** (active front + shell)
+   so the shell stays concentric with the source at the destination address.
+   One cell thick: light-matter interactions must stay **rare**, so a volume
+   field is explicitly rejected.
+   Implementation: **derived, not stored** — `isOrphanShell(c)` (local, from
+   the per-cell `r` and `f` that `phase_step` already writes) with **no
+   lattice write** and no change to the affinity/reissue chain.  Rationale: a
+   stored `a = W` marker ahead of the front also shields the FSM's outward
+   affinity fill and leaves the whole not-yet-swept volume orphaned
+   (measured W ~ 49k of 50k cells); the derived predicate has **zero** side
+   effects and the census stays bit-identical to the reference.
 9. **Observable (E1, agreed Sep 2026)**: `d(t)` between the two island
    centres; the pre-contact window lasts while **no annihilation** occurs
    (rule 5); a new `recruit_events` counter records orphan-field x pair
@@ -187,9 +195,9 @@ CoM conservation (resolveInternalContacts / propeller); EM branches
 
 To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
 - orphan region (cells with `a == W_USED`, any kind S/D/K) as the recruiter;
-- orphan field = cells ahead of the active front (`a = W`, using the per-cell
-  `f` from `phase_step`); co-moving with translation; reissue propagates only
-  attached affinity so the ghost does not bleed inward (section 4, item 8);
+- orphan field = the thin shell just ahead of the active front
+  (`isOrphanShell`: `r == f + 1`, inside the cavity), derived and co-moving
+  with translation; **no** lattice write (section 4, item 8);
 - EM-gated engagement that selects the attracting half of the free pair;
 - directed re-emission/guidance of the engaged pair along the flux;
 - R2 dress-exchange bookkeeping between two dressed bodies;
@@ -207,4 +215,27 @@ until a dressing-mediated repulsion is demonstrated).  Note: the orphan
 "photons" wording in earlier text should be read as sectoral R2 photons for
 the charge-sign channel and R1 gravitons for the always-attractive channel
 (see sections 1 and 5).
+
+## 8. Status
+
+- **P1 done** (commit `4ed2ef3`, revised here): the orphan shell is the thin
+  derived band just ahead of the active front, `isOrphanShell()` in
+  `src/include/model/simulation.h`, macro `ORPHAN_GUIDANCE_FSM`.
+  - default build (no macro): reference run EL=7 SEP=4 200 frames is
+    **bit-identical** (`active-passes=6468  s2B-passes=0  pairs-formed=0`).
+  - macro build, canonical run EL=7 (W=147 layers), `alpha_probe_orphan.exe
+    7 4 3 16384 120 canon`: the shell is a single radius per frame moving with
+    the front — frame 1 `r=1` (3822 cells), frame 2 `r=2` (9702), frame 3
+    `r=3` (23226) — i.e. one cell thick and concentric (26/66/158 cells per
+    layer).
+  - the matter/antimatter/orphan census is **unchanged** by the macro
+    (`orphanM=0 orphanA=0`, as in the reference): the field is derived, so it
+    cannot perturb the FSM.
+- **Next**: P2 (relay + island-charge signal + kind-agnostic annihilation +
+  `recruit_events`), then P3 (dressed-duo probe with the controls a-d).
+
+Build scripts: `experiments/build_probe.bat` (default reference),
+`experiments/build_probe_boot.bat` (bootstrap + broadcast wave),
+`experiments/build_probe_em.bat` (`EM_FIRST_FSM`),
+`experiments/build_probe_orphan.bat` (`ORPHAN_GUIDANCE_FSM`).
 
