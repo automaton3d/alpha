@@ -671,6 +671,7 @@ namespace automaton
 #endif
 
 #ifdef ORPHAN_GUIDANCE_FSM
+#ifndef ORPHAN_NO_ANNIH
     // ==================================================================
     // Experimental P2 (annihilation; design section 4 rule 5, decision D):
     // two BODY representatives (K or D) of DIFFERENT islands that carry
@@ -698,7 +699,16 @@ namespace automaton
       const bool diffParents =
           (ca != NO_PARENT && cb != NO_PARENT) ? (ca != cb)
                                                : (curr.x[3] / 3u != partner.x[3] / 3u);
-      if (sameSite && body(currSrc) && body(partnerSrc) && diffParents &&
+      // DELEGATES only.  Root cause found (see the design note section 8):
+      // demoting a CHIEF (K) to S leaves its island's members pointing at a
+      // non-chief anchor, and the identity machinery then crashes a few frames
+      // later (measured: ann = 18 then segfault in the anchor x anchor probe;
+      // the D x D probe runs clean with ann = 354).  Restricting the branch to
+      // D x D is also what the manuscript states ("only D x D overlap");
+      // K-member annihilation needs island-dissolution semantics and stays open.
+      const bool delegates = currSrc.kind == SourceKind::D &&
+                             partnerSrc.kind == SourceKind::D;
+      if (sameSite && delegates && diffParents &&
           antimatter(currSrc.ch) != antimatter(partnerSrc.ch))
       {
         ++annihilations;
@@ -718,6 +728,7 @@ namespace automaton
         return false;
       }
     }
+#endif
 #endif
 
 #ifdef EM_FIRST_FSM

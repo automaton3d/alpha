@@ -136,6 +136,29 @@ static void probeImpulse(unsigned w, int axis, int delta)
 }
 
 // ---------------------------------------------------------------------------
+// markDelegate: turn a layer's source centre into a DELEGATE (D) of a chief
+// that lives in another layer, keeping the island anchor alive.  Used by the
+// "twod" scenario (D x D annihilation between two distinct islands).
+// ---------------------------------------------------------------------------
+static void markDelegate(unsigned w, unsigned chief, unsigned char ch)
+{
+  for (auto* lat : { &automaton::lattice_curr, &automaton::lattice_draft,
+                     &automaton::lattice_partner })
+  {
+    const auto& ctr = automaton::lcenters[w];
+    automaton::Cell& c = automaton::getCell(
+        *lat, (int)ctr[0], (int)ctr[1], (int)ctr[2], (int)w);
+    c.kind       = automaton::SourceKind::D;
+    c.parent     = chief;
+    c.leader_w   = (automaton::WIndex)chief;
+    c.a          = 3u * (w / 3u);          // family affinity of its island
+    c.pair_idx   = automaton::NO_PAIR;
+    c.pair_count = 0;
+    c.ch         = ch;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // markChief: turn a layer's source centre into its own island chief (K) with a
 // prescribed charge word.  Used by the "annih" scenario (two chiefs of
 // different islands overlapping at one site with opposite charges).
@@ -302,9 +325,14 @@ int main(int argc, char** argv)
   // the SAME site with opposite charges, so the rule-5 branch must demote both.
   const bool duoAnnih = (strcmp(duoKind, "annih") == 0);
   // "two": two bodies only, planted in DISTINCT families (w=0 and w=3 with
-  // W = 6) and no mediator - the cleanest reachable annihilation scenario under
-  // trigger (a): opposite charges in different islands that come into contact.
+  // W = 6) and no mediator - the reachable annihilation scenario under trigger
+  // (a) with the anchors themselves colliding.
   const bool duoTwo   = (strcmp(duoKind, "two") == 0);
+  // "twod": two ISLANDS whose DELEGATES (D) meet: chiefs planted at w=0/w=3
+  // (families 0/1) and delegates at w=1 (parent 0) and w=4 (parent 3); the
+  // driver closes the delegates.  This is the manuscript's D x D overlap and it
+  // keeps both island anchors alive through the annihilation.
+  const bool duoTwoD  = (strcmp(duoKind, "twod") == 0);
   // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
   // effect of the P bookkeeping from the effect of the actual pair link.
   const bool duoBroken = (strcmp(duoKind, "broken") == 0);
@@ -312,7 +340,7 @@ int main(int argc, char** argv)
   // the kind bookkeeping from the pair-count/frequency bookkeeping.
   const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
   const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0 ||
-                   duoDressed || duoAnnih || duoTwo;
+                   duoDressed || duoAnnih || duoTwo || duoTwoD;
   // Optional 13th argument: displace the planted mediator off the line of
   // centres (along z) so its CORE never contacts the bodies and only the
   // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
@@ -330,14 +358,15 @@ int main(int argc, char** argv)
   // families of three layers - W must stay a multiple of 3), bodies w=0
   // (island 0) and w=3 (island 1), mediator w=6/7 (island 2).
   const bool duoFar = (argc > 14) && (strcmp(argv[14], "far") == 0);
-  const unsigned bodyBw = (duoFar || duoDressed || duoTwo) ? 3u : 1u;  // 2nd body
+  const unsigned bodyBw = (duoFar || duoDressed || duoTwo || duoTwoD) ? 3u : 1u;
   const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in
                                   : (duoAnnih ? 2u
                                      : (duo ? (duoDressed ? 6u
-                                                         : ((duoFar || duoTwo) ? (duoTwo ? 6u : 9u)
-                                                                               : 4u))
+                                                         : ((duoFar || duoTwo || duoTwoD)
+                                                                ? (duoFar ? 9u : 6u)
+                                                                : 4u))
                                             : 2u));
 
   printf("=== alpha probe: %s ===\n",
@@ -413,6 +442,20 @@ int main(int argc, char** argv)
       automaton::replicate();
     }
 
+    if (duoTwoD)
+    {
+      // Two ISLANDS whose DELEGATES meet: chief A at w=0 (family 0) with its
+      // delegate at w=1, chief B at w=3 (family 1) with its delegate at w=4.
+      // The anchors stay alive through the annihilation (the D x D case).
+      placeSource(1, C - off, C, C, +mag, 0, 0, chA);
+      placeSource(4, C + off, C, C, -mag, 0, 0, chB);
+      markChief(0, chA);
+      markDelegate(1, 0, chA);
+      markChief(bodyBw, chB);
+      markDelegate(4, bodyBw, chB);
+      automaton::replicate();
+    }
+
     if (duo)
     {
       // Free mediator pair: both halves superposed at the midpoint with the
@@ -434,7 +477,7 @@ int main(int argc, char** argv)
         markFreePair(4, 5, true, 1, 3u);   // dress of body B
         automaton::replicate();
       }
-      else if (!duoTwo)
+      else if (!duoTwo && !duoTwoD)
       {
         placeSource(medW,     C, C, C + (unsigned)duoOff, 0, 0, 0,
                     duoSwap ? pB : pA);
@@ -533,24 +576,27 @@ int main(int argc, char** argv)
       ++frame;
 
 #ifdef ORPHAN_GUIDANCE_FSM
-      if (duoTwo)
+      if (duoTwo || duoTwoD)
       {
         // Close the gap one light-step per body per frame so the two distinct
         // islands actually contact (probe-level driver).  The first axis with a
-        // non-zero separation is used.
+        // non-zero separation is used.  For "twod" the DRIVER layers are the
+        // delegates (1 and 4), for "two" the anchors (0 and 3).
+        const unsigned drvA = duoTwoD ? 1u : 0u;
+        const unsigned drvB = duoTwoD ? 4u : bodyBw;
         int axis = -1;
         for (int k = 0; k < 3; ++k)
         {
-          const int d = (int)automaton::lcenters[bodyBw][k] -
-                        (int)automaton::lcenters[0][k];
+          const int d = (int)automaton::lcenters[drvB][k] -
+                        (int)automaton::lcenters[drvA][k];
           if (d != 0) { axis = k; break; }
         }
         if (axis >= 0)
         {
-          const int step = ((int)automaton::lcenters[bodyBw][axis] >
-                            (int)automaton::lcenters[0][axis]) ? +1 : -1;
-          probeImpulse(0, axis, step);
-          probeImpulse(bodyBw, axis, -step);
+          const int step = ((int)automaton::lcenters[drvB][axis] >
+                            (int)automaton::lcenters[drvA][axis]) ? +1 : -1;
+          probeImpulse(drvA, axis, step);
+          probeImpulse(drvB, axis, -step);
         }
       }
 #endif

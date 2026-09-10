@@ -306,6 +306,26 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   (tick ~1021), i.e. in the post-annihilation state (two demoted S sources
   sharing a site); this is the next investigation item and may share a root
   cause with the `dressed` crash below.
+  **ROOT CAUSE FOUND AND FIXED** (bisected with a new `ORPHAN_NO_ANNIH` build:
+  with the branch disabled the same scenario runs all 25 frames clean, so the
+  crash came from the annihilation state, not from the scenario):
+  demoting a CHIEF (K) to S leaves its island's MEMBERS pointing at an anchor
+  that is no longer a chief, and the identity machinery then walks a dangling
+  reference and crashes a few frames later.  Demoting DELEGATES (D) is safe.
+  The branch is therefore restricted to **D x D** (which is also what the
+  manuscript states: annihilation happens on a D x D overlap).  New probe
+  scenario `twod`: two islands, chiefs at w=0/w=3 (anchors, never annihilated)
+  and delegates at w=1 (parent 0) and w=4 (parent 3), driven together by the
+  probe driver.  Measured (EL=11, 25 frames):
+  - opposite charges: **exit 0, ann = 1368** events (the delegates annihilate,
+    re-form and annihilate again, the anchors surviving throughout);
+  - equal charges:    exit 0, ann = 0 (clean control);
+  - the anchor x anchor scenario `two` now runs clean with ann = 0 (chiefs are
+    no longer demoted), and the default build is unchanged (6468/0/0).
+  Open (design): K-member annihilation (any representative) needs
+  island-dissolution semantics - demote or re-anchor the surviving members -
+  before a chief can be annihilated safely.
+
 
 - **OPEN BUG in the `dressed` layout** (bound R2 dresses, W = 6): it segfaults
   with the macro (equal and complementary body charges alike) while the default
