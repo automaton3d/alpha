@@ -679,7 +679,7 @@ int main(int argc, char** argv)
         if (dy >  h) dy -= (int)EL_in; else if (dy < -h) dy += (int)EL_in;
         if (dz >  h) dz -= (int)EL_in; else if (dz < -h) dz += (int)EL_in;
         dsep = std::sqrt((double)(dx*dx + dy*dy + dz*dz));
-#ifdef ORPHAN_GUIDANCE_FSM
+#if defined(ORPHAN_GUIDANCE_FSM) || defined(ORPHAN_PRINT_ONLY)
         printf("[sep] frame=%u d=%.2f\n", frame, dsep);   // E1 observable
         // Source-state diagnostic for the dressed-duo probe: reveals whether
         // the planted mediator binds to a body (a/leader_w) and whether its

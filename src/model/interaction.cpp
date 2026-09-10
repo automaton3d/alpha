@@ -458,8 +458,11 @@ namespace automaton
           if (ad > bestAbs) { bestAbs = ad; best = axis; }
         }
         int axis, sgn;
-        if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
-        else continue;      // coincident centres: no defined push direction
+        if (bestAbs > 1) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
+        else continue;      // coincident or ADJACENT centres: pushing an
+                            // adjacent pair drives the attract case straight
+                            // into overlap (and is redundant for repel), which
+                            // corrupted the identity path in the dressed layout.
         sourceAfter[a].reloc[axis] += sign * sgn;
         sourceAfter[b].reloc[axis] -= sign * sgn;
         if (sign > 0) ++recruit_repel; else ++recruit_attract;
@@ -555,6 +558,10 @@ namespace automaton
       else if (partnerSrc.kind != SourceKind::P && mediator(currSrc))
       { isl = &partner; pho = &curr; }
 
+      // Defensive: every sourceAfter[] index below must be a real layer.
+      if (isl && pho && (isl->x[3] >= W_USED || pho->x[3] >= W_USED))
+      { isl = nullptr; pho = nullptr; }
+
       if (isl && pho && isl->x[3] != pho->x[3])
       {
         const WIndex eChief = islandChief(sourceAfter[isl->x[3]]);
@@ -569,25 +576,46 @@ namespace automaton
         static const int off[6][3] = { {1,0,0}, {-1,0,0}, {0,1,0},
                                        {0,-1,0}, {0,0,1}, {0,0,-1} };
         const int cx = (int)isl->x[0], cy = (int)isl->x[1], cz = (int)isl->x[2];
+        // getCell() neither wraps nor bounds-checks, so the periodic wrap must
+        // be applied here: a contact site on a lattice face would otherwise
+        // read out of the lattice and segfault (root cause of the `dressed`
+        // crash - a read-only gate build reproduced it).
+        auto wrapC = [](int v, int m) { v %= m; return v < 0 ? v + m : v; };
         bool onShell = false;
         for (const auto& o : off)
         {
-          const Cell& nb = getCell(lattice_curr, cx + o[0], cy + o[1],
-                                   cz + o[2], (int)isl->x[3]);
+          const Cell& nb = getCell(lattice_curr,
+                                   wrapC(cx + o[0], (int)ELX),
+                                   wrapC(cy + o[1], (int)ELY),
+                                   wrapC(cz + o[2], (int)ELZ),
+                                   (int)isl->x[3]);
           if (isOrphanShell(nb)) { onShell = true; break; }
         }
         if (onShell)
         {
           ++recruit_events;
-          // Relay only for a FREE mediator AT REST: a bound dress is already
-          // co-located with its body, and a driving pair (m != 0) must not have
-          // its two halves' clocks desynchronised.
+          // Relay only for a WHOLLY free mediator pair at rest (a photon in the
+          // vacuum): reissuing one half of a pair whose other half is bound or
+          // driving (m != 0) desynchronises the two clocks and corrupts the
+          // drive bookkeeping downstream.
           {
             const Cell& medSrc = sourceAfter[pho->x[3]];
-            const bool medFree = (medSrc.leader_w == NO_LEADER_W) &&
-                                 medSrc.m[0] == 0 && medSrc.m[1] == 0 &&
-                                 medSrc.m[2] == 0;
+            const unsigned mw0 = pho->x[3];
+            const unsigned mw1 = (medSrc.pair_idx < W_USED &&
+                                  medSrc.pair_idx != mw0)
+                                     ? (unsigned)medSrc.pair_idx : W_USED;
+            auto freeAtRest = [](const Cell& c)
+            {
+              return c.leader_w == NO_LEADER_W &&
+                     c.m[0] == 0 && c.m[1] == 0 && c.m[2] == 0;
+            };
+            const bool medFree = freeAtRest(medSrc) &&
+                                 (mw1 >= W_USED || freeAtRest(sourceAfter[mw1]));
+#ifndef ORPHAN_NO_RELAY
             if (medFree) reemitAtContact(sourceCenterDraft(*pho), *pho);
+#else
+            (void)medFree;
+#endif
           }
 
           // ---------------------------------------------------------------

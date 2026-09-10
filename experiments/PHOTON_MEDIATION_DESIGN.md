@@ -327,15 +327,28 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   before a chief can be annihilated safely.
 
 
-- **OPEN BUG in the `dressed` layout** (bound R2 dresses, W = 6): it segfaults
-  with the macro (equal and complementary body charges alike) while the default
-  build runs the same layout clean.  Bisection: `ORPHAN_GATE_ONLY` (no record,
-  no push) still crashes for ch = -1, `ORPHAN_NO_PUSH_APPLY` (record but never
-  move) is clean for ch = 8, and the probe's `[src]` dump is now off by default
-  (`ORPHAN_DUMP_SRC`).  So for ch = 8 the push is implicated and for ch = -1
-  something else in the dressed flow is (possibly a latent fragility of the
-  bound-dress + identity machinery that the macro's timing exposes).  Builds
-  for the investigation: build_probe_gateonly.bat, build_probe_noapply.bat.
+- **OPEN BUG in the `dressed` layout - RESOLVED (root cause found)**: the crash
+  was NOT in the physics.  `getCell()` neither wraps nor bounds-checks its
+  coordinates (`((x*ELY + y)*ELZ + z)*W_USED + w` on size_t), and the gate's
+  six-neighbour orphan-shell test used raw `cx +/- 1`: whenever the contact site
+  sat on a lattice FACE, `x = -1` became a huge size_t and the read went out of
+  the lattice -> segfault.  That is why the crash needed the macro, survived a
+  read-only gate build (zero mutations - a pure OOB read), and was layout
+  dependent (the NEAR geometry never touches a face; the driven `dressed`
+  geometry does).  Fix: periodic wrap applied in the gate before `getCell`
+  (`v %= m; v < 0 ? v + m : v`) plus a defensive `x[3] < W_USED` guard.
+  With the fix the section-6 primary setup runs clean (EL=11, 20 frames):
+  - equal charges (0x08 both):   exit 0, recruit = 3746, d(t) = 4, 4, 5, 5, 5, 3
+    (the two dressed bodies are HELD APART - the channel works with bound
+    dresses, no merge);
+  - opposite charges (0x00/0x3F): exit 0, recruit = 9656, d(t) = 4, 4, 0, 0, 0
+    (they merge - attraction, the design's sign).
+  The bisection builds used (all under ORPHAN_GUIDANCE_FSM unless noted):
+  build_probe_gateonly.bat (ORPHAN_GATE_ONLY), build_probe_noapply.bat
+  (ORPHAN_NO_PUSH_APPLY), build_probe_noannih.bat (ORPHAN_NO_ANNIH),
+  build_probe_norelay.bat (ORPHAN_NO_RELAY), build_probe_printonly.bat
+  (ORPHAN_PRINT_ONLY - default model, probe prints only).
+
 
 
 
