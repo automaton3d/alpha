@@ -457,3 +457,29 @@ the mediator's clock (reissue without `t=0`, or relay only the orphan side).
 Until then the "photon in the vacuum" is a stationary marker and the observed
 rate is set by the ISLAND fronts sweeping it - hence the irregular exponent.
 The default build is unaffected (`ORPHAN_*` macros only).
+
+### Relay semantics A/B/C (the tension found)
+
+Three relay variants were measured (all macro-guarded; the parked probe gives the
+distance law, the NEAR configuration gives the repulsion):
+
+| variant | relay action | NEAR photon min d | parked d=2/4/5 | local log-log slope |
+|---|---|---|---|---|
+| A (default, validated) | `reemitAtContact` (move + t=0) | **3.00 (repels)** | 484 / 354 / 272 | -0.45 / -1.18 |
+| B | `reseatAtContact` (move, keep t) | 0.00 (merges) | 8438 / 3934 / 2505 | -1.10 / -2.05 |
+| C | no-op (nothing) | 0.00 (merges) | 10576 / 6394 / 5544 | -0.36 / -0.76 |
+
+- Variants B and C **give a monotone distance law** (approaching 1/d^2 at larger
+d for B) but **lose the repulsion**: once the mediator propagates,
+`applyMomentum` CONSUMES the pair at `t == RMAX` (`pair_count--`, and at zero the
+two halves are released as singletons), so the channel dies after one cycle.
+- Variant A (the validated base) keeps the mediator's clock pinned, which keeps
+the channel alive and the repulsion working, but kills any clean distance law.
+- **To get both**, the mediator must not be consumed: give the free pair a stack
+  (`pair_count > 1`) or re-emit it at the turnaround (the manuscript's "pairs
+  are consumed at maximum radius" mechanism, but with re-emission).  That is the
+  next implementation step; until then variant A stays the default and B/C are
+  opt-in (`ORPHAN_RELAY_KEEPT`, `ORPHAN_RELAY_NOOP`, `ORPHAN_MEDIATOR_PROPAGATES`).
+- Regression suite re-verified on variant A: default 6468/0/0; NEAR photon 3.00 /
+graviton 0.00 / bare 0.00; dressed equal 1.00 / opposite 0.00; control (b)
+`ORPHAN_NO_SHELL` recruit = 0 and min d = 0.00; `twod` annihilation 1368 vs 0.

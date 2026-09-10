@@ -218,6 +218,21 @@ namespace automaton
       reemitSourceAt(srcDraft, dx, dy, dz);
     }
 
+    // Displace a source centre to the contact point WITHOUT resetting its clock.
+    // Used by the recruit relay: resetting t there re-pins the free mediator to
+    // phase 0 on every engagement, which stops the photon from propagating (see
+    // the parked-probe analysis in the design note).
+    void reseatAtContact(Cell& srcDraft, const Cell& contact)
+    {
+      const int dx = shortestDelta((int)srcDraft.x[0], (int)contact.x[0], (int)ELX);
+      const int dy = shortestDelta((int)srcDraft.x[1], (int)contact.x[1], (int)ELY);
+      const int dz = shortestDelta((int)srcDraft.x[2], (int)contact.x[2], (int)ELZ);
+      srcDraft.reloc[0] += dx;
+      srcDraft.reloc[1] += dy;
+      srcDraft.reloc[2] += dz;
+      chargesMarkInteraction((unsigned)srcDraft.x[3]);
+    }
+
     // Convenience: make a cell adopt a leader identity.
     inline void adoptLeader(Cell& dst, WIndex leader)
     {
@@ -456,11 +471,12 @@ namespace automaton
       if (s.t != sourceBefore[w].t) { dst.t = s.t; dst.f = s.f; }
       else if (body(s) || isBoundPropeller(s)
 #ifdef ORPHAN_MEDIATOR_PROPAGATES
-               // Experimental: let a FREE pair (the mediator in the vacuum)
-               // advance its clock too, so the photon actually propagates and
-               // expands instead of sitting frozen at r = 0 (see design note
-               // section 9: the frozen mediator is why the engagement rate
-               // showed no geometric distance law).
+               // Opt-in (distance-law study): let a FREE pair advance its clock
+               // so the photon propagates.  WARNING: applyMomentum then CONSUMES
+               // the pair at t == RMAX (pair_count--, released as singletons),
+               // so the mediator disappears after one cycle and the mediated
+               // repulsion is lost - use a large pair_count or re-emission
+               // before enabling this.  See design note section 9.
                || (s.kind == SourceKind::P && s.a == W_USED)
 #endif
               ) {
@@ -567,9 +583,9 @@ namespace automaton
         {
           ++recruit_events;
           // Relay only for a WHOLLY free mediator pair at rest (a photon in the
-          // vacuum): reissuing one half of a pair whose other half is bound or
-          // driving (m != 0) desynchronises the two clocks and corrupts the
-          // drive bookkeeping downstream.
+          // vacuum): the pair is seated at the contact point WITHOUT resetting
+          // its clock, so it keeps propagating (resetting t would re-pin the
+          // photon to phase 0 on every engagement).
           {
             const Cell& medSrc = sourceAfter[pho->x[3]];
             const unsigned mw0 = pho->x[3];
@@ -584,7 +600,21 @@ namespace automaton
             const bool medFree = freeAtRest(medSrc) &&
                                  (mw1 >= W_USED || freeAtRest(sourceAfter[mw1]));
 #ifndef ORPHAN_NO_RELAY
+#if defined(ORPHAN_RELAY_KEEPT)
+            // Variant B (opt-in): seat the mediator at the contact point but
+            // KEEP its clock, so it keeps propagating.  Gives a monotone
+            // distance law but loses the repulsion (the pair is consumed).
+            if (medFree) reseatAtContact(sourceCenterDraft(*pho), *pho);
+#elif defined(ORPHAN_RELAY_NOOP)
+            // Variant C (opt-in): the relay does not touch the mediator at all.
+            if (medFree) chargesMarkInteraction((unsigned)pho->x[3]);
+#else
+            // Default (validated): reissue the pair half at the contact point,
+            // which also resets its clock - this pins the photon's phase and is
+            // what keeps the mediated repulsion alive (the pair is never
+            // consumed).
             if (medFree) reemitAtContact(sourceCenterDraft(*pho), *pho);
+#endif
 #else
             (void)medFree;
 #endif
