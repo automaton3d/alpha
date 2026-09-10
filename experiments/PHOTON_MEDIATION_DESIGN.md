@@ -231,38 +231,50 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   - the matter/antimatter/orphan census is **unchanged** by the macro
     (`orphanM=0 orphanA=0`, as in the reference): the field is derived, so it
     cannot perturb the FSM.
-- **P2/P3 measured** (macro `ORPHAN_GUIDANCE_FSM`, probe modes `none|bare|
-  broken|freq0|photon|photonswap|grav` [+ optional z-offset]): the free
-  mediator pair is planted directly as P sources (`markFreePair`, since the
-  validated sieve never forms pairs: `s2B = 0`, `pairs-formed = 0`), W = 4.
-  Bodies 0x08 (equal charge), EL=11 SEP=4 (d = 4, NON-degenerate: a separation
-  of EL/2 is antipodal and makes "away" ill-defined - EL=7 SEP=4 sat exactly
-  there and inverted the observed sign):
+- **P2/P3 RESULT (macro `ORPHAN_GUIDANCE_FSM`, EL=11 SEP=4, bodies 0x08 equal
+  charge, impulse applied through the production helpers `moveOneStepAway` /
+  `moveOneStep` so the centre of mass is conserved and the reemission ledger is
+  used)**:
 
-  | mode | recruit | repel | attract | d(t) |
-  |---|---|---|---|---|
-  | bare (W-matched, no pair link) | 0 | 0 | 0 | 4, 4, 2, 0 (merge) |
-  | R2 photon (equal charge) | 148 | 4 | 0 | 4, **3, 2**, 0 (delayed) |
-  | R2 photon, halves swapped | 148 | 4 | 0 | 4, 3, 2, 0 (NULL control) |
-  | R1 graviton | 52 | 0 | 3 | 4, **0**, 0 (fastest merge) |
+  | mode | recruit | signals | d(t) |
+  |---|---|---|---|
+  | bare (W-matched, no mediator link) | 0 | - | 4, 4, 2, 0 (merge) |
+  | R2 photon (equal charge -> repel) | 354 | **repel = 22** | **4, 3, 4, 3, 4, 3 (NO merge)** |
+  | R1 graviton (always attractive) | 482 | attract = 4 | 4, 0, 0 (immediate merge) |
 
-  Sign rule confirmed: R2 takes the sign from the two islands (equal -> repel,
-  opposite -> attract), R1 is always attractive, and swapping the two halves
-  of the dress changes nothing observable (control (d)).  Controls (a)
-  (no mediator) and (c) (graviton only) are the first and last rows.
-- **Piecewise evidence, `broken` / `freq0`**: `kind = P` alone (even with
-  `pair_idx = NO_PAIR` or `pair_count = 0`) already reproduces the fast-merge
-  background, while two plain S sources at the same site (mode `bare`) do not.
-  So the mediator currently carries a channel-INDEPENDENT body coupling through
-  the P bookkeeping; it is the reason d(t) still merges even in the repel case.
-  Isolating the channel (making a free mediator a pure field carrier: relay,
-  not drive) is the open P2 step.
-- **Next**: (1) free mediator = pure field carrier under the macro (exclude
-  free `kind == P` sources from the body coupling); (2) control (b) of
-  section 6 (dresses but no orphan flux / no reissues); (3) the annihilation
-  branch (different parents, opposite charges, same site -> both demoted to S)
-  with its own counter; (4) then re-run the quantization hunt with the
-  separated copies.
+  This is the E1 observable the quantization hunt needs: the R2 (orphan/EM)
+  channel **holds two equal-charge islands apart** while the R1 channel always
+  attracts and the bare control merges.  Controls (a) bare, (c) graviton-only
+  and (d) swapped-halves (null) all pass.
+- **Implementation note**: writing raw `reloc` into a source whose kind is not
+  an island (a mediator / unaffiliated layer) drove the downstream
+  identity/charges machinery out of bounds and segfaulted (bisected with the
+  `ORPHAN_GATE_ONLY` build: gate-only runs clean).  Using `moveOneStepAway` /
+  `moveOneStep` on the two ISLAND centres fixes it (no crash in any mode) - the
+  same guarded helpers the electroweak branches use.
+- **Known gap in the `far` layout** (bodies in distinct islands, W = 9, the
+  `far` argument): the "other island" search picks one of the unplaced layers
+  left at the lattice centre by `initSimulation`, so the sign comparison uses
+  the wrong charge word (photon and graviton both attract).  The next probe
+  layout must place EVERY layer of the two island families (the design's
+  dressed two-body: W = 6, family A = w0/w1/w2 at one site, family B = w3/w4/w5
+  at the other, each body dressed with its own R2 pair).
+
+- **What still merges the bodies**: the two planted bodies start unaffiliated
+  (a == W_USED) and the identity machinery elects a chief between them
+  (`[src]` shows w=0 becoming K and w=1 becoming D with the same leader), so
+  the island cohesion pulls them together - this is the pre-existing `none`
+  background, not a mediator effect.  The quantization payoff therefore needs
+  the two bodies in DISTINCT islands from the start (separate charge families,
+  e.g. w=0 and w=3 with W >= 6), where the mediated channel is the only
+  coupling left.
+
+- **Next**: (1) plant the two bodies in DISTINCT islands (separate families,
+  w=0 and w=3 with W >= 6) so the identity merge is out of the way and the
+  mediated channel is the only coupling; (2) control (b) of section 6 (dresses
+  but no orphan flux / no reissues); (3) the annihilation branch (different
+  parents, opposite charges, same site -> both demoted to S) with its own
+  counter; (4) then re-run the quantization hunt with the separated copies.
 
 
 Build scripts: `experiments/build_probe.bat` (default reference),

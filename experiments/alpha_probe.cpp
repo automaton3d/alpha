@@ -267,7 +267,18 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  const unsigned W_in = canonical ? 3u * EL_in * EL_in : (duo ? 4u : 2u);
+  // Optional 14th argument "far": put the two bodies in DISTINCT islands
+  // (charge families) with the mediator in a third one, so the identity merge
+  // (chief election between two unaffiliated bodies) is out of the way and the
+  // mediated channel is the only coupling left.  Layout: W = 9 (three complete
+  // families of three layers - W must stay a multiple of 3), bodies w=0
+  // (island 0) and w=3 (island 1), mediator w=6/7 (island 2).
+  const bool duoFar = (argc > 14) && (strcmp(argv[14], "far") == 0);
+  const unsigned bodyBw = duoFar ? 3u : 1u;   // layer of the second body
+  const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
+
+  const unsigned W_in = canonical ? 3u * EL_in * EL_in
+                                  : (duo ? (duoFar ? 9u : 4u) : 2u);
 
   printf("=== alpha probe: %s ===\n",
          canonical ? "canonical (Platonic seed) configuration"
@@ -317,8 +328,8 @@ int main(int argc, char** argv)
       chB = repel ? 0x00 : 0x3F;                    // repel / complementary
     }
 
-    placeSource(0, C - off, C, C,  +mag, 0, 0, chA);  // left, moving right
-    placeSource(1, C + off, C, C,  -mag, 0, 0, chB);  // right, moving left
+    placeSource(0, C - off, C, C,  +mag, 0, 0, chA);        // left, moving right
+    placeSource(bodyBw, C + off, C, C,  -mag, 0, 0, chB);   // right, moving left
 
     if (duo)
     {
@@ -328,11 +339,13 @@ int main(int argc, char** argv)
       // (fully complementary: Rule 1).
       const unsigned char pA = 0x00;
       const unsigned char pB = duoPhoton ? 0x1F : 0x3F;
-      placeSource(2, C, C, C + (unsigned)duoOff, 0, 0, 0, duoSwap ? pB : pA);
-      placeSource(3, C, C, C + (unsigned)duoOff, 0, 0, 0, duoSwap ? pA : pB);
+      placeSource(medW,     C, C, C + (unsigned)duoOff, 0, 0, 0,
+                  duoSwap ? pB : pA);
+      placeSource(medW + 1, C, C, C + (unsigned)duoOff, 0, 0, 0,
+                  duoSwap ? pA : pB);
       if (!duoBare)
       {
-        markFreePair(2, 3, !duoBroken, duoFreq0 ? 0 : 1);   // free pair
+        markFreePair(medW, medW + 1, !duoBroken, duoFreq0 ? 0 : 1);
         automaton::replicate();
       }
     }
@@ -490,7 +503,7 @@ int main(int argc, char** argv)
       if (!canonical)
       {
         const auto& p0 = automaton::lcenters[0];
-        const auto& p1 = automaton::lcenters[1];
+        const auto& p1 = automaton::lcenters[bodyBw];
         int dx = (int)p1[0] - (int)p0[0];
         int dy = (int)p1[1] - (int)p0[1];
         int dz = (int)p1[2] - (int)p0[2];
@@ -501,6 +514,25 @@ int main(int argc, char** argv)
         dsep = std::sqrt((double)(dx*dx + dy*dy + dz*dz));
 #ifdef ORPHAN_GUIDANCE_FSM
         printf("[sep] frame=%u d=%.2f\n", frame, dsep);   // E1 observable
+        // Source-state diagnostic for the dressed-duo probe: reveals whether
+        // the planted mediator binds to a body (a/leader_w) and whether its
+        // clock advances.
+        if (duo)
+        {
+          for (unsigned w = 0; w < automaton::W_USED; ++w)
+          {
+            const auto& ctr = automaton::lcenters[w];
+            const automaton::Cell& sc = automaton::getCell(
+                automaton::lattice_curr, (int)ctr[0], (int)ctr[1],
+                (int)ctr[2], (int)w);
+            printf("[src] f=%u w=%u kind=%d a=%u lead=%u pair=%u pc=%u t=%u "
+                   "f=%u m=%d,%d,%d reloc=%d,%d,%d ch=0x%02X\n",
+                   frame, w, (int)sc.kind, sc.a, (unsigned)sc.leader_w,
+                   (unsigned)sc.pair_idx, (unsigned)sc.pair_count,
+                   sc.t, sc.f, sc.m[0], sc.m[1], sc.m[2],
+                   sc.reloc[0], sc.reloc[1], sc.reloc[2], (unsigned)sc.ch);
+          }
+        }
 #endif
         recs.push_back({ dsep, dCalls, dS2b, frameSum, nActive, nPB, nSB });
       }

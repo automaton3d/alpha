@@ -531,6 +531,7 @@ namespace automaton
           // granularity as the existing electroweak branches, applied
           // through sourceAfter[] (the sanctioned remote-impulse channel).
           // ---------------------------------------------------------------
+#ifndef ORPHAN_GATE_ONLY
           const unsigned aw = isl->x[3];
           const unsigned pw0 = pho->x[3];
           // The pair link is authoritative in the source centre, not on the
@@ -568,29 +569,33 @@ namespace automaton
 
           if (bw < W_USED)
           {
-            const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
+            // The impulse acts on ISLANDS (any non-mediator source): a lone
+            // source is an island of one until the chief election groups it.
+            const bool islands = sourceAfter[aw].kind != SourceKind::P &&
+                                 sourceAfter[bw].kind != SourceKind::P;
             const std::array<unsigned, 2> key{ aw, bw };
-            if (std::find(recruitApplied.begin(), recruitApplied.end(), key) ==
+            if (islands &&
+                std::find(recruitApplied.begin(), recruitApplied.end(), key) ==
                 recruitApplied.end())
             {
               recruitApplied.push_back(key);
-              int sep[3], best = 0, bestAbs = -1;
-              for (int axis = 0; axis < 3; ++axis)
+              const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
+              const auto& cA = lcenters[aw];
+              const auto& cB = lcenters[bw];
+              if (pushSign > 0)          // equal charges -> repel one step
               {
-                const int d = delta(aw, bw, axis);
-                sep[axis] = d;
-                const int ad = d < 0 ? -d : d;
-                if (ad > bestAbs) { bestAbs = ad; best = axis; }
+                moveOneStepAway(sourceAfter[aw], cA, cB);
+                moveOneStepAway(sourceAfter[bw], cB, cA);
               }
-              int axis, sgn;
-              if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
-              else { axis = (int)(((uint64_t)aw + bw) % 3u);
-                     sgn  = aw < bw ? -1 : 1; }
-              sourceAfter[aw].reloc[axis] += pushSign * sgn;
-              sourceAfter[bw].reloc[axis] -= pushSign * sgn;
+              else                       // opposite charges / graviton -> attract
+              {
+                moveOneStep(sourceAfter[aw], cA, cB);
+                moveOneStep(sourceAfter[bw], cB, cA);
+              }
               if (pushSign > 0) ++recruit_repel; else ++recruit_attract;
             }
           }
+#endif
         }
       }
     }
