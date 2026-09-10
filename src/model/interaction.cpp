@@ -38,6 +38,7 @@ namespace automaton
   long long recruit_events = 0;
   long long recruit_repel  = 0;   // ... whose impulse repelled the two islands
   long long recruit_attract = 0;  // ... whose impulse attracted the two islands
+  long long annihilations  = 0;   // representative pairs annihilated (rule 5)
 
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
@@ -665,6 +666,51 @@ namespace automaton
           }
 #endif
         }
+      }
+    }
+#endif
+
+#ifdef ORPHAN_GUIDANCE_FSM
+    // ==================================================================
+    // Experimental P2 (annihilation; design section 4 rule 5, decision D):
+    // two BODY representatives (K or D) of DIFFERENT islands that carry
+    // OPPOSITE charges and overlap at the SAME site annihilate: both are
+    // demoted to S and reissued at the contact point with the orphan affinity
+    // (a = W).  Distinct parents only, so a member never annihilates its own
+    // island, and there is no distant annihilation - the overlap must be here.
+    // ==================================================================
+    {
+      auto antimatter = [](unsigned char ch)
+      {
+        const unsigned color = ch & 0x07u;
+        const unsigned ones = (color & 1u) + ((color >> 1) & 1u) +
+                              ((color >> 2) & 1u);
+        return ones >= 2u;      // same convention as the charges census
+      };
+      const bool sameSite = (curr.x[0] == partner.x[0] &&
+                             curr.x[1] == partner.x[1] &&
+                             curr.x[2] == partner.x[2]);
+      const WIndex ca = islandChief(currSrc);
+      const WIndex cb = islandChief(partnerSrc);
+      if (sameSite && body(currSrc) && body(partnerSrc) &&
+          ca != NO_PARENT && cb != NO_PARENT && ca != cb &&
+          antimatter(currSrc.ch) != antimatter(partnerSrc.ch))
+      {
+        ++annihilations;
+        chargesMarkAnnihilation();
+        for (Cell* d : { &currDraft, &partnerDraft })
+        {
+          d->kind        = SourceKind::S;
+          d->parent      = NO_PARENT;
+          d->leader_w    = NO_LEADER_W;
+          d->a           = W_USED;
+          d->pair_idx    = NO_PAIR;
+          d->pair_count  = 0;
+          d->spin_target = 0;
+        }
+        reemitAtContact(currDraft, curr);
+        reemitAtContact(partnerDraft, partner);
+        return false;
       }
     }
 #endif

@@ -53,6 +53,7 @@ namespace automaton
     uint64_t turnDirty  = 0;
     uint64_t pairFormations = 0;   // cumulative registered P formations (idea B)
     uint64_t blobFormations  = 0;   // cumulative blob groups (manuscript "Blob")
+    uint64_t annihilationEvents = 0;// cumulative representative annihilations (rule 5)
     // Attractor sector-flux scaffolding (referenced by chargesReset):
     // per-sector foreign-affinity account + per-layer attachment markers.
     uint64_t foreignAff[2] = {0, 0};
@@ -101,6 +102,11 @@ namespace automaton
   void chargesMarkPair()
   {
     ++pairFormations;
+  }
+
+  void chargesMarkAnnihilation()
+  {
+    ++annihilationEvents;
   }
 
   void chargesMarkBlob()
@@ -265,13 +271,14 @@ namespace automaton
     const long long freeA    = (long long)totAnti - (long long)pairA_all;
     const long long freeD    = freeM - freeA;               // == dTotal - dPair
     const bool retinaOk = (freeD == (dTotal - dPair));
-    printf("[charges] retina tick=%u pairM=%llu pairA=%llu dPair=%+lld freeM=%llu freeA=%llu freeD=%+lld | hidAnti orb=%llu umb=%llu form=%llu blob=%llu | Dtot==dPair+freeD: %s\n",
+    printf("[charges] retina tick=%u pairM=%llu pairA=%llu dPair=%+lld freeM=%llu freeA=%llu freeD=%+lld | hidAnti orb=%llu umb=%llu form=%llu blob=%llu ann=%llu | Dtot==dPair+freeD: %s\n",
            tick,
            (unsigned long long)pairM_all, (unsigned long long)pairA_all, dPair,
            (unsigned long long)freeM, (unsigned long long)freeA, freeD,
            (unsigned long long)pairAnti[0], (unsigned long long)pairAnti[1],
            (unsigned long long)pairFormations,
            (unsigned long long)blobFormations,
+           (unsigned long long)annihilationEvents,
            retinaOk ? "OK" : "FAIL");
 
     for (unsigned w = 0; w < W_USED; ++w)

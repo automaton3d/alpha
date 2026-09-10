@@ -278,6 +278,7 @@ struct NeighborResult
   extern long long recruit_events;
   extern long long recruit_repel;
   extern long long recruit_attract;
+  extern long long annihilations;
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;
@@ -348,6 +349,7 @@ struct NeighborResult
   void chargesMarkInteraction(unsigned w);  // island w just reemitted (clock reset)
   void chargesMarkPair();                   // a registered P formation was created (idea B)
   void chargesMarkBlob();                   // a superposed-pair group formed a blob
+  void chargesMarkAnnihilation();           // a representative pair annihilated (rule 5)
   void chargesSampleTurnarounds();          // per-tick t==RMAX crossing detector
   void chargesReport(unsigned tick);        // throttled matter/antimatter census
 

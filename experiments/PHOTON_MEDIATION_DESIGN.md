@@ -268,6 +268,29 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   | R2 photon (equal charge -> repel) | 202 | repel = 4 | **1.00 (never fully merges)** |
   | R1 graviton | 39 | attract = 2 | 0.00 (merge) |
   and the default build is unchanged (6468/0/0).
+- **Annihilation branch IMPLEMENTED, trigger still unreachable** (rule 5 /
+  decision D): the branch exists in `encounter()` under `ORPHAN_GUIDANCE_FSM`
+  (two BODY representatives K or D, `islandChief` distinct and non-null,
+  matter vs antimatter by the census's colour-popcount convention, same site ->
+  both demoted to S, `parent = NO_PARENT`, `leader_w = NO_LEADER_W`, `a = W`,
+  `pair_idx/pair_count` cleared, both reissued at the contact point).  New
+  counters: `annihilations` (interaction.cpp/probe) and the ledger's
+  `chargesMarkAnnihilation()` printed as `ann=` on the `[charges] retina` line.
+  No reachable trigger found yet:
+  - the deterministic scenario (probe mode `annih`: two island CHIEFS at the
+    same site with opposite charges) crashes at INITIALISATION in BOTH the
+    macro and the default builds - two co-located chiefs are simply not a
+    supported model state (0 frames ran; the probe mode is kept as a
+    reproducer).  Setting `a = 3*fam` did not change this.
+  - in the real layouts tried (NEAR W=4, ch = +8 / -1, mag = 0/1, 25 frames)
+    the two bodies either never reach the same site or are merged by the
+    identity path, so `annihilations` stays 0 in every run (and the default
+    build is unaffected).
+  Design question to settle: the "same site" condition needs a REACHABLE
+  definition, e.g. (a) annihilate at the contact of two islands'
+  representatives (the moment the identity merge would fire) when the charges
+  are opposite, or (b) restrict to D x D contacts (which in practice sit behind
+  the `s2B` gate).
 - **OPEN BUG in the `dressed` layout** (bound R2 dresses, W = 6): it segfaults
   with the macro (equal and complementary body charges alike) while the default
   build runs the same layout clean.  Bisection: `ORPHAN_GATE_ONLY` (no record,

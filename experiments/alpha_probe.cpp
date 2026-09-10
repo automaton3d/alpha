@@ -119,6 +119,30 @@ static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1,
 }
 
 // ---------------------------------------------------------------------------
+// markChief: turn a layer's source centre into its own island chief (K) with a
+// prescribed charge word.  Used by the "annih" scenario (two chiefs of
+// different islands overlapping at one site with opposite charges).
+// ---------------------------------------------------------------------------
+static void markChief(unsigned w, unsigned char ch)
+{
+  for (auto* lat : { &automaton::lattice_curr, &automaton::lattice_draft,
+                     &automaton::lattice_partner })
+  {
+    const auto& ctr = automaton::lcenters[w];
+    automaton::Cell& c = automaton::getCell(
+        *lat, (int)ctr[0], (int)ctr[1], (int)ctr[2], (int)w);
+    c.kind       = automaton::SourceKind::K;
+    c.parent     = automaton::NO_PARENT;
+    const unsigned fam = 3u * (w / 3u);          // island first-W convention
+    c.leader_w   = (automaton::WIndex)fam;
+    c.a          = fam;
+    c.pair_idx   = automaton::NO_PAIR;
+    c.pair_count = 0;
+    c.ch         = ch;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // placeSource: reset one whole winding layer to "unreached" and plant the
 // source centre with a prescribed momentum.  Mirrors scatter_main.cpp.
 // ---------------------------------------------------------------------------
@@ -257,6 +281,9 @@ int main(int argc, char** argv)
   // at the right site (w=3 the body, w=4/5 its R2 dress pair).  Both dresses
   // are BOUND to their body, so the mediator is a dress, not a free pair.
   const bool duoDressed = (strcmp(duoKind, "dressed") == 0);
+  // "annih": deterministic annihilation scenario - two island chiefs (K) at
+  // the SAME site with opposite charges, so the rule-5 branch must demote both.
+  const bool duoAnnih = (strcmp(duoKind, "annih") == 0);
   // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
   // effect of the P bookkeeping from the effect of the actual pair link.
   const bool duoBroken = (strcmp(duoKind, "broken") == 0);
@@ -264,7 +291,7 @@ int main(int argc, char** argv)
   // the kind bookkeeping from the pair-count/frequency bookkeeping.
   const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
   const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0 ||
-                   duoDressed;
+                   duoDressed || duoAnnih;
   // Optional 13th argument: displace the planted mediator off the line of
   // centres (along z) so its CORE never contacts the bodies and only the
   // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
@@ -286,8 +313,9 @@ int main(int argc, char** argv)
   const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in
-                                  : (duo ? (duoDressed ? 6u : (duoFar ? 9u : 4u))
-                                         : 2u);
+                                  : (duoAnnih ? 2u
+                                     : (duo ? (duoDressed ? 6u : (duoFar ? 9u : 4u))
+                                            : 2u));
 
   printf("=== alpha probe: %s ===\n",
          canonical ? "canonical (Platonic seed) configuration"
@@ -339,6 +367,18 @@ int main(int argc, char** argv)
 
     placeSource(0, C - off, C, C,  +mag, 0, 0, chA);        // left, moving right
     placeSource(bodyBw, C + off, C, C,  -mag, 0, 0, chB);   // right, moving left
+
+    if (duoAnnih)
+    {
+      // Deterministic rule-5 scenario: two island chiefs (different parents)
+      // at the SAME site with opposite charges (0x00 matter vs 0x3F
+      // antimatter), so the annihilation branch must demote both to S.
+      placeSource(0, C, C, C, 0, 0, 0, 0x00);
+      placeSource(1, C, C, C, 0, 0, 0, 0x3F);
+      markChief(0, 0x00);
+      markChief(1, 0x3F);
+      automaton::replicate();
+    }
 
     if (duo)
     {
@@ -596,6 +636,7 @@ int main(int argc, char** argv)
   printf("recruit_repel=%lld  recruit_attract=%lld\n",
          (long long)automaton::recruit_repel,
          (long long)automaton::recruit_attract);
+  printf("annihilations=%lld (rule 5)\n", (long long)automaton::annihilations);
 
   if (automaton::conv_calls > 0)
     printf("realized overlap throughput = %lld/%lld = 1/%.3f\n",
