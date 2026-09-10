@@ -1,115 +1,152 @@
-# Graviton-mediated island repulsion through the orphan flux — design note
+# Photon/graviton-mediated interaction between composite particles through the orphan flux — design note v2
 
-Status: **design** (no code yet).  Branch context: `polarization-broadcast-fix`
-(one-shot bootstrap, first-arrival broadcast wave, `EM_FIRST_FSM`).  The EM
-reordering experiment showed that direct body-shell contact does not produce a
-directed equal-charge repulsion; this note designs the alternative that the
-manuscript's speculative sections already name (manuscript.tex:794-796,
-1229, 1374, 1382): a static coupling carried by **gravitons** guided by the
-**orphan flux** between two particles.
+Status: **design** (no code yet).  Branch: `polarization-broadcast-fix`.
+Supersedes v1 (commit 11e24ec) which concluded the carrier "must be R1
+graviton, not R2 photon".  The consolidated rules (Sep 2026) split the
+picture: the **graviton (R1) is always attractive and universal** (residual
+static/cross-sector coupling), while the **sectoral photon (R2) carries the
+charge-sign channel** (like charges repel, opposite attract) — and it is the
+photon (dress) channel that must mediate the equal-charge *repulsion* the
+quantisation hunt needs.  The manuscript's orphan-flux narrative
+(manuscript.tex:794-796, 1229, 1374, 1382) is kept, under this two-channel
+reading; the tex may be revised to fit the consolidated rules.
 
-## 1. Carrier consistency check (conclusion)
+## 1. Carrier structure (revised conclusion)
 
-The recruited mediator must be the **R1 graviton**, not the R2 photon:
+Two free-pair families play distinct physical roles:
 
-- R1 = all six bits complementary (`ca ^ cb == 0x3F`): operates in BOTH
-  sectors (one Orbis, one Umbra half) and is **charge-neutral by construction**
-  (manuscript.tex:491, 1229; canFormPair rule R1).
-- R2 = same-sector complementary (`w1` equal): **sector-specific**; the pair
-  carries two units of sector charge and only couples within one sector.
-- Equal-charge islands (Q,Q) cannot synthesise an R2 photon (its halves are
-  Q and the same-sector complement Q', which is absent), and charges are
-  immutable in the reference dynamics.  The only recruitable carrier is a
-  pre-existing vacuum pair that is globally neutral and sector-blind: the
-  fully-complementary pair (g, g-bar) of any charge Q, i.e. R1.
-- Orphan rule (manuscript.tex:1382): "Orphans (a=W) do not interact with
-  photons but do interact with gravitons."  The static-interaction text
-  (manuscript.tex:794) already starts the mechanism with "an orphan singleton
-  from q1 aligns with a vacuum graviton".
+- **R1 graviton** — all six bits complementary (`ca ^ cb == 0x3F`): one
+  Orbis + one Umbra half, **charge-neutral by construction**, cross-sector,
+  universal (manuscript.tex:491, 1229).  By the spin-parity analogy its
+  exchange is **always attractive**: the residual "gravity"/static
+  cross-sector coupling.  Orphans engage it (manuscript.tex:1382, 794).
+- **R2 photon** — same-sector complementary (`w1` equal, q/w0/color
+  complementary): **sector-specific**; its exchange is **charge-sign
+  dependent** (vector exchange): equal charges repel, opposite charges
+  attract.  This is the model's electromagnetism, and the *dressing* of a
+  particle (its drive pairs are R2 photons, e.g. 0x00/0x1F in the inertia
+  tests).
 
-Ressalvas to carry: graviton-ness is *necessary, not sufficient*.  Which half
-(g or g-bar) engages the orphan and what sets the force sign (repel vs
-attract) is not derivable from the charge algebra alone; it requires an
-explicit orientation rule (pB/sB / m of the recruited drive pair).
+Equal-charge islands cannot synthesise an R2 photon from their own cores
+(charges are immutable; no same-sector complement Q' is present), but each
+island **already carries R2 photon dresses**; the repulsive exchange is an
+exchange of those dresses between the two fields, before any core contact.
+The graviton alone would make equal charges *attract* (merge) — consistent
+with it being the always-attractive channel.
 
-## 2. Actors (prepared, production path, W >= 6)
+## 2. Actors: particle = island + dresses + field
 
-- **Source S**: a bubble/body that reissues often enough to shed a
-  **concentric orphan shell** (`a = W_USED`, ghost: affinity disabled,
-  non-collapsing; manuscript.tex:616, 1374).  The shell is the "flux" that
-  can engage vacuum pairs.
-- **Mediator**: a free fully-complementary pair **G = (g, g-bar)** in the
-  vacuum between S and T (a "vacuum graviton"), already present as a P source.
-- **Target T**: a distant body of charge Q (equal to S's charge for the
-  repulsion case under test).
+- **Island**: 1K+nD cores of charge Q (the body; annihilation-capable only
+  on D x D core overlap).
+- **Dresses**: bound R2 photon pairs (drive pairs) carried by the island.
+- **Field**: the concentric orphan shell (`a = W_USED`, ghost, affinity
+  disabled, non-collapsing; manuscript.tex:616, 1374).  The recruiter of
+  free pairs is an **orphaned source** (an S bubble with `a = W_USED`,
+  post-reissue) whose concentric shell is the flux.
+- **Mediators**: free R2 photon pair (dressing/EM channel) and free R1
+  graviton pair (universal attractive channel), present in the vacuum
+  between the two particles.
 
-## 3. Mechanism (to be defined as rules; not yet implemented)
+## 3. Mechanism (consolidated rules; not yet implemented)
 
-1. **Orphan flux**: S's concentric orphan shells propagate outward after each
-   reissue (existing orphan semantics, `a == W_USED`).
-2. **Alignment**: when an active orphan cell of S's shell meets an active cell
-   of the free pair G (same voxel, cross-layer), a *recruitment contact*
-   occurs.  RULE TO DEFINE: gate (identity equal-charge? R1 complement pair?
-   collapse?) and which half (g / g-bar) engages first.
-3. **Guidance**: the pair is redirected along the flux toward T (needs a
-   directed step; today free P pairs only expand and are consumed at radius).
-4. **Affinity handover**: on reaching T, G acquires T's affinity and becomes a
-   **drive pair of T** — this part exists: a free P pair that contacts a body
-   island joins it and adopts its affinity/leader (interaction.cpp, P joins
-   island path); subsequent internal P x K/D contacts transport T's
-   constituents in G's m direction (drive-pair inertia, measured 0.25/0.75
-   cells/frame; CoM conserved).
-5. **Reciprocity**: the same happens from T toward S ("The same occurs in
-   reverse", manuscript.tex:794).  With symmetric, CoM-conserving drive
-   transport the net static interaction is symmetric in the mean.
+1. **Orphan flux**: after each reissue the particle sheds a concentric
+   orphan shell (`a == W_USED`) — its EM field.
+2. **Engagement**: the gate is the **electromagnetic interaction**.  The
+   half of the free pair that **provokes attraction** (charge-complementary
+   in the electric sense to the orphaned source's charge) engages first and
+   is drawn into the field.
+3. **Guidance**: the engaged pair is directed along the flux toward the
+   other body (needs a directed step; today free P pairs only expand and
+   are consumed at radius).
+4. **Affinity handover**: on reaching the target the pair acquires its
+   affinity and becomes one of its drive pairs (existing P-join path);
+   internal P x K/D contacts then transport the target's constituents in
+   the pair's m direction (inertia: 0.25/0.75 cells/frame; CoM conserved).
+5. **Reciprocity**: the same happens from the target toward the source
+   ("The same occurs in reverse", manuscript.tex:794).  Net effect:
+   - R2 photon channel: sign by charge — **equal charges repel**;
+   - R1 graviton channel: **always attractive**;
+   - both symmetric in the mean (drive-pair transport conserves CoM).
 
-## 4. Open design decisions (checklist)
+**Annihilation boundary**: true annihilation happens **only when a D
+delegate of each particle overlaps** (complementary cores, D x D at one
+voxel).  Carriers never annihilate charges at a distance.
 
-- [ ] Recruitment gate for orphan x vacuum-pair (which rule fires first).
-- [ ] Which half of R1 engages; is the choice orientation-dependent (pB/sB)?
-- [ ] Force sign rule: repel for equal charge <=> the recruited drive pairs on
-      S and T point away from each other (m antiparallel), so internal
-      transport separates the bodies.
-- [ ] Distance dependence: guidance acts while orphan flux overlaps the pair
-      (no action at a distance beyond the shell reach; "flux" bounds the law).
-- [ ] Charge-sign dependence: same charge repel, opposite attract?  (Opposite
-      charges could instead *merge* the recruited pair into annihilation -
-      R1 complement halves with opposite charges -> collapse, not repel.)
+## 4. Consolidated rules (v2) — agreed
 
-## 5. First experiment (prepared three-body, production path)
+1. Recruitment gate = **electromagnetic interaction** (orphaned sources, not
+   arbitrary orphan cells — the EM branches act on sources).
+2. The engaging half = **the one that provokes attraction** (electric
+   complementarity), fixing the direction of the flux without an ad hoc rule.
+3. **Graviton exchange is always attractive**; sectoral (R2) photons are
+   required for the attraction/repulsion dichotomy.  Repulsion between
+   equal-charge islands is the R2 dress-exchange channel.
+4. Distance dependence is **automatic and geometric** (spherical flux, no
+   dial); the observable-defined exponent must be fixed by measurement
+   (potential 1/r; force 1/r^2).
+5. Annihilation only on **D x D core overlap** (one D per particle).
 
-Setup: body S (equal charge 0x08, tube/cube W >= 6), body T (same 0x08) at
-SEP, and a free fully-complementary P pair G (0x00/0x3F) centred between
-them; S reissued periodically to shed orphan shells.  Boot macros
-(POLAR_BOOTSTRAP_ADDRESS + POLAR_BROADCAST_WAVE) optional; EM_FIRST_FSM off
-for the pure dressing test.
+Still open (implementation detail, not conceptual): (a) orphaned-source
+semantics as recruiter; (b) the m/pB-sB orientation rule that makes the
+photon exchange repulsive for equal charges (antiparallel drive pairs);
+(c) measuring the 1/r vs 1/r^2 exponent.
 
-Measure: does T (and S) drift apart (d grows) via drive-pair transport
-without core contact?  Per-frame: P affinity flips (pair joins T), source
-kinds, d(t), CoM, enc_* counters, pair consumption events.
+## 5. Physics dashboard
 
-Controls: (a) no mediator G (merge baseline, d -> 0); (b) mediator but no
-orphan flux (S without reissues); (c) orientations swapped.
+| Interaction | Carrier | Sign | Reaches before cores meet | Requires |
+|---|---|---|---|---|
+| EM (charge sign) | R2 photon (dress) | by charge: equal repel | yes (field/flux) | dress exchange via EM gate + orientation (m/pB-sB) |
+| Static/gravity residual | R1 graviton (vacuum) | always attractive | yes | orphan flux + reciprocity |
+| Annihilation | — (cores) | neutral | no — only D x D overlap | complementary delegates in one voxel |
 
-Success: d grows monotonically while both bodies stay S/K+D (no identity
-merge), CoM conserved in the mean, reproducible across seeds/axes.  If it
-fails, the missing piece is the directed guidance/sign rule, not the carrier.
+## 6. First experiment (prepared, dressed two-body, production path)
 
-## 6. Code mapping (exists vs to add)
+Setup: two equal-charge bodies (0x08, tube/cube W >= 6) at SEP, **each
+dressed with R2 photon drive pairs** (the dressing/EM channel under test);
+a free R1 pair (0x00/0x3F) in the vacuum between them is the optional
+graviton (attractive) control.  Bodies reissue periodically to shed orphan
+shells.  Boot macros optional; EM_FIRST_FSM off for the pure dressing test.
 
-Exists: orphan cell semantics and orphan expansion (`a == W_USED`);
-free P pairs (expand, consumed at max radius); P joins contacted island and
-acquires affinity (interaction.cpp); drive-pair P x K/D transport with
-CoM conservation (resolveInternalContacts / propeller).
+Measure: do the bodies repel (d grows) through **dress exchange between the
+two fields** before any core contact?  Per-frame: R2 dress-pair affinity
+flips (a dress joins the other body), source kinds, d(t), CoM, enc_*
+counters, pair consumption/annihilation events (annihilation expected only
+if two D delegates overlap).
+
+Controls:
+(a) bodies without dresses -> merge baseline (d -> 0, identity contact);
+(b) dresses but no orphan flux (no reissues);
+(c) free R1 pair only (graviton) -> always-attractive behaviour expected
+    (d decreases or merge), separating the two channels;
+(d) orientations of the drive pairs swapped (sign/orientation rule).
+
+Success: d grows monotonically while both bodies keep their K/D cores (no
+identity merge, no D x D overlap), CoM conserved in the mean, reproducible
+across seeds/axes.  If it fails, the missing piece is the directed
+guidance/sign rule (rule 3/2 in section 4), not the carrier choice.
+
+## 7. Code mapping (exists vs to add)
+
+Exists: orphan cell semantics and orphan expansion (`a == W_USED`); free P
+pairs (expand, consumed at max radius); P joins a contacted island and
+acquires its affinity (interaction.cpp); drive-pair P x K/D transport with
+CoM conservation (resolveInternalContacts / propeller); EM branches
+(bootstrap + first-arrival wave + EM-first builds).
 
 To add (macro-guarded candidate: ORPHAN_GUIDANCE_FSM):
-- orphan-shell x vacuum-pair recruitment contact rule;
-- directed re-emission/guidance of the recruited pair along the flux;
+- orphaned-source (`S`, `a == W_USED`) shell as the recruiter;
+- EM-gated engagement that selects the attracting half of the free pair;
+- directed re-emission/guidance of the engaged pair along the flux;
+- R2 dress-exchange bookkeeping between two dressed bodies;
 - affinity handover on approach (may reuse the existing P-join on contact);
-- symmetric reverse bookkeeping (pair may flip target);
-- sign/orientation law (pB/sB / m).
+- symmetric reverse bookkeeping (a pair may flip target);
+- sign/orientation law for the photon channel (m/pB-sB of the dresses);
+- annihilation strictly on D x D core overlap (no distant annihilation).
 
 References: manuscript.tex:491, 616, 794-796, 1229, 1374, 1382;
 experiments/PBSB_ISLANDS.md (decision rule: EXCLUSION stays the stand-in
-until a dressing-mediated repulsion is demonstrated).
+until a dressing-mediated repulsion is demonstrated).  Note: the orphan
+"photons" wording in earlier text should be read as sectoral R2 photons for
+the charge-sign channel and R1 gravitons for the always-attractive channel
+(see sections 1 and 5).
 
