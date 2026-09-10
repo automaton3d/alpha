@@ -70,6 +70,15 @@ namespace automaton
     // shell coincidence is seen by many lattice cells; the impulse must land
     // once per pair per tick).  Cleared by beginSourceTick().
     std::vector<std::array<unsigned, 2>> recruitApplied;
+#ifdef ORPHAN_KICK_PER_WINDOW
+    // Flux-proportional scheme: one entry per ENGAGEMENT EVENT (cell x tick)
+    // {island A, island B, sign}.  Aggregated once per tick by
+    // resolveRecruitHits(), which pays out one kick per pair per tick with a
+    // magnitude of min(events, ORPHAN_KICK_CAP) - so the momentum transfer
+    // tracks the number of mediating interactions (the flux) instead of being
+    // a fixed single step.
+    std::vector<std::array<int, 3>> recruitHits;
+#endif
 #endif
 
     inline const std::array<unsigned, 3>& sourceCenter(const Cell& c)
@@ -281,6 +290,9 @@ namespace automaton
     sourceBefore.resize(W_USED);
 #ifdef ORPHAN_GUIDANCE_FSM
     recruitApplied.clear();
+#ifdef ORPHAN_KICK_PER_WINDOW
+    recruitHits.clear();
+#endif
 #endif
     if (transportDebt.size() != W_USED) transportDebt.assign(W_USED, {0,0,0});
     for (unsigned w = 0; w < W_USED; ++w) {
@@ -445,11 +457,84 @@ namespace automaton
     }
 #endif
 
-#ifdef ORPHAN_GUIDANCE_FSM
-    // The recruit impulse is applied inline (per tick, in encounter()) through
-    // the production helpers moveOneStep()/moveOneStepAway(); the frame-edge
-    // variant was removed.  Kept as an explicit no-op block.
+#ifdef ORPHAN_KICK_PER_WINDOW
+#ifndef ORPHAN_KICK_CAP
+#define ORPHAN_KICK_CAP 4
 #endif
+    // Per-tick payout of the accumulated engagement events: one kick per island
+    // pair per tick, magnitude = min(events, ORPHAN_KICK_CAP), direction and
+    // sign from the two islands' charges (or always attractive for the R1
+    // graviton).  Centre of mass conserved (equal and opposite steps).
+    void resolveRecruitHits()
+    {
+      if (recruitHits.empty()) return;
+      std::sort(recruitHits.begin(), recruitHits.end());
+      size_t i = 0;
+      while (i < recruitHits.size())
+      {
+        size_t j = i;
+        while (j < recruitHits.size() &&
+               recruitHits[j][0] == recruitHits[i][0] &&
+               recruitHits[j][1] == recruitHits[i][1]) ++j;
+        const unsigned a = (unsigned)recruitHits[i][0];
+        const unsigned b = (unsigned)recruitHits[i][1];
+        const int sign = recruitHits[i][2];
+        const int magnitude = (int)std::min<size_t>(j - i, ORPHAN_KICK_CAP);
+        if (a < W_USED && b < W_USED && a != b &&
+            sourceAfter[a].kind != SourceKind::P &&
+            sourceAfter[b].kind != SourceKind::P)
+        {
+          int sep[3], best = 0, bestAbs = -1;
+          for (int axis = 0; axis < 3; ++axis)
+          {
+            const int d = delta(a, b, axis);
+            sep[axis] = d;
+            const int ad = d < 0 ? -d : d;
+            if (ad > bestAbs) { bestAbs = ad; best = axis; }
+          }
+          if (bestAbs > 1)
+          {
+            const int axis = best;
+            const int sgn  = sep[axis] > 0 ? -1 : 1;
+            sourceAfter[a].reloc[axis] += sign * sgn * magnitude;
+            sourceAfter[b].reloc[axis] -= sign * sgn * magnitude;
+            if (sign > 0) ++recruit_repel; else ++recruit_attract;
+          }
+        }
+        i = j;
+      }
+      recruitHits.clear();
+    }
+#endif
+
+    // Direct (per-tick, single-step) mediated kick - the default scheme.
+    void applyRecruitKick(unsigned aw, unsigned bw, int pushSign)
+    {
+      int sep[3], best = 0, bestAbs = -1;
+      for (int axis = 0; axis < 3; ++axis)
+      {
+        const int d = delta(aw, bw, axis);
+        sep[axis] = d;
+        const int ad = d < 0 ? -d : d;
+        if (ad > bestAbs) { bestAbs = ad; best = axis; }
+      }
+      if (bestAbs <= 1) return;
+      const int sgn = sep[best] > 0 ? -1 : 1;
+      const auto& cA = lcenters[aw];
+      const auto& cB = lcenters[bw];
+      if (pushSign > 0)
+      {
+        moveOneStepAway(sourceAfter[aw], cA, cB);
+        moveOneStepAway(sourceAfter[bw], cB, cA);
+      }
+      else
+      {
+        moveOneStep(sourceAfter[aw], cA, cB);
+        moveOneStep(sourceAfter[bw], cB, cA);
+      }
+      if (pushSign > 0) ++recruit_repel; else ++recruit_attract;
+    }
+
   }
 
   void commitSourceTick()
@@ -460,6 +545,9 @@ namespace automaton
       resolveExclusionPush();
 #endif
     }
+#ifdef ORPHAN_KICK_PER_WINDOW
+    resolveRecruitHits();      // per tick: pay out the engagement windows
+#endif
     for (unsigned w = 0; w < W_USED; ++w) {
       const auto& p = lcenters[w];
       Cell& dst = getCell(lattice_draft, p[0], p[1], p[2], w);
@@ -680,45 +768,27 @@ namespace automaton
 
           if (bw < W_USED)
           {
-            // One mediated light-step PER TICK while engaged (the same
-            // granularity as the electroweak branches), applied through the
-            // production helpers so the centre of mass is conserved.  Skipped
-            // for coincident or ADJACENT centres (no defined direction, and
-            // pushing an adjacent pair drives the attract case into overlap).
+            // The mediated kick acts on ISLANDS (any non-mediator source).  Two
+            // schemes: the default one light-step per pair per tick
+            // (applyRecruitKick, immediate), or - under ORPHAN_KICK_PER_WINDOW -
+            // record every engagement event and let resolveRecruitHits() pay out
+            // a flux-proportional kick at the end of the tick.
             const bool islands = sourceAfter[aw].kind != SourceKind::P &&
                                  sourceAfter[bw].kind != SourceKind::P;
+            const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
+#ifdef ORPHAN_KICK_PER_WINDOW
+            if (islands)
+              recruitHits.push_back({ (int)aw, (int)bw, pushSign });
+#else
             const std::array<unsigned, 2> key{ aw, bw };
             if (islands &&
                 std::find(recruitApplied.begin(), recruitApplied.end(), key) ==
                 recruitApplied.end())
             {
-              int sep[3], best = 0, bestAbs = -1;
-              for (int axis = 0; axis < 3; ++axis)
-              {
-                const int d = delta(aw, bw, axis);
-                sep[axis] = d;
-                const int ad = d < 0 ? -d : d;
-                if (ad > bestAbs) { bestAbs = ad; best = axis; }
-              }
-              if (bestAbs > 1)
-              {
-                recruitApplied.push_back(key);
-                const int pushSign = graviton ? -1 : (aCh == bCh ? +1 : -1);
-                const auto& cA = lcenters[aw];
-                const auto& cB = lcenters[bw];
-                if (pushSign > 0)      // equal charges -> repel one light-step
-                {
-                  moveOneStepAway(sourceAfter[aw], cA, cB);
-                  moveOneStepAway(sourceAfter[bw], cB, cA);
-                }
-                else                   // opposite charges / graviton -> attract
-                {
-                  moveOneStep(sourceAfter[aw], cA, cB);
-                  moveOneStep(sourceAfter[bw], cB, cA);
-                }
-                if (pushSign > 0) ++recruit_repel; else ++recruit_attract;
-              }
+              recruitApplied.push_back(key);
+              applyRecruitKick(aw, bw, pushSign);
             }
+#endif
           }
 #endif
         }

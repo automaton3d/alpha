@@ -538,3 +538,38 @@ NEAR = repulsion, equal-charge bodies, R2 mediator):
   the next refinement (e.g. relaying an impulse per engagement window instead of
   one per pair per tick).  All three are macro-guarded; the default build is
   untouched (6468/0/0).
+
+### Scheme D: one flux-proportional kick per engagement window (evaluated)
+
+`ORPHAN_KICK_PER_WINDOW` (with `ORPHAN_KICK_CAP = 4`): instead of one light-step
+per island pair per tick, every engagement EVENT (cell x tick) is recorded and
+`resolveRecruitHits()` pays out one kick per pair per tick whose magnitude is
+the number of events (capped) - i.e. the momentum transfer tracks the flux.
+Build `build_probe_window.bat` = `ORPHAN_GUIDANCE_FSM +
+ORPHAN_MEDIATOR_PROPAGATES + ORPHAN_RELAY_KEEPT + ORPHAN_MEDIATOR_SUSTAIN +
+ORPHAN_KICK_PER_WINDOW` (scheme C + flux kick).
+
+Measured: NEAR photon min d = 1.00 (EL = 11), 0.00 (EL = 9), 0.00 (EL = 13);
+parked 9341 / 6107 / 6115 at d = 2 / 4 / 5 (the last two are flat).  Side effect:
+the attract case now stalls at d = 1 instead of merging (the adjacent-centre
+guard blocks further pushes), so attraction and "no push" become
+indistinguishable at contact.
+
+Four schemes consolidated (equal-charge bodies, R2 mediator):
+
+| scheme | mediator | NEAR min d EL 9/11/13 | parked d=2/4/5 |
+|---|---|---|---|
+| A (default, validated) | clock frozen, relay resets it | **1.00 / 3.00 / 4.00** | 484 / 354 / 272 |
+| B + stack | propagating, `pair_count = 8` | 1.00 / 1.00 / 0.00 | 8438 / 3934 / 2505 |
+| C self-sustaining | propagating, `pair_count = 1`, re-emitted at the turnaround | 1.00 / 1.00 / 0.00 | 9341 / 5190 / 4650 |
+| D flux kick (C + window) | as C, flux-proportional kick | 0.00 / 1.00 / 0.00 | 9341 / 6107 / 6115 |
+
+**Conclusion**: the flux-proportional kick does not recover variant A's strength.
+The tension is intrinsic to the current mechanism: a mediator whose clock is
+pinned (A) is swept by every island front and delivers a kick every tick, while
+a propagating mediator (B/C/D) only opens intermittent engagement windows.
+Use **A** for repulsion studies (quantization hunt) and **C** (cleanest physics,
+monotone law) or **B + stack** (steepest law) for the distance-law work.  A
+single regime with both would need the momentum transfer to be integrated over
+the window (per-engagement momentum), which is a mechanism change beyond this
+iteration.
