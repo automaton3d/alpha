@@ -437,6 +437,8 @@ int main(int argc, char** argv)
          (long long)automaton::conv_collapse,
          (long long)automaton::conv_adiah,
          (long long)automaton::conv_repel);
+  printf("recruit_events=%lld (orphan-shell x free-photon; macro ORPHAN_GUIDANCE_FSM)\n",
+         (long long)automaton::recruit_events);
 
   if (automaton::conv_calls > 0)
     printf("realized overlap throughput = %lld/%lld = 1/%.3f\n",

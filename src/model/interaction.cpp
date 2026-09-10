@@ -32,6 +32,11 @@ namespace automaton
   long long enc_adiah   = 0;     // gate-passing contacts in the adiabatic (attraction) branch
   long long enc_repel   = 0;     // gate-passing contacts that repel one light-step
 
+  // Experimental P2 (macro ORPHAN_GUIDANCE_FSM): orphan-shell x free-photon
+  // recruitment events.  Kept apart from the enc_* family so the campaign
+  // logs stay comparable; always zero without the macro.
+  long long recruit_events = 0;
+
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
   // observe the same values with no further changes.
@@ -460,6 +465,50 @@ namespace automaton
 
     const auto& currCenter  = sourceCenter(curr);
     const auto& partnerCenter = sourceCenter(partner);
+
+#ifdef ORPHAN_GUIDANCE_FSM
+    // ==================================================================
+    // Experimental P2 (recruit / relay): a FREE photon half (P source with no
+    // leader) that coincides with an island wavefront illuminates that
+    // island's orphan shell when one of the contact site's neighbours in the
+    // island layer sits on the thin shell (isOrphanShell: r == f + 1).  The
+    // shell is one cell thick, so the event stays rare.  On recruitment the
+    // photon half is reissued at the contact point (the relay step); the
+    // island itself is NOT touched here.
+    // ==================================================================
+    {
+      auto freePhotonHalf = [](const Cell& c)
+      {
+        return c.kind == SourceKind::P && c.leader_w == NO_LEADER_W;
+      };
+      const Cell* isl = nullptr;
+      const Cell* pho = nullptr;
+      if (currSrc.kind != SourceKind::P && freePhotonHalf(partnerSrc))
+      { isl = &curr; pho = &partner; }
+      else if (partnerSrc.kind != SourceKind::P && freePhotonHalf(currSrc))
+      { isl = &partner; pho = &curr; }
+
+      if (isl && pho && isl->x[3] != pho->x[3])
+      {
+        static const int off[6][3] = { {1,0,0}, {-1,0,0}, {0,1,0},
+                                       {0,-1,0}, {0,0,1}, {0,0,-1} };
+        const int cx = (int)isl->x[0], cy = (int)isl->x[1], cz = (int)isl->x[2];
+        bool onShell = false;
+        for (const auto& o : off)
+        {
+          const Cell& nb = getCell(lattice_curr, cx + o[0], cy + o[1],
+                                   cz + o[2], (int)isl->x[3]);
+          if (isOrphanShell(nb)) { onShell = true; break; }
+        }
+        if (onShell)
+        {
+          ++recruit_events;
+          // Relay: reissue the photon half at the contact point.
+          reemitAtContact(sourceCenterDraft(*pho), *pho);
+        }
+      }
+    }
+#endif
 
 #ifdef EM_FIRST_FSM
     // ==============================================================
