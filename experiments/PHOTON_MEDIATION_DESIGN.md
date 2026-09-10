@@ -231,8 +231,39 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   - the matter/antimatter/orphan census is **unchanged** by the macro
     (`orphanM=0 orphanA=0`, as in the reference): the field is derived, so it
     cannot perturb the FSM.
-- **Next**: P2 (relay + island-charge signal + kind-agnostic annihilation +
-  `recruit_events`), then P3 (dressed-duo probe with the controls a-d).
+- **P2/P3 measured** (macro `ORPHAN_GUIDANCE_FSM`, probe modes `none|bare|
+  broken|freq0|photon|photonswap|grav` [+ optional z-offset]): the free
+  mediator pair is planted directly as P sources (`markFreePair`, since the
+  validated sieve never forms pairs: `s2B = 0`, `pairs-formed = 0`), W = 4.
+  Bodies 0x08 (equal charge), EL=11 SEP=4 (d = 4, NON-degenerate: a separation
+  of EL/2 is antipodal and makes "away" ill-defined - EL=7 SEP=4 sat exactly
+  there and inverted the observed sign):
+
+  | mode | recruit | repel | attract | d(t) |
+  |---|---|---|---|---|
+  | bare (W-matched, no pair link) | 0 | 0 | 0 | 4, 4, 2, 0 (merge) |
+  | R2 photon (equal charge) | 148 | 4 | 0 | 4, **3, 2**, 0 (delayed) |
+  | R2 photon, halves swapped | 148 | 4 | 0 | 4, 3, 2, 0 (NULL control) |
+  | R1 graviton | 52 | 0 | 3 | 4, **0**, 0 (fastest merge) |
+
+  Sign rule confirmed: R2 takes the sign from the two islands (equal -> repel,
+  opposite -> attract), R1 is always attractive, and swapping the two halves
+  of the dress changes nothing observable (control (d)).  Controls (a)
+  (no mediator) and (c) (graviton only) are the first and last rows.
+- **Piecewise evidence, `broken` / `freq0`**: `kind = P` alone (even with
+  `pair_idx = NO_PAIR` or `pair_count = 0`) already reproduces the fast-merge
+  background, while two plain S sources at the same site (mode `bare`) do not.
+  So the mediator currently carries a channel-INDEPENDENT body coupling through
+  the P bookkeeping; it is the reason d(t) still merges even in the repel case.
+  Isolating the channel (making a free mediator a pure field carrier: relay,
+  not drive) is the open P2 step.
+- **Next**: (1) free mediator = pure field carrier under the macro (exclude
+  free `kind == P` sources from the body coupling); (2) control (b) of
+  section 6 (dresses but no orphan flux / no reissues); (3) the annihilation
+  branch (different parents, opposite charges, same site -> both demoted to S)
+  with its own counter; (4) then re-run the quantization hunt with the
+  separated copies.
+
 
 Build scripts: `experiments/build_probe.bat` (default reference),
 `experiments/build_probe_boot.bat` (bootstrap + broadcast wave),

@@ -95,7 +95,7 @@ namespace automaton
 // (s2B = 0), so the dressed-duo probe plants the pair directly, as the other
 // harnesses do (propeller_k / inertia_matched).
 // ---------------------------------------------------------------------------
-static void markFreePair(unsigned w, unsigned w2)
+static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1)
 {
   for (unsigned layer : { w, w2 })
   {
@@ -107,8 +107,8 @@ static void markFreePair(unsigned w, unsigned w2)
       automaton::Cell& c = automaton::getCell(
           *lat, (int)ctr[0], (int)ctr[1], (int)ctr[2], (int)layer);
       c.kind       = automaton::SourceKind::P;
-      c.pair_idx   = partner;
-      c.pair_count = 1;
+      c.pair_idx   = link ? partner : automaton::NO_PAIR;
+      c.pair_count = count;
       c.leader_w   = automaton::NO_LEADER_W;   // free: dress of no body
       c.a          = automaton::W_USED;
       c.parent     = automaton::NO_PARENT;
@@ -239,9 +239,28 @@ int main(int argc, char** argv)
   // dressed-duo probe, design section 6): "photon" = R2 pair (EM channel),
   // "grav" = R1 graviton pair (always-attractive control).
   const char* duoKind = (argc > 12) ? argv[12] : "none";
-  const bool duoPhoton = (strcmp(duoKind, "photon") == 0);
+  // "photonswap": the R2 pair with its two halves swapped between the layers.
+  // Control (d) of section 6: swapping the dress orientation must be a NULL
+  // control, because the sign is read from the two islands, not the vehicle.
+  const bool duoSwap   = (strcmp(duoKind, "photonswap") == 0);
+  const bool duoPhoton = (strcmp(duoKind, "photon") == 0) || duoSwap;
   const bool duoGrav   = (strcmp(duoKind, "grav") == 0);
-  const bool duo = duoPhoton || duoGrav;
+  // "bare": the two extra W layers are planted as two INDEPENDENT sources (no
+  // pair link).  This is the W-matched control: it separates the effect of the
+  // mediator pair from the effect of simply having W = 4 (which changes the
+  // island/family layout of the bodies).
+  const bool duoBare   = (strcmp(duoKind, "bare") == 0);
+  // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
+  // effect of the P bookkeeping from the effect of the actual pair link.
+  const bool duoBroken = (strcmp(duoKind, "broken") == 0);
+  // "freq0": kind = P with pair_count = 0 (no frequency doubling).  Isolates
+  // the kind bookkeeping from the pair-count/frequency bookkeeping.
+  const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
+  const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0;
+  // Optional 13th argument: displace the planted mediator off the line of
+  // centres (along z) so its CORE never contacts the bodies and only the
+  // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
+  const int duoOff = (argc > 13) ? atoi(argv[13]) : 0;
   if (duo && canonical)
   {
     fprintf(stderr, "duo mode is incompatible with canon\n");
@@ -260,8 +279,10 @@ int main(int argc, char** argv)
     printf("same-charge duo: ch = 0x%02X on both bubbles\n", (unsigned)chArg);
   if (duo)
     printf("free mediator pair planted at the midpoint: %s (0x00/0x%s)\n",
-           duoPhoton ? "R2 photon (EM channel)" : "R1 graviton (attractive control)",
-           duoPhoton ? "1F" : "3F");
+           duoBare ? "bare control: two independent sources, no pair link"
+                   : (duoPhoton ? "R2 photon (EM channel)"
+                                : "R1 graviton (attractive control)"),
+           duoBare ? "1F" : (duoPhoton ? "1F" : "3F"));
   if (pol)
     printf("polarization bootstrap: axis=%s (seedAxis)\n", axisKind);
 
@@ -307,10 +328,13 @@ int main(int argc, char** argv)
       // (fully complementary: Rule 1).
       const unsigned char pA = 0x00;
       const unsigned char pB = duoPhoton ? 0x1F : 0x3F;
-      placeSource(2, C, C, C, 0, 0, 0, pA);
-      placeSource(3, C, C, C, 0, 0, 0, pB);
-      markFreePair(2, 3);        // one free pair, not two lone bubbles
-      automaton::replicate();
+      placeSource(2, C, C, C + (unsigned)duoOff, 0, 0, 0, duoSwap ? pB : pA);
+      placeSource(3, C, C, C + (unsigned)duoOff, 0, 0, 0, duoSwap ? pA : pB);
+      if (!duoBare)
+      {
+        markFreePair(2, 3, !duoBroken, duoFreq0 ? 0 : 1);   // free pair
+        automaton::replicate();
+      }
     }
   }
 
