@@ -95,8 +95,10 @@ namespace automaton
 // (s2B = 0), so the dressed-duo probe plants the pair directly, as the other
 // harnesses do (propeller_k / inertia_matched).
 // ---------------------------------------------------------------------------
-static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1)
+static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1,
+                         unsigned leader = automaton::NO_LEADER_W)
 {
+  const bool bound = (leader != automaton::NO_LEADER_W);
   for (unsigned layer : { w, w2 })
   {
     const unsigned partner = (layer == w) ? w2 : w;
@@ -109,9 +111,9 @@ static void markFreePair(unsigned w, unsigned w2, bool link, uint8_t count = 1)
       c.kind       = automaton::SourceKind::P;
       c.pair_idx   = link ? partner : automaton::NO_PAIR;
       c.pair_count = count;
-      c.leader_w   = automaton::NO_LEADER_W;   // free: dress of no body
-      c.a          = automaton::W_USED;
-      c.parent     = automaton::NO_PARENT;
+      c.leader_w   = bound ? (automaton::WIndex)leader : automaton::NO_LEADER_W;
+      c.a          = bound ? leader : automaton::W_USED;
+      c.parent     = bound ? leader : automaton::NO_PARENT;
     }
   }
 }
@@ -250,13 +252,19 @@ int main(int argc, char** argv)
   // mediator pair from the effect of simply having W = 4 (which changes the
   // island/family layout of the bodies).
   const bool duoBare   = (strcmp(duoKind, "bare") == 0);
+  // "dressed": the section-6 primary setup - W = 6, family A = {0,1,2} at the
+  // left site (w=0 the body, w=1/2 its R2 dress pair) and family B = {3,4,5}
+  // at the right site (w=3 the body, w=4/5 its R2 dress pair).  Both dresses
+  // are BOUND to their body, so the mediator is a dress, not a free pair.
+  const bool duoDressed = (strcmp(duoKind, "dressed") == 0);
   // "broken": kind = P but the pair link (pair_idx) is missing.  Isolates the
   // effect of the P bookkeeping from the effect of the actual pair link.
   const bool duoBroken = (strcmp(duoKind, "broken") == 0);
   // "freq0": kind = P with pair_count = 0 (no frequency doubling).  Isolates
   // the kind bookkeeping from the pair-count/frequency bookkeeping.
   const bool duoFreq0  = (strcmp(duoKind, "freq0") == 0);
-  const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0;
+  const bool duo = duoPhoton || duoGrav || duoBare || duoBroken || duoFreq0 ||
+                   duoDressed;
   // Optional 13th argument: displace the planted mediator off the line of
   // centres (along z) so its CORE never contacts the bodies and only the
   // field (orphan shell) channel can act.  Diagnostic for the E1 observable.
@@ -274,11 +282,12 @@ int main(int argc, char** argv)
   // families of three layers - W must stay a multiple of 3), bodies w=0
   // (island 0) and w=3 (island 1), mediator w=6/7 (island 2).
   const bool duoFar = (argc > 14) && (strcmp(argv[14], "far") == 0);
-  const unsigned bodyBw = duoFar ? 3u : 1u;   // layer of the second body
+  const unsigned bodyBw = (duoFar || duoDressed) ? 3u : 1u;  // 2nd body layer
   const unsigned medW   = duoFar ? 6u : 2u;   // first layer of the mediator
 
   const unsigned W_in = canonical ? 3u * EL_in * EL_in
-                                  : (duo ? (duoFar ? 9u : 4u) : 2u);
+                                  : (duo ? (duoDressed ? 6u : (duoFar ? 9u : 4u))
+                                         : 2u);
 
   printf("=== alpha probe: %s ===\n",
          canonical ? "canonical (Platonic seed) configuration"
@@ -339,14 +348,30 @@ int main(int argc, char** argv)
       // (fully complementary: Rule 1).
       const unsigned char pA = 0x00;
       const unsigned char pB = duoPhoton ? 0x1F : 0x3F;
-      placeSource(medW,     C, C, C + (unsigned)duoOff, 0, 0, 0,
-                  duoSwap ? pB : pA);
-      placeSource(medW + 1, C, C, C + (unsigned)duoOff, 0, 0, 0,
-                  duoSwap ? pA : pB);
-      if (!duoBare)
+      if (duoDressed)
       {
-        markFreePair(medW, medW + 1, !duoBroken, duoFreq0 ? 0 : 1);
+        // Section-6 primary setup: each body carries its own BOUND R2 dress
+        // pair at its own site (leader = the body).  Family A = {0,1,2} left,
+        // family B = {3,4,5} right.
+        placeSource(1, C - off, C, C, +mag, 0, 0, pA);
+        placeSource(2, C - off, C, C, +mag, 0, 0, 0x1F);
+        placeSource(4, C + off, C, C, -mag, 0, 0, pA);
+        placeSource(5, C + off, C, C, -mag, 0, 0, 0x1F);
+        markFreePair(1, 2, true, 1, 0u);   // dress of body A
+        markFreePair(4, 5, true, 1, 3u);   // dress of body B
         automaton::replicate();
+      }
+      else
+      {
+        placeSource(medW,     C, C, C + (unsigned)duoOff, 0, 0, 0,
+                    duoSwap ? pB : pA);
+        placeSource(medW + 1, C, C, C + (unsigned)duoOff, 0, 0, 0,
+                    duoSwap ? pA : pB);
+        if (!duoBare)
+        {
+          markFreePair(medW, medW + 1, !duoBroken, duoFreq0 ? 0 : 1);
+          automaton::replicate();
+        }
       }
     }
   }

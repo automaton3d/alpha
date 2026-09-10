@@ -488,16 +488,30 @@ namespace automaton
     // island itself is NOT touched here.
     // ==================================================================
     {
-      auto freePhotonHalf = [](const Cell& c)
+      // A mediator half is any P source that is NOT part of the engaged
+      // island: a free photon/graviton (no leader) or the OTHER island's
+      // dress (leader = that island).  Using the dress leader as island B is
+      // exact, unlike the nearest-source fallback used for free mediators.
+      auto mediator = [](const Cell& c)
       {
-        return c.kind == SourceKind::P && c.leader_w == NO_LEADER_W;
+        return c.kind == SourceKind::P;
       };
       const Cell* isl = nullptr;
       const Cell* pho = nullptr;
-      if (currSrc.kind != SourceKind::P && freePhotonHalf(partnerSrc))
+      WIndex mLead = NO_LEADER_W;      // the mediator's leader (bound dress)
+      if (currSrc.kind != SourceKind::P && mediator(partnerSrc))
       { isl = &curr; pho = &partner; }
-      else if (partnerSrc.kind != SourceKind::P && freePhotonHalf(currSrc))
+      else if (partnerSrc.kind != SourceKind::P && mediator(currSrc))
       { isl = &partner; pho = &curr; }
+
+      if (isl && pho && isl->x[3] != pho->x[3])
+      {
+        const WIndex eChief = islandChief(sourceAfter[isl->x[3]]);
+        mLead = sourceAfter[pho->x[3]].leader_w;
+        const bool otherIsland = (mLead == NO_LEADER_W) ||
+                                 (eChief == NO_PARENT) || (mLead != eChief);
+        if (!otherIsland) { isl = nullptr; pho = nullptr; }
+      }
 
       if (isl && pho && isl->x[3] != pho->x[3])
       {
@@ -545,10 +559,17 @@ namespace automaton
           const bool graviton = (pw1 < W_USED) &&
                                 (((q0 ^ q1) & 0x3Fu) == 0x3Fu);
 
-          // The other island: nearest source centre belonging to a different
-          // island (mediators excluded).
+          // The other island: the mediator's own leader when it is a bound
+          // dress; otherwise the nearest unaffiliated source (free mediator).
           unsigned bw = W_USED;
           unsigned char bCh = 0;
+          if (mLead != NO_LEADER_W && mLead < W_USED)
+          {
+            bw = mLead;
+            bCh = sourceAfter[bw].ch;
+          }
+          else
+          {
           int bestD = -1;
           for (unsigned w = 0; w < W_USED; ++w)
           {
@@ -565,6 +586,7 @@ namespace automaton
               d += dd * dd;
             }
             if (bestD < 0 || d < bestD) { bestD = d; bw = w; bCh = sc.ch; }
+          }
           }
 
           if (bw < W_USED)

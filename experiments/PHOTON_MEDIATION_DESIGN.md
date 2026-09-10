@@ -252,13 +252,20 @@ the charge-sign channel and R1 gravitons for the always-attractive channel
   `ORPHAN_GATE_ONLY` build: gate-only runs clean).  Using `moveOneStepAway` /
   `moveOneStep` on the two ISLAND centres fixes it (no crash in any mode) - the
   same guarded helpers the electroweak branches use.
-- **Known gap in the `far` layout** (bodies in distinct islands, W = 9, the
-  `far` argument): the "other island" search picks one of the unplaced layers
-  left at the lattice centre by `initSimulation`, so the sign comparison uses
-  the wrong charge word (photon and graviton both attract).  The next probe
-  layout must place EVERY layer of the two island families (the design's
-  dressed two-body: W = 6, family A = w0/w1/w2 at one site, family B = w3/w4/w5
-  at the other, each body dressed with its own R2 pair).
+- **Mediator that is a BOUND dress (section 6 primary setup)**: the probe mode
+  `dressed` plants the design's own configuration - W = 6, family A = {0,1,2}
+  at the left site (w=0 the body, w=1/2 its R2 dress pair bound to it) and
+  family B = {3,4,5} at the right site.  The gate now accepts any P source that
+  is not part of the engaged island (free photon/graviton or the OTHER island's
+  dress) and uses the dress's own leader as island B, which is exact.
+  Measured: the gate fires (732 events) but the impulse SEGFAULTS in this
+  layout (bisected with the gate-only build again: gate-only is clean).  Same
+  signature as the earlier `far` crash, still open: the impulse must be made
+  safe for the bound-dress arrangement.  The working configuration (free
+  mediator, W = 4) is unaffected by the new gate code (re-verified:
+  photon min d = 3.00 over 30 frames, graviton and bare merge, default
+  6468/0/0).
+
 
 - **What still merges the bodies**: the two planted bodies start unaffiliated
   (a == W_USED) and the identity machinery elects a chief between them
