@@ -26,6 +26,14 @@
  *   ignored.  This is the configuration in which the polarization
  *   election/broadcast/reconstruction is active.
  *
+ *   An optional twelfth argument [photon|grav] plants a FREE mediator pair in
+ *   the vacuum between the two bodies (the dressed-duo probe of
+ *   PHOTON_MEDIATION_DESIGN.md section 6): "photon" plants the R2 pair
+ *   0x00/0x1F (the EM/dressing channel under test) and "grav" plants the R1
+ *   graviton pair 0x00/0x3F (the always-attractive control).  This needs two
+ *   extra W layers (W = 4) and is incompatible with "canon".  Without it the
+ *   run is the reference two-bubble configuration.
+ *
  *   A ninth argument equal to "pol" enables the experimental polarization
  *   bootstrap (polarization::seedAxis, the pbsb_two pattern): the default
  *   self-election cannot start from the zero-polarisation seed, so phase_step
@@ -78,6 +86,34 @@ namespace automaton
 
   // defined in simulation.cpp, not exposed in simulation.h
   void trackCenter(unsigned x, unsigned y, unsigned z, unsigned w);
+}
+
+// ---------------------------------------------------------------------------
+// markFreePair: turn the two freshly planted source centres (layers w and w2)
+// into ONE free mediator pair (kind = P with no leader), i.e. a photon /
+// graviton travelling in the vacuum.  The validated sieve never forms pairs
+// (s2B = 0), so the dressed-duo probe plants the pair directly, as the other
+// harnesses do (propeller_k / inertia_matched).
+// ---------------------------------------------------------------------------
+static void markFreePair(unsigned w, unsigned w2)
+{
+  for (unsigned layer : { w, w2 })
+  {
+    const unsigned partner = (layer == w) ? w2 : w;
+    for (auto* lat : { &automaton::lattice_curr, &automaton::lattice_draft,
+                       &automaton::lattice_partner })
+    {
+      const auto& ctr = automaton::lcenters[layer];
+      automaton::Cell& c = automaton::getCell(
+          *lat, (int)ctr[0], (int)ctr[1], (int)ctr[2], (int)layer);
+      c.kind       = automaton::SourceKind::P;
+      c.pair_idx   = partner;
+      c.pair_count = 1;
+      c.leader_w   = automaton::NO_LEADER_W;   // free: dress of no body
+      c.a          = automaton::W_USED;
+      c.parent     = automaton::NO_PARENT;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -199,7 +235,20 @@ int main(int argc, char** argv)
   if (chArg < 0) chArg = -1;
   else if (chArg > 63) chArg = 63;
 
-  const unsigned W_in = canonical ? 3u * EL_in * EL_in : 2u;
+  // Optional free-mediator pair in the vacuum between the two bodies (the
+  // dressed-duo probe, design section 6): "photon" = R2 pair (EM channel),
+  // "grav" = R1 graviton pair (always-attractive control).
+  const char* duoKind = (argc > 12) ? argv[12] : "none";
+  const bool duoPhoton = (strcmp(duoKind, "photon") == 0);
+  const bool duoGrav   = (strcmp(duoKind, "grav") == 0);
+  const bool duo = duoPhoton || duoGrav;
+  if (duo && canonical)
+  {
+    fprintf(stderr, "duo mode is incompatible with canon\n");
+    return 1;
+  }
+
+  const unsigned W_in = canonical ? 3u * EL_in * EL_in : (duo ? 4u : 2u);
 
   printf("=== alpha probe: %s ===\n",
          canonical ? "canonical (Platonic seed) configuration"
@@ -209,6 +258,10 @@ int main(int argc, char** argv)
          canonical ? "canon" : (repel ? "repel" : "scatter"), mag);
   if (chArg >= 0)
     printf("same-charge duo: ch = 0x%02X on both bubbles\n", (unsigned)chArg);
+  if (duo)
+    printf("free mediator pair planted at the midpoint: %s (0x00/0x%s)\n",
+           duoPhoton ? "R2 photon (EM channel)" : "R1 graviton (attractive control)",
+           duoPhoton ? "1F" : "3F");
   if (pol)
     printf("polarization bootstrap: axis=%s (seedAxis)\n", axisKind);
 
@@ -245,6 +298,20 @@ int main(int argc, char** argv)
 
     placeSource(0, C - off, C, C,  +mag, 0, 0, chA);  // left, moving right
     placeSource(1, C + off, C, C,  -mag, 0, 0, chB);  // right, moving left
+
+    if (duo)
+    {
+      // Free mediator pair: both halves superposed at the midpoint with the
+      // same initial clock, at rest.  R2 ("photon") = 0x00/0x1F (same sector
+      // w1, complementary q/w0/color: Rule 2); R1 ("grav") = 0x00/0x3F
+      // (fully complementary: Rule 1).
+      const unsigned char pA = 0x00;
+      const unsigned char pB = duoPhoton ? 0x1F : 0x3F;
+      placeSource(2, C, C, C, 0, 0, 0, pA);
+      placeSource(3, C, C, C, 0, 0, 0, pB);
+      markFreePair(2, 3);        // one free pair, not two lone bubbles
+      automaton::replicate();
+    }
   }
 
   // ------------------------------------------------------------------
