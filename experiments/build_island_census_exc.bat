@@ -9,7 +9,7 @@ if errorlevel 1 exit /b 1
 if not exist build\island_census mkdir build\island_census
 cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /D EXCLUSION_FSM ^
  /I src\include /I src\include\zlib /I src ^
- experiments\island_census.cpp src\model\charges.cpp src\model\initSim.cpp ^
+ experiments\island_census.cpp src\model\attractor.cpp src\model\charges.cpp src\model\initSim.cpp ^
  src\model\interaction.cpp src\model\polarization.cpp src\model\simulation.cpp ^
  src\model\utils.cpp /Fobuild\island_census\ /Fe:build\island_census\island_census_exc.exe
 exit /b %errorlevel%

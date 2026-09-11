@@ -1,9 +1,11 @@
 # Prepared inertial contact experiment
 
-Historical scope: these runs predate restoration of the author's D x D
-promotion rule. They do not validate inertia under the corrected role
-dynamics. Inertia work is paused while coagulation is investigated; see
-DD_PROMOTION_AUDIT.md and COAGULATION_RANDOM.md.
+Current status: see [INERTIA_REVALIDATION.md](INERTIA_REVALIDATION.md).
+
+Historical scope: the observations below predate D x D promotion and
+K x K clash activation in this build. The completed current revalidation is
+reported in INERTIA_REVALIDATION.md; old PASS results do not validate the
+restored role dynamics.
 
 This adds the specific inertial P x K and P x D contacts to the matched
 cohesion variant. Electromagnetic light-matter interactions are absent.
@@ -20,13 +22,13 @@ Outputs, logs, and objects reside in `build/inertia_matched/`.
 The harness prepares either K alone or K+2D, with zero or more reciprocal P
 pairs. All begin at the same center, with source radius zero and unreached
 geometry elsewhere. Roles, affinities, reciprocal pair identities, and axial
-m are prepared throughout each layer; chiefs and propellers are not formed
+m are prepared throughout each layer; chiefs and drive pairs are not formed
 dynamically by this test. The lattice is a periodic 9x9x9 spatial grid with
 W equal to the number of participating sources. Nothing edits simulation
 state between ticks. The reduced FSM is called through simulation().
 
 An active, positive-radius P/body encounter with matching affinity records
-the propeller's signed direction and pair identity. P/P contacts, pair
+the drive pair's signed direction and pair identity. P/P contacts, pair
 formation, and electromagnetic branches are absent. S cannot receive an
 inertial kick. A pair with zero m or an invalid reciprocal association cannot
 authorize transport. The two P halves are treated as one kick opportunity.
@@ -75,7 +77,7 @@ one cell. In the one-P K+2D run, 29 grants reached K and 45 reached D. The
 body remained localized in these 96 frames and the P remained nearby.
 
 The three-P case is not a successful cohesive-transport result: unwrapped
-separations expose body dispersion and a departing propeller, despite an
+separations expose body dispersion and a departing drive pair, despite an
 apparently larger mean velocity. Torus distances alone had hidden this.
 Its W and frame duration also differ from the one-P case, so these values
 do not establish a quantitative population-speed law for a fixed universe.
@@ -86,7 +88,7 @@ The initial trial moved each P forward whenever it kicked a body element.
 That trial let a single P separate by 45 unwrapped cells over 96 frames.
 The reemission-to-recipient rule corrects that observed one-P failure, but
 has not solved the multiple-P case. It should not be interpreted as evidence
-that every propeller remains bound indefinitely.
+that every drive pair remains bound indefinitely.
 
 Attraction and P reemission directions still read the reference center cache.
 The inherited phase and reissue paths also retain nonlocal dependencies.

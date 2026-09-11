@@ -83,4 +83,5 @@ int main() {
   lifecycle();
   oblique();
   puts("PASS: rest, cohesion, election, density response, reversal, cancellation, affinity, axis and identity");
+  return 0;
 }

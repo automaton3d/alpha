@@ -1,27 +1,11 @@
 #ifndef ATTRACTOR_H_
 #define ATTRACTOR_H_
 
-/*
- * attractor.h — Population instrumentation for W-islands.
- *
- * Measures the per-island bubble population N(t) plus gross capture/escape
- * event counts between consecutive light frames, in order to test the
- * dynamic charge quantization attractor N* described in the manuscript
- * section "Dynamic charge quantization":
- *
- *     Gamma_cap(N) > Gamma_esc(N) for small N,
- *     Gamma_cap(N) < Gamma_esc(N) for large N,
- *     stable attractor near Gamma_cap(N*) ~= Gamma_esc(N*).
- *
- * Operational definitions (affinity level):
- *   - A cell belongs to island g when its affinity a != W_USED and
- *     g = islandOf(a) (= a / ISLAND_SIZE).
- *   - CAPTURE : orphan -> member        (a: W_USED -> chiefW)
- *   - ESCAPE  : member -> orphan        (a: chiefW -> W_USED)
- *   - SWITCH  : member g1 -> member g2  (counted as escape(g1)+capture(g2))
- *
- * Sampling happens once per completed light frame (k wrapped to zero),
- * reading lattice_curr only.
+/* Read-only frame diagnostics. Default: one source bubble per W, grouped by
+ * its live chief (K.w or D.parent). Dangling D parents are unresolved, not
+ * islands. AffinityCells is a separate occupancy observable keyed by exact a;
+ * it never establishes island identity or a constituent population.
+ * Membership flows use consecutive snapshots with no turnaround suppression.
  */
 
 #include <string>
@@ -32,6 +16,13 @@ namespace automaton
 {
   namespace attractor
   {
+    enum class Observable : uint32_t { ChiefConstituents = 0, AffinityCells = 1 };
+
+    struct Census {
+      unsigned chiefs=0, delegates=0, singletons=0, pairs=0;
+      unsigned unresolved=0, occupiedCenters=0, groupsOfTarget=0;
+    };
+
     struct IslandStats
     {
       unsigned island  = 0;
@@ -42,7 +33,7 @@ namespace automaton
       long     samples = 0;     // number of frames sampled for this island
 
       // OLS fit of dN(t) = N(t+1) - N(t) against N(t):
-      double   slope     = 0.0;  // restoring coefficient (< 0 => attractor)
+      double   slope     = 0.0;  // descriptive coefficient; negative does not prove stability
       double   slopeSE   = 0.0;  // standard error of slope
       double   intercept = 0.0;
       double   r2        = 0.0;
@@ -55,8 +46,11 @@ namespace automaton
 
     struct Report
     {
+      Observable observable = Observable::ChiefConstituents;
+      Census census; // latest sample; groupsOfTarget uses EL/3 only when divisible
       unsigned frames    = 0;
-      unsigned nIslands  = 0;
+      unsigned nIslands  = 0; // live chiefs at the latest sample
+      unsigned nBuckets  = 0; // possible W addresses, not an island count
       double   pooledSlope = 0.0, pooledSlopeSE = 0.0;
       double   pooledIntercept = 0.0, pooledR2 = 0.0;
       bool     pooledHasFit = false;
@@ -68,18 +62,18 @@ namespace automaton
       std::vector<IslandStats> islands;
     };
 
-    /// Allocate the previous-state snapshot. Call once after tryAllocate().
-    void begin();
+    /// Allocate the previous-state snapshot. Call after initializing the lattice.
+    void begin(Observable observable = Observable::ChiefConstituents);
 
     /// Recompute the previous-state snapshot from lattice_curr WITHOUT
-    /// counting events (used when resuming from a checkpoint).
+    /// counting events. With history present, rejects mismatched checkpoints.
     void resyncPrev();
 
     /// Persist the sampled time series (frames_, nBuckets_, pop_, cap_, esc_).
     bool saveSeries(const std::string& path);
 
     /// Restore the time series previously written by saveSeries().
-    /// Returns false on I/O error or topology mismatch.
+    /// Returns false on I/O error, legacy format, observable or topology mismatch.
     bool loadSeries(const std::string& path);
 
 
@@ -95,11 +89,13 @@ namespace automaton
     /// Console report (stdout).
     void printReport(const Report& rep);
 
-    /// Time-series CSV: frame,island,population,captures,escapes
+    /// Time-series CSV keyed by chief_w (constituents) or affinity (occupied_cells).
     bool writeCSV(const std::string& path, const Report& rep);
 
-    /// Per-frame sector-flux CSV (8 columns: cap/esc split by Orbis/Umbra
-    /// and matter/anti).  Parallel to writeCSV.
+    /// Live chief counts, unresolved delegates and spatial diagnostics (chief mode only).
+    bool writeCensusCSV(const std::string& path);
+
+    /// Per-frame sector flux (8 capture/escape columns plus two charge conversions).
     bool writeSectorCSV(const std::string& path);
   }
 }

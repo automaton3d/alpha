@@ -1,297 +1,178 @@
-/*
- * attractor.cpp — W-island population instrumentation.
- * See attractor.h for the operational definitions.
- */
-
 #include "model/attractor.h"
-#include "model/simulation.h"
-
+#include "model/island_identity.h"
 #include <cstdio>
 #include <cmath>
 #include <algorithm>
+#include <array>
+#include <set>
+#include <stdexcept>
+#include <limits>
 
-namespace automaton
-{
-  namespace attractor
-  {
-    namespace
-    {
-      constexpr uint16_t ORPHAN = 0xFFFF;
-
-      std::vector<uint16_t> prev_;   // per-cell island bucket snapshot
-      std::vector<uint64_t> pop_;    // [frame * nBuckets + g]
-      std::vector<uint64_t> cap_;
-      std::vector<uint64_t> esc_;
-      std::vector<uint64_t> flux_;   // per-frame sector flux, 8 slots/frame:
-                                     //   idx = (esc?4:0) + sec*2 + (mat?1:0)
-                                     //   capM_Orb capA_Orb capM_Umb capA_Umb
-                                     //   escM_Orb escA_Orb escM_Umb escA_Umb
-      unsigned nBuckets_ = 0;
-      unsigned frames_   = 0;
-
-      // Sector of a cell from its charge word (bit5 = w1).  Invariant under
-      // the M/Mbar hook (ch ^= 0x1F preserves w1), so a bubble's sector is
-      // a stable label throughout the run.
-      inline unsigned secOf(const Cell& c)
-      {
-        return (c.ch >> 5) & 1u;
-      }
-
-      // Matter/anti from the color weight (SIG < 2 = matter), same rule as
-      // the charge census and the virada/combine studies.
-      inline bool matOf(const Cell& c)
-      {
-        return ((c.ch & 1u) + ((c.ch >> 1) & 1u) + ((c.ch >> 2) & 1u)) < 2u;
-      }
-
-      // Series-start island charge balance per sector (series v3): the
-      // baseline the sector-flux telescoping integrates from.  While
-      // (sector, sign) per cell is invariant (eps=0 hook), the island
-      // balance obeys
-      //   D_isl(sec, t) = D0(sec) + sum_frames (capM-capA-escM+escA)(sec)
-      // so the SECTOR FLUX report can reconcile directly against the
-      // [charges] closure census (DslOrb/DslUmb).
-      long long dIslOrb0_ = 0;
-      long long dIslUmb0_ = 0;
-
-      void computeIslandD(long long& orb, long long& umb)
-      {
-        long long o = 0, u = 0;
-        for (size_t i = 0; i < static_cast<size_t>(BLOCK); ++i)
-        {
-          const Cell& c = lattice_curr[i];
-          if (c.a == W_USED || ISLAND_SIZE == 0) continue;
-          const long long d = matOf(c) ? 1 : -1;
-          if (secOf(c) == 0) o += d; else u += d;
-        }
-        orb = o;
-        umb = u;
-      }
-
-      // Ordinary least squares of y ~ x over x[begin..end).
-      inline void ols(const std::vector<double>& x,
-                      const std::vector<double>& y,
-                      size_t begin, size_t end,
-                      double& slope, double& intercept,
-                      double& r2, double& slopeSE)
-      {
-        slope = intercept = r2 = slopeSE = 0.0;
-        const size_t n = end - begin;
-        if (n < 8) return;
-
-        double sx = 0, sy = 0;
-        for (size_t i = begin; i < end; ++i) { sx += x[i]; sy += y[i]; }
-        const double mx = sx / n, my = sy / n;
-
-        double sxx = 0, sxy = 0, syy = 0;
-        for (size_t i = begin; i < end; ++i)
-        {
-          const double dx = x[i] - mx, dy = y[i] - my;
-          sxx += dx * dx; sxy += dx * dy; syy += dy * dy;
-        }
-        if (sxx <= 0.0) return;
-
-        slope     = sxy / sxx;
-        intercept = my - slope * mx;
-
-        // Residual sum of squares around the fitted line.
-        const double sse = syy - slope * sxy;
-        const double sst = syy;
-        r2 = (sst > 0.0) ? std::max(0.0, 1.0 - sse / sst) : 0.0;
-
-        const double dof = static_cast<double>(n) - 2.0;
-        if (dof > 0.0 && sse > 0.0)
-          slopeSE = std::sqrt((sse / dof) / sxx);
-      }
+namespace automaton { namespace attractor {
+namespace {
+constexpr uint32_t ORPHAN = UINT32_MAX;
+struct Member { uint32_t label=ORPHAN, category=0; };
+Observable mode_=Observable::ChiefConstituents;
+std::vector<Member> prev_;
+std::vector<uint64_t> pop_,cap_,esc_,flux_;
+std::vector<int64_t> conversion_; // signed matter-minus-antimatter changes within membership
+std::vector<Census> census_;
+unsigned nBuckets_=0,frames_=0;
+int64_t dIslOrb0_=0,dIslUmb0_=0;
+unsigned category(const Cell& c) {
+  const unsigned weight=(c.ch&1u)+((c.ch>>1)&1u)+((c.ch>>2)&1u);
+  return ((c.ch>>5)&1u)*2u + (weight<2?0u:1u); // M, anti, M, anti
+}
+int sign(unsigned c) { return c%2?-1:1; }
+std::vector<Member> snapshot(Census& census) {
+  std::vector<Member> result;
+  if(mode_==Observable::AffinityCells) {
+    result.reserve(lattice_curr.size());
+    for(const Cell& c:lattice_curr)
+      result.push_back({c.a<W_USED?c.a:ORPHAN,category(c)});
+    return result;
+  }
+  std::vector<const Cell*> sources(W_USED,nullptr);
+  std::set<std::array<unsigned,3>> centers;
+  for(const Cell& c:lattice_curr) if(c.r2==0) {
+    if(c.w>=W_USED || sources[c.w]) throw std::runtime_error("census: invalid or duplicate source");
+    sources[c.w]=&c;
+    centers.insert({c.x[0],c.x[1],c.x[2]});
+  }
+  result.resize(W_USED);
+  std::vector<unsigned> populations(W_USED,0);
+  for(unsigned w=0;w<W_USED;++w)
+    if(!sources[w]) throw std::runtime_error("census: missing source");
+  for(unsigned w=0;w<W_USED;++w) {
+    const Cell& c=*sources[w];
+    uint32_t chief=ORPHAN;
+    switch(c.kind) {
+      case SourceKind::K: ++census.chiefs;chief=w;break;
+      case SourceKind::D:
+        ++census.delegates;
+        if(c.parent<W_USED && sources[c.parent]->kind==SourceKind::K) chief=c.parent;
+        else ++census.unresolved;
+        break;
+      case SourceKind::S: ++census.singletons;break;
+      case SourceKind::P: ++census.pairs;break; // P halves, not reciprocal pair count
     }
-
-    void begin()
-    {
-      nBuckets_ = ISLAND_SIZE ? ((W_USED + ISLAND_SIZE - 1) / ISLAND_SIZE) : W_USED;
-      if (nBuckets_ == 0) nBuckets_ = 1;
-
-      prev_.assign(static_cast<size_t>(BLOCK), ORPHAN);
-      pop_.clear(); cap_.clear(); esc_.clear(); flux_.clear();
-      frames_ = 0;
-      // Fresh start: D0 = island balance of the seed.  On resume this gets
-      // overwritten by loadSeries (v3) with the run's original baseline.
-      computeIslandD(dIslOrb0_, dIslUmb0_);
-
-      printf("attractor: %u island buckets (ISLAND_SIZE=%u, W_USED=%u)\n",
-             nBuckets_, ISLAND_SIZE, W_USED);
+    result[w]={chief,category(c)};
+    if(chief!=ORPHAN) ++populations[chief];
+  }
+  census.occupiedCenters=static_cast<unsigned>(centers.size());
+  if(EL>=3 && EL%3==0)
+    for(unsigned n:populations) census.groupsOfTarget+=n==EL/3;
+  return result;
+}
+bool ols(const std::vector<double>& x,const std::vector<double>& y,
+         size_t begin,size_t end,double& slope,double& intercept,double& r2,double& se) {
+  slope=intercept=r2=se=0;
+  const size_t n=end-begin;if(n<8)return false;
+  double sx=0,sy=0;
+  for(size_t i=begin;i<end;++i){sx+=x[i];sy+=y[i];}
+  const double mx=sx/n,my=sy/n;
+  double xx=0,xy=0,yy=0;
+  for(size_t i=begin;i<end;++i){double dx=x[i]-mx,dy=y[i]-my;xx+=dx*dx;xy+=dx*dy;yy+=dy*dy;}
+  if(xx<=0)return false;
+  slope=xy/xx;intercept=my-slope*mx;
+  const double sse=std::max(0.0,yy-slope*xy);
+  r2=yy>0?std::clamp(1-sse/yy,0.0,1.0):0;
+  se=std::sqrt(sse/(n-2)/xx);return true;
+}
+}
+void begin(Observable observable) {
+  if(observable!=Observable::ChiefConstituents && observable!=Observable::AffinityCells) throw std::invalid_argument("unknown census observable");
+  mode_=observable;nBuckets_=W_USED;frames_=0;
+  pop_.clear();cap_.clear();esc_.clear();flux_.clear();conversion_.clear();census_.clear();
+  Census c;prev_=snapshot(c);dIslOrb0_=dIslUmb0_=0;
+  for(const Member& m:prev_) if(m.label!=ORPHAN)
+    (m.category<2?dIslOrb0_:dIslUmb0_)+=sign(m.category);
+}
+void resyncPrev() {
+  Census c;auto current=snapshot(c);
+  if(frames_) {
+    if(current.size()!=prev_.size())throw std::runtime_error("census checkpoint mismatch");
+    for(size_t i=0;i<current.size();++i)
+      if(current[i].label!=prev_[i].label || current[i].category!=prev_[i].category)
+        throw std::runtime_error("census checkpoint mismatch; start a new series");
+  } else {
+    dIslOrb0_=dIslUmb0_=0;
+    for(const Member& m:current)if(m.label!=ORPHAN)
+      (m.category<2?dIslOrb0_:dIslUmb0_)+=sign(m.category);
+  }
+  prev_=std::move(current);
+}
+unsigned framesSampled(){return frames_;}
+void sampleFrame(unsigned frame) {
+  if(!frame)frame=frames_+1;
+  if(frame!=frames_+1 || nBuckets_!=W_USED) throw std::runtime_error("census: nonsequential frame or changed topology");
+  Census c;auto current=snapshot(c);
+  if(current.size()!=prev_.size())throw std::runtime_error("census: changed snapshot size");
+  const size_t off=size_t(frames_)*nBuckets_,foff=size_t(frames_)*8;
+  pop_.resize(off+nBuckets_,0);cap_.resize(off+nBuckets_,0);esc_.resize(off+nBuckets_,0);
+  flux_.resize(foff+8,0);conversion_.resize(size_t(frame)*2,0);
+  for(size_t i=0;i<current.size();++i) {
+    const Member a=prev_[i],b=current[i];
+    if(b.label!=ORPHAN)++pop_[off+b.label];
+    if(a.label!=b.label) {
+      if(a.label!=ORPHAN){++esc_[off+a.label];++flux_[foff+4+a.category];}
+      if(b.label!=ORPHAN){++cap_[off+b.label];++flux_[foff+b.category];}
+    } else if(b.label!=ORPHAN && a.category!=b.category) {
+      conversion_[size_t(frames_)*2+a.category/2]-=sign(a.category);
+      conversion_[size_t(frames_)*2+b.category/2]+=sign(b.category);
     }
-
-    void sampleFrame(unsigned frame)
-    {
-      if (frame == 0) frame = frames_ + 1;   // defensive
-      const size_t off = static_cast<size_t>(frame - 1) * nBuckets_;
-
-      pop_.resize(off + nBuckets_, 0);
-      cap_.resize(off + nBuckets_, 0);
-      esc_.resize(off + nBuckets_, 0);
-
-      const size_t foff = static_cast<size_t>(frame - 1) * 8;
-      flux_.resize(foff + 8, 0);
-
-      std::fill(pop_.begin() + off, pop_.end(), 0ull);
-      std::fill(cap_.begin() + off, cap_.end(), 0ull);
-      std::fill(esc_.begin() + off, esc_.end(), 0ull);
-      std::fill(flux_.begin() + foff, flux_.end(), 0ull);
-
-      for (size_t i = 0; i < static_cast<size_t>(BLOCK); ++i)
-      {
-        const unsigned a = lattice_curr[i].a;
-
-        uint16_t now = ORPHAN;
-        if (a != W_USED && ISLAND_SIZE != 0)
-        {
-          size_t b = static_cast<size_t>(a) / ISLAND_SIZE;
-          if (b >= nBuckets_) b = nBuckets_ - 1;
-          now = static_cast<uint16_t>(b);
-        }
-
-        if (now != ORPHAN)
-          ++pop_[off + now];
-
-        const uint16_t pv = prev_[i];
-        if (lattice_curr[i].t >= RMAX && pv != now)
-        {
-          // Turnaround flicker: at the expansion limit (t == RMAX) the active
-          // shell reads a := W_USED for exactly one tick and is re-affiliated
-          // on the next tick with an unchanged charge word.  Hold the
-          // pre-turnaround label so the frame series measures settled
-          // membership instead of this D-neutral 1-tick flicker.
-          continue;
-        }
-
-        if (pv == ORPHAN && now != ORPHAN)
-        {
-          ++cap_[off + now];
-          ++flux_[foff + 0u + secOf(lattice_curr[i]) * 2u + (matOf(lattice_curr[i]) ? 1u : 0u)];
-        }
-        else if (pv != ORPHAN && now == ORPHAN)
-        {
-          ++esc_[off + pv];
-          ++flux_[foff + 4u + secOf(lattice_curr[i]) * 2u + (matOf(lattice_curr[i]) ? 1u : 0u)];
-        }
-        else if (pv != ORPHAN && now != ORPHAN && pv != now)
-        {
-          ++esc_[off + pv];   // island switch = escape + capture
-          ++cap_[off + now];
-          ++flux_[foff + 0u + secOf(lattice_curr[i]) * 2u + (matOf(lattice_curr[i]) ? 1u : 0u)];
-          ++flux_[foff + 4u + secOf(lattice_curr[i]) * 2u + (matOf(lattice_curr[i]) ? 1u : 0u)];
-        }
-
-        prev_[i] = now;
-      }
-
-      frames_ = frame;
-    }
-
-    unsigned framesSampled() { return frames_; }
-
-    void resyncPrev()
-    {
-      if (prev_.size() != static_cast<size_t>(BLOCK))
-        prev_.assign(static_cast<size_t>(BLOCK), ORPHAN);
-
-      for (size_t i = 0; i < static_cast<size_t>(BLOCK); ++i)
-      {
-        const unsigned a = lattice_curr[i].a;
-        uint16_t now = ORPHAN;
-        if (a != W_USED && ISLAND_SIZE != 0)
-        {
-          size_t b = static_cast<size_t>(a) / ISLAND_SIZE;
-          if (b >= nBuckets_) b = nBuckets_ - 1;
-          now = static_cast<uint16_t>(b);
-        }
-        prev_[i] = now;
-      }
-    }
-
-    bool saveSeries(const std::string& path)
-    {
-      FILE* f = fopen(path.c_str(), "wb");
-      if (!f) return false;
-      uint32_t hdr[5] = { frames_, nBuckets_, 3,
-                          (uint32_t)(int32_t)dIslOrb0_,
-                          (uint32_t)(int32_t)dIslUmb0_ };  // v3 adds D0 per sector
-      fwrite(hdr, sizeof(hdr), 1, f);
-      if (frames_)
-      {
-        fwrite(pop_.data(), sizeof(uint64_t), pop_.size(), f);
-        fwrite(cap_.data(), sizeof(uint64_t), cap_.size(), f);
-        fwrite(esc_.data(), sizeof(uint64_t), esc_.size(), f);
-        fwrite(flux_.data(), sizeof(uint64_t), flux_.size(), f);
-      }
-      fclose(f);
-      return true;
-    }
-
-    bool loadSeries(const std::string& path)
-    {
-      FILE* f = fopen(path.c_str(), "rb");
-      if (!f) return false;
-      uint32_t hdr[3] = { 0, 0, 0 };
-      size_t got = fread(hdr, sizeof(uint32_t), 3, f);
-      if (got != 3)
-      {
-        // Fallback: pre-v2 header (frames_, nBuckets_ only).
-        uint32_t hdr2[2] = { hdr[0], hdr[1] };
-        rewind(f);
-        if (fread(hdr2, sizeof(uint32_t), 2, f) != 2 ||
-            hdr2[1] != nBuckets_)
-        {
-          fclose(f);
-          return false;
-        }
-        hdr[0] = hdr2[0]; hdr[1] = hdr2[1]; hdr[2] = 0;
-      }
-      if (hdr[1] != nBuckets_)
-      {
-        fclose(f);
-        return false;
-      }
-      if (hdr[2] >= 3)
-      {
-        // v3: series-start island D per sector (telescoping baseline).
-        uint32_t d0[2] = { 0, 0 };
-        if (fread(d0, sizeof(uint32_t), 2, f) != 2)
-        {
-          fclose(f);
-          return false;
-        }
-        dIslOrb0_ = (long long)(int32_t)d0[0];
-        dIslUmb0_ = (long long)(int32_t)d0[1];
-      }
-      else
-      {
-        dIslOrb0_ = 0;
-        dIslUmb0_ = 0;
-      }
-      frames_ = hdr[0];
-      const size_t n = static_cast<size_t>(frames_) * nBuckets_;
-      pop_.resize(n); cap_.resize(n); esc_.resize(n);
-      flux_.assign(static_cast<size_t>(frames_) * 8, 0);
-      bool ok = true;
-      if (n)
-        ok = fread(pop_.data(), sizeof(uint64_t), n, f) == n &&
-             fread(cap_.data(), sizeof(uint64_t), n, f) == n &&
-             fread(esc_.data(), sizeof(uint64_t), n, f) == n;
-      if (ok && hdr[2] >= 2 && frames_)
-        ok = fread(flux_.data(), sizeof(uint64_t), frames_ * 8, f) == frames_ * 8;
-      fclose(f);
-      return ok;
-    }
-
-
-    // ==== summary / report / csv ====
-
+  }
+  prev_=std::move(current);census_.push_back(c);frames_=frame;
+}
+// v4 uses an explicit observable, topology, 64-bit baseline, previous snapshot,
+// and conversion series. Old affinity/flicker series must not be mixed with it.
+bool saveSeries(const std::string& path) {
+  FILE* f=fopen(path.c_str(),"wb");if(!f)return false;
+  uint32_t h[]={0x41545452,4,uint32_t(mode_),W_USED,ELX,ELY,ELZ,frames_,nBuckets_};
+  int64_t baseline[]={dIslOrb0_,dIslUmb0_};
+  bool ok=fwrite(h,sizeof(h),1,f)==1 && fwrite(baseline,sizeof(baseline),1,f)==1;
+  auto put=[&](const auto& v){if(!v.empty())ok=(fwrite(v.data(),sizeof(v[0]),v.size(),f)==v.size())&&ok;};
+  put(prev_);put(pop_);put(cap_);put(esc_);put(flux_);put(conversion_);put(census_);
+  return fclose(f)==0 && ok;
+}
+bool loadSeries(const std::string& path) {
+  FILE* f=fopen(path.c_str(),"rb");if(!f)return false;
+  uint32_t h[9]{};int64_t baseline[2]{};
+  bool ok=fread(h,sizeof(h),1,f)==1 && h[0]==0x41545452 && h[1]==4 &&
+    h[2]==uint32_t(mode_) && h[3]==W_USED && h[4]==ELX && h[5]==ELY && h[6]==ELZ && h[8]==nBuckets_;
+  if(!ok){fclose(f);return false;}
+  // Check the exact byte length before trusting the recorded frame count.
+  const uint64_t count=uint64_t(h[7])*nBuckets_;
+  const uint64_t expected=sizeof(h)+sizeof(baseline)+prev_.size()*sizeof(Member)+
+    count*3*sizeof(uint64_t)+uint64_t(h[7])*(8*sizeof(uint64_t)+2*sizeof(int64_t)+sizeof(Census));
+  _fseeki64(f,0,SEEK_END);const auto length=_ftelli64(f);
+  if(length<0 || uint64_t(length)!=expected){fclose(f);return false;}
+  _fseeki64(f,sizeof(h),SEEK_SET);
+  auto previous=prev_;std::vector<uint64_t> p(count),c(count),e(count),flux(size_t(h[7])*8);
+  std::vector<int64_t> conversion(size_t(h[7])*2);std::vector<Census> census(h[7]);
+  ok=fread(baseline,sizeof(baseline),1,f)==1;
+  auto get=[&](auto& v){if(!v.empty())ok=(fread(v.data(),sizeof(v[0]),v.size(),f)==v.size())&&ok;};
+  get(previous);get(p);get(c);get(e);get(flux);get(conversion);get(census);fclose(f);
+  for(const Member& m:previous)ok=ok && (m.label==ORPHAN || m.label<W_USED) && m.category<4;
+  if(!ok)return false;
+  prev_=std::move(previous);pop_=std::move(p);cap_=std::move(c);esc_=std::move(e);flux_=std::move(flux);
+  conversion_=std::move(conversion);census_=std::move(census);frames_=h[7];dIslOrb0_=baseline[0];dIslUmb0_=baseline[1];return true;
+}
+bool writeCensusCSV(const std::string& path) {
+  if(mode_!=Observable::ChiefConstituents)return false;
+  FILE* f=fopen(path.c_str(),"w");if(!f)return false;
+  fprintf(f,"frame,K,D,S,P_halves,unresolved,occupied_centers,groups_of_L_over_3\n");
+  for(size_t i=0;i<census_.size();++i){const auto& c=census_[i];fprintf(f,"%zu,%u,%u,%u,%u,%u,%u,%u\n",i+1,c.chiefs,c.delegates,c.singletons,c.pairs,c.unresolved,c.occupiedCenters,c.groupsOfTarget);}
+  const bool ok=!ferror(f);return fclose(f)==0 && ok;
+}
     Report summarize()
     {
       Report rep;
+      rep.observable=mode_;
+      if(!census_.empty())rep.census=census_.back();
       rep.frames   = frames_;
-      rep.nIslands = nBuckets_;
+      rep.nBuckets = nBuckets_;
+      rep.nIslands = rep.census.chiefs;
       rep.islands.resize(nBuckets_);
 
       std::vector<double> xs, ys;   // pooled (N_t, dN_t) points
@@ -305,7 +186,7 @@ namespace automaton
         st.island = g;
 
         const size_t F = frames_;
-        if (F < 8) continue;
+        if (F == 0) continue;
 
         std::vector<double> N(F), dN(F - 1);
         double s = 0, s2 = 0;
@@ -333,12 +214,10 @@ namespace automaton
         for (size_t t = 0; t + 1 < F; ++t)
         {
           dN[t] = N[t + 1] - N[t];
-          xs.push_back(N[t]);
-          ys.push_back(dN[t]);
+          if(N[t]>0){xs.push_back(N[t]);ys.push_back(dN[t]);}
         }
 
-        ols(N, dN, 0, dN.size(), st.slope, st.intercept, st.r2, st.slopeSE);
-        st.hasFit = (st.slopeSE > 0.0) || (st.r2 > 0.0);
+        st.hasFit = ols(N, dN, 0, dN.size(), st.slope, st.intercept, st.r2, st.slopeSE);
         if (st.hasFit && st.slope < 0.0)
           st.nStar = -st.intercept / st.slope;
 
@@ -361,11 +240,11 @@ namespace automaton
         rep.meanEscapes  = e / frames_;
       }
 
-      // Pooled regression across all islands: strongest attractor test.
+      // Pooled regression across all islands: descriptive only; temporal dependence is not modeled.
       rep.pooledPoints = static_cast<long>(xs.size());
-      ols(xs, ys, 0, xs.size(),
+      rep.pooledHasFit = ols(xs, ys, 0, xs.size(),
           rep.pooledSlope, rep.pooledIntercept, rep.pooledR2, rep.pooledSlopeSE);
-      rep.pooledHasFit = rep.pooledPoints >= 8;
+
       if (rep.pooledHasFit && rep.pooledSlope < 0.0)
         rep.pooledNStar = -rep.pooledIntercept / rep.pooledSlope;
 
@@ -410,22 +289,24 @@ namespace automaton
 
       printf("----------------------------------------------------------------\n");
       printf("SECTOR FLUX  (aggregate %u frames, per-frame rates)\n", frames);
-      // Telescoping prediction: with (sector, sign) per cell invariant
-      // (eps=0), D_isl(sec, now) = D0(sec) + cumulative net flux.  Compare
-      // against the [charges] closure DslOrb/DslUmb at the census ticks.
+      // Measured balance = initial balance + net membership flux + conversion.
+      // Chief constituents and affinity cells have different units.
       const long long cumOrb = (long long)t.capM_Orb - (long long)t.capA_Orb -
                                (long long)t.escM_Orb + (long long)t.escA_Orb;
       const long long cumUmb = (long long)t.capM_Umb - (long long)t.capA_Umb -
                                (long long)t.escM_Umb + (long long)t.escA_Umb;
-      printf("                capM   capA   |   escM   escA   |  netD/fr  D_isl(pred)\n");
+      int64_t convOrb=0,convUmb=0;
+      for(unsigned i=0;i<frames_;++i){convOrb+=conversion_[size_t(i)*2];convUmb+=conversion_[size_t(i)*2+1];}
+      printf("Within-membership charge conversion: Orbis=%lld Umbra=%lld\n",(long long)convOrb,(long long)convUmb);
+      printf("                capM   capA   |   escM   escA   |  netD/fr  D_members(pred)\n");
       printf("  Orbis (w1=0) %5.1f %6.1f | %6.1f %6.1f | %+8.2f  %+9lld\n",
              (double)t.capM_Orb / f, (double)t.capA_Orb / f,
-             (double)t.escM_Orb / f, (double)t.escA_Orb / f, netD_orb,
-             dIslOrb0_ + cumOrb);
+             (double)t.escM_Orb / f, (double)t.escA_Orb / f, netD_orb / f,
+             (long long)(dIslOrb0_ + cumOrb + convOrb));
       printf("  Umbra (w1=1) %5.1f %6.1f | %6.1f %6.1f | %+8.2f  %+9lld\n",
              (double)t.capM_Umb / f, (double)t.capA_Umb / f,
-             (double)t.escM_Umb / f, (double)t.escA_Umb / f, netD_umb,
-             dIslUmb0_ + cumUmb);
+             (double)t.escM_Umb / f, (double)t.escA_Umb / f, netD_umb / f,
+             (long long)(dIslUmb0_ + cumUmb + convUmb));
 
       // The headline question: does Umbra shed anti faster than Orbis sheds
       // matter while Orbis keeps netting matter?
@@ -433,22 +314,23 @@ namespace automaton
       const double escM_Orb = (double)t.escM_Orb / f;
       const double netM_Orb = ((double)t.capM_Orb - (double)t.escM_Orb) / f;
       const double netA_Umb = ((double)t.capA_Umb - (double)t.escA_Umb) / f;
-      printf("  Umbra anti escape rate    %8.2f cells/frame\n", escA_Umb);
-      printf("  Orbis matter escape rate  %8.2f cells/frame\n", escM_Orb);
-      printf("  Umbra net anti flux to islands %+8.2f cells/frame (neg = shedding)\n", netA_Umb);
-      printf("  Orbis net matter flux to islands %+8.2f cells/frame (pos = gaining)\n", netM_Orb);
+      printf("  Umbra anti escape rate    %8.2f units/frame\n", escA_Umb);
+      printf("  Orbis matter escape rate  %8.2f units/frame\n", escM_Orb);
+      printf("  Umbra net anti membership flux %+8.2f units/frame (neg = shedding)\n", netA_Umb);
+      printf("  Orbis net matter membership flux %+8.2f units/frame (pos = gaining)\n", netM_Orb);
       printf("----------------------------------------------------------------\n");
     }
 
     void printReport(const Report& rep)
     {
       printf("\n==============================================================\n");
-      printf("ISLAND POPULATION ATTRACTOR REPORT\n");
+      printf("%s\n",mode_==Observable::ChiefConstituents?"CHIEF CONSTITUENT CENSUS":"AFFINITY CELL OCCUPANCY (NOT ISLAND POPULATION)");
       printf("==============================================================\n");
       printf("lattice: EL=%u W_USED=%u RMAX=%u ISLAND_SIZE=%u buckets=%u\n",
-             EL, W_USED, RMAX, ISLAND_SIZE, rep.nIslands);
+             EL, W_USED, RMAX, ISLAND_SIZE, rep.nBuckets);
       printf("frames sampled: %u\n", rep.frames);
-      printf("mean total affiliated population: %.1f cells\n", rep.meanTotalPop);
+      printf("mean total measured population: %.1f units\n", rep.meanTotalPop);
+      if(mode_==Observable::ChiefConstituents)printf("Latest: K=%u D=%u S=%u P_halves=%u unresolved=%u centers=%u groups_of_L/3=%u\n",rep.census.chiefs,rep.census.delegates,rep.census.singletons,rep.census.pairs,rep.census.unresolved,rep.census.occupiedCenters,rep.census.groupsOfTarget);
       printf("gross turnover: captures/frame=%.2f  escapes/frame=%.2f\n",
              rep.meanCaptures, rep.meanEscapes);
       printSectorFlux(fluxTotals(), frames_);
@@ -460,14 +342,15 @@ namespace automaton
         printf("  intercept = %+.6g\n", rep.pooledIntercept);
         printf("  r2        = %.4f\n", rep.pooledR2);
         if (rep.pooledSlope < 0.0)
-          printf("  ==> restoring dynamics detected; N* ~= %.2f\n", rep.pooledNStar);
+          printf("  ==> negative descriptive slope; fitted zero ~= %.2f\n", rep.pooledNStar);
         else
-          printf("  ==> no restoring dynamics detected (slope >= 0)\n");
+          printf("  ==> nonnegative descriptive slope\n");
       }
       else
         printf("  insufficient data\n");
 
-      // Rank islands by |t-stat| of their individual slope.
+      printf("Negative slope alone does not establish stability; OLS errors assume independent residuals.\n");
+      // Descriptive ranking only.
       std::vector<const IslandStats*> ranked;
       for (const auto& st : rep.islands)
         if (st.samples > 0)
@@ -481,9 +364,9 @@ namespace automaton
         return ta > tb;
       });
 
-      printf("\ntop islands by |slope| significance:\n");
+      printf("\naddress buckets ranked by descriptive slope/SE:\n");
       printf("%6s %10s %9s %9s %9s %+11s %8s %9s %8s\n",
-             "island", "meanN", "std", "min", "max", "slope", "r2", "N*", "cap/fr");
+             "address", "meanN", "std", "min", "max", "slope", "r2", "N*", "cap/fr");
       int shown = 0;
       for (const IslandStats* st : ranked)
       {
@@ -504,11 +387,11 @@ namespace automaton
     {
       FILE* f = fopen(path.c_str(), "w");
       if (!f) return false;
-      fprintf(f, "frame,capM_Orb,capA_Orb,capM_Umb,capA_Umb,escM_Orb,escA_Orb,escM_Umb,escA_Umb\n");
+      fprintf(f, "frame,capM_Orb,capA_Orb,capM_Umb,capA_Umb,escM_Orb,escA_Orb,escM_Umb,escA_Umb,conversionD_Orb,conversionD_Umb\n");
       for (unsigned fr = 0; fr < frames_; ++fr)
       {
         const size_t foff = static_cast<size_t>(fr) * 8;
-        fprintf(f, "%u,%llu,%llu,%llu,%llu,%llu,%llu,%llu,%llu\n",
+        fprintf(f, "%u,%llu,%llu,%llu,%llu,%llu,%llu,%llu,%llu,%lld,%lld\n",
                 fr + 1,
                 (unsigned long long)flux_[foff + 0],
                 (unsigned long long)flux_[foff + 1],
@@ -517,10 +400,11 @@ namespace automaton
                 (unsigned long long)flux_[foff + 4],
                 (unsigned long long)flux_[foff + 5],
                 (unsigned long long)flux_[foff + 6],
-                (unsigned long long)flux_[foff + 7]);
+                (unsigned long long)flux_[foff + 7],
+                (long long)conversion_[size_t(fr)*2], (long long)conversion_[size_t(fr)*2+1]);
       }
-      fclose(f);
-      return true;
+      const bool ok = !ferror(f);
+      return fclose(f) == 0 && ok;
     }
 
     bool writeCSV(const std::string& path, const Report& rep)
@@ -528,7 +412,7 @@ namespace automaton
       (void)rep;
       FILE* f = fopen(path.c_str(), "w");
       if (!f) return false;
-      fprintf(f, "frame,island,population,captures,escapes\n");
+      fprintf(f, mode_==Observable::ChiefConstituents?"frame,chief_w,constituents,captures,escapes\n":"frame,affinity,occupied_cells,captures,escapes\n");
       for (unsigned t = 0; t < frames_; ++t)
         for (unsigned g = 0; g < nBuckets_; ++g)
           fprintf(f, "%u,%u,%llu,%llu,%llu\n",
@@ -536,8 +420,8 @@ namespace automaton
                   (unsigned long long)pop_[t * nBuckets_ + g],
                   (unsigned long long)cap_[t * nBuckets_ + g],
                   (unsigned long long)esc_[t * nBuckets_ + g]);
-      fclose(f);
-      return true;
+      const bool ok = !ferror(f);
+      return fclose(f) == 0 && ok;
     }
 
     // Public wrapper: persist the 8-sector-flux series to its own CSV.

@@ -1,10 +1,12 @@
-# Island inertia: current CPU reference
+# Island inertia: reference transport experiments
+
+Current status: see [INERTIA_REVALIDATION.md](INERTIA_REVALIDATION.md).
 
 The object under test is a prepared island of N equal-charge body elements,
 one K and N-1 D, with a common affinity. Reciprocal photon-type pairs become
-its propellers by sharing that affinity and carrying nonzero m. K-D and D-D
+its drive pairs by sharing that affinity and carrying nonzero m. K-D and D-D
 contacts maintain cohesion; P-K and P-D contacts supply internal propulsion.
-Receiving a displacement never changes a body element into a propeller.
+Receiving a displacement never changes a body element into a drive pair.
 
 This replaces the previous inertia probe, which planted a mixed composition
 of singleton sources and free pairs. Its old CSVs are historical and do not
@@ -18,13 +20,13 @@ formation from the Platonic seed.
 - W rotation selects the other source. Wave flags come from the current
   physical instant, eliminating the previous one-frame partner-shell lag.
 - Same-affinity mechanical contacts precede the electroweak sieve. They
-  require overlapping active fronts; a zero-radius propeller cannot kick.
+  require overlapping active fronts; a zero-radius drive pair cannot kick.
 - Contacts are deduplicated across voxels and mirrored encounters. Each
   reciprocal P pair supplies at most one kick per light frame, not two.
 - K-D/D-D cohesion supplies opposite unit face-steps for separated body
   elements, conserving their unwrapped position sum. It has priority over
   propulsion, and each body element moves at most once per frame.
-- A propeller selects a contacted body element at the rear along m, using
+- A drive pair selects a contacted body element at the rear along m, using
   a rotating address tie-break. Integer DDA distributes unit face-steps in
   proportion to the signed components of m. The magnitude of m is not a
   multi-cell displacement. Increasing pair population increases available
@@ -35,7 +37,7 @@ formation from the Platonic seed.
 - A layer translation carries its wave state, charge, affinity and source
   identity together, preserving the physical clock. It cannot leave an old
   zero-radius centre behind or lose affinity at the destination.
-- Same-family equal-charge singletons elect a chief through contact; the
+- Equal-charge singletons may elect a chief across seed families; the
   standard seed does not assign K. The family affinity is distinct from the
   elected chief's intrinsic W address.
 
@@ -73,7 +75,7 @@ disabled during BURN. The printed first/second window means help expose
 transients or phase sampling. Window lengths should cover whole breathing
 periods before interpreting small differences as secular drift.
 
-## Checked results
+## Historical checked results
 
 The regression executes the production `simulation()` path. Baseline runs
 use 48 frames, discarding 12, on a 9x5x5 tube with N=3:
@@ -88,7 +90,7 @@ use 48 frames, discarding 12, on a 9x5x5 tube with N=3:
 | One foreign-affinity pair | 0 |
 | One +y pair | +0.250000 on y |
 
-The zero-propeller tests also cover a displaced constituent (reciprocal
+The zero-drive pair tests also cover a displaced constituent (reciprocal
 cohesion conserves centre of mass) and contact-driven election from S.
 Assertions check unit-step bounds, charge, affinity, chief/delegate roles,
 pair reciprocity, coincident pair halves and retention of m. The runs cross
@@ -113,8 +115,9 @@ The maximum pair-to-body gap in this run is zero.
 
 ## Limits of the conclusion
 
-These checks demonstrate controlled sustained transport, bounded steps and
-preservation of the prepared island for the tested regimes. They do not
+These historical checks demonstrated controlled transport under the role
+assumptions then used. The current revalidation does not preserve a single
+chief for the prepared multi-constituent island. They do not
 prove universal equilibration, arbitrary-phase stability, rotational/Lorentz
 invariance, a mass law, force response, or stability for arbitrary initial
 geometries and numbers of constituents. The speed identity sum(dx)/N is a

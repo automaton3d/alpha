@@ -231,9 +231,9 @@ namespace automaton
     const long long dTotal   = dIslands + dOrphans;
     const long long dOrb     = (long long)sMat[0] - (long long)sAnti[0];
     const long long dUmb     = (long long)sMat[1] - (long long)sAnti[1];
-    // Island-only balance per sector: what the attractor sector-flux
-    // telescoping predicts (D0 + cumulative net flux).  Printing both lets
-    // the log reconcile the two instruments frame by frame.
+    // Affiliated-cell balance per sector. Compare only with attractor's
+    // AffinityCells observable (baseline + net flux + charge conversion),
+    // not with its default chief-constituent census, which counts sources.
     const long long dIslOrb  = ((long long)sMat[0] - (long long)sOrphanMat[0]) -
                                ((long long)sAnti[0] - (long long)sOrphanAnti[0]);
     const long long dIslUmb  = ((long long)sMat[1] - (long long)sOrphanMat[1]) -

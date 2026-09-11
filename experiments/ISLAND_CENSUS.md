@@ -1,5 +1,12 @@
 # Island census on the production path (campaign 1A)
 
+Current instrumentation is described in [ATTRACTOR_CENSUS.md](ATTRACTOR_CENSUS.md).
+Dangling delegate parents no longer create counted groups, and final-state
+population/localization counts exclude disappeared chiefs. The runner also
+cross-checks the independent attractor census each frame and writes
+`constituents.csv`, `sector_flux.csv`, and `chief_census.csv`. Historical runs
+below retain their original measurement conventions.
+
 Harness: `experiments/island_census.cpp`, build `experiments/build_island_census.bat`.
 Run from the repository root (outputs isolated per directory):
 
@@ -130,4 +137,3 @@ roughly 53 minutes for the 64-frame run (8 breathing cycles).  The run's
 outputs are in `build/island_census/run64/` (census.csv, groups.csv,
 summary.txt, analysis.txt).  This cost is the main constraint for
 higher-L / longer-era campaigns on the CPU path.
-

@@ -1,5 +1,10 @@
 # Ablation table: the 81 x 3 island quantisation
 
+Interpretation: EXCLUSION explicitly preserves seed-family boundaries. Its
+81 x 3 result is a family-preserving control, not evidence for spontaneous
+quantization when equal-charge sources from different W families may share
+a chief. The corrected measurement conventions are in [ATTRACTOR_CENSUS.md](ATTRACTOR_CENSUS.md).
+
 Consolidated from the runs under `build/lightmatter_decouple/` and
 `build/island_census/` (census harness).  All runs: seed 1, canonical
 charge words, tube/cube as indicated, ordinary seeds unless stated.

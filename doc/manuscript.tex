@@ -476,6 +476,7 @@ Two bubbles are overlapping if they share the same spatial coordinates and $t_1=
 \subsubsection{drive pair} \label{subsubsec:drive pair}
 A pair can act as a \textit{drive pair}, repositioning other bubbles and providing inertia.
 A drive pair is a reciprocal photon-type pair that has adopted the island's affinity $a$ and carries a non-zero transport vector $\boldsymbol{m}$, typically on the scale $L/2$. Neither a nonzero vector alone nor receiving a translation impulse makes a source a drive pair. A free pair must first acquire the particle's affinity.
+\paragraph{Current experimental scope.} Revalidation with $D\times D$ promotion and $K\times K$ clash enabled confirms sustained transport of a prepared K with one drive pair in both directions. In the matched experiment, the mean displacement after the initial measurement window is one cell per light frame, with coincident pair halves and no pair departure over 96 frames. This is a journey-step result, not a universal speed measurement per housekeeping tick. Prepared multi-constituent bodies do not retain a single chief identity under the current role dynamics. The production reference retains directed motion of the prepared constituent set, while the matched K+2D case also loses spatial cohesion. These results therefore validate minimum drive-pair transport, not yet the inertia of a persistent multi-constituent island (revalidation commands and traces: \texttt{experiments/INERTIA\_REVALIDATION.md}).
 Consider an island of $N=L/3$ equal charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without drive pairs its center of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
 The reference simulation algorithm resolves each unordered source contact once per light frame, counting a reciprocal pair once rather than once per half or overlapping voxel. A pair can deliver at most one unit face-step to one contacted body element, in a direction selected from $\boldsymbol{m}$; receiving that step preserves the target's $K/D$ identity. $\boldsymbol{m}$ is not a displacement of $L/2$ cells and is retained while the pair remains a drive pair. These mechanical, same-affinity contacts are not gated by the electroweak sieve.
 \subsubsection{Singleton}
@@ -951,6 +952,7 @@ W=3L^2=(9L)\left(\frac{L}{3}\right),
 \end{equation}
 which supplies no independent bound of $9L$ on the number of dynamically formed chiefs.
 \subsection{Dynamic charge quantization}
+\paragraph{Measurement convention.} Current chief-population diagnostics count one source bubble per W layer. A chief is identified by its own W address, and a delegate belongs to that chief only while its parent names a live K. Invalid parent references are reported separately. Affinity-cell occupancy is a distinct observable and must not be interpreted as the constituent population $N$. Captures and escapes are measured from consecutive membership snapshots; changes in charge class within unchanged membership are recorded separately for sector-balance closure. A negative slope in a descriptive $\Delta N$ versus $N$ regression alone does not establish a stable attractor. These conventions supersede the interpretation of the historical affinity-population fits below, without retroactively validating their numerical values.
 A 3D island is an open dynamical object: it continuously captures free $S$ bubbles and loses surface bubbles. Let $\Gamma_{\mathrm{cap}}(N)$ and $\Gamma_{\mathrm{esc}}(N)$ be the effective capture and escape rates for an island of characteristic population $N$. Dynamic charge quantization is the statement that
 \begin{align}
 \Gamma_{\mathrm{cap}}(N) &> \Gamma_{\mathrm{esc}}(N) \quad \text{for small } N, \\
@@ -1142,7 +1144,7 @@ that the candidate mechanisms below address.
 
 \emph{Candidate mechanisms (C).} Two macro-guarded candidates in the
 repository (experiment logs; ordinary builds and this transition rule are
-unaffected) produce the quantisation robustly.  (i) The colour/matched FSM
+unaffected) test family-preserving aggregation. These controls do not demonstrate spontaneous quantization with unrestricted mixing between seed families. (i) The color/matched FSM
 with a Pauli-like identity hard core between different seed families
 ($w/3$) plus a one-step spatial push at shell contact yields, from the fully
 superposed seed, 81 chief groups of exactly 3 constituents, unresolved

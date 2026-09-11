@@ -25,6 +25,7 @@
 
 #include "inertia_fixture.h"
 #include "model/island_identity.h"
+#include "model/attractor.h"
 
 #include <algorithm>
 #include <array>
@@ -152,7 +153,7 @@ namespace
         if (s.kind == SourceKind::D) ++sn.unresolved;  // orphaned delegate
         continue;
       }
-      if (source(chief).kind != SourceKind::K) ++sn.unresolved;
+      if (source(chief).kind != SourceKind::K) { ++sn.unresolved; continue; }
 
       sn.members[chief].push_back(w);
       chargeSets[chief].insert(s.ch);
@@ -187,7 +188,7 @@ namespace
       if (chargeSets[chief].size() > 1u) ++sn.mixedCharge;
 
       ChiefStat& st = stats[chief];
-      if (st.firstFrame == 0) { st.firstFrame = frame; st.chief = chief; }
+      if (st.framesPresent == 0) { st.firstFrame = frame; st.chief = chief; }
       st.lastFrame = frame;
       ++st.framesPresent;
       st.populationLast = population;
@@ -291,6 +292,7 @@ int main(int argc, char** argv)
 
     initSimulation(0);
     replicate();
+    attractor::begin();
 
     char censusPath[512], groupsPath[512], summaryPath[512];
     snprintf(censusPath, sizeof censusPath, "%s/census.csv", outdir);
@@ -338,6 +340,12 @@ int main(int argc, char** argv)
       {
         ++frame;
         Snapshot sn = sample(frame, pulse_tick, groups);
+        attractor::sampleFrame(frame);
+        const auto measured=attractor::summarize().census;
+        if(measured.chiefs!=sn.k || measured.delegates!=sn.d ||
+           measured.singletons!=sn.s || measured.pairs!=sn.p ||
+           measured.unresolved!=sn.unresolved || measured.occupiedCenters!=sn.distinctCenters || sn.groups!=sn.k)
+          throw std::runtime_error("independent chief censuses disagree");
         writeCensusRow(census, sn);
         if ((frame % 16u) == 0u || frame == frames)
         {
@@ -370,8 +378,8 @@ int main(int argc, char** argv)
               st.familiesMax, st.centersLast, st.maxStable);
       if (st.lastFrame == frames) ++presentAtEnd;
       if (st.maxStable >= 5u) ++stable5;
-      if (st.spanLast <= RMAX && st.populationLast >= 2u) ++localizedLast;
-      if (st.populationLast == copiesPerFamily) ++popTargetLast;
+      if (st.lastFrame == frames && st.spanLast <= RMAX && st.populationLast >= 2u) ++localizedLast;
+      if (st.lastFrame == frames && st.populationLast == copiesPerFamily) ++popTargetLast;
     }
 
     fprintf(sumf,
@@ -387,10 +395,17 @@ int main(int argc, char** argv)
            "wall=%.1fs (%.2f s/frame)\n",
            frames, (unsigned)stats.size(), presentAtEnd, stable5,
            localizedLast, popTargetLast, totalSec, totalSec / frames);
-    puts("See build/island_census/census.csv, groups.csv, summary.txt.");
-    puts("PASS census recorded; chief associations are measured, not imposed.");
+    printf("See %s/census.csv, groups.csv, summary.txt.\n", outdir);
 
+    const auto report=attractor::summarize();
+    const std::string base=std::string(outdir)+"/";
+    if(!attractor::writeCSV(base+"constituents.csv",report) ||
+       !attractor::writeSectorCSV(base+"sector_flux.csv") ||
+       !attractor::writeCensusCSV(base+"chief_census.csv"))
+      throw std::runtime_error("cannot write chief instrumentation");
+    attractor::printReport(report);
     fclose(census); fclose(groups); fclose(sumf);
+    puts("PASS census recorded; independent chief counts agree.");
     return 0;
   }
   catch (const std::exception& e)

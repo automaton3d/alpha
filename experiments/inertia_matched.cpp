@@ -34,7 +34,11 @@ int main(int argc,char** argv) {
   replicate();
   std::vector<Cell> seed;
   for(unsigned w=0;w<W_USED;++w) seed.push_back(source(w));
+#ifdef INERTIA_REVALIDATION
+  const std::string path="build/inertia_revalidation/matched/original_"+name+".csv";
+#else
   const std::string path="build/inertia_matched/"+name+".csv";
+#endif
   FILE* f=fopen(path.c_str(),"w");if(!f) throw std::runtime_error("cannot open trace");
   fprintf(f,"frame,w,kind,x,y,z,unwrapped_x,impulse_x\n");
   std::vector<long long> unwrapped(W_USED,4);
