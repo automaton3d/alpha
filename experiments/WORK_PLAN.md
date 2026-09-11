@@ -185,10 +185,21 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   bridge out of Conjectures into the appendix** (now `\section`,
   `sec:Particles`/`sec:bridge`; the Conjectures intro sentence updated);
   **merged two pairs of one-line Conjectures subsections** (Color + Weak
-  quantization; Spin + the Hofer effect, label kept); and **moved the
+  quantization; Spin + the Hofer effect, label kept); **moved the
   Speculative-particle-spectrum block (~60 lines) to the appendix** (now
-  `\section`).  Clean two-pass `pdflatex` (aux removed) reports no warnings.
-  Remaining: prose-halving of the remaining Conjectures.
+  `\section`); and **rewrote the Introduction** to state the pre-registered
+  falsification campaign explicitly and to fix the (now stale) section-map
+  sentence (taxonomy/QM bridge -> appendices); **demoted two short model
+  subsections** (The host lattices; What the seed does not contain) to
+  paragraphs; and **strengthened the Reproducibility section** (frozen
+  `model-ref-v1`, `model_fingerprint.ps1`, `run_all.bat`, `RESULTS_v2.md`) plus
+  fixed the stale `6996/18/0` reference row; and **added the falsification-campaign
+  outcome to the abstract**; and **added a dedicated "Falsification campaign"
+  section** (`sec:campaign`, `tab:campaign`) before Results presenting the six
+  pre-registered candidates and their failure at the current HEAD -- closing the
+  gap where the abstract/intro promised a campaign the body did not show.  Clean
+  two-pass `pdflatex` reports no warnings.  Remaining: prose tightening of the
+  Conjectures.
 
 ### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
 - **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
@@ -349,12 +360,15 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** continue WP5 -- prose-halving of the remaining Conjectures.
-- **2026-09-11 -- WP5 (5th increment).**  Moved the "Speculative particle spectrum
-  and decay channels" block (~60 lines; the longest unsupported-label list) from
-  Conjectures to the appendix (`\section`).  Clean two-pass `pdflatex` (aux
-  removed) reports no warnings; the Conjectures subsection count is roughly
-  halved.
+- **Next:** continue WP5 -- prose tightening of the Conjectures.
+- **2026-09-11 -- WP5 (9th increment).**  Added a dedicated "The falsification
+  campaign: six candidates for the fine-structure constant" section
+  (`sec:campaign`, `tab:campaign`) immediately before Results, with the six
+  pre-registered candidates and their current-HEAD outcomes (all FAIL), the
+  reproducible-table pointer, and the dial-free S-scan note.  This makes the
+  abstract / Introduction / claim-evidence map consistent with the body text
+  (previously the campaign was promised but not shown).  Clean two-pass `pdflatex`
+  (aux removed): no warnings.
 - **2026-09-11 -- WP5 (3rd increment).**  Moved the `Particles` taxonomy and the
   `Cellular automata and quantum formalism` bridge out of the Conjectures section
   to the appendix (converted to `\section`, labels untouched), and updated the
