@@ -881,6 +881,16 @@ namespace automaton
 #endif
 #endif
 
+#ifdef EM_FORCE_PREREQ
+    // WP4.2 spike hook: force the EM_FIRST_FSM prerequisite at this contact so
+    // the reorder's guard (`curr.s2B && (pB||sB...)`) is evaluated as if the
+    // polarization broadcast had lit pB and the sieve gate were open.  This
+    // isolates whether the reorder is mechanically correct from whether the
+    // (dormant) broadcast can supply the flags.  Experimental; compiled only
+    // under this macro and only meaningful together with EM_FIRST_FSM.
+    curr.pB = true; curr.s2B = true; partner.pB = true;
+#endif
+
 #ifdef EM_FIRST_FSM
     // ==============================================================
     // Experimental /D EM_FIRST_FSM: decide the electroweak channel BEFORE

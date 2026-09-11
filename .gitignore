@@ -24,3 +24,6 @@
 
 # ---- experiment binaries / run logs (sources + CSVs are kept) ----
 /experiments/*.exe
+
+# ---- WP0 repository hygiene: pre-WP0 root artifacts parked here ----
+/attic/

@@ -84,3 +84,88 @@ merge (or a dressing-mediated repulsion acting before body shells meet).
   island-island repulsion) -> the missing piece is precisely a photon-mediated
   island-island repulsion term to design next; the EXCLUSION gate remains a
   documented stand-in until then.
+
+## WP4.1 empirical test: EM_FIRST_FSM reordering (11 Sep 2026)
+
+The reorder is **already implemented** in the code as the `EM_FIRST_FSM` macro
+(`src/model/interaction.cpp:884-984`): for equal-charge contacts that carry
+live pB/sB and pass the s2B gate, it decides the electroweak channel BEFORE
+`chiefContact()`.  Task WP4.1 was to test whether it changes the
+two-equal-charge-cloud outcome.
+
+A/B test (harness `pbsb_two`, tube 21x5x5, W=2, seeded axes, 16 frames),
+default vs `/D EM_FIRST_FSM` (script `experiments/build_pbsb_two_em.bat`):
+
+| build | frames 0-1 | frame 2..16 | pB/sB | collapse/adiah/repel |
+|---|---|---|---|---|
+| default (`build/pbsb_two`) | 2 S, 2 sites, dx=2 | K=1, D=1, 1 site (**merged**) | 0 everywhere | 0 |
+| `/D EM_FIRST_FSM` (`build/pbsb_two_em`) | 2 S, 2 sites, dx=2 | K=1, D=1, 1 site (**merged**) | 0 everywhere | 0 |
+
+The two traces are identical.  **The reorder is inert**, and the reason is a
+missing prerequisite, not the encounter order: the seeded axis never lights
+pB/sB on the shells (`DEBUG phase ... pol=(0,0) bstamp=2`; pB/sB = 0 in every
+frame), so the guard `curr.s2B && (curr.pB || partner.pB || curr.sB ||
+partner.sB)` is never true and control falls through to `chiefContact()`
+exactly as in the default order.
+
+Consequence: making two equal-charge dressed islands repel requires the
+**polarization broadcast** to reconstruct pol_u/pol_v (hence pB/sB) on the
+overlapping shells.  The encounter reorder is necessary but not sufficient and,
+on its own, changes nothing.  This matches the broadcast-dormant finding of
+`RESULTS.md` (alpha_D unobservable; `seedAxis` reconstructs only a frozen
+phase branch).
+
+Reference invariant preserved: the default `alpha_probe 7 4 200 16384 256` run
+still reports active-passes = 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878
+(1/alpha_A = 266.18), and the model fingerprint still matches `model-ref-v1`.
+
+### Next candidate (WP4.2, untested): inject the prerequisite
+
+To isolate whether the reorder is *mechanically* correct, force `s2B` and `pB`
+on both clouds' shells each tick (an in-tick hook placed after phase_step and
+before encounter).  If the forced run repels (sites stays 2, `enc_repel` > 0)
+the reorder is validated and only the broadcast is missing; if it still merges,
+the reorder itself is flawed.  Left as the next increment of WP4.
+
+## WP4.2 result: the reorder is mechanically correct (11 Sep 2026)
+
+WP4.2 isolates the reorder from the (dormant) broadcast by injecting its
+prerequisite.  A new macro `EM_FORCE_PREREQ` (`src/model/interaction.cpp`,
+immediately before the `EM_FIRST_FSM` block) sets
+`curr.pB = curr.s2B = partner.pB = true` at each contact, so the guard fires
+wherever two shells overlap -- exactly as if the broadcast had lit the flags
+and the sieve were open.
+
+Build/run: `experiments/build_pbsb_two_forced.bat`
+(`/D EM_FIRST_FSM /D EM_FORCE_PREREQ`), then
+`build\pbsb_two_forced\pbsb_two_forced.exe`.
+
+Result (tube 21x5x5, W=2, two equal-charge S clouds 0x08, seeded axes):
+
+| frame | K | D | S | sites | dx | collapse | adiah | repel |
+|---|---|---|---|---|---|---|---|---|
+| 0-1 | 0 | 0 | 2 | 2 | 2 | 0 | 0 | 0 |
+| 2 | 0 | 0 | 2 | 2 | -1 | 18 | 0 | 18 |
+| 3..16 | 0 | 0 | 2 | 2 | **9** | 50 | 0 | 50 |
+
+With the prerequisite present the two equal-charge clouds **repel and stay
+two** (`sites = 2`, `dx` grows 2 -> 9, `enc_repel = 50`) instead of merging into
+1 K + 1 D.  The role population is unchanged (both stay S).  The `EM_FIRST_FSM`
+reorder is therefore **mechanically correct and sufficient**: it needs only a
+live pB and an open s2B gate on the overlapping shells.
+
+### Consequence for the campaign
+
+The blocker that keeps two equal-charge dressed islands from merging is the
+**polarization broadcast** (supplying pB/sB on the shells), NOT the encounter
+ordering.  Adopt `EM_FIRST_FSM` once the broadcast works; on its own it changes
+nothing (WP4.1).
+
+### Note on the frozen reference
+
+`EM_FORCE_PREREQ` is a new macro-guarded experimental block in a model source,
+so the model source fingerprint advanced.  The reference build is unchanged
+behaviourally -- the reference macros are OFF, and `alpha_probe 7 4 200 16384
+256` still reports active-passes = 6468, s2B = 0, pairs = 0, alpha_A =
+0.003756878 -- but the source hash moved from `5b0944...` (`model-ref-v1`) to
+`29ef0e...` (see `doc/REFERENCE_CONFIG.md`, "Post-freeze additions").
