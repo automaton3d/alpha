@@ -1073,8 +1073,8 @@ P(u,S) \;=\; \frac{\lceil u/g\rceil}{S/g} \;=\; \frac{g\,\lceil u/g\rceil}{S},
 \label{eq:sieve-prob}
 \end{equation}
 which reduces to $P=u/S$ when $\gcd(u,S)=1$ and to $P=1$ whenever $u\ge S$ (every residue is then $<u$).  The closed form was verified by direct enumeration over two full periods for all $u=1,\dots,4096$ and all moduli of Table~\ref{tab:sieve} (maximum error $0$; program \texttt{s2b\_sweep\_main.cpp}, archived with the source).
-\textbf{Why the reference modulus blocks the channel.}  In the $L=7$ run the measured radial profile decays from $\langle|u|\rangle\approx95$ at $r=1$ to $20.6$ at $r=2$ and is forced to $0$ in the radial dead zone; the per-active-cell throughput is therefore at most $P\le95/16384\approx0.58\%$.  Weighting the theoretical shell populations ($6$, $26$, $98$ lattice points at $r=1,2,3$) by this profile gives an expected $\approx18$ $s2B$ passes over the two-bubble overlap, matching the measured $18/6996$; the pair branch additionally needs a $samePos\wedge sameT$ coincidence with complementary charges, so its expected count at the reference modulus is far below one.  This is the quantitative content of the earlier ``dormant channel'' statement.
-\textbf{Opening the channel.}  Because $P(u,S)\approx u/S$, the gate opens when $S$ is lowered toward the amplitude scale or when the amplitude $U_0$ is raised toward $S$.  The runner \texttt{scatter\_main.cpp} now accepts the modulus as a run-time parameter (\texttt{s2b\_target}), and Table~\ref{tab:sieve} tabulates the full sweep at fixed geometry ($L=7$, $SEP=4$, $200$ frames).  The pair-formation branch fires for $S=4096$ (9 pairs), $S=128$ (9), $S=64$ (10) and $S=32$ (27); the firing is non-monotonic in $S$ because pair formation also requires the geometric coincidence of the two fronts, which resonates at discrete moduli.  The same experiment at $L=9$ fires at $S=64$ (1 pair).  This is the first observation of $\mathrm{form}>0$ in the automaton proper: the electroweak channel of Sect.~\ref{sec:Interactions} moves from an untested postulate to a mechanism \emph{demonstrated} in a parameter regime.  In the terminology fixed in the abstract, demonstration establishes that the branch can fire; it does not by itself \emph{verify} the interaction phenomena (scattering, decays, bound states) that the branch was built to mediate, which still require measurements of the produced pairs.
+\textbf{Why the reference modulus blocks the channel.}  In the $L=7$ run the measured radial profile decays from $\langle|u|\rangle\approx95$ at $r=1$ to $20.6$ at $r=2$ and is forced to $0$ in the radial dead zone; the per-active-cell throughput is therefore at most $P\le95/16384\approx0.58\%$.  Weighting the theoretical shell populations ($6$, $26$, $98$ lattice points at $r=1,2,3$) by this profile gives an expected $\approx18$ $s2B$ passes over the two-bubble overlap; the historical campaign measured $18/6{,}996$ there, while at the current kernel the same run measures $0/6{,}468$ (Table~\ref{tab:sieve}); the pair branch additionally needs a $samePos\wedge sameT$ coincidence with complementary charges, so its expected count at the reference modulus is far below one.  This is the quantitative content of the earlier ``dormant channel'' statement.
+\textbf{Opening the channel.}  Because $P(u,S)\approx u/S$, the gate opens when $S$ is lowered toward the amplitude scale or when the amplitude $U_0$ is raised toward $S$.  The runner \texttt{scatter\_main.cpp} now accepts the modulus as a run-time parameter (\texttt{s2b\_target}), and Table~\ref{tab:sieve} tabulates the full sweep at fixed geometry ($L=7$, $SEP=4$, $200$ frames).  The pair-formation branch fires for every tested $S\le8192$, with the pair count growing as $S$ falls ($26$ at $S=8192$, $1{,}144$ at $S=64$, up to $2{,}602$ at $S=16$; Table~\ref{tab:sieve}); the count is non-monotonic in $S$ because pair formation also requires the geometric coincidence of the two fronts, which resonates at discrete moduli.  In the earlier campaign the same experiment at $L=9$ fired at $S=64$ (1 pair).  This is the first observation of $\mathrm{form}>0$ in the automaton proper: the electroweak channel of Sect.~\ref{sec:Interactions} moves from an untested postulate to a mechanism \emph{demonstrated} in a parameter regime.  In the terminology fixed in the abstract, demonstration establishes that the branch can fire; it does not by itself \emph{verify} the interaction phenomena (scattering, decays, bound states) that the branch was built to mediate, which still require measurements of the produced pairs.
 \paragraph{First quantitative measurements on the open channel.}  The same runner now also samples, once per light frame, the source kinds, pair stacks and toroidal displacements of the two bubbles, and prints a ``DYNAMICAL MEASUREMENTS'' block with three diagnostics (program \texttt{scatter\_main.cpp}, Reproducibility).  \emph{Pair lifetime.}  The durable pair state (kind $P$ or a non-empty pair stack) is transient at weak coupling and stable at strong coupling: at $S=4096$ and $S=128$ it is present in only $2$ of $200$ frames despite $9$ pair-formation events each (one episode of $2$ frames; mean lifetime $2$ frames --- the branch fires and the state immediately dissolves), whereas at $S=64$ and $S=32$ it appears in $194/200$ and $195/200$ frames respectively (one episode each), so the lifetime is $\ge194$ and $\ge195$ frames, censored by the run length: the pair is still bound at the last frame and the two sources no longer separate (outgoing mean speed $|v|<0.13$ cells/frame).  \emph{Scattering angles.}  The angle between the incoming and outgoing mean velocity of each bubble is $86.7^{\circ}$ and $121.5^{\circ}$ at $S=32$; at $S=64$ the outgoing speed collapses to zero (bound pair), so the deflection is undefined there.  \emph{Center-of-mass response.}  The center-of-mass velocity of the two-bubble system responds to the interaction by $|\Delta v_{\mathrm{CoM}}|=0.442$ cells/frame at $S=32$ and $0.114$ at $S=64$: the head-on configuration is not perfectly symmetric after the interaction, so the drive pair kicks leave a residual center-of-mass impulse.  These are the first quantitative dynamical measurements of the open channel: pair formation is transient at weak coupling and produces a bound pair at strong coupling within the $200$-frame window.
 \begin{table}[h]
 \centering
@@ -1084,21 +1084,22 @@ which reduces to $P=u/S$ when $\gcd(u,S)=1$ and to $P=1$ whenever $u\ge S$ (ever
 \hline
 sieve modulus $S$ & overlapping events & $s2B$ passes & pairs formed\\
 \hline
-16384 & 6{,}996 & 18 & 0\\
-8192 & 4{,}936 & 24 & 0\\
-4096 & 6{,}306 & 58 & \textbf{9}\\
-2048 & 5{,}744 & 129 & 0\\
-1024 & 7{,}140 & 330 & 0\\
-512 & 6{,}120 & 859 & 0\\
-256 & 5{,}916 & 1{,}846 & 0\\
-128 & 1{,}567 & 861 & \textbf{9}\\
-64 & 28{,}283 & 28{,}019 & \textbf{10}\\
-32 & 32{,}198 & 32{,}048 & \textbf{27}\\
-16 & 958 & 878 & 0\\
-8 & 1{,}160 & 1{,}000 & 0\\
+16384 & 6{,}468 & 0 & 0\\
+8192 & 8{,}174 & 26 & \textbf{26}\\
+4096 & 11{,}234 & 54 & \textbf{54}\\
+2048 & 11{,}732 & 112 & \textbf{72}\\
+1024 & 14{,}952 & 240 & \textbf{140}\\
+512 & 14{,}940 & 674 & \textbf{240}\\
+256 & 10{,}668 & 1{,}024 & \textbf{276}\\
+128 & 12{,}864 & 1{,}800 & \textbf{728}\\
+64 & 14{,}516 & 3{,}322 & \textbf{1{,}144}\\
+32 & 10{,}448 & 3{,}368 & \textbf{900}\\
+16 & 17{,}938 & 8{,}632 & \textbf{2{,}602}\\
+8 & 17{,}938 & 9{,}416 & \textbf{2{,}602}\\
 \hline
 \end{tabular}
 \end{table}
+\paragraph{Current-HEAD values.}  Table~\ref{tab:sieve} reports the sweep re-run at the current kernel (the model state after the source-transport and inertia corrections; \texttt{MODEL\_VERSION} \texttt{model-ref-v1}, \texttt{doc/REFERENCE\_CONFIG.md}).  The earlier campaign recorded $6{,}996/18/0$ at $S=16384$ and pair formation only at $S\in\{4096,128,64,32\}$; the rework changes both the overlap counts and the pair channel, so the present numbers supersede those (re-run log: \texttt{experiments/RESULTS\_v2.md}).  The qualitative conclusion is unchanged and strengthened: the reference modulus $S=16384$ is the only one tested that forms no pairs, while every $S\le8192$ opens the channel.
 \subsection{Scaling with lattice size}\label{subsec:scaling}
 To probe the dependence on the lattice size, Table~\ref{tab:scaling} reports the wavefront metrics measured by the \texttt{lorentz\_mm.cpp} probe for $L=7,11,15,19,21$ (rest source, $24$ light frames, control source at the torus antipode so the two shells never interfere).  Three statements follow.
 

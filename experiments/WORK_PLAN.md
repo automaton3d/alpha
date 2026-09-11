@@ -179,13 +179,12 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   from WP2/WP3.
 - **Acceptance:** no unlabelled claim; no historical table; matrix complete.
 - **Depends on:** WP2 + WP3 (never touch the `.tex` before the numbers exist).
-- **Status: started (additive, build-verified).**  Two tables added to
-  `doc/manuscript.tex`: the **postulate-vs-emergent** table (in Limitations,
-  `tab:postulate-emergent`) and the **claim-evidence map** (end of Results,
-  `tab:claim-evidence`).  `pdflatex` compiles with no errors.  The structural
-  moves (reorder sections, merge one-line subsubsections, move `Particles`/QM
-  bridge to appendices, halve Conjectures, replace the historical tables with the
-  WP2/WP3 numbers) remain.
+- **Status: in progress (build-verified).**  Done: the **postulate-vs-emergent**
+  table (Limitations), the **claim-evidence map** (Results), and the **sieve
+  sweep `tab:sieve` re-run at current HEAD** (L=7; $S=16384 \to 6468/0/0$; pairs
+  form for every $S\le8192$) with the two surrounding sentences aligned.
+  `pdflatex` compiles with no errors.  Remaining: reorder sections, merge one-line
+  subsubsections, move `Particles`/QM bridge to appendices, halve Conjectures.
 
 ### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
 - **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
@@ -346,9 +345,14 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** continue WP5 -- replace the historical tables in Results with the
-  `RESULTS_v2.md` numbers, move `Particles`/QM bridge to appendices, merge the
+- **Next:** continue WP5 -- move `Particles`/QM bridge to appendices, merge the
   one-line subsubsections, halve Conjectures.
+- **2026-09-11 -- WP5 (2nd increment).**  Re-ran the manuscript's sieve sweep at
+  current HEAD (L=7, SEP=4, 200 frames; `alpha_probe`) and replaced
+  `tab:sieve`: $16384\to6468/0/0$; pairs form for every $S\le8192$ (26 at 8192,
+  1,144 at 64, 2,602 at 16).  Aligned the two sentences that quoted the old
+  6996/18/0 and $\{4096,128,64,32\}$ values, and added a "Current-HEAD values"
+  note after the table.  `pdflatex` exit 0.
 - **2026-09-11 -- WP5 started.**  Added two build-verified tables to
   `doc/manuscript.tex`: postulate-vs-emergent (Limitations) and claim-evidence
   (end of Results).  Reminder: `doc/manuscript.pdf` is tracked, so rebuilds show
