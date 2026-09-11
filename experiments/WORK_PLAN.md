@@ -149,12 +149,18 @@ Each WP lists objective, tasks, deliverable, **acceptance criterion** and effort
 
 ### WP4 -- (PULLED FORWARD, time-boxed) Deepen one positive -- ~8-20 sessions, uncertain
 See the detailed breakdown in section 4.  **Gate G1** decides Route B vs Route A.
-**Status: 4.1 and 4.2 done.**  4.1: the reorder (already `EM_FIRST_FSM`) is
-inert without live pB/sB.  4.2: with the prerequisite injected
-(`EM_FORCE_PREREQ`), two equal-charge clouds **repel** (sites=2, dx 2->9,
-enc_repel=50) -- the reorder is **mechanically correct and sufficient**.  The
-remaining blocker is the polarization broadcast (WP4.3).  G1 stays open pending
-a working broadcast.  See `PBSB_ISLANDS.md` "WP4.2 result".
+**Status: 4.1, 4.2, 4.3, 4.4 done.**  4.1: the reorder is inert without live
+pB/sB.  4.2: with the prerequisite injected it is mechanically correct (clouds
+repel).  4.3: the broadcast is **not dormant** -- it is sign-pinned (lights sB on
+a wide tube); with live sB and an open sieve, `EM_FIRST_FSM` keeps two
+equal-charge clouds apart (2 centres, `enc_repel` > 0) in a window s2b <= ~64.
+4.4 (deepen): the reconstructed signs are **geometry-pinned** by R = RMAX-2 (sB
+for R >= 3; pB only at EL=15 among tested; neither for R <= 2) and **not**
+steerable by the seeded axis (m/z/za identical).  4.5: at R = 5 (both flags
+live) with an open sieve, `EM_FIRST_FSM` keeps two equal-charge clouds as two
+distinct S singletons for 16 frames (enc_repel 182) -- the cleanest Route-B
+positive.  G1 is **positive-in-a-window**: Route B is reachable, pending a robust
+/ controllable broadcast.  See `PBSB_ISLANDS.md` "WP4.3".."WP4.5".
 
 ### WP5 -- Restructure and rewrite `manuscript.tex` -- ~8-12 sessions
 Executes `REVISION_PLAN.md` sec.4 on the current structure:
@@ -223,6 +229,9 @@ islands, OR document definitively why the geometry forbids it.
    seeded axis never reconstructs pol_u/pol_v on the shells (WP4.1).  Getting
    the polarization broadcast to supply pB/sB on overlapping shells is now the
    critical path to a Route B positive.
+   *STATUS: DONE (positive in a window).  The pbsb_two dormancy was an RMAX=2
+   artifact; on a wide tube the broadcast lights sB, and with an open sieve
+   EM_FIRST keeps the clouds apart.  See `PBSB_ISLANDS.md` "WP4.3 result".*
 4. **4.4 -- Controls.** W-matched bare, broken, freq0, swapped-halves, off-axis,
    mag=0 (already implemented in `10c7cb7`).
 5. **4.5 -- Observable.** Do two prepared equal-charge dressed islands stay two?
@@ -324,8 +333,29 @@ its time-box.
   `experiments/promotion_three.cpp` (+ `build_promotion_three.bat`) shows
   reference K=2/D=1 vs fix K=1/D=2 for a 3-copy family.  Reference build
   re-verified 6468/0/0; model fingerprint advanced `29ef0e...` -> `937449...`.
-- **Next:** commit the WP0-WP3 milestone; then the full-scale WP3.3 confirmation
-  (island_census L=9, heavy) or WP4.3 (broadcast).  Heavy work needs long batches.
+- **2026-09-11 -- WP4.5 DONE (cleanest Route-B positive).** At R = 5 (tube
+  21x15x15, both pB and sB live = 2730 cells) with an open sieve, `EM_FIRST_FSM`
+  keeps two equal-charge clouds as two distinct S singletons for 16 frames
+  (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
+  `PBSB_ISLANDS.md`.
+- **Next:** commit the WP4.3-4.5 increment; then decide G1 (Route B), make the
+  broadcast robust / controllable, or start WP5 (manuscript rewrite).
+- **2026-09-11 -- R map (flag thresholds).** Extended the WP4.4 sweep to R = 6..9
+  (EL = 17..23, `alpha_probe pol m`): `pB` (electric) lights only for **R >= 5**;
+  `sB` (magnetic) for **R >= 3**; neither for **R <= 2**.  The |pol_v|/|pol_u|
+  ratio falls toward 1 with R.  Recorded in `PBSB_ISLANDS.md`.
+- **2026-09-11 -- WP4.4 DONE (broadcast structure).** `alpha_probe ... pol <axis>`
+  sweep: the polarization flags are **geometry-pinned** by R = RMAX-2 -- sB
+  lights for R >= 3, pB only at EL=15 among the tested sizes, neither for
+  R <= 2 -- and are **independent of the seeded axis** (m/z/za identical).  The
+  axis seed cannot steer pB vs sB.  Recorded in `PBSB_ISLANDS.md`.
+- **2026-09-11 -- WP4.3 DONE (positive in a window).** New harness
+  `experiments/pbsb_two_wide.cpp` (ordinary + `/D EM_FIRST_FSM`): the pbsb_two
+  "dormant broadcast" was a short-edge artifact (RMAX-2 = 0 zeroes pol); on a
+  21x13x13 tube the broadcast lights `sB` (1790 cells).  With live sB and an open
+  sieve, `EM_FIRST_FSM` keeps two equal-charge clouds at 2 centres (enc_repel>0)
+  in the window s2b <= ~64 (merge at the reference sieve).  G1 is now
+  positive-in-a-window.  Recorded in `PBSB_ISLANDS.md`.
 - **2026-09-11 -- WP3.2 DONE (from kept data).** From the existing
   `sp81xL_seed_1/groups.csv` (no new run): all 81 islands have population exactly
   3 at every sampled frame (2-12), `families == 1`, unresolved 0; the extent

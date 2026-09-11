@@ -138,6 +138,7 @@ family-preserving `81 x 3` exclusion control). Full detail:
 | `experiments\INERTIA.md`, `INERTIA_REVALIDATION.md` | Island-inertia transport experiments |
 | `experiments\ISLAND_CENSUS.md`, `ATTRACTOR_CENSUS.md` | Production-path aggregation census |
 | `experiments\ABLATION_81x3.md`, `LIGHTMATTER_DECOUPLE.md`, `PBSB_ISLANDS.md` | Candidate aggregation/EM mechanisms |
+| `experiments\pbsb_two_wide.cpp` | WP4.3: two-cloud pB/sB probe (ordinary + `/D EM_FIRST_FSM`) |
 | `experiments\POSTULATE_VS_EMERGENT.md` | Postulate-vs-emergent table (editor response, Limitations) |
 | `doc\manuscript.tex` | The manuscript (build: `doc\latexpdf.bat`) |
 

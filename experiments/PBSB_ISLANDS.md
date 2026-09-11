@@ -169,3 +169,132 @@ behaviourally -- the reference macros are OFF, and `alpha_probe 7 4 200 16384
 256` still reports active-passes = 6468, s2B = 0, pairs = 0, alpha_A =
 0.003756878 -- but the source hash moved from `5b0944...` (`model-ref-v1`) to
 `29ef0e...` (see `doc/REFERENCE_CONFIG.md`, "Post-freeze additions").
+
+## WP4.3 result: the broadcast is not dormant; the reorder works in a window (11 Sep 2026)
+
+Two corrections to the WP4.1 "dormant broadcast" conclusion.
+
+**1. The `pbsb_two` dormancy was a short-edge artifact.**  `pbsb_two` uses a
+21x5x5 tube (RMAX = 2) and `phase_step` calls
+`reconstructPair(bstamp, RMAX-2, ...)`; RMAX-2 = 0 forces pol = (0,0) for every
+cell.  On a wider tube the reconstruction is live
+(`experiments/pbsb_two_wide.cpp`, `build_pbsb_two_wide.bat`):
+
+| tube | RMAX | pol_u range | pB | sB |
+|---|---|---|---|---|
+| 21x5x5 | 2 | [0,0] | 0 | 0 |
+| 21x7x7 | 3 | [-1,0] | 0 | 0 |
+| 21x9x9 | 4 | [-4,0] | 0 | 0 |
+| 21x11x11 | 5 | [-3,0] | 0 | 970 |
+| 21x13x13 | 6 | [0,0] | 0 | 1790 |
+
+So the broadcast DOES light the polarization -- in `pol_v` (sB) here; `pB`
+needs `pol_u > 0`, which this geometry pins away.
+
+**2. With live sB and an open sieve, `EM_FIRST_FSM` changes the outcome** of two
+equal-charge clouds (21x13x13, W = 2, axis-seeded, 16 frames):
+
+| build | sieve | final | centres | enc_repel |
+|---|---|---|---|---|
+| ordinary | any | K=1 D=1 | **1** (merged) | 0..9 |
+| `EM_FIRST_FSM` | default (16384) | K=1 D=1 | 1 | 0 (gate shut) |
+| `EM_FIRST_FSM` | 16 | K=1 D=1 | **2** | 90 |
+| `EM_FIRST_FSM` | 32 | K=1 D=1 | **2** | 90 |
+| `EM_FIRST_FSM` | 64 | K=1 D=1 | **2** | 74 |
+| `EM_FIRST_FSM` | 256 | K=1 D=1 | 1 | 58 |
+
+In the window s2b <= ~64 the two centres stay apart with `enc_repel > 0`
+instead of collapsing onto one; at the reference sieve the gate never opens and
+they merge.  The roles still resolve to K + delegate (a stretched pair, not two
+clean islands).
+
+**Reading.**  The encounter reorder is correct (WP4.2) **and** its prerequisite
+can be supplied by the ordinary dynamics on a sufficiently wide lattice -- the
+polarization broadcast is *sign-pinned*, not dormant.  The repulsion is
+parameter-windowed (sieve modulus), like every electroweak effect here
+(`RESULTS.md` s2B sweep).  This is the strongest Route-B lead so far; making it
+robust needs the broadcast to supply sB at a controllable phase and rate, which
+stays open.
+
+## WP4.4 result: the polarization signs are geometry-pinned, not axis-steerable (11 Sep 2026)
+
+Probed with `alpha_probe <EL> 4 <fr> 16384 256 x x 1 pol <axis>` (cubic,
+SEP=4, sieve 16384).  `<|pol_v|>/<|pol_u|>`, the pol_v sign census and the
+"no pB cells" message give:
+
+| EL | R = RMAX-2 | pol_u | pol_v | pB | sB |
+|---|---|---|---|---|---|
+| 7 | 1 | < 0 | 0 | no | no |
+| 9 | 2 | < 0 | 0 | no | no |
+| 11 | 3 | < 0 | > 0 | no | 19400 cells |
+| 13 | 4 | = 0 | > 0 | no | 53700 |
+| 15 | 5 | > 0 (ratio 4) | > 0 | **yes** (alpha_D = 1) | 54600 |
+| 17 | 6 | > 0 (ratio 2) | > 0 | **yes** | 84120 |
+| 19 | 7 | > 0 (ratio 2) | > 0 | **yes** | 118760 |
+| 21 | 8 | > 0 (ratio 1.5) | > 0 | **yes** | 82780 |
+| 23 | 9 | > 0 (ratio 1.2) | > 0 | **yes** | 109940 |
+
+**R threshold.**  Reading down the table: `pB` (electric) lights only for
+**R >= 5**; `sB` (magnetic) lights for **R >= 3**; for **R <= 2** neither lights
+(the reconstruction is dead, `pol_u <= 0`, `pol_v = 0`).  The |pol_v|/|pol_u|
+ratio falls toward 1 as R grows (4, 2, 2, 1.5, 1.2 for R = 5..9).
+
+The seeded axis does **not** change the result: `pol m`, `pol z` and `pol za`
+give identical censuses at EL=13 (positive = 8946, sB = 53700) and EL=7 (all
+zero).
+
+**Reading.**  `reconstructPair(bstamp, R)` maps the broadcast arrival tick to a
+point on `pol_u^2 + pol_v^2 = R^4`; the sign of `pol_u` (hence `pB`) depends on
+the arrival phase `j = (tick % 2R^2) / R`, and the broadcast's stamp pattern
+pins that phase as a function of the lattice size `R` -- the "frozen phase
+branch" of `RESULTS.md`, now measured.  The axis seed sets the walk direction,
+not the phase reference, so it cannot steer `pB` vs `sB`.
+
+**Consequence for Route B.**  Whether the electric (`pB`) or magnetic (`sB`) EM
+branch is available is decided by the **geometry**, not the bootstrap: `sB` is
+reachable for R >= 3, `pB` is hard (only EL=15 lights both among the tested
+sizes), and neither lights for R <= 2.  A robust Route B therefore needs either
+an EL=15-like geometry (both flags live) or a change to the reconstruction's
+phase reference.
+
+## WP4.5 result: with both EM flags live, two equal-charge clouds do not merge (11 Sep 2026)
+
+At R = 5 (tube 21x15x15 -- the geometry where both pB and sB light: pB = 2730,
+sB = 2730, pol_u in [0,5]), `EM_FIRST_FSM` with an open sieve keeps the two
+equal-charge clouds as **two distinct S singletons** for the whole run:
+
+| build | sieve | final | centres | enc_repel |
+|---|---|---|---|---|
+| ordinary | any | K=1 D=1 | 1 (merged) | 0 |
+| `EM_FIRST_FSM` | 32 | **S=2 (no merge)** | **2** | 182 |
+| `EM_FIRST_FSM` | 64 | **S=2** | **2** | 182 |
+| `EM_FIRST_FSM` | 256 | K=1 D=1 | 1 | 66 |
+| `EM_FIRST_FSM` | 16384 | K=1 D=1 | 1 | 0 (gate shut) |
+
+Trace (s2b = 64): from frame 1 both clouds carry pB = sB = 2730; they stay S = 2
+at two sites every frame, with `enc_repel` rising 18 -> 50 -> 98 -> 140 -> 182.
+They never elect a chief and never collapse -- the cleanest repulsion found in
+this campaign.
+
+**Reading.**  When both EM flags are live (R = 5) the reorder is a clean
+repulsion: two equal-charge clouds remain two.  The effect is windowed in the
+sieve (s2b <= ~64), like every electroweak effect here.  This is the strongest
+Route-B lead; `pB` (the electric flag) being live is what lets the electric
+branch act alongside the magnetic one.
+
+### Outcome map across R (EM_FIRST vs ordinary; sieve s2b = 64, 16 frames)
+
+| tube | R | flags | ordinary | `EM_FIRST_FSM` |
+|---|---|---|---|---|
+| 21x9x9 | 2 | none | K=1 D=1, **1 site** | K=1 D=1, 1 site (no flag -> no effect) |
+| 21x11x11 | 3 | sB | K=1 D=1, **1 site** | K=1 D=1, **2 sites** (rep 50) |
+| 21x13x13 | 4 | sB | K=1 D=1, **1 site** | K=1 D=1, **2 sites** (rep 74) |
+| 21x15x15 | 5 | pB+sB | K=1 D=1, **1 site** | **S=2, 2 sites** (rep 182) |
+| 21x17x17 | 6 | pB+sB | K=1 D=1, **1 site** | K=1 D=1, **2 sites** (rep 82) |
+
+So for **R >= 3** the reorder stops the spatial collapse of the two centres
+(2 sites vs the ordinary 1); at **R = 5** it additionally stops the identity
+merge (the clouds stay two separate S singletons).  For **R <= 2** no flag is
+live and nothing changes, and the ordinary path always collapses to one centre.
+The strongest configuration is R = 5 (both flags live), which is also the
+smallest R at which `pB` lights.
