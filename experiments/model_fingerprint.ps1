@@ -17,7 +17,7 @@
   fingerprint), 1 on mismatch.
 #>
 param(
-  [string]$Expected = "937449ff97712e7c0095eb7992137eed1529c59fdd1985a5ed517753b9f714bf"
+  [string]$Expected = "428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8"
 )
 
 $ErrorActionPreference = "Stop"

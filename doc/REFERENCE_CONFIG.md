@@ -63,6 +63,7 @@ interchangeable measurement of the reference dynamics.
 | `EXCLUSION_FSM` | Pauli-like identity hard core across seed families + push | `interaction.cpp` (442, 558, 988) |
 | `EM_FIRST_FSM` | decide the electroweak channel before identity | `interaction.cpp` (~893) |
 | `EM_FORCE_PREREQ` | (WP4.2 spike) force the `EM_FIRST_FSM` prerequisite s2B+pB at each contact | `interaction.cpp` (~884) |
+| `EM_NOS2B_FSM` | (Route B) drop the probabilistic sieve requirement from the EM reorder | `interaction.cpp` (~906) |
 | `DD_INTRA_ISLAND_FIX` | (WP3.3 candidate) intra-family election uses the family-minimum chief, so a 3-copy family stays 1 K + 2 D | `chief_transition.h` |
 | `COLOR_ENCOUNTER_FSM` | colour FSM replaces `update_lattice_cpu` | `simulation.cpp` (647) |
 | `COLOR_CHIEF_FSM`, `COLOR_COHESION_FSM`, `COLOR_MATCHED_FSM` | colour/election/cohesion/matched candidates | `color_fsm.inc`, `color_matching.inc` |
@@ -117,10 +118,11 @@ experimental block to a model source:
 |---|---|---|---|
 | `EM_FORCE_PREREQ` | forces the `EM_FIRST_FSM` prerequisite (s2B + pB) at each contact (WP4.2 spike) | `interaction.cpp` (~884) | unchanged when OFF |
 | `DD_INTRA_ISLAND_FIX` | intra-family election uses the family-minimum chief (WP3.3); a 3-copy family stays 1 K + 2 D | `chief_transition.h` | unchanged when OFF |
+| `EM_NOS2B_FSM` | drops the probabilistic `s2B` gate from the EM reorder (Route B); needs `EM_FIRST_FSM` | `interaction.cpp` (~906) | unchanged when OFF |
 
 Current working-tree model fingerprint:
-`937449ff97712e7c0095eb7992137eed1529c59fdd1985a5ed517753b9f714bf`
-(`interaction.cpp` = `63DE86B5...`, `chief_transition.h` = `2EABE284...`).
+`428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8`
+(`interaction.cpp` = `B8E3F329...`, `chief_transition.h` = `2EABE284...`).
 The reference build (all candidate macros OFF) was re-verified
 behaviour-identical: `alpha_probe 7 4 200 16384 256` reports active-passes =
 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.

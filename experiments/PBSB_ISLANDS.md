@@ -282,6 +282,17 @@ sieve (s2b <= ~64), like every electroweak effect here.  This is the strongest
 Route-B lead; `pB` (the electric flag) being live is what lets the electric
 branch act alongside the magnetic one.
 
+**Robustness of the R=5 result.**  The separation is stable and axis-independent:
+
+- **Persistence:** it holds for **32 frames** (2+ breathing cycles): `S = 2` at
+  2 sites, `enc_repel` 182 -> 308 -> 434 (steady ~+12.6/frame), with no merge.
+- **Axis independence:** the `opp` variant (opposite seeded axes) gives the
+  identical FRAME-16 census (`S=2`, 2 sites, rep 182) -- consistent with WP4.4
+  (the flags do not depend on the axis).
+
+So within the window (R = 5, sieve s2b <= ~64) two equal-charge clouds are
+robustly kept apart; the only fragile parameter is the sieve modulus.
+
 ### Outcome map across R (EM_FIRST vs ordinary; sieve s2b = 64, 16 frames)
 
 | tube | R | flags | ordinary | `EM_FIRST_FSM` |
@@ -296,5 +307,78 @@ So for **R >= 3** the reorder stops the spatial collapse of the two centres
 (2 sites vs the ordinary 1); at **R = 5** it additionally stops the identity
 merge (the clouds stay two separate S singletons).  For **R <= 2** no flag is
 live and nothing changes, and the ordinary path always collapses to one centre.
-The strongest configuration is R = 5 (both flags live), which is also the
+R = 5 has the widest window among the tested sizes (see below); it is also the
 smallest R at which `pB` lights.
+
+### Why the window closes
+
+The `s2B` gate (the electroweak sieve) fires per tick with probability
+**P ~= u_active / S** (`simulation.cpp` `phase_step`: the trigger is
+`(u * (tick+1)) mod S < u`).  The EM reorder needs `curr.s2B` on a contact cell;
+if no contact cell passes the gate on a given frame, control falls through to
+`chiefContact()` and the identity merges.  Measured at R = 5:
+
+| S | P ~= u/S | outcome |
+|---|---|---|
+| 32, 64 | > 1 (gate ~always open) | **S=2, 2 sites** (no merge) |
+| 128, 192 | ~0.5 | K=1 D=1, 2 sites (identity merged) |
+| 256 | ~0.25 | K=1 D=1, 1 site (also collapses) |
+| 16384 | ~0.01 | merged (no EM events) |
+
+The merge happens in **two stages**: at S = 256 the identity merges at frame 8
+(K=1 D=1, still 2 sites) and the spatial collapse follows at frame 11 (1 site);
+`enc_repel` stops at 66 once they are K/D (the S x S repel branch no longer
+applies).  The central amplitude is u ~ 280 (DEBUG), so the shell amplitude is
+~64-128, matching the observed identity-merge boundary between S = 64 and 128.
+
+**Conclusion.**  The window closes because the gate probability drops below 1:
+the model trades a deterministic EM response for a probabilistic sieve, and only
+for S <= ~u_shell does the gate fire often enough to preempt **every** merge.  A
+robust Route B therefore needs either the AM-shell amplitude to grow (so larger S
+suffices) or the EM reorder to stop depending on the probabilistic gate.
+
+### R = 5 is not qualitatively special
+
+R = 6 (tube 21x17x17, both flags live: pB = sB = 4206) also keeps the clouds as
+S = 2 at 2 sites -- but only up to a **lower** sieve:
+
+| R | tube | S=2 (no merge) | identity merge |
+|---|---|---|---|
+| 5 | 21x15x15 | s2b <= 64 | s2b >= 128 |
+| 6 | 21x17x17 | s2b <= 32 | s2b >= 64 |
+
+So the R-dependence is **quantitative**: the sieve window width tracks the shell
+amplitude `u_shell(R)` (centre `u` ~ 280 at R=5 vs ~34 at R=6 at the sampled
+ticks), which sets the gate probability `u/S`.  R = 5 is simply the smallest R
+where `pB` lights **and** the amplitude is high enough to hold a window at
+s2b = 64; it is not a distinct regime.  (Because both clouds walk the same
+seeded axis, the contact cells carry matching flags, so `collapse` is true and
+the S x S repel branch fires whenever the gate opens -- the merge only ever
+happens on gate misses, not on flag mismatch.)
+
+## WP4.6 result: relaxing the sieve gate gives a robust Route-B positive (11 Sep 2026)
+
+Candidate macro `EM_NOS2B_FSM` (`interaction.cpp`): the EM reorder's guard drops
+the probabilistic `s2B` requirement and depends only on the live pB/sB flags
+(the equal-charge clause and the flag clause are unchanged).  Macro-guarded; OFF
+in the reference build (which stays 6468/0/0).
+
+Build/run: `experiments/build_pbsb_two_wide_nos2b.bat`
+(`/D EM_FIRST_FSM /D EM_NOS2B_FSM`), then
+`pbsb_two_wide_nos2b.exe 15 same 0 32` (R = 5, reference sieve 16384, 32 frames):
+
+| build | sieve | final | centres | enc_repel |
+|---|---|---|---|---|
+| ordinary | 16384 | K=1 D=1 | 1 (merged) | 0 |
+| `EM_FIRST_FSM` | 16384 | K=1 D=1 | 1 | 0 (gate shut) |
+| `EM_FIRST_FSM` + `EM_NOS2B_FSM` | 16384 | **S=2 (no merge)** | **2** | 434 |
+
+With the gate relaxed the R = 5 separation holds **at the reference sieve** and
+for 32 frames (`enc_repel` 182 -> 434) -- the trace is identical to the s2b = 64
+gated run (at s2b = 64 the gate is always open).
+
+**Conclusion.**  The probabilistic sieve gate was the **only** remaining blocker.
+Two equal-charge clouds then remain two separate S entities on a wide-enough
+lattice (R >= 5, both flags live).  This is the strongest Route-B positive;
+adopting it would change the model (the electroweak channel is currently
+sieve-gated), so it is a candidate, not part of the reference.

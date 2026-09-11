@@ -155,12 +155,13 @@ repel).  4.3: the broadcast is **not dormant** -- it is sign-pinned (lights sB o
 a wide tube); with live sB and an open sieve, `EM_FIRST_FSM` keeps two
 equal-charge clouds apart (2 centres, `enc_repel` > 0) in a window s2b <= ~64.
 4.4 (deepen): the reconstructed signs are **geometry-pinned** by R = RMAX-2 (sB
-for R >= 3; pB only at EL=15 among tested; neither for R <= 2) and **not**
-steerable by the seeded axis (m/z/za identical).  4.5: at R = 5 (both flags
-live) with an open sieve, `EM_FIRST_FSM` keeps two equal-charge clouds as two
-distinct S singletons for 16 frames (enc_repel 182) -- the cleanest Route-B
-positive.  G1 is **positive-in-a-window**: Route B is reachable, pending a robust
-/ controllable broadcast.  See `PBSB_ISLANDS.md` "WP4.3".."WP4.5".
+for R >= 3; pB only for R >= 5; neither for R <= 2) and **not** steerable by the
+seeded axis (m/z/za identical).  4.5: at R = 5 (both flags live) with an open
+sieve, `EM_FIRST_FSM` keeps two equal-charge clouds as two distinct S singletons.
+4.6 (decisive): relaxing the sieve gate (`EM_NOS2B_FSM`) makes the separation
+hold **at the reference sieve** (16384) for 32 frames -- the probabilistic gate
+was the only blocker.  G1 is now a **robust positive** (candidate).  See
+`PBSB_ISLANDS.md` "WP4.3".."WP4.6".
 
 ### WP5 -- Restructure and rewrite `manuscript.tex` -- ~8-12 sessions
 Executes `REVISION_PLAN.md` sec.4 on the current structure:
@@ -178,6 +179,13 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   from WP2/WP3.
 - **Acceptance:** no unlabelled claim; no historical table; matrix complete.
 - **Depends on:** WP2 + WP3 (never touch the `.tex` before the numbers exist).
+- **Status: started (additive, build-verified).**  Two tables added to
+  `doc/manuscript.tex`: the **postulate-vs-emergent** table (in Limitations,
+  `tab:postulate-emergent`) and the **claim-evidence map** (end of Results,
+  `tab:claim-evidence`).  `pdflatex` compiles with no errors.  The structural
+  moves (reorder sections, merge one-line subsubsections, move `Particles`/QM
+  bridge to appendices, halve Conjectures, replace the historical tables with the
+  WP2/WP3 numbers) remain.
 
 ### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
 - **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
@@ -338,8 +346,37 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** commit the WP4.3-4.5 increment; then decide G1 (Route B), make the
-  broadcast robust / controllable, or start WP5 (manuscript rewrite).
+- **Next:** continue WP5 -- replace the historical tables in Results with the
+  `RESULTS_v2.md` numbers, move `Particles`/QM bridge to appendices, merge the
+  one-line subsubsections, halve Conjectures.
+- **2026-09-11 -- WP5 started.**  Added two build-verified tables to
+  `doc/manuscript.tex`: postulate-vs-emergent (Limitations) and claim-evidence
+  (end of Results).  Reminder: `doc/manuscript.pdf` is tracked, so rebuilds show
+  as modifications.  Full build: `doc\latexpdf.bat`; a syntax check is one
+  `pdflatex` pass (exit 0, no `!` errors).
+- **2026-09-11 -- WP4.6 DONE (decisive Route-B positive).** Added the candidate
+  macro `EM_NOS2B_FSM` (`interaction.cpp`): the EM reorder guard drops the
+  probabilistic `s2B` requirement.  At R = 5 with the **reference sieve (16384)**
+  the two equal-charge clouds now stay S=2 at 2 sites for 32 frames (enc_repel
+  182->434) -- where the gated build merged.  The sieve gate was the only
+  blocker.  Reference build re-verified 6468/0/0; fingerprint advanced
+  `937449...` -> `428ece...`.  Recorded in `PBSB_ISLANDS.md`.
+- **2026-09-11 -- why R=5.** R = 5 is NOT qualitatively special: R = 6 also keeps
+  S=2 but only for s2b <= 32 (R=5 holds s2b <= 64).  The window width tracks the
+  shell amplitude u_shell(R) (centre u ~280 at R=5 vs ~34 at R=6), so it is a
+  quantitative amplitude effect.  Since both clouds share the seeded axis the
+  contact flags match, so the merge only happens on gate misses.  Recorded in
+  `PBSB_ISLANDS.md`.
+- **2026-09-11 -- window mechanism.** The sieve window closes because the `s2B`
+  gate fires with P ~= u_active/S: at R=5 the identity merge sets in between
+  S=64 and 128 (shell u ~64-128; centre u ~280) and the spatial collapse at
+  S=256.  The merge is two-stage (identity at frame 8, collapse at frame 11 at
+  S=256).  Recorded in `PBSB_ISLANDS.md`.
+- **2026-09-11 -- R=5 robustness.** The R=5 separation (two equal-charge clouds
+  kept as S=2) persists for 32 frames (enc_repel 182->308->434) and is
+  axis-independent (same vs opposite seeded axes give the identical census).  The
+  only fragile parameter is the sieve modulus (window s2b <= ~64).  Added a frames
+  argument to `pbsb_two_wide`.  Recorded in `PBSB_ISLANDS.md`.
 - **2026-09-11 -- R map (flag thresholds).** Extended the WP4.4 sweep to R = 6..9
   (EL = 17..23, `alpha_probe pol m`): `pB` (electric) lights only for **R >= 5**;
   `sB` (magnetic) for **R >= 3**; neither for **R <= 2**.  The |pol_v|/|pol_u|

@@ -903,7 +903,18 @@ namespace automaton
     // same-Q repel; K/K repel; D/D cross-tribe repel; S attaches to a
     // K/D chief) and is compiled only under this macro.
     // ==============================================================
-    if (currSrc.ch == partnerSrc.ch && curr.s2B &&
+    const bool emGate =
+#ifdef EM_NOS2B_FSM
+        // Candidate (Route B): drop the probabilistic sieve requirement from the
+        // EM reorder, so the channel depends only on the live pB/sB flags.  The
+        // empirical window (PBSB_ISLANDS.md "Why the window closes") shows the
+        // sieve gate P ~= u/S is the only thing that closes the repulsion window;
+        // this macro tests the reorder without it.  Macro-guarded; OFF by default.
+        true;
+#else
+        curr.s2B;
+#endif
+    if (currSrc.ch == partnerSrc.ch && emGate &&
         (curr.pB || partner.pB || curr.sB || partner.sB))
     {
       const bool electricCollapse = curr.pB && partner.pB;

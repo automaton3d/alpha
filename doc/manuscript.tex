@@ -1219,6 +1219,31 @@ with measured slopes $0.248$, $0.175$ and $0.125$ for integer shifts $s=4,5,6$, 
 \label{eq:dispersion-correction}
 \end{equation}
 the generic suppression of Lorentz symmetry by the square of the lattice (Planck) scale.  The substrate wave speed $v_{\mathrm{wave}}$ is strictly subluminal with respect to $v_{\max}$: the field cannot be used to exceed the causal boundary.  In the model the integer shift varies radially ($s=\mathrm{DIFF\_SHIFT}+1-(r\gg\mathrm{diffDivShift})$, clamped), so $v_{\mathrm{wave}}$ acquires a radial profile; the probe uses a constant shift $s$ to isolate the intrinsic dispersion of a homogeneous substrate.
+
+\subsection{Claim--evidence map}\label{subsec:claim-evidence}
+For a referee, Table~\ref{tab:claim-evidence} maps each substantive claim to the artefact that establishes it, with its status (P/M/C).  Every measured number cites a reproducible script; the machine-readable tables are in \texttt{experiments/RESULTS\_v2.md}, \texttt{experiments/ABLATION\_81x3.md} and \texttt{experiments/PBSB\_ISLANDS.md}.  The model source state is frozen as \texttt{MODEL\_VERSION} \texttt{model-ref-v1} (\texttt{doc/REFERENCE\_CONFIG.md}); the reference build is re-verified by \texttt{experiments/model\_fingerprint.ps1}.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{5.1cm}p{0.7cm}p{6.8cm}@{}}
+\toprule
+Claim & S. & Evidence (script / table) \\
+\midrule
+Prepared-island transport (K-only) & M & \texttt{inertia\_revalidation} (\texttt{experiments/INERTIA\_REVALIDATION.md}) \\
+$\alpha_A$ is $L$-dependent, never $1/137$ & M & $\alpha\_A$ sweep (\texttt{RESULTS\_v2.md}) \\
+$\alpha_A..\alpha_F$ all fail & M & falsification battery (\texttt{RESULTS.md}; reproduced) \\
+No $1K{+}nD$ self-assembly from the seed & M & island census (\texttt{ISLAND\_CENSUS.md}) \\
+$81\times3$ survives under EXCLUSION & M & ablation table (\texttt{ABLATION\_81x3.md}) \\
+Production $2K{+}1D$ fixed to $1K{+}2D$ & C & \texttt{promotion\_three}, \texttt{DD\_INTRA\_ISLAND\_FIX} \\
+Equal-charge islands repel (EM reorder) & C & \texttt{pbsb\_two\_wide} (\texttt{PBSB\_ISLANDS.md} WP4.2--4.6) \\
+One-cell-per-tick clock & P & rule (\texttt{effective\_t}); Table~\ref{tab:postulate-emergent} \\
+\bottomrule
+\end{tabular}
+\caption{Claim versus evidence.  Status: P = postulate, M = measured, C = candidate.}
+\label{tab:claim-evidence}
+\end{table}
+
 \section{Conjectures and prospects\label{sec:Prospects-and-conjectures}}
 The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).  The measured probes that anchor the time-dilation derivation (front isotropy and dispersion) are reported in Sect.~\ref{sec:Results}; the naming taxonomy and the bridge to the quantum formalism, formerly appendices, close this section under the same conjectural status.
 \subsection{Discrete to continuous transition}
@@ -1434,6 +1459,35 @@ For clarity, we collect here what the current implementation cannot yet do.  The
 \item \textbf{Open problems.}  (i)~Measure the properties (binding energy, lifetime, scattering behavior) of the pairs produced by the open $s2B$ channel, and study how the pair-formation rate depends on $S$, $U_0$, $L$ and the impact parameter; (ii)~define a continuum limit and derive effective equations; (iii)~turn the charge-combination census into genuine cross-section predictions with a unit mapping; (iv)~scale the lattice to test multi-particle dynamics beyond two bubbles; (v)~derive the model constants ($U_{0}$, sieve thresholds, $\mathrm{phase\_full}$) rather than setting them by hand.
 \end{itemize}
 These limitations delimit the scope of the present work: the manuscript reports mechanisms and exploratory observations, not a predictive physical theory.  The conjectures of Sect.~\ref{sec:Prospects-and-conjectures} and the falsifiability discussion above should be read in this light.
+
+\paragraph{Postulate versus emergent.}  To answer directly which elements are \emph{prescribed} rather than derived, Table~\ref{tab:postulate-emergent} grades every ingredient.  Only charge conservation and the observer's reading of $c$ are emergent in the strong sense; the maximal information speed (the one-cell-per-tick clock) and the polarization channel are \emph{postulates} of the rule set.  A machine-readable version with code anchors is \texttt{experiments/POSTULATE\_VS\_EMERGENT.md}.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}p{4.6cm}p{0.7cm}p{7.4cm}@{}}
+\toprule
+Ingredient & G. & Reason / anchor \\
+\midrule
+Cell size $X$ & P & free metric unit (App.~\ref{sec:Calculation-of-X}) \\
+Clock: front advances one cell per tick & P & definition of the information clock; realised by the incremental distance field $r$ \\
+Breathing phase $f=\mathrm{effective\_t}(t)$ & P & rule \\
+$W=3L^2$, $9L$ islands of $L/3$ & P & topology used by the island census \\
+Six charge bits & P & rule \\
+Wave update (Laplacian, damping, forcing) & P & rule; the dispersion relation follows from the chosen shifts, it is not fitted \\
+\midrule
+Charge conservation & E & measured every tick by the census \\
+Speed of light $c$ & E & observer reading of $v_{\max}$ (Sect.~\ref{subsec:special-relativity}) \\
+\midrule
+Polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$ & C & broadcast is postulated; it does not bootstrap from the zero seed (Sect.~\ref{subsec:island-candidates}) \\
+Island aggregation ($1K+nD$) & C & the plain seed does not self-assemble (Sect.~\ref{subsec:island-candidates}) \\
+Island inertia and transport & C & prepared, controlled runs only \\
+\bottomrule
+\end{tabular}
+\caption{Postulate (P) versus emergent (E) versus candidate (C) for each model ingredient.  The two ingredients an editor flagged as ``prescribed''---the one-cell-per-tick clock and the polarization broadcast---are postulates of the rule, not emergent predictions.}
+\label{tab:postulate-emergent}
+\end{table}
+
 \subsection{Future inclusions}
 Ongoing work simulates the geometric structures that emerge from these local, multi-layered updates. Preliminary tests already show that the collective dynamics of fragments produce a continuous $r \cdot \sin(r)$ density cloud, localized wave-packets, stable spiral patterns and macroscopic rotations directly from discrete bit distributions. These observations support the conjecture that the universal fabric can bridge discrete local rules and the smooth symmetries of physical spacetime.
 \subsection{Final thoughts}

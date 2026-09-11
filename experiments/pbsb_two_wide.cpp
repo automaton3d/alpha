@@ -65,6 +65,7 @@ int main(int argc, char** argv)
     unsigned shortEdge = (argc >= 2) ? (unsigned)std::stoul(argv[1]) : 9u;
     bool opposite = (argc >= 3 && std::string(argv[2]) == "opp");
     const int s2b = (argc >= 4) ? atoi(argv[3]) : 0;   // 0 = leave the default sieve
+    const unsigned lastFrame = (argc >= 5) ? (unsigned)std::stoul(argv[4]) : 16u;
     constexpr unsigned LX = 21;
     const unsigned LY = shortEdge, LZ = shortEdge;
     const unsigned cy = shortEdge / 2, cz = shortEdge / 2;
@@ -72,8 +73,8 @@ int main(int argc, char** argv)
       throw std::runtime_error(lastAllocationError);
     initSimulation(0);
     if (s2b > 0) s2b_target = s2b;
-    printf("tube %ux%ux%u  RMAX=%u  RMAX-2=%d  s2b_target=%d  %s\n", LX, LY, LZ,
-           RMAX, (int)RMAX - 2, (int)s2b_target,
+    printf("tube %ux%ux%u  RMAX=%u  RMAX-2=%d  s2b_target=%d  frames=%u  %s\n",
+           LX, LY, LZ, RMAX, (int)RMAX - 2, (int)s2b_target, lastFrame,
            opposite ? "opposite axes" : "same axes");
     placeLayer(0, 2, cy, cz, 0x08, (int)RMAX, 0, 0);
     placeLayer(1, 4, cy, cz, 0x08,
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
              frame, nk, nd, ns, sites.size(), pB, sB, minPu, maxPu,
              (long long)enc_collapse, (long long)enc_adiah,
              (long long)enc_repel);
-      if (frame == 16) break;
+      if (frame == lastFrame) break;
       while (!simulation()) {}
       ++frame;
     }

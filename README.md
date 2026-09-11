@@ -93,10 +93,11 @@ the matching `experiments\*.md` note (see the documentation map below).
 - The **frozen reference** is documented in `doc\REFERENCE_CONFIG.md`:
   **MODEL_VERSION** = commit `4501f25`, annotated tag `model-ref-v1`.  The
   current working-tree model fingerprint (SHA256) is
-  `937449ff97712e7c0095eb7992137eed1529c59fdd1985a5ed517753b9f714bf` (the
+  `428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8` (the
   historical `model-ref-v1` value was `5b0944...`; it advanced when the
-  macro-guarded WP4.2/WP3.3 spike macros `EM_FORCE_PREREQ` / `DD_INTRA_ISLAND_FIX`
-  were added -- the reference build behaviour is unchanged).  Verify drift with
+  macro-guarded spike macros `EM_FORCE_PREREQ` / `DD_INTRA_ISLAND_FIX` /
+  `EM_NOS2B_FSM` were added -- the reference build behaviour is unchanged).
+  Verify drift with
   `powershell -ExecutionPolicy Bypass -File experiments\model_fingerprint.ps1`
   (exit 0 = matches).
 - The **reference build** is the CPU build with all candidate macros **off**
