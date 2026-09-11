@@ -1246,17 +1246,17 @@ One-cell-per-tick clock & P & rule (\texttt{effective\_t}); Table~\ref{tab:postu
 \end{table}
 
 \section{Conjectures and prospects\label{sec:Prospects-and-conjectures}}
-The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).  The measured probes that anchor the time-dilation derivation (front isotropy and dispersion) are reported in Sect.~\ref{sec:Results}; the naming taxonomy and the bridge to the quantum formalism, formerly appendices, close this section under the same conjectural status.
+The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).  The measured probes that anchor the time-dilation derivation (front isotropy and dispersion) are reported in Sect.~\ref{sec:Results}; the naming taxonomy and the bridge to the quantum formalism have been moved to Appendices~\ref{sec:Particles} and~\ref{sec:bridge} under the same conjectural status.
 \subsection{Discrete to continuous transition}
 Localized particles are conjectured to be assemblies of many discrete fragments, so macroscopic properties such as total momentum and angular momentum might emerge from collective configurations rather than from individual bubbles. These global quantities would then be best described by real numbers, just as statistical mechanics bridges discrete atomic events to continuous thermodynamic variables.
 A free electron's average motion, for example, may follow a direction vector that cannot be expressed with only discrete modulo-$L$ components; continuous descriptors are thus necessary idealizations at large scales. The same holds for isotropy: it looks uniform at macroscopic scales even though the lattice is fundamentally granular.
-\subsection{Color quantization}
+\subsection{Color and weak quantization}
 Color quantization is presented as an extension of the electromagnetic case.
 Hadrons would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
 \subsection{Emergence of gravity}\label{subsec:emergence-of-gravity}
 General-relativistic spacetime is here conjectured to be an effective, coarse-grained approximation of the discrete lattice (a speculative projection). Gravity is proposed to arise as a residual effect of electromagnetic interactions, mediated by the gravitons of Sect.~\ref{subsec:specialized-pairs}---pairs with fully complementary charge words---which couple to both \emph{Orbis} and \emph{Umbra}. Ordinary photons are sector-specific, but gravitons provide cross-sector connectivity; being charge-neutral by construction, a graviton's electric and weak contributions cancel at leading order, leaving a residual geometry-driven attraction. Under this conjecture, free objects would follow emergent timelike geodesics under the observer's round-trip reading convention (Sect.~\ref{subsec:observers}), and graviton redistribution of energy and charge might mimic dark-matter effects such as flat rotation curves. None of these behaviors has been observed in the implementation.
 In the same coarse-grained picture, photons may also lose energy through minor, non-collapsing interactions with singletons and electrons as they propagate---an intrinsic \textit{aging} that would parallel cosmic redshift. In the model a photon's frequency is an integer pair population (Sect.~\ref{bosons}), so each interaction that removes one pair lowers the emergent frequency read by an Observer by one quantized even step. Zwicky already proposed a redshift mechanism independent of expansion \cite{zwicky1929redshift}; in principle the model could realize it without the image-blurring problem he raised, offering a redshift explanation that does not require dark energy. The drive pair mechanism of Sect.~\ref{subsubsec:drive pair} might likewise make acceleration equivalent across frames, in line with the equivalence principle. These are suggestions, not measured effects.
-\subsection{Weak quantization}
+\paragraph{Weak quantization.}
 Because weak interactions are rare, weak quantization may appear at cosmological scales, for instance in a constant ratio between the average galaxy separation and galactic bulge size. This large-scale granularity could be reinterpreted as gravitational quantization and may eventually yield an effective cosmological constant $\Lambda$ and metric tensor $g_{\mu\nu}$.
 \subsection{Stochastic behavior and the uncertainty principle}
 The initial chaos created by the deterministic collision of many regular patterns, together with the large number of bubbles per particle, may make individual outcomes effectively unpredictable. Each measurement would then sample one instance from this fine-grained distribution, so measured values could carry irreducible uncertainty, analogous to the Heisenberg principle \cite{Heisenberg1927}:
@@ -1269,71 +1269,10 @@ The quintessential idea of a black hole in this model can be illustrated by two 
 a_1 = a_2 = \min(A_1,A_2).
 \]
 The toy picture above contains no mechanism that would obviously discard information; this is, however, not a resolution of the black hole information paradox \cite{hawking1976breakdown,harlow2016jerusalem}, and no black-hole dynamics has been simulated in this framework.
-\subsection{What is spin in this model?}
+\subsection{Spin and the Hofer effect}\label{subsec:hofer}
 In this model, spin is conjecturally identified with the coherent radial alignment of the pBit $pB$ (local in-phase sign) and the transverse polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$. The positive in-phase half-cycle marked by $pB$ alternates outward and inward as the wave oscillates, while the phase of $(\mathrm{pol}_u,\mathrm{pol}_v)$ winds once around the wavefront. This radial helix would define the two spin states, aligned consistently across the particle's constituent bubbles. This identification is a structural conjecture; the model's spin has not been measured against Stern--Gerlach-type experiments.
-\subsection{The Hofer effect}\label{subsec:hofer}
+\paragraph{The Hofer effect.}
 A key test would be the \emph{Hofer effect}, named after W.~A.~Hofer \cite{hofer}: the predicted tendency of all individual spins of a localized particle to align radially inward or outward (spin down/up), i.e.\ the radial alignment of the polarization bits of Sect.~\ref{subsec:polarization-pair} around a spherical aggregate. Hofer argues that magnetic effects arise from breaking the spherical symmetry of this pattern, offering an interpretation of the Stern--Gerlach experiment. Whether the model reproduces this effect is not yet demonstrated.  (Accessible reference: J.~Phys. Conf.~Ser.~\textbf{504}, 012014 (2014), DOI 10.1088/1742-6596/504/1/012014.)
-\subsection{Speculative particle spectrum and decay channels}
-As a heuristic exercise, this model offers a framework to speculate on the composition of known particles; the identifications below are structural analogies based on the six-bit charge code, none produced by the small-lattice implementation.
-In the discussion that follows, the fragments will be characterized by their charge content: \(q, w1, w0, c2, c1, c0\).
-For example, we designate the fragment \(100000\) as \(-L\) and \(001111\) as \(-\bar{L}\), and so forth.
-Whether these compositions actually occur under the evolution rules is not demonstrated by the current implementation; it remains to be established by future simulations.
-\paragraph{The electron neutrino.}
-The electron neutrino $\nu_e$ is conjectured to be formed by a single [$+L:-L$] pair and additional drive pairs.
-Yet the anti-electron neutrino $\bar{\nu}$ would use the pair [$+\bar{L}:-\bar{L}$].
-\paragraph{The electron.}
-The electron $e^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of electron neutrinos $\nu_e$, and a variable number of drive pairs (see Figure \ref{fig:electron}). The positron, or anti-electron, would use $+\bar{L}$ fragments instead. These are for Orbis, in the case of Umbra, all bits are inverted.
-\begin{figure}
-\begin{center}
-\includegraphics[width=\linewidth]{fig3}
-\end{center}
-\caption{The free electron (artistic impression, not a rendered simulation). \label{fig:electron} Conjectured composition of a free electron as an aggregate of charge fragments.  The red bubbles are drive pairs; the red arrow marks the resultant direction of their momentum vectors (the electron's net propagation direction, not a magnetic field line).  The blue bubbles are negative-charge singletons, and the gray bubbles are electron--neutrino pairs.  Length scale is arbitrary; the figure is a schematic of the six-bit charge algebra, not an output of the automaton.}
-\end{figure}
-\paragraph{The muon neutrino.}
-The muon neutrino $\nu_{\mu}$ is conjectured to be formed as $\nu_{\mu}=2\nu_e+\bar{\nu}_e$ plus additional drive pairs.
-It would be like an electron neutrino, but with a compensated antimatter part.
-\paragraph{The muon.}
-The muon $\mu^-$ is conjectured to consist of a quantized number of $-L$ fragments, a large number of muon neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
-The classical study conducted by It\^{o} in \cite{ito} suggests that this configuration stabilizes at the second harmonic of the electron's radial vibrational state.
-\paragraph{The tau neutrino.}
-The tau neutrino $\nu_{\tau}$ is conjectured to be formed as $\nu_{\tau}=3\nu_e+2\bar{\nu}_e$ plus additional drive pairs.
-It would also be like an electron neutrino, but with a compensated antimatter-enriched part.
-\paragraph{The tau.}
-The tau $\tau^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of tau neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
-\paragraph{Gauge bosons.}
-These bosons were described in Sect. \ref{bosons}.
-\paragraph{Leptons decay.}
-In the Standard Model (SM), the decay products typically include one neutrino or antineutrino.
-In our model, one might conjecture that the large number of neutrinos in a particle is entangled by a common affinity, so that when one neutrino interacts via the weak force, all other entangled neutrinos collapse to the same point.
-Under that conjecture, the observable outcome would be indistinguishable from a single, energetic neutrino, in agreement with the SM prediction.
-If the neutrino belongs to the other sector (Orbis/Umbra), spontaneous decay might follow.  None of this behavior has been observed in the implementation.
-\paragraph{Electronic decay.}
-After the absorption of (part of) a photon, the electron would, under the model, enter an excited state, dynamically stabilizing in a suitable spherical harmonic configuration.
-When the common components of the photon and electron are reissued, the odds of a configuration corresponding to the original photon are less than one.
-As time passes, after many cohesion interactions, the proper configuration of charges and pBits may occur, forming a single photonic cluster and allowing the emitted photon to escape the frequent reissue mechanism, fleeing away from the electron cloud, which eventually settles into its ground state.
-\paragraph{Compound particles half-lives.}
-Protons, electrons, and electron neutrinos are, under the model, composed exclusively of bubbles, without their corresponding anti-bubbles.
-This unique composition is offered as a key factor in their exceptionally long half-lives, potentially making them stable.
-In contrast, particles containing both bubbles and anti-bubbles are conjectured to be significantly less stable.
-Their shorter half-lives would result from the likelihood of annihilation events between bubbles and anti-bubbles within their structure, leading to their transient nature.
-The neutron would, under the model, embed lots of electron antineutrinos, which bind the negative charge to its inner proton.
-This is offered as a possible explanation of the free neutron decay.
-\[
-n^0\rightarrow\,p^{+}+e^{-}+\nu_e
-\]
-\paragraph{Nuclear decay.}
-In this model, nuclear decay processes emerge from the internal structure and composition of compound particles representing atomic nuclei.
-These instabilities trigger reorganizations via the electroweak collapse mechanism, where the sieve test result ($s2B$) determines the feasibility of transformations.
-The decay process is similar to the free neutron decay seen above.
-The perturbing particles are typically neutrinos and Z bosons that permeate the vacuum. Once again, if these perturbing particles belong to the other sector (Orbis/Umbra), then we have spontaneous decay.
-This internal annihilation mechanism is offered as a possible account of decay processes; whether it reproduces the empirical tables of nuclides is not established, since no nuclear-scale configuration has been simulated.
-\paragraph{Heavier quarks.}
-The framework speculatively suggests that the other quarks could follow the composition of leptons, with additional neutrinos and antineutrinos, besides a variable number of drive pairs.
-\paragraph{Atoms.}
-Bound states of protons, neutrons, and electrons might naturally be expected in this scenario; their formation is not demonstrated by the current implementation.
-\paragraph{The abundance of neutrinos.}
-Despite the relatively small number of neutrinos observed in Table \ref{tab:color-combination}, their large cosmic abundance reflects their low mass, approximately five million times smaller than the mass of an electron.
-This characteristic allows neutrinos to exist in enormous quantities across the universe, even if their presence appears limited.
 \subsection{Partons and the quest for qubits}
 The inertia mechanism adopted here implies that the collective action of a large number of identical drive pairs produces a high--energy configuration. This stretches the propelled mass along the direction of motion, thereby forming a \textit{parton} structure.
 \paragraph{Quest for qubits.} \label{subsection:qubits}
@@ -1394,44 +1333,6 @@ The non-signaling claim was asserted narratively above; this subsection supplies
 \textbf{Proof.}  By Lemma~1, $\Phi(A,k)$ is a function of the initial state on the past light cone of $A$ of radius $v_{\max}(k-k_{0})$, together with any $\Psi$ values entering that cone.  A $\Psi$ change originating in $B$ can enter the cone of $A$ only through the local transition of Lemma~1, which advances one cell per tick (Lemma~2); before frame $k_{0}+d(A,B)/v_{\max}$ no such change has reached $A$.  Since the marginal $M_{A}(k)$ is a function of $\Phi(A,k)$ alone, it is unchanged. \hfill$\blacksquare$
 Three remarks.  (i) The argument does \emph{not} use the speed of the encounter sweep: it uses only the readability split and the locality of the physical transition, so the superluminal-coordinate character of the coordinated updates is exactly what the proposition neutralizes.  (ii) The split is a postulate of the model, not a theorem of the implementation: an observer that could read $\Psi$ directly (e.g., resolve the W-ledger) would falsify the conclusion.  Likewise, the host-side scheduler (whole-layer translation, source snapshots) is not the idealised local transition, so the proposition does not cover it; verifying a local realisation remains open work (Sect.~\ref{subsec:translation}).  That an intervention in $B$ outside the $v_{\max}$ cone leaves the readable marginal in $A$ invariant is exactly the content of the proposition.  (iii) The proposition does not assert that the non-local updates leave the readable fields untouched; it asserts that any effect they have becomes readable no earlier than the light-cone time from the cell whose hidden state they change, and that their placement and content are fixed by the rule's schedule acting on locally produced states.  An ``indirect effect on observable variables'' that is not steerable by an admissible intervention is therefore not a signal: it is deterministic hidden coordination, compatible with the proposition by construction.  If the coordinator were allowed to route hidden writes from states read at distant cells in the same tick, the idealization would fail---that case is the host-scheduler open problem of remark~(ii), not the situation the proposition covers.
 Given the mutual dependence of all system components and the absence of free external variables, one might speculate that the model, if interpreted as a complete physical theory, would align with superdeterministic readings of reality as discussed by Hossenfelder and Palmer \cite{hossenfelder2020rethinking}.
-\subsection{Particles}\label{sec:Particles}
-\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
-Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as drive pairs for transport.
-In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
-\subsubsection{Fermions}
-A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
-Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
-Specialized pairs do not form clusters and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus drive pair contributions.
-\subsubsection{Bosons}\label{bosons}
-A boson is made of one or more clusters. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles.
-A photon is a single cluster with all pairs superposed. In this model the frequency of a photon is not a continuous parameter but a count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs therefore has frequency $2n$. A multifrequency photon is a superposition of several such stacks, or a cluster containing populations at different even frequencies $2,4,6,\dots$. There are no harmonics in the continuous sense; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such clusters, combined in time and space.}
-The automaton reads this frequency as a population, not as a waveform. During encounter (Sect.~\ref{subsec:encounter}) each detected pair registers one frequency unit on the stack; a stack of $n$ superposed pairs therefore accumulates $n$ times the frequency of a single pair, and the same factor multiplies the firing rate of the sieve bit $s2B$ (Sect.~\ref{subsec:Sine}), which is gated by the active flag and grows with the local amplitude $u$. A multifrequency photon thus presents, at its active surface, the summed population of all its stacks: each even mode contributes its own pair count, and the interaction machinery responds to the total, not to a continuous spectrum. Because pair formation requires the same wavefront tick $t_1=t_2$, the different modes are sampled at their respective ticks of the local clock. This superposition is read by encounter, which is superluminal in coordinate terms but strictly non-signaling and non-manipulable (Sect.~\ref{subsec:observers}): the coexistence of modes is a fact of the fabric, not a channel any observer can steer, so causality is unaffected. The frequency an observer reports in laboratory units is an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}); the underlying quantity is always the count $2n$.
-$W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several clusters sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
-Orphans ($a=W$) do not interact with photons but do interact with gravitons. Neutral orphan pairs do not interact electromagnetically.
-%%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
-
-\subsection{Cellular automata and quantum formalism}\label{sec:bridge}
-\emph{Status (C).} The mapping proposed in this section is speculative: it is not reconciled with the automaton's irreversible, dissipative dynamics (Sect.~\ref{sec-undecidability} and the reversibility paragraph of Sect.~\ref{subsec:translation}), and it is not claimed as a derivation.
-For local events, we follow 't Hooft's cellular-automaton world-model approach \cite{thooft}. Ontological CA states ($\mathcal{OS}$) do not superpose: each evolves into another ontological state. An orthonormal set of ontological states can nevertheless serve as a Hilbert-space basis.
-The general operator-mechanics recipe is:
-\begin{itemize}
-\item Find a permutation operator as a matrix containing a single 1 in any row or column.
-\item Diagonalize it, obtaining the eigenvalues and eigenvector matrices.
-\item Identify a Hamiltonian matrix as the exponent in $\hat{U}=e^{-i\hat{H}T}$.
-\item Use the eigenvalue matrix to bring this Hamiltonian back to the ontological basis.
-\item Form linear combinations of the ontological states $\ket{A}$.
-\[
-\ket{\psi} = \sum_A \lambda_A \ket{A}, \quad \sum_A |\lambda_A|^2 \equiv 1,
-\]
-where $\ket{\psi}$ is a quantum state or ``template,'' and $\lambda_A$ is a complex coefficient.
-\end{itemize}
-With this operator machinery, the Schr\"{o}dinger equation governs the deterministic evolution of the wave function:
-\[
-\frac{d}{dt}\ket{\psi} = -i\hat{H}\ket{\psi}.
-\]
-The Born rule follows once superposition states are accepted; it predicts the final eigenstate after measurement. This is a simplified picture; details are in \cite{thooft,Elze2019,rizzo2020perturbing}.
-
-The recipe above applies to the reversible fragment of the readable dynamics---the local wave propagation between dissipative events.  The sieve, collapse-and-reissue, and overwrite steps are many-to-one and are therefore excluded from the unitary step; in the 't Hooft reading they would enter as information loss that coarse-grains ontological states into equivalence classes---the direction in which a reconciliation with the automaton's arrow of time would have to proceed.  Until that reconciliation is carried out, the formulation remains the Status~(C) analogy stated above, not a derivation.
 %%%%%%%% PROSPECTS AND CONJECTURES %%%%%%%%%%
 
 %%%%%%%% CONCLUSION %%%%%%%%%%
@@ -1803,4 +1704,107 @@ step before any gravitational claim can be tested.
 
 
 
+
+%%%%%%%% MOVED FROM THE CONJECTURES SECTION (WP5) %%%%%%%%
+\section{Particles}\label{sec:Particles}
+\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
+Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as drive pairs for transport.
+In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
+\subsubsection{Fermions}
+A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
+Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
+Specialized pairs do not form clusters and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus drive pair contributions.
+\subsubsection{Bosons}\label{bosons}
+A boson is made of one or more clusters. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles.
+A photon is a single cluster with all pairs superposed. In this model the frequency of a photon is not a continuous parameter but a count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs therefore has frequency $2n$. A multifrequency photon is a superposition of several such stacks, or a cluster containing populations at different even frequencies $2,4,6,\dots$. There are no harmonics in the continuous sense; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such clusters, combined in time and space.}
+The automaton reads this frequency as a population, not as a waveform. During encounter (Sect.~\ref{subsec:encounter}) each detected pair registers one frequency unit on the stack; a stack of $n$ superposed pairs therefore accumulates $n$ times the frequency of a single pair, and the same factor multiplies the firing rate of the sieve bit $s2B$ (Sect.~\ref{subsec:Sine}), which is gated by the active flag and grows with the local amplitude $u$. A multifrequency photon thus presents, at its active surface, the summed population of all its stacks: each even mode contributes its own pair count, and the interaction machinery responds to the total, not to a continuous spectrum. Because pair formation requires the same wavefront tick $t_1=t_2$, the different modes are sampled at their respective ticks of the local clock. This superposition is read by encounter, which is superluminal in coordinate terms but strictly non-signaling and non-manipulable (Sect.~\ref{subsec:observers}): the coexistence of modes is a fact of the fabric, not a channel any observer can steer, so causality is unaffected. The frequency an observer reports in laboratory units is an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}); the underlying quantity is always the count $2n$.
+$W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several clusters sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
+Orphans ($a=W$) do not interact with photons but do interact with gravitons. Neutral orphan pairs do not interact electromagnetically.
+%%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
+
+\section{Cellular automata and quantum formalism}\label{sec:bridge}
+\emph{Status (C).} The mapping proposed in this section is speculative: it is not reconciled with the automaton's irreversible, dissipative dynamics (Sect.~\ref{sec-undecidability} and the reversibility paragraph of Sect.~\ref{subsec:translation}), and it is not claimed as a derivation.
+For local events, we follow 't Hooft's cellular-automaton world-model approach \cite{thooft}. Ontological CA states ($\mathcal{OS}$) do not superpose: each evolves into another ontological state. An orthonormal set of ontological states can nevertheless serve as a Hilbert-space basis.
+The general operator-mechanics recipe is:
+\begin{itemize}
+\item Find a permutation operator as a matrix containing a single 1 in any row or column.
+\item Diagonalize it, obtaining the eigenvalues and eigenvector matrices.
+\item Identify a Hamiltonian matrix as the exponent in $\hat{U}=e^{-i\hat{H}T}$.
+\item Use the eigenvalue matrix to bring this Hamiltonian back to the ontological basis.
+\item Form linear combinations of the ontological states $\ket{A}$.
+\[
+\ket{\psi} = \sum_A \lambda_A \ket{A}, \quad \sum_A |\lambda_A|^2 \equiv 1,
+\]
+where $\ket{\psi}$ is a quantum state or ``template,'' and $\lambda_A$ is a complex coefficient.
+\end{itemize}
+With this operator machinery, the Schr\"{o}dinger equation governs the deterministic evolution of the wave function:
+\[
+\frac{d}{dt}\ket{\psi} = -i\hat{H}\ket{\psi}.
+\]
+The Born rule follows once superposition states are accepted; it predicts the final eigenstate after measurement. This is a simplified picture; details are in \cite{thooft,Elze2019,rizzo2020perturbing}.
+
+The recipe above applies to the reversible fragment of the readable dynamics---the local wave propagation between dissipative events.  The sieve, collapse-and-reissue, and overwrite steps are many-to-one and are therefore excluded from the unitary step; in the 't Hooft reading they would enter as information loss that coarse-grains ontological states into equivalence classes---the direction in which a reconciliation with the automaton's arrow of time would have to proceed.  Until that reconciliation is carried out, the formulation remains the Status~(C) analogy stated above, not a derivation.
+
+%%%%%%%% MOVED FROM THE CONJECTURES SECTION (WP5) %%%%%%%%
+\section{Speculative particle spectrum and decay channels}
+As a heuristic exercise, this model offers a framework to speculate on the composition of known particles; the identifications below are structural analogies based on the six-bit charge code, none produced by the small-lattice implementation.
+In the discussion that follows, the fragments will be characterized by their charge content: \(q, w1, w0, c2, c1, c0\).
+For example, we designate the fragment \(100000\) as \(-L\) and \(001111\) as \(-\bar{L}\), and so forth.
+Whether these compositions actually occur under the evolution rules is not demonstrated by the current implementation; it remains to be established by future simulations.
+\paragraph{The electron neutrino.}
+The electron neutrino $\nu_e$ is conjectured to be formed by a single [$+L:-L$] pair and additional drive pairs.
+Yet the anti-electron neutrino $\bar{\nu}$ would use the pair [$+\bar{L}:-\bar{L}$].
+\paragraph{The electron.}
+The electron $e^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of electron neutrinos $\nu_e$, and a variable number of drive pairs (see Figure \ref{fig:electron}). The positron, or anti-electron, would use $+\bar{L}$ fragments instead. These are for Orbis, in the case of Umbra, all bits are inverted.
+\begin{figure}
+\begin{center}
+\includegraphics[width=\linewidth]{fig3}
+\end{center}
+\caption{The free electron (artistic impression, not a rendered simulation). \label{fig:electron} Conjectured composition of a free electron as an aggregate of charge fragments.  The red bubbles are drive pairs; the red arrow marks the resultant direction of their momentum vectors (the electron's net propagation direction, not a magnetic field line).  The blue bubbles are negative-charge singletons, and the gray bubbles are electron--neutrino pairs.  Length scale is arbitrary; the figure is a schematic of the six-bit charge algebra, not an output of the automaton.}
+\end{figure}
+\paragraph{The muon neutrino.}
+The muon neutrino $\nu_{\mu}$ is conjectured to be formed as $\nu_{\mu}=2\nu_e+\bar{\nu}_e$ plus additional drive pairs.
+It would be like an electron neutrino, but with a compensated antimatter part.
+\paragraph{The muon.}
+The muon $\mu^-$ is conjectured to consist of a quantized number of $-L$ fragments, a large number of muon neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
+The classical study conducted by It\^{o} in \cite{ito} suggests that this configuration stabilizes at the second harmonic of the electron's radial vibrational state.
+\paragraph{The tau neutrino.}
+The tau neutrino $\nu_{\tau}$ is conjectured to be formed as $\nu_{\tau}=3\nu_e+2\bar{\nu}_e$ plus additional drive pairs.
+It would also be like an electron neutrino, but with a compensated antimatter-enriched part.
+\paragraph{The tau.}
+The tau $\tau^-$ is conjectured to be formed by a quantized number of $-L$ fragments, a great number of tau neutrinos $\nu_{\mu}$, and a variable number of drive pairs.
+\paragraph{Gauge bosons.}
+These bosons were described in Sect. \ref{bosons}.
+\paragraph{Leptons decay.}
+In the Standard Model (SM), the decay products typically include one neutrino or antineutrino.
+In our model, one might conjecture that the large number of neutrinos in a particle is entangled by a common affinity, so that when one neutrino interacts via the weak force, all other entangled neutrinos collapse to the same point.
+Under that conjecture, the observable outcome would be indistinguishable from a single, energetic neutrino, in agreement with the SM prediction.
+If the neutrino belongs to the other sector (Orbis/Umbra), spontaneous decay might follow.  None of this behavior has been observed in the implementation.
+\paragraph{Electronic decay.}
+After the absorption of (part of) a photon, the electron would, under the model, enter an excited state, dynamically stabilizing in a suitable spherical harmonic configuration.
+When the common components of the photon and electron are reissued, the odds of a configuration corresponding to the original photon are less than one.
+As time passes, after many cohesion interactions, the proper configuration of charges and pBits may occur, forming a single photonic cluster and allowing the emitted photon to escape the frequent reissue mechanism, fleeing away from the electron cloud, which eventually settles into its ground state.
+\paragraph{Compound particles half-lives.}
+Protons, electrons, and electron neutrinos are, under the model, composed exclusively of bubbles, without their corresponding anti-bubbles.
+This unique composition is offered as a key factor in their exceptionally long half-lives, potentially making them stable.
+In contrast, particles containing both bubbles and anti-bubbles are conjectured to be significantly less stable.
+Their shorter half-lives would result from the likelihood of annihilation events between bubbles and anti-bubbles within their structure, leading to their transient nature.
+The neutron would, under the model, embed lots of electron antineutrinos, which bind the negative charge to its inner proton.
+This is offered as a possible explanation of the free neutron decay.
+\[
+n^0\rightarrow\,p^{+}+e^{-}+\nu_e
+\]
+\paragraph{Nuclear decay.}
+In this model, nuclear decay processes emerge from the internal structure and composition of compound particles representing atomic nuclei.
+These instabilities trigger reorganizations via the electroweak collapse mechanism, where the sieve test result ($s2B$) determines the feasibility of transformations.
+The decay process is similar to the free neutron decay seen above.
+The perturbing particles are typically neutrinos and Z bosons that permeate the vacuum. Once again, if these perturbing particles belong to the other sector (Orbis/Umbra), then we have spontaneous decay.
+This internal annihilation mechanism is offered as a possible account of decay processes; whether it reproduces the empirical tables of nuclides is not established, since no nuclear-scale configuration has been simulated.
+\paragraph{Heavier quarks.}
+The framework speculatively suggests that the other quarks could follow the composition of leptons, with additional neutrinos and antineutrinos, besides a variable number of drive pairs.
+\paragraph{Atoms.}
+Bound states of protons, neutrons, and electrons might naturally be expected in this scenario; their formation is not demonstrated by the current implementation.
+\paragraph{The abundance of neutrinos.}
+Despite the relatively small number of neutrinos observed in Table \ref{tab:color-combination}, their large cosmic abundance reflects their low mass, approximately five million times smaller than the mass of an electron.
+This characteristic allows neutrinos to exist in enormous quantities across the universe, even if their presence appears limited.
 \end{document}

@@ -180,11 +180,15 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
 - **Acceptance:** no unlabelled claim; no historical table; matrix complete.
 - **Depends on:** WP2 + WP3 (never touch the `.tex` before the numbers exist).
 - **Status: in progress (build-verified).**  Done: the **postulate-vs-emergent**
-  table (Limitations), the **claim-evidence map** (Results), and the **sieve
-  sweep `tab:sieve` re-run at current HEAD** (L=7; $S=16384 \to 6468/0/0$; pairs
-  form for every $S\le8192$) with the two surrounding sentences aligned.
-  `pdflatex` compiles with no errors.  Remaining: reorder sections, merge one-line
-  subsubsections, move `Particles`/QM bridge to appendices, halve Conjectures.
+  table (Limitations), the **claim-evidence map** (Results), the **sieve sweep
+  `tab:sieve` re-run at current HEAD**, and the **move of `Particles` + the QM
+  bridge out of Conjectures into the appendix** (now `\section`,
+  `sec:Particles`/`sec:bridge`; the Conjectures intro sentence updated);
+  **merged two pairs of one-line Conjectures subsections** (Color + Weak
+  quantization; Spin + the Hofer effect, label kept); and **moved the
+  Speculative-particle-spectrum block (~60 lines) to the appendix** (now
+  `\section`).  Clean two-pass `pdflatex` (aux removed) reports no warnings.
+  Remaining: prose-halving of the remaining Conjectures.
 
 ### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
 - **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
@@ -345,8 +349,18 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** continue WP5 -- move `Particles`/QM bridge to appendices, merge the
-  one-line subsubsections, halve Conjectures.
+- **Next:** continue WP5 -- prose-halving of the remaining Conjectures.
+- **2026-09-11 -- WP5 (5th increment).**  Moved the "Speculative particle spectrum
+  and decay channels" block (~60 lines; the longest unsupported-label list) from
+  Conjectures to the appendix (`\section`).  Clean two-pass `pdflatex` (aux
+  removed) reports no warnings; the Conjectures subsection count is roughly
+  halved.
+- **2026-09-11 -- WP5 (3rd increment).**  Moved the `Particles` taxonomy and the
+  `Cellular automata and quantum formalism` bridge out of the Conjectures section
+  to the appendix (converted to `\section`, labels untouched), and updated the
+  Conjectures intro sentence that announced them.  A clean two-pass `pdflatex`
+  (aux deleted) now reports **no warnings**.  Gotcha: appending the block after
+  `\end{document}` leaves the labels undefined -- it must precede it.
 - **2026-09-11 -- WP5 (2nd increment).**  Re-ran the manuscript's sieve sweep at
   current HEAD (L=7, SEP=4, 200 frames; `alpha_probe`) and replaced
   `tab:sieve`: $16384\to6468/0/0$; pairs form for every $S\le8192$ (26 at 8192,

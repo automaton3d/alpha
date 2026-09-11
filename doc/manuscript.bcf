@@ -2405,25 +2405,25 @@
     <bcf:citekey order="27" intorder="1">hawking1976breakdown</bcf:citekey>
     <bcf:citekey order="27" intorder="2">harlow2016jerusalem</bcf:citekey>
     <bcf:citekey order="28" intorder="1">hofer</bcf:citekey>
-    <bcf:citekey order="29" intorder="1">ito</bcf:citekey>
-    <bcf:citekey order="30" intorder="1">elshatlawy2025towards</bcf:citekey>
-    <bcf:citekey order="31" intorder="1">duley2013timescape</bcf:citekey>
-    <bcf:citekey order="32" intorder="1">hossenfelder2020rethinking</bcf:citekey>
-    <bcf:citekey order="33" intorder="1">thooft</bcf:citekey>
-    <bcf:citekey order="34" intorder="1">thooft</bcf:citekey>
-    <bcf:citekey order="34" intorder="2">Elze2019</bcf:citekey>
-    <bcf:citekey order="34" intorder="3">rizzo2020perturbing</bcf:citekey>
-    <bcf:citekey order="35" intorder="1">wolfram1983</bcf:citekey>
-    <bcf:citekey order="35" intorder="2">gacs1979</bcf:citekey>
-    <bcf:citekey order="36" intorder="1">bernstein2007</bcf:citekey>
-    <bcf:citekey order="36" intorder="2">toffoli1980</bcf:citekey>
-    <bcf:citekey order="37" intorder="1">everett1957</bcf:citekey>
-    <bcf:citekey order="38" intorder="1">halpbern</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">archeops</bcf:citekey>
-    <bcf:citekey order="40" intorder="1">halpbern</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">archeops</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">codata</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">af_neto</bcf:citekey>
+    <bcf:citekey order="29" intorder="1">elshatlawy2025towards</bcf:citekey>
+    <bcf:citekey order="30" intorder="1">duley2013timescape</bcf:citekey>
+    <bcf:citekey order="31" intorder="1">hossenfelder2020rethinking</bcf:citekey>
+    <bcf:citekey order="32" intorder="1">wolfram1983</bcf:citekey>
+    <bcf:citekey order="32" intorder="2">gacs1979</bcf:citekey>
+    <bcf:citekey order="33" intorder="1">bernstein2007</bcf:citekey>
+    <bcf:citekey order="33" intorder="2">toffoli1980</bcf:citekey>
+    <bcf:citekey order="34" intorder="1">everett1957</bcf:citekey>
+    <bcf:citekey order="35" intorder="1">halpbern</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">archeops</bcf:citekey>
+    <bcf:citekey order="37" intorder="1">halpbern</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">archeops</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">codata</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">af_neto</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">thooft</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">thooft</bcf:citekey>
+    <bcf:citekey order="42" intorder="2">Elze2019</bcf:citekey>
+    <bcf:citekey order="42" intorder="3">rizzo2020perturbing</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">ito</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">
