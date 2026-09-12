@@ -436,6 +436,14 @@ its time-box.
   `experiments/POSTULATE_VS_EMERGENT.md`.  **Note:** the paper now carries an
   *empty* Limitations subsection -- a gap to fill before submission.  Build: 53
   pages, zero warnings.
+- **2026-09-11 -- Removed the "Future inclusions" subsection** (author request):
+  the heading plus its Status (C) paragraph (preliminary observations --
+  wave-packets, stable spiral patterns, macroscopic rotations, and the
+  $r\cdot\sin(r)$ density cloud motivating a bridge between discrete local rules
+  and smooth spacetime symmetries).  It carried no label and no cross-reference.
+  The $r\cdot\sin(r)$ cloud remains documented and figured elsewhere (the wave-cloud
+  text and caption), so only the conjecture paragraph went.  Build: 53 pages, zero
+  warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
