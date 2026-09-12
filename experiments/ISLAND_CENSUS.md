@@ -138,12 +138,22 @@ outputs are in `build/island_census/run64/` (census.csv, groups.csv,
 summary.txt, analysis.txt).  This cost is the main constraint for higher-L /
 longer-era campaigns on the CPU path.
 
-## 20-journey run: the 81-centre signature is reached
+## Directional-channel census (candidate build)
 
-`build/island_census_dir/run20` (same harness, `20 16384`; 54.5 s/frame,
-1090.5 s total).  Frames 0--6 again reproduce the reference plateau bit-for-bit,
-and the harness's own invariant check passes ("census recorded; independent chief
-counts agree").
+Harness: the same `island_census.cpp`, rebuilt with the WP8 candidate channel
+(`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE`, `HOMB_PRODUCER_FSM`,
+`HOMB_CONSUMER_TRANSPORT`, `POLAR_MAGNITUDE_FSM`) by
+`experiments/build_island_census_dir.bat` into
+`build/island_census_dir/island_census_dir.exe`.  Candidate macros only: these
+are not measurements of the reference dynamics, and the reference control in the
+same configuration is the 64-journey plateau documented above (one distinct
+centre in every one of the 64 journeys).
+
+### 20 journeys: the 81-centre signature is reached
+
+`build/island_census_dir/run20` (`20 16384`; 54.5 s/frame, 1090.5 s total).
+Frames 0--6 again reproduce the reference plateau bit-for-bit, and the harness's
+own invariant check passes ("census recorded; independent chief counts agree").
 
 | frame | centres | K | D | groups | unresolved | maxpop | maxspan | captures | escapes |
 |-------|---------|---|---|--------|------------|--------|---------|----------|---------|
@@ -181,14 +191,10 @@ appears as a transient.  Stabilising it -- and making the directionality
 family-selective rather than global -- is the remaining problem.
 
 
-Harness: the same `island_census.cpp`, rebuilt with the WP8 candidate channel
-(`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE`, `HOMB_PRODUCER_FSM`,
-`HOMB_CONSUMER_TRANSPORT`, `POLAR_MAGNITUDE_FSM`) by
-`experiments/build_island_census_dir.bat` into
-`build/island_census_dir/island_census_dir.exe`; run as
+### 8 journeys: the plateau breaks
+
 `build\island_census_dir\island_census_dir.exe 8 16384 build\island_census_dir\run8`
-(53.5 s/frame, 428.2 s total).  Candidate macros only: this is not a measurement
-of the reference dynamics.
+(53.5 s/frame, 428.2 s total).
 
 | frame | K | D | centres | groups | unresolved | maxpop | captures | escapes | births | deaths |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -212,9 +218,7 @@ once, which is the first spatial separation ever produced on this production pat
 Interpretation: the candidate channel does what the SEED_ASYMMETRY negative said
 was missing -- it supplies a deterministic spatial asymmetry that dissolves the
 absorbing chief-saturated state (K 235 -> 86, groups 235 -> 86), produces groups
-at the predicted population `L/3`, and splits the centre.  It does **not** reach
-the 81-distinct-centres acceptance signature: the bifurcation is global (1 -> 2
-centres) rather than per-family, consistent with the transport moving whole W
-layers coherently.  Scoring this as a candidate mechanism (C), the remaining
-requirement is family-selective directionality (the W-address tie-break branch),
-not more time.
+at the predicted population `L/3`, and splits the centre (1 -> 2).  Across this
+8-journey window the bifurcation is still global (one seed centre splitting once)
+rather than per-family; the 20-journey run above shows that it does not stay
+global.
