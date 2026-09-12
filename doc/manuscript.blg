@@ -1,15 +1,15 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'manuscript.blg'
-[119] biber-MSWIN64:342> INFO - === 
-[157] Biber.pm:421> INFO - Reading 'manuscript.bcf'
-[285] Biber.pm:1002> INFO - Found 32 citekeys in bib section 0
+[117] biber-MSWIN64:342> INFO - === 
+[155] Biber.pm:421> INFO - Reading 'manuscript.bcf'
+[286] Biber.pm:1002> INFO - Found 32 citekeys in bib section 0
 [301] Biber.pm:4487> INFO - Processing section 0
-[312] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
-[366] bibtex.pm:1713> INFO - LaTeX decoding ...
-[422] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
+[313] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
+[367] bibtex.pm:1713> INFO - LaTeX decoding ...
+[423] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
 [593] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
 [593] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
 [593] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
 [593] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[617] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
-[633] bbl.pm:779> INFO - Output to manuscript.bbl
+[619] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
+[635] bbl.pm:779> INFO - Output to manuscript.bbl
