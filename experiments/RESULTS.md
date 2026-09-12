@@ -191,7 +191,7 @@ Test: same two-bubble repel probe at L=7, SEP=4, initial |m| = 2 and 3.
   mag=3: realized 18/6996 = 1/388.667, closest approach 2.00 (max separation 2.00)
 
 Identical to mag=1: the initial momentum magnitude is INERT.  Sources advance
-at one cell per tick regardless of |m|: the model's speed of light (the
+at one cell per light frame regardless of |m|: the model's speed of light (the
 "maximum information speed" v_max of the manuscript) cannot be exceeded by
 construction.  Higher-momentum forcing is therefore not a viable control.
 

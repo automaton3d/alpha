@@ -376,7 +376,7 @@ Build scripts: `experiments/build_probe.bat` (default reference),
 
 ## 9. Geometric sweep
 
-Impulse granularity settled: the mediated push is **one light-step per TICK**,
+Impulse granularity settled: the mediated push is **one light-step per light frame**,
 applied inline in `encounter()` through `moveOneStepAway()` / `moveOneStep()`
 (production helpers, CoM conserved), deduplicated per tick and skipped for
 coincident or adjacent centres.  The earlier frame-edge variant (one step per
@@ -407,7 +407,7 @@ mag = 0 (`alpha_probe_orphan EL 4 20 16384 120 no no 0 no m 8 photon`):
 - **Distance law (no clean power law)**: the engagement rate per frame, pooled
   over the photon runs and binned by separation, is ~36 events/frame for
   d <= 4 and 18 at d = 5 - essentially flat, not 1/d^2.  Two reasons: the
-  impulse magnitude is a saturated one light-step per tick (force
+  impulse magnitude is a saturated one light-step per light frame (force
   distance-independent by construction), and the number of coincidence cells of
   two expanding shells depends on the wavefront RADIUS as much as on d (the
   intersection circle has radius sqrt(r^2 - (d/2)^2)).  Fixing the exponent
@@ -536,7 +536,7 @@ NEAR = repulsion, equal-charge bodies, R2 mediator):
   **B + stack** remains the best distance-law configuration (steepest, closest
   to 1/d^2); **C** is the cleanest physical mechanism and the natural base for
   the next refinement (e.g. relaying an impulse per engagement window instead of
-  one per pair per tick).  All three are macro-guarded; the default build is
+  one per pair per light frame).  All three are macro-guarded; the default build is
   untouched (6468/0/0).
 
 ### Scheme D: one flux-proportional kick per engagement window (evaluated)
