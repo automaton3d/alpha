@@ -109,3 +109,55 @@ value** instead of drifting.  It is not bit-stable (the count still moves betwee
 is what sets the +-2 jitter and whether a longer run or a stricter anchor (e.g.
 binding the family to its K chief permanently) removes it.
 
+## Locality audit of the rigid rule (measured)
+
+`FAMILY_RIGID_FSM` reads `lcenters[f]` for the family's *other* layers and uses the
+comparison as a predicate on the transport.  That is a non-local read of the
+host's per-layer table, in the same tick, with a **readable** consequence (the
+centre position), i.e. it falls outside the non-signaling idealisation (same
+category as the host scheduler of Sect.~`nosignaling-formal`).  Before any claim is
+made, the obvious question is whether the rigidity is *emergent* from the shared
+field -- in which case the predicate is redundant and can be dropped, making the
+island formation a local result.
+
+Measured with a purely local probe (each copy decodes its step from its OWN `c[]`
+and its OWN `x[]`; no `lcenters`), 15x9x9, 16 light frames:
+
+| run | field arrivals at the three copies | copies with a deCODABLE step | ticks with >= 2 copies fielded | steps agreeing |
+|---|---|---|---|---|
+| N=3 (1 family) | `c0 = 393`, **`c1 = 0`, `c2 = 0`** | 114 | **0** | 0 |
+| N=6 (2 families) | `c0 = 801`, **`c1 = 0`, `c2 = 0`** | 280 | **0** | 0 |
+
+**The emergent-co-movement hypothesis is falsified**: every field arrival lands in
+the family's *first* copy; the second and third copies receive nothing, so there is
+no shared field for anything to emerge from, and the co-movement is produced
+entirely by the table predicate.
+
+Structural reason (this is not a tuning artefact):
+
+1. the only `homB` write the SLOT II homing stage can see is the per-cell one, and
+   the per-family winner is gated on `x[3] % 3 == 0`, i.e. it writes **only the
+   family's first copy**;
+2. the field's propagation sweeps operate **within one layer** (a cell's six
+   neighbours are spatial neighbours in its own `w`), so a field written in layer
+   `3k` can never reach layers `3k+1`, `3k+2`.  The only cross-layer channel in the
+   architecture is the **encounter** itself.
+
+Consequences:
+
+* The demonstrated island separation (79 +- 2 centres) currently rests on a
+  **host-level, non-local coupling**.  It must either be reported as such -- under
+  the same caveat as the host scheduler -- or declared as a postulate (P) of the
+  model.
+* A legitimate cross-layer coupling has to live where the model *already* declares
+  one: in the encounter (a rule stage that pairs cells in contact; superluminal in
+  coordinates but non-signaling by the paper's own argument).  The reformulation to
+  try is therefore to let the **encounter write the displacement into each copy's
+  own layer** (using only the two contacting cells' own fields), so that every copy
+  carries the field *in its own layer* and the local consumer makes them step
+  together -- rigidity emergent from per-copy local fields, with no `lcenters`
+  read anywhere.
+* The base consumer (`HOMB_CONSUMER_TRANSPORT`) is unaffected by this criticism: it
+  reads only the cell's own `c[]`, own `x[]` and own `t`.
+
+

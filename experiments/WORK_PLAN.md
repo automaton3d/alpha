@@ -762,6 +762,32 @@ its time-box.
   result, the open question).  Every run's independent audit is written by
   `experiments/finish_island_census_dir.ps1` into that run's `analysis.txt`
   (analyzer output + trend table + SUMMARY), now parameterised by process name.
+- **2026-09-12 -- LOCALITY AUDIT of the rigid rule: the emergent hypothesis is
+  FALSIFIED, and the result is host-level.**  `FAMILY_RIGID_FSM` reads
+  `lcenters[f]` for the family's other layers and uses the comparison as a predicate
+  on the transport -- non-local, same tick, with a READABLE consequence -- so it sits
+  outside the non-signaling idealisation, like the host scheduler.  A purely local
+  probe was added (each copy decodes its step from its OWN `c[]` and its OWN `x[]`,
+  no `lcenters`) and measured at 15x9x9 over 16 light frames:
+  **N=3: `c0=393, c1=0, c2=0`, of which 114 decode to a non-zero step; N=6:
+  `c0=801, c1=0, c2=0`, 280 decodable; in both, ticks with >= 2 copies fielded = 0,
+  and steps agreeing = 0.**
+  So every field arrival lands in the family's FIRST copy and the other copies
+  receive nothing: there is no shared field, the co-movement cannot be emergent, and
+  the table predicate is doing all the work.  Structural reasons: (1) the only homB
+  write the SLOT II homing stage can see is the per-cell one, and the per-family
+  winner is gated on `x[3] % 3 == 0`, so it writes only the first copy; (2) the
+  field's propagation sweeps run WITHIN one layer, so a field written in layer 3k can
+  never reach 3k+1 or 3k+2 -- the only cross-layer channel in the architecture is the
+  encounter itself.
+  Consequences: the 79 +- 2 island result currently rests on a host-level non-local
+  coupling and must be reported under that caveat or declared as a postulate (P);
+  the reformulation to try is to let the encounter write the displacement into EACH
+  copy's own layer (using only the two contacting cells' own fields), so every copy
+  carries the field locally and rigidity emerges from per-copy fields with no
+  `lcenters` read.  The base consumer is unaffected (it reads only the cell's own
+  `c[]`, `x[]`, `t`).  Full write-up:
+  `experiments/FAMILY_SELECTIVE_DESIGN.md` ("Locality audit of the rigid rule").
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

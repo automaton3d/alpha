@@ -245,9 +245,13 @@ int main(int argc, char** argv) {
   // light frame and the end-of-run values are always zero by construction.
   printf("PRODUCERS homb_events=%lld homb_seen=%lld c_at_center=%lld cB_at_center=%lld "
          "reloc_moves=%lld reloc_cells=%lld consumed=%lld c_with_reloc=%lld "
-         "max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
+         "fam_agree=%lld fam_split=%lld fam_now_ge2=%lld step_total=%lld "
+         "c0=%lld c1=%lld c2=%lld max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
          (long long)homb_events, (long long)homb_seen, (long long)c_at_center,
          (long long)cB_at_center, (long long)reloc_moves, (long long)reloc_cells,
-         (long long)consumer_transports, (long long)c_with_reloc, maxCNonzero, maxHombTrue);
+         (long long)consumer_transports, (long long)c_with_reloc,
+         (long long)fam_all_agree, (long long)fam_split, (long long)fam_now_ge2,
+         (long long)loc_step_total, (long long)c_center_c0, (long long)c_center_c1,
+         (long long)c_center_c2, maxCNonzero, maxHombTrue);
   return 0;
 }

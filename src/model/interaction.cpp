@@ -55,6 +55,19 @@ namespace automaton
   long long reloc_cells   = 0;   // cells migrated by the c[]-driven topological relocate()
   long long consumer_transports = 0;  // candidate HOMB_CONSUMER_TRANSPORT: c[] decoded into reloc[]
   long long c_with_reloc  = 0;   // diagnostic: c[] nonzero AND reloc[] already pending
+  // WP8 locality probe: do the L/3 copies of a family step ALIKE when each one
+  // decodes its own field LOCALLY (its own c[] and its own x[] only)?  If they do,
+  // the co-movement is emergent and the non-local co-location predicate of
+  // FAMILY_RIGID_FSM is redundant.
+  long long fam_all_agree = 0;   // all decodable copies of a family gave the same step
+  long long fam_split     = 0;   // ... they gave different steps
+  long long fam_now_ge2   = 0;   // ticks where >= 2 copies of a family had a field AT ONCE
+  // Which COPY of a family receives the field?  (w % 3 = position inside the
+  // family, so these three counters break the arrivals down by copy.)
+  long long c_center_c0   = 0;   // arrivals at the first copy of a family
+  long long c_center_c1   = 0;   // ... second
+  long long c_center_c2   = 0;   // ... third
+  long long loc_step_total = 0;  // copies whose LOCAL decode yields a non-zero step
 
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)

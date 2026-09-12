@@ -443,6 +443,91 @@ namespace automaton
           (old.reloc[0] || old.reloc[1] || old.reloc[2])) ++c_with_reloc;
 #endif
 
+#ifdef HOMB_PRODUCER_FSM
+        // WP8 locality probe.  Each copy's step is decoded from its OWN c[] and its
+        // OWN x[] -- nothing else, no lcenters -- and the copies of a family are
+        // compared once the family's last copy has been visited.  This answers
+        // whether the family co-movement is EMERGENT from the shared field (in
+        // which case the non-local co-location predicate of FAMILY_RIGID_FSM is
+        // redundant and can be dropped, making the island formation a local
+        // result) or whether it requires reading the host's per-layer table.
+        {
+          static std::vector<int>  locAx, locStep;
+          static std::vector<unsigned> locT;
+          static std::vector<unsigned char> locHas, locNow;
+          if (locAx.size() != W_USED)
+          {
+            locAx.assign(W_USED, -1); locStep.assign(W_USED, 0); locT.assign(W_USED, 0u);
+            locHas.assign(W_USED, 0); locNow.assign(W_USED, 0);
+          }
+          const unsigned LENP[3] = { ELX, ELY, ELZ };
+          int pAx = -1, pStep = 0, pMag = 0;
+          for (int ax = 0; ax < 3; ++ax)
+          {
+            if (!old.c[ax]) continue;
+            const int LEN = (int)LENP[ax];
+            int target;
+            if ((int)old.c[ax] >= LEN)
+            {
+              int tt = (int)old.x[ax] - ((int)old.c[ax] - LEN);
+              while (tt < 0)    tt += LEN;
+              while (tt >= LEN) tt -= LEN;
+              target = tt;
+            }
+            else target = (int)old.c[ax];
+            int delta = target - (int)old.x[ax];
+            if (delta >  LEN / 2)       delta -= LEN;
+            else if (delta < -(LEN / 2)) delta += LEN;
+            const int mag = delta < 0 ? -delta : delta;
+            if (mag > pMag) { pMag = mag; pAx = ax; pStep = (delta > 0) ? +1 : -1; }
+          }
+          if (pAx >= 0 && pStep != 0) ++loc_step_total;
+          if (old.c[0] || old.c[1] || old.c[2])
+          {
+            switch (w % 3u)
+            {
+              case 0u: ++c_center_c0; break;
+              case 1u: ++c_center_c1; break;
+              default: ++c_center_c2; break;
+            }
+          }
+          locNow[w] = (pAx >= 0 && pStep != 0) ? 1u : 0u;
+          if (locNow[w]) { locAx[w] = pAx; locStep[w] = pStep; locT[w] = old.t; locHas[w] = 1u; }
+          const unsigned fam0p   = (w / 3u) * 3u;
+          const unsigned famLast = (fam0p + 2u < W_USED) ? (fam0p + 2u) : (W_USED - 1u);
+          if (w == famLast)
+          {
+            const unsigned famSize = famLast - fam0p + 1u;
+            unsigned now = 0, known = 0, sameT = 1u, tRef = 0u;
+            for (unsigned f = fam0p; f <= famLast; ++f)
+            {
+              now += locNow[f];
+              if (locHas[f])
+              {
+                ++known;
+                if (known == 1u) tRef = locT[f];
+                else if (locT[f] != tRef) sameT = 0u;
+              }
+            }
+            if (now >= 2u) ++fam_now_ge2;
+            // Last-known comparison, only when every copy is known and the three
+            // stamps agree (i.e. the copies were told at the same phase).
+            if (known == famSize && sameT)
+            {
+              unsigned same = 0;
+              int gAx = -2, gStep = 0;
+              for (unsigned f = fam0p; f <= famLast; ++f)
+              {
+                if (gAx == -2) { gAx = locAx[f]; gStep = locStep[f]; }
+                else if (locAx[f] == gAx && locStep[f] == gStep) ++same;
+              }
+              if (same + 1u == known) ++fam_all_agree;
+              else                    ++fam_split;
+            }
+          }
+        }
+#endif
+
 #ifdef HOMB_CONSUMER_TRANSPORT
       // WP8 (i): CONSUME the directional channel at the source level.  The
       // archived CUDA kernel transported through the lattice (relocate(),

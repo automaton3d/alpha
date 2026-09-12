@@ -287,6 +287,13 @@ struct NeighborResult
   extern long long reloc_cells;      // cells migrated by the c[]-driven relocate() (same macro)
   extern long long consumer_transports;  // c[] decoded into reloc[] (HOMB_CONSUMER_TRANSPORT)
   extern long long c_with_reloc;     // diagnostic: c[] nonzero AND reloc[] pending
+  extern long long fam_all_agree;    // local-step probe: family copies step alike
+  extern long long fam_split;        // local-step probe: family copies disagree
+  extern long long fam_now_ge2;      // local-step probe: >= 2 copies had a field at once
+  extern long long c_center_c0;      // arrivals at the first copy of a family
+  extern long long c_center_c1;      // ... second
+  extern long long c_center_c2;      // ... third
+  extern long long loc_step_total;   // copies whose local decode gives a non-zero step
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;
