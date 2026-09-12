@@ -416,6 +416,16 @@ namespace automaton
       unsigned cz = lcenters[w][2];
       Cell& old = getCell(lattice_draft, cx, cy, cz, w);
 
+#ifdef HOMB_PRODUCER_FSM
+      // WP8 consumer-chain probe.  The directional channel is supposed to carry
+      // the homer's position in c[]/cB; the transport below consumes reloc[]
+      // instead.  Counting c[] AT the source centre (where reloc[] is read)
+      // separates "the carrier never arrived" from "it arrived and was never
+      // converted into motion".
+      if (old.c[0] || old.c[1] || old.c[2]) ++c_at_center;
+      if (old.cB) ++cB_at_center;
+#endif
+
       // Free photon pairs expand and are gradually consumed. At maximum
       // radius (t == RMAX) one pair is consumed; when the stack empties the
       // two partner source centers are released as singletons moving apart.
@@ -487,6 +497,9 @@ namespace automaton
 
       if (dx == 0 && dy == 0 && dz == 0)
         continue;
+#ifdef HOMB_PRODUCER_FSM
+      ++reloc_moves;   // WP8 probe: a source centre is about to be relocated
+#endif
 
       int nx = wrapCoordAxis((int)cx + dx, (int)ELX);
       int ny = wrapCoordAxis((int)cy + dy, (int)ELY);

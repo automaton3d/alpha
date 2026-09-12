@@ -531,6 +531,38 @@ its time-box.
   frame; also the prepared 3-element island is a single family, which disables
   the address tie-break path.  Next: per-frame instrumentation and a
   multi-family seed.
+- **2026-09-12 -- WP8 option C: the consumer chain MEASURED end to end.**  Four
+  build-time probes were added (all under `HOMB_PRODUCER_FSM`, so the reference
+  stays bit-identical: re-verified `6468/0/0`, `alpha_A = 0.003756878` after every
+  edit): `homb_seen` (the pre-existing SLOT II homing block finds a homer),
+  `c_at_center`/`cB_at_center` (the `c[]`/`cB` field has ARRIVED at a source
+  centre, where `applyMomentum` reads `reloc[]`), `reloc_moves` (a source centre is
+  relocated), `reloc_cells` (a cell migrates through the lattice in `relocate()`).
+  At `15x9x9`, `N=3`, 16 light frames, one family:
+  `homb_events=7  homb_seen=184  c_at_center=930  cB_at_center=116
+   reloc_moves=0  reloc_cells=30752  MEAN_V=0`.
+  Reference control in the same tube: every counter zero, `MEAN_V=0`, i.e. the
+  source-centre transport (`reloc[]`) is idle even in the reference here.
+  **Reading:** the chain is ALIVE end to end -- producer fires, consumer sees it,
+  the field reaches the centre, and 30752 cell migrations follow -- yet the net
+  displacement is exactly zero.  There are TWO transport machines:
+  (A) `relocate()` (interaction.cpp:1542), `draft = north; draft.c[0]--`, which
+  slides the whole state pattern through the lattice keeping the address -- this
+  is the archived CUDA kernel's actual transport, and `MEAN_V` cannot see it;
+  (B) `applyMomentum()` (simulation.cpp:410), which translates a source centre and
+  updates `lcenters[w]` from `reloc[]`, fed only by contacts (moveOneStep,
+  P×D/P×K via `m`) and pair release.
+  The decisive structural finding came from the CUDA (`dev_encounter7`): `c[]` has
+  TWO encodings.  The branches at 661-663/674-676/690-692 write a RAW ABSOLUTE
+  coordinate; the branch at 695-699 (`!curr.pB && partner.pB`, "parallel
+  transport") writes the SIGNED RELATIVE DISPLACEMENT `ELX + (curr.x - partner.x) %
+  ELX`.  The consumer tests `c[i] > 0` and decrements, so only the relative
+  encoding is homer-DIRECTED; an absolute coordinate makes every cell drift, which
+  in a symmetric island balances out -- exactly the 30752 migrations with zero net
+  displacement measured above, and exactly the "self-formation/dressing but never
+  separates spatially" every island census has reported.
+  **The CPU has no producer writing the relative encoding**, so this is the piece
+  to port next.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

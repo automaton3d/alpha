@@ -44,6 +44,15 @@ namespace automaton
   // CUDA kernel (see the block inside encounter()).  Stays zero unless the macro
   // is compiled, so the reference measurement is unaffected.
   long long homb_events   = 0;   // carrier/homer pairs formed by the ported producers
+  // Downstream-chain probes (WP8, same macro): the producer is only useful if the
+  // pre-existing SLOT II homing block actually SEES a homB neighbour, and if the
+  // c[] channel it drives ever reaches a source centre -- where applyMomentum
+  // consumes reloc[], NOT c[].  These three counters localise the break.
+  long long homb_seen     = 0;   // SLOT II homing block found a homer next to an active cell
+  long long c_at_center   = 0;   // scalar c[] nonzero AT a source centre (carrier arrived)
+  long long cB_at_center  = 0;   // ... whose centre cell also carries the cB flag
+  long long reloc_moves   = 0;   // source centres actually relocated (reloc[] consumed)
+  long long reloc_cells   = 0;   // cells migrated by the c[]-driven topological relocate()
 
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
@@ -1409,12 +1418,20 @@ namespace automaton
       /*--- Homing using homB ---*/
       if (curr.active)
       {
+#ifdef HOMB_PRODUCER_FSM
+        // WP8 probe: did the pre-existing consumer actually find a homer?
+        const bool sawHomer =
+            north.homB || south.homB || east.homB || west.homB || up.homB || down.homB;
+#endif
         if (north.homB) { draft.c[0] = (north.c[0] + 1) % ELX; curr.sB = !draft.homB; }
         else if (west.homB)  { draft.c[1] = (west.c[1] + 1) % ELY; curr.sB = !draft.homB; }
         else if (down.homB)  { draft.c[2] = (down.c[2] + 1) % ELZ; curr.sB = !draft.homB; }
         else if (south.homB) { draft.c[1] = (south.c[1] + 1) % ELY; curr.sB = !draft.homB; }
         else if (east.homB)  { draft.c[0] = (east.c[0] + 1) % ELX; curr.sB = !draft.homB; }
         else if (up.homB)    { draft.c[2] = (up.c[2] + 1) % ELZ; curr.sB = !draft.homB; }
+#ifdef HOMB_PRODUCER_FSM
+        if (sawHomer) ++homb_seen;
+#endif
       }
     }
     /****** SLOT III ******/
@@ -1530,6 +1547,15 @@ namespace automaton
     x = curr.x[0];
     y = curr.x[1];
     z = curr.x[2];
+#ifdef HOMB_PRODUCER_FSM
+    // WP8 probe: c[] drives a TOPOLOGICAL relocation -- `draft = north` slides the
+    // state pattern through the lattice, keeping the address -- and THAT is the
+    // archived CUDA kernel's transport.  MEAN_V measures the other machine
+    // (source-centre transport via reloc[] in applyMomentum) and cannot see it.
+    auto mig = [&]() { ++reloc_cells; };
+#else
+    auto mig = []() {};
+#endif
     /****** SLOT VI ******/
     if (curr.k < SLOT6)
     {
@@ -1537,6 +1563,7 @@ namespace automaton
       {
         draft = north;
         draft.c[0]--;
+        mig();
       }
     }
     /****** SLOT VII ******/
@@ -1546,6 +1573,7 @@ namespace automaton
       {
         draft = west;
         draft.c[1]--;
+        mig();
       }
     }
     /****** SLOT VIII ******/
@@ -1555,6 +1583,7 @@ namespace automaton
       {
         draft = down;
         draft.c[2]--;
+        mig();
       }
     }
     // Recover 3D address

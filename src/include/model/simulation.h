@@ -280,6 +280,11 @@ struct NeighborResult
   extern long long recruit_attract;
   extern long long annihilations;
   extern long long homb_events;      // candidate HOMB_PRODUCER_FSM (zero unless compiled)
+  extern long long homb_seen;        // SLOT II consumer found a homer (same macro)
+  extern long long c_at_center;      // c[] nonzero at a source centre (same macro)
+  extern long long cB_at_center;     // ... with cB set (same macro)
+  extern long long reloc_moves;      // source centres relocated (same macro)
+  extern long long reloc_cells;      // cells migrated by the c[]-driven relocate() (same macro)
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;

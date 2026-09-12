@@ -243,7 +243,10 @@ int main(int argc, char** argv) {
   // ported carrier/homer producers (HOMB_PRODUCER_FSM; zero in the reference);
   // the two maxima are per-frame peaks, because homB and c are cleared every
   // light frame and the end-of-run values are always zero by construction.
-  printf("PRODUCERS homb_events=%lld max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
-         (long long)homb_events, maxCNonzero, maxHombTrue);
+  printf("PRODUCERS homb_events=%lld homb_seen=%lld c_at_center=%lld cB_at_center=%lld "
+         "reloc_moves=%lld reloc_cells=%lld max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
+         (long long)homb_events, (long long)homb_seen, (long long)c_at_center,
+         (long long)cB_at_center, (long long)reloc_moves, (long long)reloc_cells,
+         maxCNonzero, maxHombTrue);
   return 0;
 }
