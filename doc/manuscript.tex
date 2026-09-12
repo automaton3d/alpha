@@ -1244,28 +1244,6 @@ with measured slopes $0.248$, $0.175$ and $0.125$ for integer shifts $s=4,5,6$, 
 \end{equation}
 the generic suppression of Lorentz symmetry by the square of the lattice (Planck) scale.  The substrate wave speed $v_{\mathrm{wave}}$ is strictly subluminal with respect to $v_{\max}$: the field cannot be used to exceed the causal boundary.  In the model the integer shift varies radially ($s=\mathrm{DIFF\_SHIFT}+1-(r\gg\mathrm{diffDivShift})$, clamped), so $v_{\mathrm{wave}}$ acquires a radial profile; the probe uses a constant shift $s$ to isolate the intrinsic dispersion of a homogeneous substrate.
 
-\subsection{Claim--evidence map}\label{subsec:claim-evidence}
-For a referee, Table~\ref{tab:claim-evidence} maps each substantive claim to the artefact that establishes it, with its status (P/M/C).  Every measured number cites a reproducible script; the machine-readable tables are in \texttt{experiments/ABLATION\_81x3.md} and \texttt{experiments/PBSB\_ISLANDS.md}.  The model source state is frozen as \texttt{MODEL\_VERSION} \texttt{model-ref-v1} (\texttt{doc/REFERENCE\_CONFIG.md}); the reference build is re-verified by \texttt{experiments/model\_fingerprint.ps1}.
-
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}p{5.1cm}p{0.7cm}p{6.8cm}@{}}
-\toprule
-Claim & S. & Evidence (script / table) \\
-\midrule
-Prepared-island transport (K-only) & M & \texttt{inertia\_revalidation} (\texttt{experiments/INERTIA\_REVALIDATION.md}) \\
-No $1K{+}nD$ self-assembly from the seed & M & island census (\texttt{ISLAND\_CENSUS.md}) \\
-$81\times3$ survives under EXCLUSION & M & ablation table (\texttt{ABLATION\_81x3.md}) \\
-Production $2K{+}1D$ fixed to $1K{+}2D$ & C & \texttt{promotion\_three}, \texttt{DD\_INTRA\_ISLAND\_FIX} \\
-Equal-charge islands repel (EM reorder) & C & \texttt{pbsb\_two\_wide} (\texttt{PBSB\_ISLANDS.md} WP4.2--4.6) \\
-One-cell-per-tick clock & P & rule (\texttt{effective\_t}) \\
-\bottomrule
-\end{tabular}
-\caption{Claim versus evidence.  Status: P = postulate, M = measured, C = candidate.}
-\label{tab:claim-evidence}
-\end{table}
-
 \section{Conjectures and prospects\label{sec:Prospects-and-conjectures}}
 The small-lattice implementation of Sect.~\ref{subsec:proof-of-concept} verifies only the mechanisms listed there: wavefront propagation, the integer-only polarization pair, and W-island aggregation (the charge census is a separate combinatorial study, Appendix~\ref{sec:charge-census-appendix}; the sieve sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair-formation branch can fire in a parameter regime, but its physical consequences remain unverified).  Everything discussed below is an \emph{interpretive conjecture} about how those mechanisms might behave at large $L$; none of it has been produced by, or tested against, the current implementation.  To keep the evidential status explicit, each topic is marked as either a \emph{structural analogy} (a mapping suggested by the six-bit charge algebra, with no dynamical output) or a \emph{speculative projection} (an extrapolation to a regime the implementation cannot reach).  The measured probes that anchor the time-dilation derivation (front isotropy and dispersion) are reported in Sect.~\ref{sec:Results}; the naming taxonomy and the bridge to the quantum formalism have been moved to Appendices~\ref{sec:Particles} and~\ref{sec:bridge} under the same conjectural status.
 \subsection{Discrete to continuous transition}
@@ -1374,7 +1352,7 @@ The model retains a discrete lattice while reproducing some quantum-like and rel
 % TODO (author): rewrite "Limitations and open problems" before submission.
 % Content removed 2026-09-11 (author request): the itemised limitations list and
 % the postulate-versus-emergent table (tab:postulate-emergent).  Its only in-text
-% reference, in the claim-evidence map, was dropped with it.  The classification
+% reference, in the claim-evidence map (itself since removed), was dropped with it.  The classification
 % itself is preserved in experiments/POSTULATE_VS_EMERGENT.md.
 
 \subsection{Final thoughts}
