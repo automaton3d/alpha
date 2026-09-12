@@ -680,6 +680,19 @@ its time-box.
   negative and the 64-journey reference plateau established, and the predicted
   island count appears as a transient.  Remaining problem: stabilise the island
   count and make the directionality family-selective rather than global.
+- **2026-09-12 -- WP8 census, 64 journeys (stabilisation test) -- in flight.**
+  Launched `build\island_census_dir\island_census_dir.exe 64 16384
+  build\island_census_dir\run64` (same frame budget as the reference `run64`, so
+  the two are directly comparable; ~54 s/frame, ~58 min).  Frames 0--8 verified
+  bit-identical to the 8- and 20-journey directional runs, i.e. the plateau
+  (frames 0--6), the break at journey 7 (K 235 -> 86, D 8 -> 157, groups
+  235 -> 86, maxpop 2 -> 3, escapes 157, births 149) and the first centre split at
+  journey 8 (distinct_centers 1 -> 2) all reproduce exactly; the run then continues
+  to 64 journeys to answer the stabilisation question, i.e. whether the number of
+  distinct centres settles at 9L = 81 or keeps drifting through the 86--94 band.
+  Audit is automated: `experiments/finish_island_census_dir.ps1` waits for the
+  process and writes `build/island_census_dir/run64/analysis.txt` (analyzer output
+  + the per-frame trend table + the SUMMARY line) as soon as the run exits.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame
