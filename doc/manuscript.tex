@@ -50,7 +50,7 @@
 \sloppy
 We introduce a fully specified deterministic cellular automaton as a concrete test of Wheeler's ``it from bit'' idea. Space is a three-dimensional torus with periodic boundaries, plus a non-spatial internal dimension split into two sectors. Each cell stores a fixed-length binary word that evolves through local rules built from classical logic and elementary arithmetic. Wave propagation is limited to a finite speed by updating cells in discrete layers.
 The model produces structures that resemble familiar physics. Waves obey a discrete wave equation with a tunable dispersion relation. Stable, self-reinforcing patterns behave like particles: they move, collide, exchange momentum, and can be created or destroyed in pairs, while conserving global counts. Interactions among these patterns show signs of attraction, repulsion, and orbit-like bound states. Probabilistic-looking behavior arises from deterministic rules because the finite state space can be coarse-grained in many equivalent ways. A built-in temporal direction comes from irreversible update steps and memory buffers. Charge-like quantum numbers appear as conservation laws tied to internal-sector symmetries; particle-antiparticle pairing arises from complementation rather than from any built-in asymmetry.
-We carefully label each claim as a postulate defining the model, a measured result of simulations, or a conjecture still to be proved.  The quantitative core is a pre-registered falsification campaign: six candidate derivations of the fine-structure constant, fixed before the runs, all fail at accessible lattice sizes, and the superposed-seed aggregation hypothesis is refuted. We do not claim to recover known physics; we report a complete discrete toy universe, the tests it passes and fails, and the ideas proposed to close the remaining gaps.
+We carefully label each claim as a postulate defining the model, a measured result of simulations, or a conjecture still to be proved.  The quantitative core is reported as negative results: the superposed-seed aggregation hypothesis is refuted, and the model's own constants do not yield the fine-structure constant at the accessible lattice sizes. We do not claim to recover known physics; we report a complete discrete toy universe, the tests it passes and fails, and the ideas proposed to close the remaining gaps.
 \medskip{}
 \end{abstract}
 \vfill
@@ -68,7 +68,7 @@ John Archibald Wheeler's 'it from bit' thesis proposes that the physical world m
 
 This work presents a deterministic cellular-automaton universe built from classical logic, elementary arithmetic, and a minimal 3-torus topology augmented by a non-spatial internal dimension. Each cell carries a fixed-size binary string whose ontological state evolves by local rules, producing spherical wavefronts, harmonic modes, and symmetry-breaking patterns. Wave propagation is confined to a spherical cavity inside the torus, suppressing corner artifacts while preserving periodic boundary conditions. We examine how these emergent structures reproduce features reminiscent of particles, interactions, and spacetime organization. The model is not offered as an interpretation of quantum mechanics, but as a primitive descriptive layer.
 
-\emph{Claims and status.} To keep claims commensurate with evidence, every substantive statement below is graded as one of: (P) a postulate that defines the rule; (M) a measured result of the reference implementation on a small lattice; or (C) a candidate mechanism or conjecture that the current implementation does not yet establish.  The model-definition sections contain the postulates and the measurements; the particle taxonomy, the quantum-formalism mapping, and the prospects are explicitly labeled conjectural.  The paper does not claim that this automaton reproduces physics: it reports a fully specified discrete toy universe, the quantitative tests it fails or passes, and the candidate mechanisms proposed to close the gaps.  Chief among those tests is a pre-registered falsification campaign: six candidate derivations of the fine-structure constant, fixed before the runs, all fail at accessible lattice sizes (Sect.~\ref{subsec:scaling}), and the superposed-seed aggregation hypothesis is refuted (Sect.~\ref{subsec:island-candidates}); the negatives are reported as results, not hidden.
+\emph{Claims and status.} To keep claims commensurate with evidence, every substantive statement below is graded as one of: (P) a postulate that defines the rule; (M) a measured result of the reference implementation on a small lattice; or (C) a candidate mechanism or conjecture that the current implementation does not yet establish.  The model-definition sections contain the postulates and the measurements; the particle taxonomy, the quantum-formalism mapping, and the prospects are explicitly labeled conjectural.  The paper does not claim that this automaton reproduces physics: it reports a fully specified discrete toy universe, the quantitative tests it fails or passes, and the candidate mechanisms proposed to close the gaps.  Chief among those tests are the negative results reported below: the model's own constants do not yield the fine-structure constant at accessible lattice sizes (Sect.~\ref{subsec:scaling}), and the superposed-seed aggregation hypothesis is refuted (Sect.~\ref{subsec:island-candidates}); the negatives are reported as results, not hidden.
 
 One interpretive choice governs the entire construction and should be stated from the outset. The constant velocity at which spherical wavefronts expand --- one lattice cell per tick --- is \emph{not} the speed of light. It is the maximum speed of information transmission, $v_{\max}$, a fundamental constant of the fabric. The speed of light $c$ is emergent: it is the value that an observer (Sect.~\ref{subsec:observers}) assigns to $v_{\max}$ under the round-trip measurement convention of Sect.~\ref{subsec:special-relativity}. Thus $c$ is a property of the measuring structure, not of the transition rule. Conversely, some operations of the model --- encounter and the other globally coordinated updates --- are superluminal in coordinate terms, yet they carry no capacity to transmit information and cannot be manipulated by any observer. In the idealised local rule, causality is thereby protected by construction: every influence that can be emitted, read, or steered propagates at or below $v_{\max}$.  For the host-side scheduler of the present implementation this remains to be established; the caveat is restated where non-local coordination is introduced (Sect.~\ref{sec:light-frame}) and in the formal discussion of Sect.~\ref{subsec:nosignaling-formal}.
 
@@ -995,29 +995,7 @@ splits the ledger into $9L$ charge families, each with $L/3$ identical copies. I
 %%%%%%%% RESULTS %%%%%%%%%%
 At this point, the core construction of the cellular automaton is complete.
 
-\section{The falsification campaign: six candidates for the fine-structure constant}\label{sec:campaign}
-The model's own constants (the cell size $X$, the information speed $v_{\max}$, the internal dimension $W=3L^{2}$, the sieve modulus $S$) invite the question of whether some dimensionless combination reproduces the fine-structure constant, $\alpha^{-1}=137.035999177$.  Before the runs we fixed six candidate definitions, a single acceptance criterion (agreement with $\alpha^{-1}$ that is \emph{stable} across the accessible lattice sizes and swept parameters), and the recorded quantities.  All six fail, and the campaign is reported as a negative result.  The reproducible tables are in \texttt{experiments/RESULTS\_v2.md} (driver \texttt{experiments/run\_wp2\_sweep.ps1}); every value below comes from the frozen reference build (\texttt{MODEL\_VERSION} \texttt{model-ref-v1}, Sect.~\ref{subsec:claim-evidence}).
-
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}p{1.4cm}p{5.4cm}p{6.4cm}@{}}
-\toprule
-Candidate & Definition & Outcome at the current kernel \\
-\midrule
-$\alpha_A$ & frame-averaged allowed-overlap throughput $\langle P(u,S)\rangle$ over active cells & $1/\alpha_A=266.2,\,267.4,\,107.1,\,101.4$ for $L=7,9,11,13$; strongly $L$-dependent --- FAILS \\
-$\alpha_B$ & realized sieve throughput $s2B/\text{overlaps}$ & $0$ ($L=7,9$), $1/387$ ($L=11$), $1/132$ ($L=13$): not a force, it reduces to the gate --- FAILS \\
-$\alpha_C$ & Wyler-on-lattice (analytic) & $137.03608$, six digits; no lattice derivation --- FAILS \\
-$\alpha_D$ & $\langle sB\rangle/\langle pB\rangle$ & $0$ in the plain two-bubble probe (the reconstructed polarization is unobservable there) --- FAILS \\
-$\alpha_E$ & $\langle \mathrm{pol}_v^2\rangle/\langle \mathrm{pol}_u^2\rangle$ & tends to $2$ exactly (analytic) --- FAILS \\
-$\alpha_F$ & sieve fixed point $S^{\ast}=\langle u\rangle$ & $S^{\ast}\approx41$ at $L=7$ ($\alpha_F\approx50$), $L$-dependent --- FAILS \\
-\bottomrule
-\end{tabular}
-\caption{The six pre-registered candidates for the fine-structure constant and their outcome.  None converges to $\alpha^{-1}=137.035999177$ under the pre-registered criterion.}
-\label{tab:campaign}
-\end{table}
-
-The separate sieve-modulus scan of Sect.~\ref{subsec:s2b-sweep} tests whether the coupling becomes dial-free: the realized ratio is a non-monotone resonance comb that is not stationary in the run length, so no single $S$ is physical.  The reference dynamics are deterministic---repeating a run reproduces it bit-for-bit, only the printed wall-clock line differs---so the candidates carry no seed-to-seed variance: the meaningful dispersion is over the swept parameter $S$, and the $S$-scan is reported above.  The negative battery is therefore complete and falsifiable: at the accessible lattice sizes the model does not derive $\alpha$.
+The model's own constants invite the question of whether some dimensionless combination reproduces known physics, and the reference dynamics are deterministic: repeating a run reproduces it bit-for-bit, only the printed wall-clock line differs.
 
 %%%%%%%%
 \section{Results}\label{sec:Results}
@@ -1026,7 +1004,7 @@ The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in 
 
 An initially separated body conserves its center of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
 In $160$-frame runs with $40$ frames excluded, a five-element island in a $15\times9\times9$ tube moves at $0.175000$ with one pair and $0.700000$ with four; its maximum pairwise body separation is one cell. Eight aligned pairs driving the three-element island saturate at $0.750000$, rather than producing longer jumps. The speed depends on actual contact opportunities, phase and the transport schedule; no universal mass law follows from these values. Commands and validation limits are in \texttt{experiments/INERTIA.md}.
-\paragraph{Status of the measurements that follow.} The contact and sieve counts have been re-run at the current kernel (Table~\ref{tab:sieve}; Sect.~\ref{sec:campaign}).  The other numerical results in this section predate the seed and source-transport corrections and are retained for provenance; they do not validate the revised executable, and the attractor numbers remain indicative rather than converged.
+\paragraph{Status of the measurements that follow.} The contact and sieve counts have been re-run at the current kernel (Table~\ref{tab:sieve}).  The other numerical results in this section predate the seed and source-transport corrections and are retained for provenance; they do not validate the revised executable, and the attractor numbers remain indicative rather than converged.
 We now give a few practical examples.
 \subsection{The maximum information speed and the size of the universe}
 We can now state the following constraint on the fundamental quantities:
@@ -1268,7 +1246,7 @@ with measured slopes $0.248$, $0.175$ and $0.125$ for integer shifts $s=4,5,6$, 
 the generic suppression of Lorentz symmetry by the square of the lattice (Planck) scale.  The substrate wave speed $v_{\mathrm{wave}}$ is strictly subluminal with respect to $v_{\max}$: the field cannot be used to exceed the causal boundary.  In the model the integer shift varies radially ($s=\mathrm{DIFF\_SHIFT}+1-(r\gg\mathrm{diffDivShift})$, clamped), so $v_{\mathrm{wave}}$ acquires a radial profile; the probe uses a constant shift $s$ to isolate the intrinsic dispersion of a homogeneous substrate.
 
 \subsection{Claim--evidence map}\label{subsec:claim-evidence}
-For a referee, Table~\ref{tab:claim-evidence} maps each substantive claim to the artefact that establishes it, with its status (P/M/C).  Every measured number cites a reproducible script; the machine-readable tables are in \texttt{experiments/RESULTS\_v2.md}, \texttt{experiments/ABLATION\_81x3.md} and \texttt{experiments/PBSB\_ISLANDS.md}.  The model source state is frozen as \texttt{MODEL\_VERSION} \texttt{model-ref-v1} (\texttt{doc/REFERENCE\_CONFIG.md}); the reference build is re-verified by \texttt{experiments/model\_fingerprint.ps1}.
+For a referee, Table~\ref{tab:claim-evidence} maps each substantive claim to the artefact that establishes it, with its status (P/M/C).  Every measured number cites a reproducible script; the machine-readable tables are in \texttt{experiments/ABLATION\_81x3.md} and \texttt{experiments/PBSB\_ISLANDS.md}.  The model source state is frozen as \texttt{MODEL\_VERSION} \texttt{model-ref-v1} (\texttt{doc/REFERENCE\_CONFIG.md}); the reference build is re-verified by \texttt{experiments/model\_fingerprint.ps1}.
 
 \begin{table}[htbp]
 \centering
@@ -1278,8 +1256,6 @@ For a referee, Table~\ref{tab:claim-evidence} maps each substantive claim to the
 Claim & S. & Evidence (script / table) \\
 \midrule
 Prepared-island transport (K-only) & M & \texttt{inertia\_revalidation} (\texttt{experiments/INERTIA\_REVALIDATION.md}) \\
-$\alpha_A$ is $L$-dependent, never $1/137$ & M & $\alpha\_A$ sweep (\texttt{RESULTS\_v2.md}) \\
-$\alpha_A..\alpha_F$ all fail & M & falsification battery (\texttt{RESULTS.md}; reproduced) \\
 No $1K{+}nD$ self-assembly from the seed & M & island census (\texttt{ISLAND\_CENSUS.md}) \\
 $81\times3$ survives under EXCLUSION & M & ablation table (\texttt{ABLATION\_81x3.md}) \\
 Production $2K{+}1D$ fixed to $1K{+}2D$ & C & \texttt{promotion\_three}, \texttt{DD\_INTRA\_ISLAND\_FIX} \\
@@ -1738,11 +1714,11 @@ totals nearly balance: after an early outward transient the telegraph is
 symmetric, consistent with the collapse-dominated, charge-blind interaction
 reported in Sect.~\ref{sec:Results}.
 
-\paragraph{Status.} None of these measurements changes the negative battery
+\paragraph{Status.} None of these measurements changes the negative results
 of Sect.~\ref{sec:Results}: the only interaction channel of the model is
-sieve-gated collapse, no gravitational $1/r^2$ force exists between two bare
-bubbles, and the six pre-registered coupling candidates all remain rejected.
-The campaign sharpens the mechanism (quantized symmetric telegraph with an
+sieve-gated collapse, and no gravitational $1/r^2$ force exists between two bare
+bubbles.
+This scattering campaign sharpens the mechanism (quantized symmetric telegraph with an
 overlap gate at $d=2\,\mathrm{RMAX}$), retires the cube-wrap confounder for
 long-axis evolution, and leaves structured aggregates as the next necessary
 step before any gravitational claim can be tested.
