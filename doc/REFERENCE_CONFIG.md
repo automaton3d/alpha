@@ -139,9 +139,9 @@ tube with a short side of 5 or 7 is therefore degenerate, with or without
 least 9 before being quoted.
 
 Current working-tree model fingerprint:
-`0248ae343bbf3fcc9dc2bbe605b3485012b3296dbf0f9e59c8f5a9e55668fbbc`
-(`interaction.cpp`, `simulation.h` changed by the WP8 counter/producer block;
-candidate macros still OFF).
+`f50bf8e51191d6cbc86199fdefb04665d7c6d725771ad1a875df0ba8058497a8`
+(`interaction.cpp`, `simulation.cpp`, `simulation.h` changed by the WP8
+producer/probe blocks; candidate macros still OFF).
 The reference build (all candidate macros OFF) was re-verified
 behaviour-identical after this addition: `alpha_probe 7 4 200 16384 256` reports
 active-passes = 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.

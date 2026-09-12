@@ -953,6 +953,29 @@ namespace automaton
         ++homb_events;
       };
 
+      // (4) CUDA dev_encounter7 "same affinity" branch (lines 686-700) -- the
+      //     RELATIVE-DISPLACEMENT encoding, and the only DIRECTIONAL one.  Within
+      //     one island the in-phase cell (pB true) is the anchor whose raw position
+      //     is relayed, while the out-of-phase cell records the signed distance to
+      //     the anchor as ELX + (own - anchor) % ELX.  The consumer
+      //     (interaction.cpp relocate()) tests `c[i] > 0` and decrements toward
+      //     zero, so this encoding walks a cell HOME; an ABSOLUTE coordinate (the
+      //     encodings above) makes every cell drift instead, which in a symmetric
+      //     island balances out -- measured: 30752 migrations, zero net
+      //     displacement.  The CUDA sets only c[] here; cB is set too because the
+      //     CPU relays the field through SLOT IV on the cB gate, where the CUDA
+      //     relayed per voxel.
+      if (free && currSrc.a == partnerSrc.a && (curr.pB != partner.pB) &&
+          currSrc.a != W_USED && partnerSrc.a != W_USED)
+      {
+        const Cell& walkerS = curr.pB ? partner : curr;   // out of phase: walks home
+        Cell&       walkerD = curr.pB ? partnerDraft : currDraft;
+        walkerD.c[0] = ELX + (unsigned)(walkerS.x[0] - (curr.pB ? curr.x[0] : partner.x[0])) % ELX;
+        walkerD.c[1] = ELY + (unsigned)(walkerS.x[1] - (curr.pB ? curr.x[1] : partner.x[1])) % ELY;
+        walkerD.c[2] = ELZ + (unsigned)(walkerS.x[2] - (curr.pB ? curr.x[2] : partner.x[2])) % ELZ;
+        walkerD.cB   = 1;
+        ++homb_events;
+      }
       // (1) CUDA dev_encounter6/7: the in-phase sign decides who carries and
       //     who homes (the cell with pB false becomes the homer).  Requires a
       //     live quadrature bit on one side, and bound (non-orphan) sources.
@@ -960,7 +983,7 @@ namespace automaton
       //     that matters is the contact condition already enforced above
       //     (both cells active, r > 0) -- the CUDA's f == t / t == RMAX/2
       //     guards belonged to its per-voxel rule cascade.
-      if (free && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
+      else if (free && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
           currSrc.a != W_USED && partnerSrc.a != W_USED)
         makeDirected(curr.pB);
       // (2) CUDA dev_encounter7 affinity branch: equal phase, different

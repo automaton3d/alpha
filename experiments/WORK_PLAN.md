@@ -563,6 +563,27 @@ its time-box.
   separates spatially" every island census has reported.
   **The CPU has no producer writing the relative encoding**, so this is the piece
   to port next.
+- **2026-09-12 -- WP8: the relative-displacement producer ported; two hard gates
+  measured.**  Producer (4) (CUDA `dev_encounter7`, lines 686-700) was added to the
+  macro block: for a same-affinity pair with `pB` differing, the out-of-phase cell
+  records `L + (own - anchor) % L` (the directional encoding) and sets `cB`.
+  Result at `15x9x9`, `N=3`, 16 frames: `homb_events` 7 -> 23 (the new branch
+  fires) but `c_at_center`, `cB_at_center` and `reloc_cells` are BIT-FOR-BIT
+  unchanged (930 / 116 / 30752) and `body_x = 0`.  The consumer's test is
+  `c[i] > 0`, so the migration pattern depends only on WHICH cells have a nonzero
+  `c[i]`, not on the magnitudes: the field is already saturated and the
+  pre-existing SLOT III/IV relay rewrites `c[]` every tick, so the producer's
+  encoding does not survive to `relocate()`.
+  **Gate 1 (reproducibility).**  `N=6` gives literally every counter zero --
+  including the new branch -- because the reconstruction landed on `pol = (-4,0)`,
+  so `pB = sB = false` for every cell and EVERY producer is keyed on pB/sB.  The
+  sign convention (`simulation.cpp:365-366`) is therefore not a nicety but a
+  precondition: in the dead quadrant the directional sector cannot fire at all.
+  **Gate 2 (the field's own dynamics).**  In the live quadrant the field's relay
+  rules dominate the producers' writes, so a faithful port of the producer
+  encoding changes nothing downstream.  Any real fix must act on the CONSUMER
+  side -- `relocate()` / the `c[i] > 0` gate and the SLOT III/IV relay -- or make
+  the producer write after the relay, not before it.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame
