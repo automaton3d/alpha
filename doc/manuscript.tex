@@ -1260,7 +1260,7 @@ No $1K{+}nD$ self-assembly from the seed & M & island census (\texttt{ISLAND\_CE
 $81\times3$ survives under EXCLUSION & M & ablation table (\texttt{ABLATION\_81x3.md}) \\
 Production $2K{+}1D$ fixed to $1K{+}2D$ & C & \texttt{promotion\_three}, \texttt{DD\_INTRA\_ISLAND\_FIX} \\
 Equal-charge islands repel (EM reorder) & C & \texttt{pbsb\_two\_wide} (\texttt{PBSB\_ISLANDS.md} WP4.2--4.6) \\
-One-cell-per-tick clock & P & rule (\texttt{effective\_t}); Table~\ref{tab:postulate-emergent} \\
+One-cell-per-tick clock & P & rule (\texttt{effective\_t}) \\
 \bottomrule
 \end{tabular}
 \caption{Claim versus evidence.  Status: P = postulate, M = measured, C = candidate.}
@@ -1372,44 +1372,11 @@ Compared with prior work surveyed in Sect.~\ref{sec:related-work}, this model in
 \end{enumerate}
 The model retains a discrete lattice while reproducing some quantum-like and relativistic-like features in the constrained sense measured in Sect.~\ref{sec:Results}; it remains exploratory and has not been validated against empirical data.
 \subsection{Limitations and open problems}
-For clarity, we collect here what the current implementation cannot yet do.  These are structural limitations of the code as it stands (small lattice, reference-modulus electroweak gate), not of the model idea; each is stated with the corresponding evidence from Sect.~\ref{sec:Results}.
-\begin{itemize}
-\item \textbf{No measured bound-state properties yet.}  The in-simulation census registers no pair formation at the reference parameters ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{cluster}=0$; Sect.~\ref{subsec:proof-of-concept}), and the controlled two-bubble experiment yields a quantitative null result there: at the current kernel the $L=7$ reference run gives $6{,}468$ overlapping cell-frame events, of which none ($0\%$) passes the $s2B$ sieve and none triggers the pair branch; the earlier counts ($6{,}996$ events, $18$ passes, $0.26\%$) were recorded before the inertia corrections and are retained as historical measurements (status note in Sect.~\ref{sec:Results}; re-run log in \texttt{experiments/RESULTS.md}).  The parameter sweep of Sect.~\ref{subsec:s2b-sweep} demonstrates that the pair branch \emph{can} fire ($\mathrm{form}>0$ for every $S\le8192$ at $L=7$; Table~\ref{tab:sieve}), so the pair-formation channel is now a demonstrated mechanism in a parameter regime; the interaction phenomena it would mediate at the reference settings, and the properties of the produced pairs (binding energies, decay rates, cross-sections), remain unmeasured.  Bound states such as hadrons and atoms therefore remain conjectural; the aggregates that do persist (the $1K+nD$ islands of Sect.~\ref{sec:dynamic-charge-quantization}) are affinity-driven populations, not charge-bound composite particles.
-\item \textbf{Continuum limit absent.}  The model is defined on a finite $3$-torus of side $L\le31$ with a single cell as the unit of length.  There is no procedure for taking $L\to\infty$ (or the cell size to zero), no coarse-graining scheme, and no derivation of a partial-differential or field-theory limit.  The $r\cdot\sin(r)$ wave cloud (Sect.~\ref{subsec:Sine}) is an emergent lattice pattern, not a solution of a continuum equation.
-\item \textbf{No quantitative comparison with measured cross-sections.}  No scattering amplitude, cross-section, or decay rate has been computed from the automaton, and no quantitative particle-physics prediction follows from the model's rules; the only dimensionless comparison reported in this work (Appendix~\ref{sec:charge-census-appendix}) is a kinematic census ratio without predictive value.  Units are defined only up to the lattice scale $X$ (Appendix~\ref{sec:Calculation-of-X}); there is no mapping from cells-per-tick to physical velocities or energies.
-\item \textbf{Small-lattice and boundary effects.}  The reported runs use $L=7$ (Sect.~\ref{subsec:proof-of-concept}); the spherical cavity and the radial dead-zone at $r=\mathrm{RMAX}$ suppress corner artifacts by construction, but also truncate long-range phenomena.  The layer-symmetric seed makes all $75$ islands statistically identical, a configuration choice rather than a property of the dynamics.
-\item \textbf{Electroweak channel dormant at the reference modulus only.}  The $s2B$ sieve admits fewer than $1\%$ of overlaps at the reference amplitudes and modulus (Sect.~\ref{subsec:s2b-sweep}), so weak phenomena---neutrino interactions, $W/Z$ fragments, decay chains, and the inter-sector rules of Sect.~\ref{subsec:distinct}---are not observed at the default settings; the sweep shows the channel firing at coarser moduli, so the reference dormancy is a parameter choice, not a structural impossibility.
-\item \textbf{Open problems.}  (i)~Measure the properties (binding energy, lifetime, scattering behavior) of the pairs produced by the open $s2B$ channel, and study how the pair-formation rate depends on $S$, $U_0$, $L$ and the impact parameter; (ii)~define a continuum limit and derive effective equations; (iii)~turn the charge-combination census into genuine cross-section predictions with a unit mapping; (iv)~scale the lattice to test multi-particle dynamics beyond two bubbles; (v)~derive the model constants ($U_{0}$, sieve thresholds, $\mathrm{phase\_full}$) rather than setting them by hand.
-\end{itemize}
-These limitations delimit the scope of the present work: the manuscript reports mechanisms and exploratory observations, not a predictive physical theory.  The conjectures of Sect.~\ref{sec:Prospects-and-conjectures} and the falsifiability discussion above should be read in this light.
-
-\paragraph{Postulate versus emergent.}  To answer directly which elements are \emph{prescribed} rather than derived, Table~\ref{tab:postulate-emergent} grades every ingredient.  Only charge conservation and the observer's reading of $c$ are emergent in the strong sense; the maximal information speed (the one-cell-per-tick clock) and the polarization channel are \emph{postulates} of the rule set.  A machine-readable version with code anchors is \texttt{experiments/POSTULATE\_VS\_EMERGENT.md}.
-
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}p{4.6cm}p{0.7cm}p{7.4cm}@{}}
-\toprule
-Ingredient & G. & Reason / anchor \\
-\midrule
-Cell size $X$ & P & free metric unit (App.~\ref{sec:Calculation-of-X}) \\
-Clock: front advances one cell per tick & P & definition of the information clock; realised by the incremental distance field $r$ \\
-Breathing phase $f=\mathrm{effective\_t}(t)$ & P & rule \\
-$W=3L^2$, $9L$ islands of $L/3$ & P & topology used by the island census \\
-Six charge bits & P & rule \\
-Wave update (Laplacian, damping, forcing) & P & rule; the dispersion relation follows from the chosen shifts, it is not fitted \\
-\midrule
-Charge conservation & E & measured every tick by the census \\
-Speed of light $c$ & E & observer reading of $v_{\max}$ (Sect.~\ref{subsec:special-relativity}) \\
-\midrule
-Polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$ & C & broadcast is postulated; it does not bootstrap from the zero seed (Sect.~\ref{subsec:island-candidates}) \\
-Island aggregation ($1K+nD$) & C & the plain seed does not self-assemble (Sect.~\ref{subsec:island-candidates}) \\
-Island inertia and transport & C & prepared, controlled runs only \\
-\bottomrule
-\end{tabular}
-\caption{Postulate (P) versus emergent (E) versus candidate (C) for each model ingredient.  The two ingredients an editor flagged as ``prescribed''---the one-cell-per-tick clock and the polarization broadcast---are postulates of the rule, not emergent predictions.}
-\label{tab:postulate-emergent}
-\end{table}
+% TODO (author): rewrite "Limitations and open problems" before submission.
+% Content removed 2026-09-11 (author request): the itemised limitations list and
+% the postulate-versus-emergent table (tab:postulate-emergent).  Its only in-text
+% reference, in the claim-evidence map, was dropped with it.  The classification
+% itself is preserved in experiments/POSTULATE_VS_EMERGENT.md.
 
 \subsection{Future inclusions}
 \emph{Status (C).}  Ongoing work explores the geometric structures that emerge from these local, multi-layered updates.  Preliminary observations report a continuous $r \cdot \sin(r)$ density cloud, localized wave-packets, stable spiral patterns and macroscopic rotations emerging from discrete bit distributions; these motivate, but do not yet establish, the conjecture that the universal fabric can bridge discrete local rules and the smooth symmetries of physical spacetime.
