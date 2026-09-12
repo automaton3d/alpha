@@ -455,6 +455,14 @@ its time-box.
   itself survives in the proof-of-concept list ("a live charge census whose closure
   identity ... is verified every 256 ticks"), so the claim is not lost -- only its
   dedicated numbers.  Build: 53 pages, zero warnings.
+- **2026-09-11 -- Removed the "Claim--evidence map" subsection** (Results, 22 lines:
+  intro paragraph plus the `tab:claim-evidence` table mapping seven claims to their
+  artefacts).  Nothing referenced it: `tab:claim-evidence` and `subsec:claim-evidence`
+  were cited only from its own intro, and the one external pointer (from the removed
+  falsification-campaign section) was already gone; the Limitations TODO comment that
+  mentioned the map was reworded for accuracy.  **Note:** the paper no longer carries
+  a claim-to-artefact map, so provenance now rests on the per-table captions and on
+  the experiment notes.  Build: 52 pages, zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
