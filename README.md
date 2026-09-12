@@ -143,6 +143,8 @@ family-preserving `81 x 3` exclusion control). Full detail:
 | `experiments\POSTULATE_VS_EMERGENT.md` | Postulate-vs-emergent table (editor response, Limitations) |
 | `experiments\RESPONSE_TO_REFEREES.md` | WP6: simulated referee reports + point-by-point responses + action list |
 | `experiments\CANDIDATE_VERSION.md` | WP6: editor change summary for the candidate version |
+| `experiments\COVER_LETTER.md` | WP7: submission cover letter (draft) |
+| `experiments\DATA_DEPOSIT.md` | WP7: data/code deposit plan (what to deposit, table->script map) |
 | `doc\manuscript.tex` | The manuscript (build: `doc\latexpdf.bat`) |
 
 ## Notes

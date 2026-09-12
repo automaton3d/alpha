@@ -43,6 +43,9 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
 
 - **American English** standardization (no British spellings remain).
 - Float specifiers `[h]` -> `[htbp]`: **zero build warnings**.
+- Split the two largest paragraphs ("Distinct bubbles"; "Diffusion, translation
+  and collapse in one reading") into readable paragraphs via blank-line breaks
+  only (no text change).
 
 ## Evidence artefacts
 
@@ -50,9 +53,17 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
 `PBSB_ISLANDS.md`, `RESPONSE_TO_REFEREES.md`, `WORK_PLAN.md`.
 `doc/REFERENCE_CONFIG.md`; `run_all.bat`; `experiments/model_fingerprint.ps1`.
 
-## Open item
+## Gate G1 — resolved: Route A
 
-**G1** (Route A vs Route B framing) is deferred.  The manuscript is currently in
-the **Route A** framing: the falsification campaign is the thesis, and the
-equal-charge EM repulsion (`pbsb_two_wide`, `EM_FIRST_FSM`/`EM_NOS2B_FSM`) is a
-labelled **candidate** (Status C) in the claim-evidence map.
+**G1 (Route A vs Route B) resolved to Route A.**  The thesis is the pre-registered
+falsification campaign; the equal-charge EM repulsion (`pbsb_two_wide`,
+`EM_FIRST_FSM`/`EM_NOS2B_FSM`) is a labelled **candidate** (Status C) in the
+claim-evidence map.  Rationale: the positive is reproducible only with a geometry
+where both EM flags light ($R \ge 5$) and with the probabilistic sieve gate either
+lowered or removed (the candidate `EM_NOS2B_FSM`, a model change); at the reference
+sieve ($S=16384$) the effect is zero and the reference build stays 6468/0/0.  The
+negative battery is the robust, complete contribution.
+
+*Override (Route B):* would require reframing the title, abstract and Introduction
+around the repulsion and presenting `EM_NOS2B_FSM` as a proposed model extension —
+a larger edit, deferred by choice.

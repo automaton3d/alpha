@@ -210,9 +210,12 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
 - **Depends on:** WP5.
 
 ### WP7 -- Submission and data repository -- ~1-2 sessions
-- Zenodo/OSF with `run_all` + CSVs + commit hash; cover letter; a single
-  manuscript build pipeline (fold the `build/manuscript_lote*` PDFs into one).
-- **Depends on:** WP6.
+- **Tasks:** a data/code deposit plan (Zenodo/OSF with `run_all` + CSVs + commit
+  hash + fingerprint); a submission cover letter; a single manuscript build
+  pipeline (`doc/latexpdf.bat`).
+- **Deliverable:** `experiments/DATA_DEPOSIT.md`, `experiments/COVER_LETTER.md`;
+  the actual DOI deposit is performed by the author.
+- **Depends on:** WP6.  **Status: started** -- both notes written.
 
 ---
 
@@ -360,8 +363,25 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** assemble nothing further for WP6; proceed to WP7 (data repository, cover
-  letter) and resolve G1.
+- **Next:** commit the WP7 notes + the readability pass; then DOI deposit and submit.
+- **2026-09-11 -- Readability pass (author request).**  Split the two largest
+  paragraphs ("Distinct bubbles"; "Diffusion, translation and collapse in one
+  reading") into readable paragraphs by inserting blank lines at logical
+  boundaries (15 breaks).  No words changed: the `.tex` grew by exactly 15 lines
+  and the word content is identical.  Clean two-pass `pdflatex`: no warnings.
+  **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
+  candidate) -- see `experiments/CANDIDATE_VERSION.md`.
+- **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
+  falsification campaign as the thesis and the equal-charge EM repulsion as a
+  labelled candidate (Status C), because the positive is reproducible only under a
+  candidate model change (`EM_NOS2B_FSM`) and / or a lowered sieve, while the
+  reference stays 6468/0/0.  No manuscript change is required (already in this
+  framing).  Recorded in `CANDIDATE_VERSION.md`.
+- **2026-09-11 -- WP7 started.**  Wrote `experiments/COVER_LETTER.md` (submission
+  letter with revision summary and reproducibility) and
+  `experiments/DATA_DEPOSIT.md` (deposit plan: what to deposit, the three-command
+  reproduction, the table->script map).  The actual DOI deposit is the author's
+  step.
 - **2026-09-11 -- WP6 DONE.**  Wrote `experiments/CANDIDATE_VERSION.md` (the editor
   change summary: structural, claims/evidence, data/reproducibility, style, and the
   open G1 item).  WP6 deliverables (`RESPONSE_TO_REFEREES.md` + `CANDIDATE_VERSION.md`)

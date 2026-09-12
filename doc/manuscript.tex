@@ -421,8 +421,12 @@ Once these fields are present, the cyclic evolution described in Sect.~\ref{sec:
 %%%%%%%% THE LIGHT FRAME %%%%%%%%%%
 \section{The light frame}\label{sec:light-frame}
 \paragraph{Era and interaction timescales.} An \emph{era} is one complete expansion of a wavefront from zero to its maximum radius followed by contraction back to zero. A light frame is an internal update sequence, not an era. Inertial interactions and the associated re-emissions are intended to occur within a few housekeeping ticks $k$, occupying only a small fraction of an era; they do not require completion of the expansion-and-contraction cycle. Dynamic initialization may require many eras before its variables stabilize. These timescales must be distinguished when interpreting numerical measurements.
-The light frame (Figure \ref{fig:light_frame}) is one complete light step of the cellular automaton. It is divided into five stages: \texttt{ENCOUNTER} (interactions and pair formation), \texttt{DIFFUSION} (propagation of contact, collapse, and translation information), \texttt{RELOC} (physical displacement of source centers), \texttt{REISSUE} (re-emission of the wavefront from the new source center), and \texttt{FLOOD} (final synchronization of the three lattices). The global housekeeping counter $k$ advances synchronously in every cell, marking the current stage; the wavefront counter $t$ is local and resets to zero whenever a bubble is reissued. The separation between the common $k$ and the local $t$ is what lets the finite-state machine coordinate essentially non-local operations while keeping them intended to be strictly non-signaling: no information and no influence ever travels faster than the maximum information speed $v_{\max}$ in the idealised local rule, and causality is protected.  For the host-side scheduler of the present implementation this remains a design goal, not an established property (Sect.~\ref{subsec:nosignaling-formal}).
-Despite its name, the light frame is not a unit of light propagation: it is the period of the information clock, within which a wavefront advances exactly one lattice cell, i.e. at the maximum speed of information transmission $v_{\max}$; this rate defines the information clock rather than being an emergent prediction (Sect.~\ref{sec:Results} reports the corresponding fidelity checks). The speed of light does not appear anywhere in the transition rule; it is emergent. An observer (Sect.~\ref{subsec:observers}) that measures distances and times by the round-trip convention of Sect.~\ref{subsec:special-relativity} reads the photon of Sect.~\ref{subsec:pairs}---a pair of bubbles riding the wavefront---as propagating at this speed and names it $c$. In particular, the \texttt{ENCOUNTER} stage is superluminal in coordinate terms (it compares the whole lattice along $W$ in a single sweep), but it is intended to be strictly non-signaling and cannot be manipulated by any observer; causality is thereby protected in the idealised rule, with the same host-side caveat as above.
+The light frame (Figure \ref{fig:light_frame}) is one complete light step of the cellular automaton. It is divided into five stages: \texttt{ENCOUNTER} (interactions and pair formation), \texttt{DIFFUSION} (propagation of contact, collapse, and translation information), \texttt{RELOC} (physical displacement of source centers), \texttt{REISSUE} (re-emission of the wavefront from the new source center), and \texttt{FLOOD} (final synchronization of the three lattices).
+
+The global housekeeping counter $k$ advances synchronously in every cell, marking the current stage; the wavefront counter $t$ is local and resets to zero whenever a bubble is reissued. The separation between the common $k$ and the local $t$ is what lets the finite-state machine coordinate essentially non-local operations while keeping them intended to be strictly non-signaling: no information and no influence ever travels faster than the maximum information speed $v_{\max}$ in the idealised local rule, and causality is protected.  For the host-side scheduler of the present implementation this remains a design goal, not an established property (Sect.~\ref{subsec:nosignaling-formal}).
+Despite its name, the light frame is not a unit of light propagation: it is the period of the information clock, within which a wavefront advances exactly one lattice cell, i.e. at the maximum speed of information transmission $v_{\max}$; this rate defines the information clock rather than being an emergent prediction (Sect.~\ref{sec:Results} reports the corresponding fidelity checks).
+
+The speed of light does not appear anywhere in the transition rule; it is emergent. An observer (Sect.~\ref{subsec:observers}) that measures distances and times by the round-trip convention of Sect.~\ref{subsec:special-relativity} reads the photon of Sect.~\ref{subsec:pairs}---a pair of bubbles riding the wavefront---as propagating at this speed and names it $c$. In particular, the \texttt{ENCOUNTER} stage is superluminal in coordinate terms (it compares the whole lattice along $W$ in a single sweep), but it is intended to be strictly non-signaling and cannot be manipulated by any observer; causality is thereby protected in the idealised rule, with the same host-side caveat as above.
 \begin{figure}
 \begin{center}
 \begin{tikzpicture}[
@@ -533,19 +537,24 @@ The formation of clusters is made during this step too, also following the recip
 Pairs are allowed to superpose if they are equal and were formed by the two first rules above.
 \subsubsection{Distinct bubbles} \label{subsec:distinct}
 The $w_1$ bit separates distinct-bubble interactions into same-sector ($w_1^1=w_1^2$) and inter-sector cases; we first treat same-sector interactions.
+
 If two same-sector singletons have opposite charges and both $kB$ bits false, we have annihilation, with both bubbles being reissued from the contact point and their affinity receiving their default values. The draft $kB$ bit turns true, triggering a collapse.
 Else if two singletons have the same charge, we have fermion cohesion.
 One bubble is reissued from the contact point, while the other, from its active $sB$ site.
 Also, they become entangled ($a_1=a_2$).
+
 On the other hand, if the two bubbles share the same affinity, but have different charges, the bubble whose wavefront at the contact point has $pB=1$ is reissued from the contact point.
 For bound $P\times K/D$ transport, the pushing pair's $\boldsymbol{m}$ selects a unit step accumulated in $\boldsymbol{\mathit{reloc}}$, as specified in Sect.~\ref{subsec:translation}; copying the full magnitude of $\boldsymbol{m}$ as a displacement is not the inertial rule. The following contact-site reissue description concerns the other interaction channels.
 That is, one bubble is reissued from $\boldsymbol{x1}$, while the other from $(\boldsymbol{x_1}-\boldsymbol{x_2})\,\boldsymbol{mod}\,L$.
+
 For color-neutral combinations there are two cases: gluon$\times$gluon and quark$\times$gluon.
 In both cases, the two bubbles are reissued from the contact point and the partners colors are exchanged.
+
 In the electroweak sector, both $\mathit{active}$ bits must be true; together with $s2B$ they determine the harmonic behavior. This sieve mechanism applies only to electroweak interactions and helps explain why the strong force is stronger.
 The weak interaction occurs when the weak charges are combined to neutrality and either ($pB_1=1$, $pB_2=0$) or ($sB_1=sB_2=1$); it always triggers collapse ($kB=1$).
 The electric case uses one $pB$ bit, the magnetic case one $sB$ bit. If both $pB$ bits are true (or both $sB$ bits in the magnetic case), a collapse is triggered ($kB=1$).
 If only one $pB$ bit meets the other's surface, the interaction is adiabatic: no collapse occurs, but the bubbles exchange affinity and time and relocate to each other's center. The $a$ and $t$ values then spread throughout the layer.
+
 At the initial singularity, all bubbles overlap. If two bubbles belong to different sectors and $t=RMAX/2$, they are reissued from their active $pB$ and $sB$ sites, dispersing the singularity and separating Orbis from Umbra. We call this \textit{dispersion}.
 \subsubsection{Inter-sector interactions}
 For inter-sector interactions, fully complementary charges lead to \textit{singularization}; otherwise the electroweak rules above apply. Singularization is the counterpart to dispersion.
@@ -555,7 +564,9 @@ The bubbles are reissued from the contact point ($pB_{curr}=\text{true}$).
 Three coupled tasks close the frame---diffusion, translation, and collapse handling---and are described together because they share the same coordination state.
 
 Diffusion propagates the information needed for translation, ending at the \texttt{DIFFUSION} tick (Figure~\ref{fig:diffusion}). If any collapse bit $kB$ is set, it spreads to all bubbles sharing the same affinity, identifying every contributor to the collapsing particle.
+
 The wave phase $f$ is not diffused: it is the local triangular breathing phase $\mathrm{effective\_t}(t)$ of each cell (Sect.~\ref{sec:light-frame}). Phases incremented by multiples of the era period interact with the wave-cloud sieve to form concentric bubbles; the active wavefront point ($t=d$) is forwarded to the Euclidean bubble through $s2B$.
+
 At the same time, the translation vector $\mathbf{c}$ diffuses through the layer: each cell copies the first non-trivial $\mathbf{c}$ found among its neighbors. Finally, $sB$ homing increments $\boldsymbol{c}$ along any axis where a neighbor has $homB=1$, but only when the local cell has $sB=0$. By the end of diffusion, $\boldsymbol{c}$ is ready for translation.
 \begin{figure}
 \begin{center}
@@ -606,22 +617,29 @@ Reset propagation status
 %%% Translation %%%
 \medskip\noindent\textbf{Translation.} This part of the light step addresses bubble translation itself, building on the diffusion step.
 It ends at the RELOC tick. Bubbles shift in specific directions (north, west, down) until they have completed their translation process, including the inertial transport mechanism.
+
 The example rule is: if $\textbf{c}_x^{north}>0$, copy the content of the neighbor cell to the draft cell and decrement $\textbf{c}_x$ at the draft cell.
 Since wavefront propagation is guided by the dynamic radius $r$ propagated from the source cell, when a bubble is re-emitted due to interaction with other bubbles, all pertinent cell information must be shifted, or relocated, to the new position determined by the variable $\textbf{c}$.
 This ensures that the bubbles are relatively displaced from each other.
 The final operation sets $t=0$ at the center cell of the relocated pattern.
+
 Translation is the main consequence of an interaction.
 Bubbles are re-emitted either immediately after an interaction or through wrapping.
 When the bubble is reissued, the previous wavefront continues to propagate until it fades through wrapping.
+
 In this state, the bubble is referred to as an \textit{orphan}, meaning it has affinity disabled but is still capable of non-collapsing interactions.
 In this case, $a=W$ for the outer cells, set during the translation step.
+
 To complete, the diffusion of the time variable $t$ occurs here at the last tick: When a cell has a neighboring cell with a lower $t$ value, it updates its own $t$ variable to match the lower value.
 With this rule, the relocated bubble is capable of expanding again.
 This timing is crucial to avoid the 'clean diamond' pattern with the new values overrunning the orphaned data.
+
 When the translation is complete, bubble variables are prepared for the next cycle.
 If the time frame completes, the $k$ counter resets to zero, preparing the system for the next iteration.
 At the conclusion of the process, all $\boldsymbol{c}$ vectors will have a null value.
+
 For internal inertial transport, source contacts are gathered during the encounter window and resolved at the end of the light frame. The numerical experiments use the following operational choices to evaluate the proposed transport mechanism. Reciprocal $K\times D$ and $D\times D$ face-steps reduce separations greater than one cell without changing the sum of body positions. Each body element can move at most once per frame. Each reciprocal drive pair pair can push at most one contacted body element; among eligible contacts it prefers the rear element along $\boldsymbol{m}$, with a rotating address tie-break. An integer DDA distributes successive face-steps in proportion to the absolute components of $\boldsymbol{m}$, retaining their signs. Zero-radius phases have no extended propelling surface. Both halves of the bound pair recycle by the same bounded face-step toward the contacted constituent. These are reference transport rules to test the proposed mechanism, not a derivation of Newtonian mechanics or rotational invariance.
+
 The resulting unit step, rather than the full vector $\boldsymbol{m}$, enters $\boldsymbol{\mathit{reloc}}$. At the frame boundary, \texttt{applyMomentum} translates the bubble's layer state periodically, consumes the step and preserves its charge, affinity, source kind, pair identity, clock and transport vector. Translating the distance field together with its source avoids leaving a false source or stale distance minima. The source transaction commits after the voxel sweep so later cells cannot overwrite previously registered contacts or source changes. The partner rotation selects a $W$ identity; active flags are read at the current physical instant rather than from the preceding frame's shell.
 The simulation algorithm uses globally coordinated source snapshots, contact arbitration, and layer translations. A strictly local cellular realization of that coordination remains to be established; the mechanical tests below validate the reference algorithm, not the purity constraints of Sect.~\ref{subsec:purity}. Dynamic initialization is never suspended, but election does not overwrite the direction of an already bound drive pair.
 Let $N$ denote the number of equal $K/D$ body elements, excluding the drive pair dressing. For $n$ successful collinear unit kicks in a frame, with reciprocal cohesion contributing zero net displacement, the body's mean center of mass advances by
@@ -630,6 +648,7 @@ Let $N$ denote the number of equal $K/D$ body elements, excluding the drive pair
 \end{equation}
 cells per frame, with $n \leq N$. Oppositely directed steps enter with their signs; for general directions use $N^{-1}\sum_i\Delta\boldsymbol{x}_i$. This is a measured displacement identity, not a velocity assigned to the island or a mass law. drive pair-pair centers must be counted once each when separately measuring the dressed particle. Without propulsion, reciprocal cohesion preserves the body's center of mass. The displacements reported here are measured in cells per light frame. The housekeeping counter $k$ indexes the internal stages of that frame and is not the physical time used in these measurements.
 Non-drive pair pairs behave differently: in $K \times K$ or $D \times D$ between different tribes the source centers move one light-step away from each other, exchanging momentum through $\boldsymbol{\mathit{reloc}}$.
+
 An unbound pair may acquire an island's affinity through an admissible encounter. Subsequent same-affinity contacts provide propulsion; a pair of a different affinity cannot act as that island's internal drive pair. Receiving a displacement never promotes a $K/D$ source to $P$.
 \medskip\noindent\textbf{Annihilation and collapse.} Annihilation and light-matter collapse both occur during the encounter stage. In annihilation, the affinity reverts to its default value $a=w$, and the resulting bubbles become raw material for new particles.
 This ontological collapse introduces an arrow of time at the fundamental level, reinforcing the second law of thermodynamics and pushing Poincar\'{e} recurrence far into the future (Sect.~\ref{sec-undecidability}).
@@ -1003,7 +1022,9 @@ The separate sieve-modulus scan of Sect.~\ref{subsec:s2b-sweep} tests whether th
 %%%%%%%%
 \section{Results}\label{sec:Results}
 \subsection{Prepared-island inertia: numerical evaluation}\label{subsec:inertia-validation}
-The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in a $9\times5\times5$ periodic tube, one $K$ and two $D$, and reciprocal photon-type pairs ($0\mathrm{x}00$, $0\mathrm{x}1F$) with the same affinity. These are prepared initial conditions, not an electron assembled from the Platonic seed. For the $48$-frame baseline the first $12$ frames are excluded from means. Measured axial body velocities are $0$ without drive pairs, $+0.250000$ with one rightward pair, $+0.750000$ with three, and $-0.250000$ with one leftward pair, in cells per light frame. Two opposed pairs give zero mean velocity, and a pair of another affinity produces no internal propulsion. Each constituent takes at most one face-step per frame; charge, affinity, $K/D$ roles and reciprocal pair identities are checked after transport, including torus crossings. An initially separated body conserves its center of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
+The mechanical regression uses $N=3$ equal-charge elements ($0\mathrm{x}08$) in a $9\times5\times5$ periodic tube, one $K$ and two $D$, and reciprocal photon-type pairs ($0\mathrm{x}00$, $0\mathrm{x}1F$) with the same affinity. These are prepared initial conditions, not an electron assembled from the Platonic seed. For the $48$-frame baseline the first $12$ frames are excluded from means. Measured axial body velocities are $0$ without drive pairs, $+0.250000$ with one rightward pair, $+0.750000$ with three, and $-0.250000$ with one leftward pair, in cells per light frame. Two opposed pairs give zero mean velocity, and a pair of another affinity produces no internal propulsion. Each constituent takes at most one face-step per frame; charge, affinity, $K/D$ roles and reciprocal pair identities are checked after transport, including torus crossings.
+
+An initially separated body conserves its center of mass under reciprocal cohesion; a separate singleton initialization checks contact-driven chief election.
 In $160$-frame runs with $40$ frames excluded, a five-element island in a $15\times9\times9$ tube moves at $0.175000$ with one pair and $0.700000$ with four; its maximum pairwise body separation is one cell. Eight aligned pairs driving the three-element island saturate at $0.750000$, rather than producing longer jumps. The speed depends on actual contact opportunities, phase and the transport schedule; no universal mass law follows from these values. Commands and validation limits are in \texttt{experiments/INERTIA.md}.
 \paragraph{Status of the measurements that follow.} The contact and sieve counts have been re-run at the current kernel (Table~\ref{tab:sieve}; Sect.~\ref{sec:campaign}).  The other numerical results in this section predate the seed and source-transport corrections and are retained for provenance; they do not validate the revised executable, and the attractor numbers remain indicative rather than converged.
 We now give a few practical examples.
