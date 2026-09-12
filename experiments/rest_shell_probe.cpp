@@ -244,9 +244,10 @@ int main(int argc, char** argv) {
   // the two maxima are per-frame peaks, because homB and c are cleared every
   // light frame and the end-of-run values are always zero by construction.
   printf("PRODUCERS homb_events=%lld homb_seen=%lld c_at_center=%lld cB_at_center=%lld "
-         "reloc_moves=%lld reloc_cells=%lld max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
+         "reloc_moves=%lld reloc_cells=%lld consumed=%lld c_with_reloc=%lld "
+         "max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
          (long long)homb_events, (long long)homb_seen, (long long)c_at_center,
          (long long)cB_at_center, (long long)reloc_moves, (long long)reloc_cells,
-         maxCNonzero, maxHombTrue);
+         (long long)consumer_transports, (long long)c_with_reloc, maxCNonzero, maxHombTrue);
   return 0;
 }

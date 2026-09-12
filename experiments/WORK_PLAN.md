@@ -584,6 +584,37 @@ its time-box.
   encoding changes nothing downstream.  Any real fix must act on the CONSUMER
   side -- `relocate()` / the `c[i] > 0` gate and the SLOT III/IV relay -- or make
   the producer write after the relay, not before it.
+- **2026-09-12 -- WP8 (iii) and (i) implemented; first source-level motion.**
+  **(iii) `POLAR_MAGNITUDE_FSM`** (`simulation.cpp`: `pB = (pol_u != 0)`,
+  `sB = (pol_v != 0)` instead of the sign test): at `15x9x9` the `N=6` run, whose
+  reconstruction is `pol = (0,-4)` and which was therefore completely dead under
+  the reference convention, jumps from `homb_events=0` to **82**.  The liveness
+  lottery is removed.
+  **(i) `HOMB_CONSUMER_TRANSPORT`** (`applyMomentum`): decode the arrived field and
+  turn it into the single-step displacement `reloc[]` already consumes.
+  Three findings while porting it, each forced by a measurement or a guard:
+  1. `c[]` carries **two encodings and the `+ L` offset is the tag** -- which is
+     *why* the CUDA writes the relative form as `L + (own - partner) % L`:
+     `c < L` is the absolute coordinate of the target, `c >= L` encodes
+     `target = own - (c - L)`.  Decoding only the absolute form made the block
+     dead code (`consumed = 0` with `c_at_center = 930`);
+  2. `cB` and `c[]` arrive *separately* at a source centre (`cB_at_center = 116`
+     vs `c_at_center = 930`, disjoint -- the flag is relayed by SLOT III/IV while
+     the field is propagated by the homing block), so requiring `cB` is wrong;
+  3. the harness's own locality assertion (`inertia_fixture.h:95`,
+     "every constituent moves at most one cell per light frame") caught the
+     consumer twice: once for adding a step on every axis (up to 3 cells/frame)
+     and once for acting on every *tick* rather than every *light frame*.  The
+     fix latches on `t`, the per-light-frame counter.
+  Result at `15x9x9`, `N=3`, 16 frames: `consumed=5`, **`reloc_moves=9`** -- the
+  first source-centre motion anywhere in this campaign, reference included (every
+  earlier run, and the reference control in the same tube, measured 0) -- with
+  `reloc_cells` rising 30752 -> 31909.  `MEAN_V body_x` is still zero over the
+  16-frame window, so the coupling moves sources but has not (yet) separated the
+  families; the acceptance test is the L=9 census (81 distinct `lcenters`) and a
+  longer window, not `MEAN_V`.
+  Build variants: `build_rest_shell_probe_homb2.bat` (producers + consumer) and
+  `build_rest_shell_probe_homb3.bat` (plus magnitude liveness).
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

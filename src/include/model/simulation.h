@@ -285,6 +285,8 @@ struct NeighborResult
   extern long long cB_at_center;     // ... with cB set (same macro)
   extern long long reloc_moves;      // source centres relocated (same macro)
   extern long long reloc_cells;      // cells migrated by the c[]-driven relocate() (same macro)
+  extern long long consumer_transports;  // c[] decoded into reloc[] (HOMB_CONSUMER_TRANSPORT)
+  extern long long c_with_reloc;     // diagnostic: c[] nonzero AND reloc[] pending
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;

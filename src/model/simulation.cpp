@@ -362,8 +362,20 @@ namespace automaton
         d.v      = v_new;
         d.active = active ? 1u : 0u;
         d.phiB   = active;
+#ifdef POLAR_MAGNITUDE_FSM
+        // WP8 (iii): define a direction as LIVE BY MAGNITUDE instead of by sign.
+        // The flags decide whether every directional rule may act at all, while
+        // the sign of pol follows the phase quadrant the reconstruction stamp
+        // falls in (simulation.cpp:365-366, reference): the same tube and the same
+        // bootstrap gave pol=(0,4) at N=3 (sector alive) and pol=(-4,0) at N=6
+        // (every directional producer dead).  With a magnitude test, liveness
+        // stops being a phase lottery.  OFF in the reference build.
+        d.pB     = (pol_u != 0);
+        d.sB     = (pol_v != 0);
+#else
         d.pB     = (pol_u > 0);
         d.sB     = (pol_v > 0);
+#endif
 
         // Sieve trigger: probability proportional to positive wave amplitude.
         // The modulus is the runtime-tunable s2b_target (default 16384); the
@@ -424,6 +436,78 @@ namespace automaton
       // converted into motion".
       if (old.c[0] || old.c[1] || old.c[2]) ++c_at_center;
       if (old.cB) ++cB_at_center;
+      // Discriminate the two possible reasons the consumer below stays silent:
+      // the distance field never coincides with a PENDING impulse (reloc != 0),
+      // or the field is not there at all.
+      if ((old.c[0] || old.c[1] || old.c[2]) &&
+          (old.reloc[0] || old.reloc[1] || old.reloc[2])) ++c_with_reloc;
+#endif
+
+#ifdef HOMB_CONSUMER_TRANSPORT
+      // WP8 (i): CONSUME the directional channel at the source level.  The
+      // archived CUDA kernel transported through the lattice (relocate(),
+      // `draft = north; draft.c[0]--`), which the c[] field still drives here --
+      // but that drift is balanced, so the source centre never moves and the two
+      // bubbles never separate.  This block decodes the relative encoding
+      // c[i] = L + (walk - anchor) % L into ONE step toward the anchor and adds it
+      // to reloc[], which is what the relocation below actually consumes; the
+      // component is cleared on consumption.  NOT a literal CUDA port (the CUDA
+      // had no c[] -> reloc[] coupling): candidate coupling only, introduced to
+      // give the directional field a source-level consequence.  OFF in the
+      // reference build.
+      // The distance field arrives on its own: cB is relayed by the SLOT III/IV
+      // rules while c[] is propagated by the homing block, and at a source centre
+      // the two never coincide (measured at 15x9x9/N=3: cB_at_center=116,
+      // c_at_center=930, disjoint), so requiring cB here would make this block
+      // dead code -- exactly the failure mode WP8 was chasing.
+      if (!old.reloc[0] && !old.reloc[1] && !old.reloc[2] &&
+          (old.c[0] || old.c[1] || old.c[2]))
+      {
+        const unsigned LEN3[3] = { ELX, ELY, ELZ };
+        // The field is written in TWO encodings and the `+ L` offset is the tag
+        // (which is why the CUDA writes the relative form as L + (own-partner)%L):
+        //   c <  L : the ABSOLUTE coordinate of the target cell;
+        //   c >= L : the RELATIVE displacement of the target,
+        //            since L + (walk - target) % L  =>  target = walk - (c - L).
+        // Both decode to a shortest toroidal step.  Take ONE step per light frame
+        // along the dominant axis: the harness asserts <= 1 cell per frame
+        // (inertia_fixture.h:95), and this block only acts when no other impulse
+        // is pending, so the locality bound holds.
+        int bestAx = -1, bestMag = 0, bestStep = 0;
+        for (int ax = 0; ax < 3; ++ax)
+        {
+          if (!old.c[ax]) continue;
+          const int LEN = (int)LEN3[ax];
+          int target;
+          if ((int)old.c[ax] >= LEN)
+          {
+            int t = (int)old.x[ax] - ((int)old.c[ax] - LEN);
+            while (t < 0)      t += LEN;
+            while (t >= LEN)   t -= LEN;
+            target = t;
+          }
+          else
+            target = (int)old.c[ax];
+          int delta = target - (int)old.x[ax];
+          if (delta >  LEN / 2)      delta -= LEN;
+          else if (delta < -(LEN / 2)) delta += LEN;
+          const int mag = delta < 0 ? -delta : delta;
+          if (mag > bestMag) { bestMag = mag; bestAx = ax; bestStep = (delta > 0) ? +1 : -1; }
+        }
+        // The locality bound is one cell per LIGHT FRAME (inertia_fixture.h:95),
+        // while applyMomentum runs every tick, so latch on `t` -- the per-light-
+        // frame counter -- and move at most once per frame and layer.
+        static std::vector<unsigned> lastMoveT;
+        if (lastMoveT.size() != W_USED) lastMoveT.assign(W_USED, 0u);
+        if (bestAx >= 0 && bestStep != 0 && old.t != lastMoveT[w])
+        {
+          old.reloc[bestAx] += bestStep;
+          lastMoveT[w] = old.t;
+          ++consumer_transports;
+        }
+        for (int ax = 0; ax < 3; ++ax) old.c[ax] = 0;
+        old.cB = 0;
+      }
 #endif
 
       // Free photon pairs expand and are gradually consumed. At maximum

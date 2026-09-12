@@ -139,9 +139,17 @@ tube with a short side of 5 or 7 is therefore degenerate, with or without
 least 9 before being quoted.
 
 Current working-tree model fingerprint:
-`f50bf8e51191d6cbc86199fdefb04665d7c6d725771ad1a875df0ba8058497a8`
+`4c2e609192ad0fb9959136229d62c4e87c8129b54f3500db1b164b4cef725716`
 (`interaction.cpp`, `simulation.cpp`, `simulation.h` changed by the WP8
 producer/probe blocks; candidate macros still OFF).
+
+WP8 candidate macros, all OFF in this reference (see experiments/WORK_PLAN.md):
+`HOMB_PRODUCER_FSM` (the directional producers ported from the archived CUDA
+kernel), `HOMB_CONSUMER_TRANSPORT` (the arrived `c[]` decoded into `reloc[]`),
+`POLAR_MAGNITUDE_FSM` (liveness by magnitude instead of by sign), plus the
+earlier `EM_FORCE_PREREQ`, `DD_INTRA_ISLAND_FIX`, `EM_NOS2B_FSM`,
+`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE` and the `ORPHAN_*` family.
+Build variants: `experiments/build_rest_shell_probe{_boot,_homb,_homb2,_homb3}.bat`.
 The reference build (all candidate macros OFF) was re-verified
 behaviour-identical after this addition: `alpha_probe 7 4 200 16384 256` reports
 active-passes = 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.

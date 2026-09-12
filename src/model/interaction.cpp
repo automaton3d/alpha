@@ -53,6 +53,8 @@ namespace automaton
   long long cB_at_center  = 0;   // ... whose centre cell also carries the cB flag
   long long reloc_moves   = 0;   // source centres actually relocated (reloc[] consumed)
   long long reloc_cells   = 0;   // cells migrated by the c[]-driven topological relocate()
+  long long consumer_transports = 0;  // candidate HOMB_CONSUMER_TRANSPORT: c[] decoded into reloc[]
+  long long c_with_reloc  = 0;   // diagnostic: c[] nonzero AND reloc[] already pending
 
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
