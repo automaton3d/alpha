@@ -382,6 +382,18 @@ its time-box.
   is not maintained by the rules (4 of 5 pairs lost, survivor detaches, no
   propulsion).  Instrument only: `experiments/` is outside the model fingerprint;
   reference build untouched.
+- **2026-09-11 -- Vacuum layout: is the dressing self-formed?**  Added a `vacuum`
+  layout (unformed complementary singleton material, zero seeded pairs) and an
+  open-channel build `build_rest_shell_probe_boot.bat`
+  (`POLAR_BOOTSTRAP_ADDRESS` + `POLAR_BROADCAST_WAVE`).  Measured: **no** pair
+  forms at the reference sieve (12/12 layers stay unformed); at `S = 64` and
+  `S = 32` the 12 layers become **6 pairs in a single light frame** and freeze
+  (`[charges] pairM=6 form=286`).  With the election enabled the dressing acquires
+  vectors and is **open** (`sum_m_x = -7`), and it stays exactly `-7` for 17
+  consecutive frames: no closure (P2 falsified with a *self-formed* dressing), no
+  turnover, and **no propulsion at all** (`v_body = 0.000000000`, `span = gap = 0`).
+  So step 1 of H-SHELL (formation from the vacuum) is real and sieve-governed, but
+  what self-forms is a static pair *stack*, not a dynamic shell.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered

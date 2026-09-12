@@ -54,6 +54,7 @@ std::vector<std::array<int, 3>> shellOffsets(unsigned radius) {
 struct Dressing {
   unsigned pairs = 0;      // surviving kind == P sources, counted once per pair
   unsigned intact = 0;     // pairs whose pair_idx is still mutual
+  unsigned freeS = 0;      // non-P sources beyond the island (unformed material)
   int sum_m[3] = {0, 0, 0};
 };
 
@@ -61,7 +62,7 @@ Dressing dressing(unsigned n) {
   Dressing d;
   for (unsigned w = n; w < W_USED; ++w) {
     const Cell& s = source(w);
-    if (s.kind != SourceKind::P) continue;
+    if (s.kind != SourceKind::P) { ++d.freeS; continue; }
     ++d.pairs;
     if (s.pair_idx < W_USED && source(s.pair_idx).pair_idx == w) ++d.intact;
     for (int k = 0; k < 3; ++k) d.sum_m[k] += s.m[k];
@@ -92,7 +93,8 @@ int main(int argc, char** argv) {
   const unsigned burn = argc > 12 ? atoi(argv[12]) : frames / 4;
 
   const bool shell = strcmp(layout, "shell") == 0;
-  if (strcmp(layout, "stack") != 0 && !shell) return 2;
+  const bool vacuum = strcmp(layout, "vacuum") == 0;
+  if (strcmp(layout, "stack") != 0 && !shell && !vacuum) return 2;
   if (lx < 5 || ly < 5 || lz < 5 || !(lx % 2) || !(ly % 2) || !(lz % 2)) return 2;
   if (n < 1 || n > 32 || cancel > 32 || impulse > 32) return 2;
   if (frames <= burn) return 2;
@@ -110,9 +112,9 @@ int main(int argc, char** argv) {
   const auto offsets = shellOffsets(shell ? radius : 0u);
 
   for (unsigned w = 0; w < W_USED; ++w) {
-    const bool isPair = w >= n;
+    const bool freeLayer = w >= n;               // past the island: pair material
     lcenters[w] = centre;
-    const unsigned char charge = isPair ? (((w - n) % 2) ? 0x1f : 0x00) : 0x08;
+    const unsigned char charge = freeLayer ? (((w - n) % 2) ? 0x1f : 0x00) : 0x08;
     for (unsigned x = 0; x < lx; ++x)
       for (unsigned y = 0; y < ly; ++y)
         for (unsigned z = 0; z < lz; ++z) {
@@ -125,9 +127,18 @@ int main(int argc, char** argv) {
         }
     Cell& s = source(w);
     s.r2 = 0; s.r = 0; s.u = 2048;
-    if (!isPair) {
+    if (!freeLayer) {
       s.kind = (w == 0) ? SourceKind::K : SourceKind::D;
       s.parent = (w == 0) ? NO_PARENT : 0u;
+      continue;
+    }
+    if (vacuum) {
+      // Free pair material: a complementary-charge SINGLETON layer.  Nothing is
+      // a pair yet -- the dynamics must form it (sieve/s2B) before it can be a
+      // dressing at all.  This is the self-formation test.
+      s.kind = SourceKind::S;
+      s.parent = NO_PARENT;
+      s.a = 0; s.leader_w = 0;
       continue;
     }
     const unsigned p = (w - n) / 2;                 // pair index
@@ -210,8 +221,8 @@ int main(int argc, char** argv) {
     printf("WINDOWS body_first=%.9f body_second=%.9f all_mean=%.9f\n",
            firstBody[0] / firstN, secondBody[0] / secondN, meanAll);
   printf("DRESSING seeded_pairs=%u seeded_sum_m_x=%d final_pairs=%u intact_links=%u final_sum_m_x=%d "
-         "max_body_span=%u max_pair_gap=%u\n",
+         "free_singleton_layers=%u max_body_span=%u max_pair_gap=%u\n",
          seeded.pairs, seeded.sum_m[0], finalState.pairs, finalState.intact,
-         finalState.sum_m[0], measurement.maxSpread, measurement.maxPairGap);
+         finalState.sum_m[0], finalState.freeS, measurement.maxSpread, measurement.maxPairGap);
   return 0;
 }

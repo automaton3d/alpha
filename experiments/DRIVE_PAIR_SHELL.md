@@ -80,6 +80,11 @@ experiments\rest_shell_probe.exe LX LY LZ N CANCEL IMPULSE [stack|shell] RADIUS 
   `shell` — cancelling pairs sit on distinct `W` addresses whose positions are the
   offsets of the model's **own** integer-radius shell
   ($r = \mathrm{isqrt}(r^2) = $ `RADIUS`, same metric as `isOrphanShell`).
+* `vacuum` — **self-formation test.**  `CANCEL` counts pairs' worth of *unformed*
+  material: the extra `W` layers are seeded as complementary-charge **singletons**
+  (`0x00`/`0x1f`), not as pairs, so nothing is a dressing until the dynamics makes
+  it one.  `IMPULSE` must be `0`.  Reports the pair count the model actually
+  forms, and how much material remains unformed.
 
 Reported: body CoM velocity (cells/light frame and per era $2R_{\max}$), the same
 for **all** source centres (body + dressing, so a dressing recoil cannot hide),
@@ -162,6 +167,71 @@ eras.  Outputs under `build/rest_shell/` (`*.csv`, `*.txt`).
    (3 : 5 : 7).  In the reference kernel the inertia is the **island**, and the
    dressing is a momentum budget, not a mass.
 
+### Self-formation from the vacuum (`vacuum` layout)
+
+Material seeded unformed (12 complementary singleton layers, **zero** seeded pairs),
+island $N{=}3$, 20 frames, burn 4:
+
+| squeeze run | sieve $S$ | pairs formed | material left unformed | $\sum m$ | $v_{body}$ |
+|---|---:|---:|---:|---:|---:|
+| `vac_ref` | 16384 | **0** | 12 | 0 | `0.000000000` |
+| `vac_s64` | 64 | **6** | 0 | 0 | `0.000000000` |
+| `vac_s32` | 32 | **6** | 0 | 0 | `0.000000000` |
+
+1. **Formation is real and sieve-governed.** At the reference sieve nothing forms
+   and all 12 layers stay unformed; at $S = 64$ and $S = 32$ the material is fully
+   consumed into 6 pairs.  The model's own ledger confirms a sustained channel:
+   `[charges] retina ... pairM=6 pairA=6 ... form=286`.
+2. **The self-formed dressing is coincident with the island** (`gap = 0`) and
+   carries $\sum \boldsymbol m = 0$: the body stays exactly at rest.
+3. **Caveat that decides the reading.**  A freshly formed pair is initialised with
+   $\boldsymbol m = 0$, and $\boldsymbol m$ is written only by the dynamic axis
+   election (`polarization::elect` / `installAxis` at $t = R_{\max}$), which does
+   not fire in this configuration.  Hence $\sum \boldsymbol m = 0$ here is
+   (at least partly) **vacuous**: the dressing has no vectors at all, so there is
+   no shell and no propulsion.  "Closed vs open dressing" is therefore not yet
+   measurable with this build; it needs the bootstrap variant
+   (`build_rest_shell_probe_boot.bat`).
+
+What this *does* establish: **step 1 of H-SHELL — the dressing forms itself out of
+the vacuum — is real, is governed by the sieving modulus, and is absent from the
+reference configuration.**
+
+### Is the self-formed dressing a *shell*? (bootstrap build)
+
+Same vacuum run with `build_rest_shell_probe_boot.bat`
+(`/D POLAR_BOOTSTRAP_ADDRESS /D POLAR_BROADCAST_WAVE`), i.e. with the axis
+election able to install $\boldsymbol m$.  Identical at $S = 64$ and $S = 32$:
+
+| frame | pairs | intact | $\sum m_x$ | $v_{body}$ | $body_x$ |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0 | 0 | 0 | `0.000000000` | 4.0 |
+| 2 | **6** | 1 | 0 | `0.000000000` | 4.0 |
+| 3 | 6 | 1 | 0 | `0.000000000` | 4.0 |
+| 4 | 6 | 1 | **−7** | `0.000000000` | 4.0 |
+| 5 … 20 | 6 | 1 | **−7** (frozen) | `0.000000000` | 4.0 |
+
+1. **Formation is one light frame wide.**  The channel is not gradual: the 12
+   unformed layers become 6 pairs in a single journey and then freeze.
+2. **The dressing does not close.**  Once the election installs vectors (frame 4,
+   one era), $\sum \boldsymbol m = -7$ and stays *exactly* $-7$ for the remaining
+   17 frames — no relaxation.  **P2 is falsified with a self-formed dressing**,
+   which is stronger than the seeded case above.
+3. **A net dressing vector is not propulsion.**  With $\sum \boldsymbol m = -7$
+   and the dressing coincident with the island (`gap = 0`), the body and the
+   whole source set move by exactly zero.  So $\sum \boldsymbol m \ne 0$ is *not
+   sufficient*: the drive-pair contact transport must also fire, and here it does
+   not.
+4. **No turnover.**  `pairs = 6`, `intact = 1`, `gap = 0` are constant over 17
+   frames: the dressing is static, not a churning population.  The flame image
+   fails on its second clause too — nothing feeds the frontier in this
+   configuration.
+
+**Conclusion for H-SHELL.**  Step 1 (the dressing forms itself out of the vacuum)
+is **real**, one-light-frame fast, sieve-governed, and absent from the reference
+configuration.  Steps 2–4 (closure, turnover, propulsion) are **absent**: what
+self-forms is a static pair *stack*, not a dynamic shell.
+
 **Consequence.** In the reference configuration the operational answer to "is a
 resting electron a bare charge?" is **yes**: mass = island count, dressing
 contributes no inertia.  The dressed-mass reading requires a mechanism the
@@ -228,5 +298,10 @@ experiments\rest_shell_probe.exe 9 5 5 3 3 0 stack 0 96 16384 build\rest_shell\p
 
 rem open channel -- where H-SHELL is addressable at all
 experiments\rest_shell_probe.exe 9 5 5 3 2 1 stack 0 48 64 build\rest_shell\p_lowsieve.csv 12
+
+rem self-formation: is any pair formed at all, and does it propel?
+experiments\rest_shell_probe.exe 9 5 5 3 6 0 vacuum 0 20 16384 build\rest_shell\vac_ref.csv 4
+experiments\rest_shell_probe.exe 9 5 5 3 6 0 vacuum 0 20 64 build\rest_shell\vac_s64.csv 4
+experiments\rest_shell_probe.exe 9 5 5 3 6 0 vacuum 0 20 32 build\rest_shell\vac_s32.csv 4
 ```
 
