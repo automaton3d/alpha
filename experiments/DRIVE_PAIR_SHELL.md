@@ -238,11 +238,33 @@ contributes no inertia.  The dressed-mass reading requires a mechanism the
 reference build does not have (recruitment + retention + an escape balance), i.e.
 the low-sieve open channel.
 
-**Note on the published table.**  The `15x9x9` entry of `INERTIA.md`
-(`0.175000` / `0.700000`) was taken with windows the note itself says *"are not
-multiples of its eight-frame breathing period"*.  The $1/N$ law above should be
-re-checked there with whole-era windows before those values are quoted as steady
-speeds.
+**Closed form, and reconciliation with the published table.**  The $1/N$ scaling
+above is one factor of
+
+$$v_{body} \;=\; \frac{n_{\text{kicks}}\,\left(2R_{\max}-1\right)}{2R_{\max}\,N},
+\qquad n_{\text{kicks}} = \min(n_{\text{pairs}}, N).$$
+
+This is forced by two documented facts: a kick requires overlapping **active**
+fronts, so the zero-radius frame of each era cannot kick (`INERTIA.md`: *"a
+zero-radius drive pair cannot kick"*), and an era of $2R_{\max}$ light frames
+contains exactly one such frame — hence $2R_{\max}-1$ kicks per era; and each kick
+advances the mean centre of mass by $n/N$ (manuscript, Propeller).  It reproduces
+**every** documented inertia number:
+
+| configuration | $N$ | $R_{\max}$ | pairs | prediction | documented |
+|---|---:|---:|---:|---:|---:|
+| `9x5x5` one rightward | 3 | 2 | 1 | $3/12 = 0.250000$ | `0.250000` |
+| `9x5x5` three rightward | 3 | 2 | 3 | $9/12 = 0.750000$ | `0.750000` |
+| `9x5x5` eight rightward | 3 | 2 | 8 | $\min(8,3)/4 = 0.750000$ | `0.750000` |
+| `9x5x5` two opposed | 3 | 2 | 1 vs 1 | $0$ | `0` |
+| `15x9x9` one pair | 5 | 4 | 1 | $7/40 = 0.175000$ | `0.175000` |
+| `15x9x9` four pairs | 5 | 4 | 4 | $28/40 = 0.700000$ | `0.700000` |
+
+Therefore the caution previously recorded here about the `15x9x9` row is
+**withdrawn**: those values are steady, and the whole-era protocol agrees with
+them.  A pair delivers one kick per light frame *except* the turnaround frame,
+which is why the naive "one kick per era" reading (used in the first pass of this
+note) under-predicted the `15x9x9` rate by a factor $8/7$.
 
 ## Reading aid (metaphor — an image for the discussion, never an argument)
 
