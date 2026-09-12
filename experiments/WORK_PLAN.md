@@ -426,6 +426,16 @@ its time-box.
   described as a strictly local integer-only transition now live only in
   `doc/REFERENCE_CONFIG.md` (gate G0) and in the experiment notes -- not in the
   paper.  Build: 55 pages, zero warnings.
+- **2026-09-11 -- Emptied the Limitations subsection (author request).**  Replaced
+  the entire content of "Limitations and open problems" (itemised limitation list
+  plus the postulate-versus-emergent table, 33 lines) with a TODO comment.  That
+  table (`tab:postulate-emergent`) was referenced once from *outside* the
+  subsection -- the claim-evidence map row "One-cell-per-tick clock" -- and that
+  reference was dropped in the same pass, so the build stays warning-free.  The
+  classification itself survives in the Introduction's (P)/(M)/(C) grading and in
+  `experiments/POSTULATE_VS_EMERGENT.md`.  **Note:** the paper now carries an
+  *empty* Limitations subsection -- a gap to fill before submission.  Build: 53
+  pages, zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
