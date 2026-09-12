@@ -479,6 +479,26 @@ its time-box.
   candidates, and the remaining 35 were reviewed individually and are legitimate
   (cosmology bookkeeping -- CMB photon, proton rest mass (CODATA), Eddington number;
   observer/relativity text; conjectures tagged (C)).  Build: 52 pages, zero warnings.
+- **2026-09-11 -- Terminology fix: "tick" (author-flagged ambiguity).**  The word "tick"
+  was doing three jobs: the housekeeping step $k$, the wavefront counter $t$, and the
+  light frame itself (L1196 said "one cell per tick" and "1.0000 cells/frame" in the
+  same bullet; L1014 said "one cell per frame" and "$N_t$ = number of ticks per frame"
+  in the same sentence; L702 called the light frame "one synchronous $k$-tick" against
+  L1037's "a light frame of FRAME ticks").  Fixes: added a **Timescale convention** to
+  the Nomenclature ("tick" unqualified = housekeeping tick $k$, atemporal; the physical
+  clock is the light frame, counted by $t$; an era is $L$ light frames; host cost
+  $N_k$); renamed the definitions ("Wavefront tick ($t$)" -> "Light-frame counter ($t$)",
+  the two symbol-table rows, "$N_t$" -> "$N_k$"); every physical-rate statement that
+  said "per tick" now says per **light frame**; the stage names "the DIFFUSION/RELOC
+  tick" -> "stage"; and the $v_{\max}$ relation is now $v_{\max}=X/\tau_{\mathrm{lf}}$
+  with $\tau_{\mathrm{lf}} \equiv 1$ light frame, since the old $X/N_t=v_{\max}$
+  conflated an implementation count with a physical speed.  Same fix applied in
+  `PHOTON_MEDIATION_DESIGN.md` and `RESULTS.md` where "per tick" meant per light frame.
+  **Finding:** the no-signaling lemma bounds the *dependence* cone at one cell per
+  housekeeping tick, whereas $v_{\max}$ is one cell per light frame -- the two differ by
+  the factor $N_k$.  A "Note on the two cone rates" now states this explicitly and marks
+  the light-frame bound for readable fields as still to be derived.  Build: 54 pages,
+  zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
