@@ -138,7 +138,48 @@ outputs are in `build/island_census/run64/` (census.csv, groups.csv,
 summary.txt, analysis.txt).  This cost is the main constraint for higher-L /
 longer-era campaigns on the CPU path.
 
-## Directional-channel census (candidate build, 8 journeys)
+## 20-journey run: the 81-centre signature is reached
+
+`build/island_census_dir/run20` (same harness, `20 16384`; 54.5 s/frame,
+1090.5 s total).  Frames 0--6 again reproduce the reference plateau bit-for-bit,
+and the harness's own invariant check passes ("census recorded; independent chief
+counts agree").
+
+| frame | centres | K | D | groups | unresolved | maxpop | maxspan | captures | escapes |
+|-------|---------|---|---|--------|------------|--------|---------|----------|---------|
+| 2--6  | 1 | 235 | 8 | 235 | 0 | 2 | 0 | 0 | 0 |
+| 7     | 1 | 86 | 157 | 86 | 125 | 3 | 0 | 32 | 157 |
+| 8     | 2 | 86 | 157 | 86 | 127 | 3 | 0 | 50 | 52 |
+| 9     | 15 | 83 | 160 | 83 | 136 | 3 | 6 | 30 | 39 |
+| 10    | 28 | 66 | 177 | 66 | 125 | 4 | 6 | 57 | 46 |
+| 11    | 44 | 122 | 121 | 122 | 56 | 3 | 7 | 93 | 24 |
+| 12    | 62 | 137 | 106 | 137 | 31 | 3 | 7 | 62 | 37 |
+| 13    | 62 | 150 | 93 | 150 | 46 | 5 | 9 | 75 | 90 |
+| 14    | 73 | 150 | 93 | 150 | 41 | 3 | 8 | 52 | 47 |
+| 15    | 78 | 146 | 97 | 146 | 39 | 4 | 9 | 51 | 49 |
+| **16**| **81** | 126 | 117 | 126 | 37 | 4 | 10 | 62 | 60 |
+| 17    | 94 | 116 | 127 | 116 | 65 | 6 | 8 | 71 | 99 |
+| 18    | 87 | 109 | 134 | 109 | 64 | 6 | 7 | 63 | 62 |
+| 19    | 89 | 140 | 103 | 140 | 36 | 4 | 9 | 76 | 48 |
+| 20    | 86 | 123 | 120 | 123 | 49 | 4 | 9 | 76 | 89 |
+
+Final report card: `chiefs_at_end=123, localized_at_end=40, pop==L/3_at_end=15`
+(the reference run64: `chiefs_at_end=235, localized_at_end=8, pop==L/3_at_end=0`).
+
+Reading: the number of distinct centres grows monotonically -- 1, 1, 1, 2, 15,
+28, 44, 62, 62, 73, 78, **81**, 94, 87, 89, 86 -- and passes through the predicted
+island count exactly at journey 16 (9L = 81 families).  The maximum toroidal span
+grows from 0 to 10 cells, so the constituents of a group are now spatially
+extended (the reference kept span = 0 across all 64 journeys), and the number of
+groups at the predicted population `L/3` rises from 0 to 15.  The count then
+fluctuates in the 86--94 band: the islands are not a stable 81-crystal, and
+`max_families` reaches 3--4, so families do mix at later times.
+Scored as a candidate mechanism (C): the channel demonstrably supplies the
+deterministic spatial asymmetry whose absence the SEED_ASYMMETRY negative and the
+64-journey reference plateau had established, and the predicted island count
+appears as a transient.  Stabilising it -- and making the directionality
+family-selective rather than global -- is the remaining problem.
+
 
 Harness: the same `island_census.cpp`, rebuilt with the WP8 candidate channel
 (`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE`, `HOMB_PRODUCER_FSM`,

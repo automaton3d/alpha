@@ -666,6 +666,20 @@ its time-box.
   family-selective directionality (the W-address tie-break branch), not time.
   A 20-journey run was launched to check whether the bifurcation continues; the
   result is appended to `experiments/ISLAND_CENSUS.md`.
+- **2026-09-12 -- WP8 census, 20 journeys: the 81-centre signature appears.**
+  The 20-journey production census with the candidate channel
+  (`build/island_census_dir/run20`, 54.5 s/frame, 1090.5 s total, harness
+  invariant check passed) fragments the seed monotonically:
+  `distinct_centers` = 1 (f2--6), 2 (f8), 15, 28, 44, 62, 62, 73, 78,
+  **81 at journey 16** (exactly 9L), then 94, 87, 89, 86.  `max_span` grows 0 -> 10
+  cells (the reference kept 0 for 64 journeys), and `pop==L/3_at_end` is 15 against
+  0 in the reference; `localized_at_end` is 40 against 8.  The islands are not a
+  stable 81-crystal -- the count fluctuates in the 86--94 band and `max_families`
+  reaches 3--4, so families mix at later times.  Graded (C): the candidate channel
+  supplies the deterministic spatial asymmetry whose absence the SEED_ASYMMETRY
+  negative and the 64-journey reference plateau established, and the predicted
+  island count appears as a transient.  Remaining problem: stabilise the island
+  count and make the directionality family-selective rather than global.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame
