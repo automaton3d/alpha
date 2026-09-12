@@ -141,6 +141,8 @@ family-preserving `81 x 3` exclusion control). Full detail:
 | `experiments\ABLATION_81x3.md`, `LIGHTMATTER_DECOUPLE.md`, `PBSB_ISLANDS.md` | Candidate aggregation/EM mechanisms |
 | `experiments\pbsb_two_wide.cpp` | WP4.3: two-cloud pB/sB probe (ordinary + `/D EM_FIRST_FSM`) |
 | `experiments\POSTULATE_VS_EMERGENT.md` | Postulate-vs-emergent table (editor response, Limitations) |
+| `experiments\RESPONSE_TO_REFEREES.md` | WP6: simulated referee reports + point-by-point responses + action list |
+| `experiments\CANDIDATE_VERSION.md` | WP6: editor change summary for the candidate version |
 | `doc\manuscript.tex` | The manuscript (build: `doc\latexpdf.bat`) |
 
 ## Notes

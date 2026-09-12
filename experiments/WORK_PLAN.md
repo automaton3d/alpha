@@ -360,7 +360,27 @@ its time-box.
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** continue WP5 -- prose tightening of the Conjectures.
+- **Next:** assemble nothing further for WP6; proceed to WP7 (data repository, cover
+  letter) and resolve G1.
+- **2026-09-11 -- WP6 DONE.**  Wrote `experiments/CANDIDATE_VERSION.md` (the editor
+  change summary: structural, claims/evidence, data/reproducibility, style, and the
+  open G1 item).  WP6 deliverables (`RESPONSE_TO_REFEREES.md` + `CANDIDATE_VERSION.md`)
+  are complete; the manuscript builds with zero warnings.
+- **2026-09-11 -- WP6 (3rd increment).**  Bibliography + notation pass: `biber`
+  runs clean (no warnings/errors) and the full pipeline (biber + two `pdflatex`
+  passes) compiles with **zero warnings** and no undefined citations; notation is
+  consistent (`\mathrm{pol}_u`, `RMAX`, `s2B`).  No changes were required.
+- **2026-09-11 -- WP6 (2nd increment).**  American-English standardization per the
+  manuscript's own policy: fixed the remaining British spellings
+  (labelled -> labeled, programme -> program, behaviour -> behavior,
+  colour(s) -> color(s), centre(s) -> center(s), neighbouring -> neighboring);
+  zero remain; line count unchanged.  Clean two-pass `pdflatex`: no warnings.
+- **2026-09-11 -- WP6 started.**  Wrote `experiments/RESPONSE_TO_REFEREES.md`:
+  three simulated referee reports (scope/novelty; causality/no-signalling;
+  numerics/reproducibility) with point-by-point responses and a consolidated
+  7-item action list.  Six items were already satisfied by the WP5 revision; the
+  seventh (an explicit determinism / no-seeds note in the campaign section) was
+  implemented and verified (clean two-pass `pdflatex`, zero warnings).
 - **2026-09-11 -- WP5 (9th increment).**  Added a dedicated "The falsification
   campaign: six candidates for the fine-structure constant" section
   (`sec:campaign`, `tab:campaign`) immediately before Results, with the six
