@@ -615,6 +615,34 @@ its time-box.
   longer window, not `MEAN_V`.
   Build variants: `build_rest_shell_probe_homb2.bat` (producers + consumer) and
   `build_rest_shell_probe_homb3.bat` (plus magnitude liveness).
+- **2026-09-12 -- author decisions (a) and (b) settled in the manuscript.**
+  **(a) The two cone rates.**  The flagged inconsistency -- the no-signaling lemma
+  bounded the dependence cone per *housekeeping tick* while $v_{\max}$ is stated per
+  *light frame*, the two differing by $N_k$ -- is settled by an explicit **reading
+  convention** added to the Setup of Sect.~\ref{subsec:nosignaling-formal}: an
+  observer reads the readable fields $\Phi$ at light-frame boundaries, every
+  readable field advances at most one cell per light frame, and the fields that
+  sweep the whole lattice *inside* a frame (the W-ledger $\Psi$ and the relocation
+  field $c$) are hidden coordination fields that no observer reads.  One step is
+  therefore one light frame, $\Delta k$ is in light frames, and the cone restricted
+  to $\Phi$ coincides with $v_{\max}$.  The former \emph{Note on the two cone rates}
+  (which kept the rates distinct and left the gap open) is replaced by a paragraph
+  stating the resolution and keeping exactly one open item: the local realisation of
+  the simultaneous update, i.e. the host scheduler of remark~(ii).
+  **(b) Limitations refilled.**  The empty TODO is replaced by a nine-item list,
+  each item stating what is *not* shown: (1) provenance of the numerical results;
+  (2) the transport channel is inert in the reference build (measured: no source
+  displacement in 16 light frames at 15x9x9); (3) the directional channel is a
+  candidate, not a measurement; (4) **GPU/CPU divergence (G0)** -- the CUDA kernel
+  is neither built nor validated against the CPU path; (5) the host scheduler is
+  not the idealised rule (not a strictly local, integer-only update) and is outside
+  the no-signaling scope; (6) small tubes cannot exercise the polarization sector
+  ($R=\mathrm{RMAX}-2\ge2$ needs a short side of at least 9); (7) polarization
+  liveness depends on the reconstruction sign; (8) negative results and scale;
+  (9) taxonomy, bridges and prospects are conjectural.
+  The missing `\label{sec:Introduction}` was added (the new item list is the only
+  place that cited the Introduction by number; pdflatex reported it as the sole
+  undefined reference).  PDF rebuilt clean through doc/latexpdf.bat (55 pages).
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame
