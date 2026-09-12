@@ -394,6 +394,17 @@ its time-box.
   turnover, and **no propulsion at all** (`v_body = 0.000000000`, `span = gap = 0`).
   So step 1 of H-SHELL (formation from the vacuum) is real and sieve-governed, but
   what self-forms is a static pair *stack*, not a dynamic shell.
+- **2026-09-11 -- Hofer attribution removed (author request).**  Renamed
+  `Spin and the Hofer effect` -> `Spin and radial alignment`, with the label
+  `subsec:hofer` -> `subsec:spin-alignment` and its three cross-references (the
+  conjectures table, the polarization-diversity text, and the $W$-island
+  multiplicity text); reworded the paragraph as an unattributed statement of the
+  radial-alignment prediction (spin down/up as the radial alignment of the
+  polarization bits; magnetic effects from breaking the spherical symmetry, read
+  as a Stern-Gerlach interpretation); removed `\cite{hofer}` and the bibliography
+  entry.  The physics is unchanged -- only the attribution and the
+  accessible-reference note went.  Build: 56 pages, zero warnings, no undefined
+  references; the bibliography drops from 33 to 32 entries.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered

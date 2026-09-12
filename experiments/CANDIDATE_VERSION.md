@@ -17,9 +17,9 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
   Results.
 - Moved the particle taxonomy (`Particles`), the quantum-formalism bridge, and the
   Speculative particle spectrum **to the appendix** (as sections).
-- Merged one-line Conjectures subsections (Color + Weak quantization; Spin + the
-  Hofer effect) and demoted two short model subsections (The host lattices; What
-  the seed does not contain) to paragraphs.
+- Merged one-line Conjectures subsections (Color + Weak quantization; Spin +
+  radial alignment) and demoted two short model subsections (The host lattices;
+  What the seed does not contain) to paragraphs.
 
 ## Claims and evidence
 
@@ -46,6 +46,13 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
 - Split the two largest paragraphs ("Distinct bubbles"; "Diffusion, translation
   and collapse in one reading") into readable paragraphs via blank-line breaks
   only (no text change).
+- **Dropped the Hofer attribution** (author request): the subsection is now
+  `Spin and radial alignment` (label `subsec:spin-alignment`), and its paragraph
+  states the idea without naming or citing anyone --- spin down/up as the radial
+  alignment of the polarization bits around a spherical aggregate, with magnetic
+  effects from breaking that spherical symmetry.  The three cross-references (the
+  conjectures table, the polarization-diversity text, the $W$-island multiplicity
+  text) were updated; the bibliography loses one entry (33 -> 32).
 
 ## Evidence artefacts
 
