@@ -369,6 +369,19 @@ its time-box.
   reading") into readable paragraphs by inserting blank lines at logical
   boundaries (15 breaks).  No words changed: the `.tex` grew by exactly 15 lines
   and the word content is identical.  Clean two-pass `pdflatex`: no warnings.
+- **2026-09-11 -- H-SHELL instrument (`rest_shell_probe`) + first measurements.**
+  New falsification instrument for the "drive-pair shell" hypothesis
+  (m_rest = island + n_close), documented in `experiments/DRIVE_PAIR_SHELL.md`
+  with layout (stack vs spatial shell), closure (even/odd cancel count) and
+  impulse-response controls.  The instrument's four falsifiers P1-P4 all **fail**
+  at the reference sieve (no pairs form there, as expected), and the control
+  measurements give a new exact positive relation: with one aligned pair and
+  whole-era windows, `v_body = 3/(4N)` exactly (0.250000000 / 0.150000000 /
+  0.107142857 for N = 3/5/7), i.e. the inertia is the **island count** and the
+  dressing is a momentum budget, not a mass.  A spatially distributed pair shell
+  is not maintained by the rules (4 of 5 pairs lost, survivor detaches, no
+  propulsion).  Instrument only: `experiments/` is outside the model fingerprint;
+  reference build untouched.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
