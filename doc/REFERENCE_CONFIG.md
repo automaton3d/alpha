@@ -111,21 +111,40 @@ Combined fingerprint (model-ref-v1): `5b0944258b8f9b750688375f2e9a4cd99e74f0355f
 
 ## Post-freeze additions (working tree)
 
-Since the `model-ref-v1` freeze, the working tree added one macro-guarded
-experimental block to a model source:
+Since the `model-ref-v1` freeze, the working tree added macro-guarded
+experimental blocks to model sources:
 
 | Macro | Effect | Where | Reference behaviour |
 |---|---|---|---|
 | `EM_FORCE_PREREQ` | forces the `EM_FIRST_FSM` prerequisite (s2B + pB) at each contact (WP4.2 spike) | `interaction.cpp` (~884) | unchanged when OFF |
 | `DD_INTRA_ISLAND_FIX` | intra-family election uses the family-minimum chief (WP3.3); a 3-copy family stays 1 K + 2 D | `chief_transition.h` | unchanged when OFF |
 | `EM_NOS2B_FSM` | drops the probabilistic `s2B` gate from the EM reorder (Route B); needs `EM_FIRST_FSM` | `interaction.cpp` (~906) | unchanged when OFF |
+| `HOMB_PRODUCER_FSM` | ports the directional producers that exist only in the archived CUDA kernel (`src/cuda/cuda_automaton.cu`, `dev_encounter4/6/7`) into the CPU `encounter()`, giving the homing flag `homB` -- and through it the relocation vector `c` and the `RELOC` stage -- its missing producer (WP8).  Deterministic: the direction comes from the in-phase/quadrature bits `pB`/`sB` and, for equal phases, from the immutable `W` address.  Requires live `pB`/`sB`, i.e. a build that also breaks the election fixed point (`POLAR_BOOTSTRAP_ADDRESS`), and a tube with `RMAX >= 4` | `interaction.cpp` (~899) | unchanged when OFF (verified) |
+
+### Prerequisite discovered by the WP8 audit: `RMAX >= 4` for the polarization sector
+
+`simulation.cpp` reconstructs the transverse pair as
+`reconstructPair(c.bstamp, RMAX - 2, pol_u, pol_v)`, and that function returns
+`(0,0)` for `R <= 0`.  With `R = RMAX - 2`:
+
+| short side | `RMAX` | `R` | consequence |
+|---|---|---|---|
+| 5 | 2 | 0 | `pol == (0,0)` identically: the whole polarization sector is structurally zero |
+| 7 | 3 | 1 | `pv = 2R*isqrt(j(R-j)) == 0` for every admissible `j`: `sB` is dead, only `pB` can live |
+| >= 9 | >= 4 | >= 2 | `pB` and `sB` can both be live |
+
+Any measurement of `pB`, `sB`, polarization, homing or electroweak contact in a
+tube with a short side of 5 or 7 is therefore degenerate, with or without
+`POLAR_BOOTSTRAP_ADDRESS`; such runs must be repeated with a short side of at
+least 9 before being quoted.
 
 Current working-tree model fingerprint:
-`428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8`
-(`interaction.cpp` = `B8E3F329...`, `chief_transition.h` = `2EABE284...`).
+`5e60eaeb1444d508c2f3dcc7aef34ccba4f5d3eb58e08571f7965688f4d42b15`
+(`interaction.cpp`, `simulation.h` changed by the WP8 counter/producer block;
+candidate macros still OFF).
 The reference build (all candidate macros OFF) was re-verified
-behaviour-identical: `alpha_probe 7 4 200 16384 256` reports active-passes =
-6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.
+behaviour-identical after this addition: `alpha_probe 7 4 200 16384 256` reports
+active-passes = 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.
 
 ## Reference harness recipes
 

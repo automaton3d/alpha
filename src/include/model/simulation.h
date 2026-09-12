@@ -279,6 +279,7 @@ struct NeighborResult
   extern long long recruit_repel;
   extern long long recruit_attract;
   extern long long annihilations;
+  extern long long homb_events;      // candidate HOMB_PRODUCER_FSM (zero unless compiled)
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;

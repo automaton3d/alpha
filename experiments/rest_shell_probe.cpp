@@ -224,5 +224,18 @@ int main(int argc, char** argv) {
          "free_singleton_layers=%u max_body_span=%u max_pair_gap=%u\n",
          seeded.pairs, seeded.sum_m[0], finalState.pairs, finalState.intact,
          finalState.sum_m[0], finalState.freeS, measurement.maxSpread, measurement.maxPairGap);
+
+  // Did the automaton produce a DIRECTION of its own?  homb_events counts the
+  // ported carrier/homer producers (HOMB_PRODUCER_FSM; zero in the reference),
+  // sources_c_nonzero counts sources whose relocation vector left zero, and
+  // sources_homB counts live homing flags.
+  long long cNonzero = 0, hombTrue = 0;
+  for (unsigned w = 0; w < W_USED; ++w) {
+    const Cell& s = source(w);
+    if (s.c[0] || s.c[1] || s.c[2]) ++cNonzero;
+    if (s.homB) ++hombTrue;
+  }
+  printf("PRODUCERS homb_events=%lld sources_c_nonzero=%lld sources_homB=%lld\n",
+         (long long)homb_events, cNonzero, hombTrue);
   return 0;
 }

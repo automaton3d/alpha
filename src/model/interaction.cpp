@@ -40,6 +40,11 @@ namespace automaton
   long long recruit_attract = 0;  // ... whose impulse attracted the two islands
   long long annihilations  = 0;   // representative pairs annihilated (rule 5)
 
+  // Candidate HOMB_PRODUCER_FSM: directional producers ported from the archived
+  // CUDA kernel (see the block inside encounter()).  Stays zero unless the macro
+  // is compiled, so the reference measurement is unaffected.
+  long long homb_events   = 0;   // carrier/homer pairs formed by the ported producers
+
   // Backward-compatible aliases (deprecated; new code should use enc_*).
   // References, so the old conv_* readers (alpha_probe / campaign logs)
   // observe the same values with no further changes.
@@ -889,6 +894,89 @@ namespace automaton
     // (dormant) broadcast can supply the flags.  Experimental; compiled only
     // under this macro and only meaningful together with EM_FIRST_FSM.
     curr.pB = true; curr.s2B = true; partner.pB = true;
+#endif
+
+#ifdef HOMB_PRODUCER_FSM
+    // ==================================================================
+    // Candidate /D HOMB_PRODUCER_FSM (WP8).  The CPU path has the CONSUMER of
+    // the homing flag -- the SLOT II "Homing using homB" block further down
+    // this file -- but it never had a PRODUCER: outside this block homB is
+    // written only as false, so c[] stays zero and the RELOC stage has nothing
+    // to move.  The producers exist in the archived CUDA kernel
+    // (src/cuda/cuda_automaton.cu, dev_encounter4/6/7) and are ported here.
+    //
+    // They turn a symmetric two-bubble superposition into a DIRECTED
+    // (carrier, homer) pair: the carrier records its position in c[] and sets
+    // cB, the homer sets homB and cB, so the SLOT II machinery can home on it.
+    // The direction is set by the internal in-phase/quadrature bits pB/sB and,
+    // for equal phases, by the immutable W address -- both deterministic; no
+    // RNG enters.  This is the symmetry breaker the island census reported
+    // missing ("never separates spatially"; SEED_ASYMMETRY.md and
+    // ISLAND_CENSUS.md), and it needs live pB/sB: with pB = sB = false every
+    // condition below is false and the block is inert.  A build that also
+    // breaks the election fixed point (POLAR_BOOTSTRAP_ADDRESS) is therefore a
+    // prerequisite.  OFF in the reference build.
+    //
+    // The CUDA kernel mutates the current cell's draft; here the pair's
+    // source-centre drafts are used, which is how this function already
+    // mutates the partner's state (cf. adoptLeader(partnerDraft, ...)).
+    // ==================================================================
+    {
+      // D3: tie-break on the immutable W address (curr.x[3]) -- never on c[3],
+      // which in this kernel carries a z-offset of the relocation vector.
+      const bool diffFamily = (curr.x[3] / 3u) != (partner.x[3] / 3u);
+      const bool expanding  = (effective_t(curr.t) == curr.t) &&
+                              (effective_t(partner.t) == partner.t);
+      const bool free       = !currDraft.cB && !partnerDraft.cB;
+
+      auto makeDirected = [&](const bool currCarries)
+      {
+        Cell& carrierD = currCarries ? currDraft    : partnerDraft;
+        Cell& homerD   = currCarries ? partnerDraft : currDraft;
+        const Cell& carrierS = currCarries ? curr : partner;
+        carrierD.c[0] = carrierS.x[0];
+        carrierD.c[1] = carrierS.x[1];
+        carrierD.c[2] = carrierS.x[2];
+        carrierD.cB   = 1;
+        homerD.homB   = 1;
+        homerD.cB     = 1;
+        ++homb_events;
+      };
+
+      // (1) CUDA dev_encounter6/7: the in-phase sign decides who carries and
+      //     who homes (the cell with pB false becomes the homer).  Requires a
+      //     live quadrature bit on one side, and bound (non-orphan) sources.
+      if (expanding && free && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
+          currSrc.a != W_USED && partnerSrc.a != W_USED)
+        makeDirected(curr.pB);
+      // (2) CUDA dev_encounter7 affinity branch: equal phase, different
+      //     families -> the W-address order breaks the symmetry.
+      else if (expanding && free && diffFamily && (curr.pB == partner.pB) &&
+               (curr.pB || curr.sB) &&
+               currSrc.a != W_USED && partnerSrc.a != W_USED)
+        makeDirected(curr.x[3] < partner.x[3]);
+      // (3) CUDA dev_encounter4: one winner per layer per turnaround, on the
+      //     layer-0 source -- the "first directional datum" of SEED_ASYMMETRY.
+      if (curr.active && curr.sB && curr.x[3] == 0u)
+      {
+        static std::vector<unsigned char> latchedHomb;
+        if (latchedHomb.size() != W_USED) latchedHomb.assign(W_USED, 0);
+        if (effective_t(curr.t) == (unsigned)(RMAX / 2))
+        {
+          if (!latchedHomb[curr.x[3]])
+          {
+            latchedHomb[curr.x[3]] = 1;
+            draft.homB = 1;
+            draft.cB   = 1;
+            ++homb_events;
+          }
+        }
+        else
+        {
+          latchedHomb[curr.x[3]] = 0;
+        }
+      }
+    }
 #endif
 
 #ifdef EM_FIRST_FSM

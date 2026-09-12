@@ -499,6 +499,38 @@ its time-box.
   the factor $N_k$.  A "Note on the two cone rates" now states this explicitly and marks
   the light-frame bound for readable fields as still to be derived.  Build: 54 pages,
   zero warnings.
+- **2026-09-12 -- WP8: producer audit and the ported directional producers.**
+  Audited every directional field for a *producer* (`homB`, `gB`/`g[3]`, `c[3]`,
+  `m`, `bstamp`, `pol_u/pol_v`, `pB`, `sB`) against what the rules say should
+  produce it.  Findings: (i) `homB` has a **consumer** in the CPU
+  (`interaction.cpp` SLOT II "Homing using homB") but its **four producers exist
+  only in the archived CUDA kernel** (`cuda_automaton.cu` `dev_encounter4/6/7`;
+  `git log -S 'draft.homB = 1'` shows they were never in `src/model`); (ii)
+  `gB`/`g[3]` have no producer in *any* path (only `seed_test.cpp` sets them);
+  (iii) `c[3]` is propagated but never *initiated*, so it stays zero and `RELOC`
+  has nothing to move; (iv) the `m` elector **exists** but its precondition is an
+  explicit fixed point ("no axis can be elected without existing polarization"),
+  broken once per layer by the deterministic candidate
+  `POLAR_BOOTSTRAP_ADDRESS`.  Measured: with `POLAR_BOOTSTRAP_ADDRESS` at
+  `9x7x7` the whole layer-1 chain activates (`bstamp=455`, `pol=(1,0)`, `pB=1`
+  in 32/36 samples) whereas the reference shows `bstamp=0`, `pol=(0,0)`,
+  `pB=sB=0`; and **`reconstructPair` degenerates below RMAX=4** (`R=RMAX-2`; R=0
+  kills both components, R=1 kills the quadrature bit `sB`), so any pB/sB
+  measurement in a short-side-5 or -7 tube is void.  Implemented the port as the
+  candidate macro **`HOMB_PRODUCER_FSM`** (`interaction.cpp` ~899) with a new
+  `homb_events` counter (declared in `interaction.cpp`, exposed in
+  `simulation.h`).  Reference verified **bit-identical with the macro OFF**:
+  `alpha_probe 7 4 200 16384 256` -> active-passes 6468, s2B 0, pairs 0,
+  `alpha_A = 0.003756878`; new model fingerprint
+  `5e60eaeb1444d508c2f3dcc7aef34ccba4f5d3eb58e08571f7965688f4d42b15`.
+  First measurement of the candidate at `15x9x9` (RMAX=4, R=2): the producers
+  **fire** (`homb_events = 5`) and `sB` is live (40/59 samples) -- but the body
+  still does not move (`MEAN_V = 0`) and the end-of-run counters for `c`/`homB`
+  read zero because those fields are cleared every frame
+  (`interaction.cpp:1485-1487`), so the effect must be sampled *within* the
+  frame; also the prepared 3-element island is a single family, which disables
+  the address tie-break path.  Next: per-frame instrumentation and a
+  multi-family seed.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
