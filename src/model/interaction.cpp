@@ -1004,7 +1004,14 @@ namespace automaton
       // frame ends, and homB is cleared at the end of every frame -- measured:
       // with producers (1)/(2) alone the homing block reported homb_seen = 0
       // while homb_events was non-zero.
-      if (curr.active && curr.sB && (curr.x[3] % 3u) == 0u)
+      // NB: the guard accepts ANY live directional bit (pB || sB), not sB alone:
+      // the reconstruction can return a component that is EXACTLY zero, and with
+      // the magnitude convention (pB = pol_u != 0, sB = pol_v != 0) a single
+      // sB-gated rule then dies on the trajectories where pol_v == 0 -- measured:
+      // the rigid variant's probe trajectory landed on pol = (4,0) and the whole
+      // channel went dark (homb_seen = 0, c_at_center = 0), the same class of
+      // failure as the phase-quadrant lottery that POLAR_MAGNITUDE_FSM removed.
+      if (curr.active && (curr.pB || curr.sB) && (curr.x[3] % 3u) == 0u)
       {
         static std::vector<unsigned char> latchedHombFam;
         const unsigned nFam = (W_USED + 2u) / 3u;

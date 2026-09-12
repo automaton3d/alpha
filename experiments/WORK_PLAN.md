@@ -719,6 +719,23 @@ its time-box.
   does not disable the channel.  Census runs of both variants were launched
   (20 journeys each) in parallel with the 64-journey baseline, which was at frame
   15 with `centres=78` (matching the 20-journey run's frame 15 exactly).
+- **2026-09-12 -- WP8 option (2), follow-up fix: the winner must accept ANY live
+  directional bit.**  The per-family per-cell winner was gated on `curr.sB` alone,
+  but the reconstruction can return a component that is EXACTLY zero, so under the
+  magnitude convention (`sB = pol_v != 0`) an sB-gated rule dies on the
+  trajectories where `pol_v == 0`.  Measured: the rigid variant's first probe
+  trajectory landed on `pol = (4,0)` and the whole channel went dark
+  (`homb_seen = 0`, `c_at_center = 0`, `reloc_moves = 0`) -- the same class of
+  failure as the phase-quadrant lottery that `POLAR_MAGNITUDE_FSM` removed.  The
+  guard is now `(curr.pB || curr.sB)`.  With the fix the rigid probe is alive:
+  `homb_events=7, homb_seen=184, c_at_center=393, cB_at_center=40,
+  reloc_cells=31909`, with the family decision applied (`consumed=1`,
+  `reloc_moves=1` -- more restrictive than the base build's 5/9, as the rigid rule
+  intends).  Reference re-verified after the fix: `6468/0/0`,
+  `alpha_A = 0.003756878`.  Both family censuses were relaunched with the rebuilt
+  binaries (20 journeys each, in parallel with the 64-journey baseline), and the
+  baseline itself reached **`centres=81` at journey 16**, an independent
+  reproduction of the 20-journey signature in a longer run.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame
