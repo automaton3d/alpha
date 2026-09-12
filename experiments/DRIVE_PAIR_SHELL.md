@@ -245,7 +245,6 @@ re-checked there with whole-era windows before those values are quoted as steady
 speeds.
 
 ## Reading aid (metaphor — an image for the discussion, never an argument)
-## Reading aid (metaphor — an image for the discussion, never an argument)
 
 > **The shell is a flame, not a brick.**
 
