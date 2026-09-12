@@ -167,10 +167,11 @@ int main(int argc, char** argv) {
   Measurement measurement(n);
   FILE* f = fopen(path, "w");
   if (!f) { perror(path); return 4; }
-  fprintf(f, "frame,tick,measured,v_body_x,v_all_x,body_x,pairs_P,intact,sum_m_x,span,gap\n");
+  fprintf(f, "frame,tick,measured,v_body_x,v_all_x,body_x,pairs_P,intact,sum_m_x,span,gap,homb_events,c_nz,homB_n\n");
 
   std::array<double, 3> sumBody{0, 0, 0}, sumAll{0, 0, 0};
   std::array<double, 3> firstBody{0, 0, 0}, secondBody{0, 0, 0};
+  long long maxCNonzero = 0, maxHombTrue = 0;
   unsigned long long ticks = 0;
   for (unsigned frame = 1; frame <= frames;) {
     ++ticks;
@@ -197,10 +198,23 @@ int main(int argc, char** argv) {
         sumAll[k] += allVelocity[k];
         (frame <= burn + (frames - burn) / 2 ? firstBody : secondBody)[k] += velocity[k];
       }
-    fprintf(f, "%u,%llu,%u,%.9f,%.9f,%.9f,%u,%u,%d,%u,%u\n",
+    // Per-frame direction census.  homB and c are cleared every light frame
+    // (interaction.cpp ~1485/1526), so the end-of-run values are always zero;
+    // the maxima must be tracked *inside* the frame loop.
+    long long cNonzero = 0, hombTrue = 0;
+    for (unsigned w = 0; w < W_USED; ++w) {
+      const Cell& s = source(w);
+      if (s.c[0] || s.c[1] || s.c[2]) ++cNonzero;
+      if (s.homB) ++hombTrue;
+    }
+    if (cNonzero > maxCNonzero)   maxCNonzero = cNonzero;
+    if (hombTrue > maxHombTrue)   maxHombTrue = hombTrue;
+
+    fprintf(f, "%u,%llu,%u,%.9f,%.9f,%.9f,%u,%u,%d,%u,%u,%lld,%lld,%lld\n",
             frame, ticks, measured ? 1u : 0u, velocity[0], allVelocity[0],
             bodyPosition[0], d.pairs, d.intact, d.sum_m[0],
-            measurement.maxSpread, measurement.maxPairGap);
+            measurement.maxSpread, measurement.maxPairGap,
+            (long long)homb_events, cNonzero, hombTrue);
     ++frame;
   }
   fclose(f);
@@ -226,16 +240,10 @@ int main(int argc, char** argv) {
          finalState.sum_m[0], finalState.freeS, measurement.maxSpread, measurement.maxPairGap);
 
   // Did the automaton produce a DIRECTION of its own?  homb_events counts the
-  // ported carrier/homer producers (HOMB_PRODUCER_FSM; zero in the reference),
-  // sources_c_nonzero counts sources whose relocation vector left zero, and
-  // sources_homB counts live homing flags.
-  long long cNonzero = 0, hombTrue = 0;
-  for (unsigned w = 0; w < W_USED; ++w) {
-    const Cell& s = source(w);
-    if (s.c[0] || s.c[1] || s.c[2]) ++cNonzero;
-    if (s.homB) ++hombTrue;
-  }
-  printf("PRODUCERS homb_events=%lld sources_c_nonzero=%lld sources_homB=%lld\n",
-         (long long)homb_events, cNonzero, hombTrue);
+  // ported carrier/homer producers (HOMB_PRODUCER_FSM; zero in the reference);
+  // the two maxima are per-frame peaks, because homB and c are cleared every
+  // light frame and the end-of-run values are always zero by construction.
+  printf("PRODUCERS homb_events=%lld max_sources_c_nonzero=%lld max_sources_homB=%lld\n",
+         (long long)homb_events, maxCNonzero, maxHombTrue);
   return 0;
 }

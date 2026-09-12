@@ -531,6 +531,32 @@ its time-box.
   frame; also the prepared 3-element island is a single family, which disables
   the address tie-break path.  Next: per-frame instrumentation and a
   multi-family seed.
+- **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
+  Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
+  *always* zero because those fields are cleared every light frame
+  (`interaction.cpp` ~1485/1526), so the harness can only sample post-clear; the
+  reliable observables are the `homb_events` counter and the body velocity.
+  Guard refinement: the CUDA's `f == t` phase guard (a legacy per-voxel
+  cascade) gave 3 events in 16 frames; switching to the manuscript's own
+  `t = RMAX/2` guard, and then dropping the phase guard from the two contact
+  producers (the CPU encounter is source-level, so the contact condition at
+  `interaction.cpp:603` is the relevant guard), raised it to **7 events in 16
+  frames** at `15x9x9` with `N=3`: the ported producers do fire.
+  **Finding (blocker class):** live polarization is a *phase lottery*.  The flags
+  are defined by sign, `pB = (pol_u > 0)`, `sB = (pol_v > 0)`
+  (`simulation.cpp:365-366`), while `reconstructPair` returns
+  `(R(R-2j), ±2R·isqrt(j(R-j)))` with `j = (bstamp-1) mod 2R^2`.  In the same
+  tube and with the same bootstrap, the `N=3` run landed on `pol = (0,4)`
+  (`pB` false, `sB` true -> events) and the `N=6` run on `pol = (-4,0)` (both
+  false -> zero events): whether the directional sector is alive is decided by
+  which quadrant the stamp falls in, not by the physics.  Model change to
+  consider (author decision): treat a direction as live by magnitude
+  (`|pol| > 0`) instead of by sign, which would make `pB`/`sB` robust.
+  Reference re-verified bit-identical (`6468/0/0`, `alpha_A = 0.003756878`);
+  new fingerprint `0248ae343bbf3fcc9dc2bbe605b3485012b3296dbf0f9e59c8f5a9e55668fbbc`.
+  No motion yet (`MEAN_V = 0`), so the consumer chain (`SLOT II` -> `RELOC`) is
+  the next thing to instrument, with three counters: producer fired / the homing
+  block saw a `homB` neighbour / `RELOC` applied a step.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered

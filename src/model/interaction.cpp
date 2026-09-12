@@ -925,8 +925,9 @@ namespace automaton
       // D3: tie-break on the immutable W address (curr.x[3]) -- never on c[3],
       // which in this kernel carries a z-offset of the relocation vector.
       const bool diffFamily = (curr.x[3] / 3u) != (partner.x[3] / 3u);
-      const bool expanding  = (effective_t(curr.t) == curr.t) &&
-                              (effective_t(partner.t) == partner.t);
+      // The manuscript places the inter-sector interaction at the mid-expansion
+      // instant t = RMAX/2, which the single-winner producer below keeps.
+      const unsigned mid = (unsigned)(RMAX / 2);
       const bool free       = !currDraft.cB && !partnerDraft.cB;
 
       auto makeDirected = [&](const bool currCarries)
@@ -946,12 +947,16 @@ namespace automaton
       // (1) CUDA dev_encounter6/7: the in-phase sign decides who carries and
       //     who homes (the cell with pB false becomes the homer).  Requires a
       //     live quadrature bit on one side, and bound (non-orphan) sources.
-      if (expanding && free && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
+      //     No phase guard: the CPU encounter is source-level, so the guard
+      //     that matters is the contact condition already enforced above
+      //     (both cells active, r > 0) -- the CUDA's f == t / t == RMAX/2
+      //     guards belonged to its per-voxel rule cascade.
+      if (free && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
           currSrc.a != W_USED && partnerSrc.a != W_USED)
         makeDirected(curr.pB);
       // (2) CUDA dev_encounter7 affinity branch: equal phase, different
       //     families -> the W-address order breaks the symmetry.
-      else if (expanding && free && diffFamily && (curr.pB == partner.pB) &&
+      else if (free && diffFamily && (curr.pB == partner.pB) &&
                (curr.pB || curr.sB) &&
                currSrc.a != W_USED && partnerSrc.a != W_USED)
         makeDirected(curr.x[3] < partner.x[3]);

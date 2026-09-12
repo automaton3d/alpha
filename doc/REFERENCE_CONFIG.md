@@ -139,7 +139,7 @@ tube with a short side of 5 or 7 is therefore degenerate, with or without
 least 9 before being quoted.
 
 Current working-tree model fingerprint:
-`5e60eaeb1444d508c2f3dcc7aef34ccba4f5d3eb58e08571f7965688f4d42b15`
+`0248ae343bbf3fcc9dc2bbe605b3485012b3296dbf0f9e59c8f5a9e55668fbbc`
 (`interaction.cpp`, `simulation.h` changed by the WP8 counter/producer block;
 candidate macros still OFF).
 The reference build (all candidate macros OFF) was re-verified
