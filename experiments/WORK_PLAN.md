@@ -444,6 +444,17 @@ its time-box.
   The $r\cdot\sin(r)$ cloud remains documented and figured elsewhere (the wave-cloud
   text and caption), so only the conjecture paragraph went.  Build: 53 pages, zero
   warnings.
+- **2026-09-11 -- Removed the "Charge conservation" diagnostic paragraph** (Results,
+  in-simulation diagnostics): the closure-identity check with its run numbers
+  ($D_{\mathrm{tot}}=+375$, $D_{\mathrm{isl}}=+279$, $D_{\mathrm{orph}}=+96$,
+  $D_{\mathrm{Orb}}=+2500$, $D_{\mathrm{Umb}}=-2125$, $\mathrm{freeM}=4875$,
+  $\mathrm{freeA}=4500$, constant over $29$ checkpoints).  Two sentences that
+  announced it were aligned in the same pass: the run scope ("for the charge and
+  bound-state diagnostics" -> "for the bound-state diagnostics") and the
+  not-yet-measured list (dropped "charge conservation,").  The closure identity
+  itself survives in the proof-of-concept list ("a live charge census whose closure
+  identity ... is verified every 256 ticks"), so the claim is not lost -- only its
+  dedicated numbers.  Build: 53 pages, zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
