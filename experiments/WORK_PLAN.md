@@ -805,7 +805,7 @@ its time-box.
   retired as a host-level artefact, not a candidate mechanism.
   Reference re-verified untouched: `6468/0/0`, `alpha_A = 0.003756878`.
   Docs updated (`FAMILY_SELECTIVE_DESIGN.md`: macro marked WITHDRAWN + "Action
-  taken"; `ISLAND_CENSUS.md`: cable caveat on the `family + rigid` row).
+  taken"; `ISLAND_CENSUS.md`: explicit caveat on the `family + rigid` row).
   Next: the local reformulation -- the encounter writes the displacement into each
   copy's own layer, so every copy carries the field locally and any co-movement is
   emergent, with no `lcenters` read anywhere.
