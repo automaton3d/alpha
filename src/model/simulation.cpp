@@ -499,12 +499,98 @@ namespace automaton
         // frame counter -- and move at most once per frame and layer.
         static std::vector<unsigned> lastMoveT;
         if (lastMoveT.size() != W_USED) lastMoveT.assign(W_USED, 0u);
+#ifdef FAMILY_SELECTIVE_FSM
+        // (B) FAMILY CO-MOVEMENT.  A family's copies share ONE decision per light
+        // frame: the direction is read from the family's own copies (largest
+        // decodable distance, ties by ascending w) and applied to every copy, so
+        // a family keeps a single centre.  With FAMILY_RIGID_FSM, a family whose
+        // copies are not co-located sends every copy to its chief instead, so the
+        // island re-coheres rather than splitting.
+        const unsigned LENF[3] = { ELX, ELY, ELZ };
+        const unsigned fam0 = (w / 3u) * 3u;
+        static std::vector<int> famAx, famStep, famMag;
+        if (famAx.size() != W_USED)
+        {
+          famAx.assign(W_USED, -1); famStep.assign(W_USED, 0); famMag.assign(W_USED, 0);
+        }
+        if (w == fam0)
+        {
+          int gAx = -1, gStep = 0, gMag = 0;
+          for (unsigned f = fam0; f < fam0 + 3u && f < W_USED; ++f)
+          {
+            const Cell& cf = getCell(lattice_draft, lcenters[f][0], lcenters[f][1], lcenters[f][2], f);
+            int fAx = -1, fStep = 0, fMag = 0;
+            for (int ax = 0; ax < 3; ++ax)
+            {
+              if (!cf.c[ax]) continue;
+              const int LEN = (int)LENF[ax];
+              int target;
+              if ((int)cf.c[ax] >= LEN)
+              {
+                int tt = (int)cf.x[ax] - ((int)cf.c[ax] - LEN);
+                while (tt < 0)    tt += LEN;
+                while (tt >= LEN) tt -= LEN;
+                target = tt;
+              }
+              else target = (int)cf.c[ax];
+              int delta = target - (int)cf.x[ax];
+              if (delta >  LEN / 2)       delta -= LEN;
+              else if (delta < -(LEN / 2)) delta += LEN;
+              const int mag = delta < 0 ? -delta : delta;
+              if (mag > fMag) { fMag = mag; fAx = ax; fStep = (delta > 0) ? +1 : -1; }
+            }
+            if (fMag > gMag) { gMag = fMag; gAx = fAx; gStep = fStep; }
+          }
+          famAx[fam0] = gAx; famStep[fam0] = gStep;
+          for (unsigned f = fam0 + 1u; f < fam0 + 3u && f < W_USED; ++f)
+          {
+            famAx[f] = gAx; famStep[f] = gStep;   // one decision for the whole family
+          }
+        }
+        int myAx = famAx[w], myStep = famStep[w];
+#ifdef FAMILY_RIGID_FSM
+        {
+          unsigned chiefW = fam0;
+          for (unsigned f = fam0; f < fam0 + 3u && f < W_USED; ++f)
+          {
+            const Cell& cf = getCell(lattice_draft, lcenters[f][0], lcenters[f][1], lcenters[f][2], f);
+            if (cf.kind == SourceKind::K) { chiefW = f; break; }
+          }
+          bool co = true;
+          for (unsigned f = fam0 + 1u; f < fam0 + 3u && f < W_USED; ++f)
+            if (lcenters[f][0] != lcenters[fam0][0] ||
+                lcenters[f][1] != lcenters[fam0][1] ||
+                lcenters[f][2] != lcenters[fam0][2]) { co = false; break; }
+          if (!co)
+          {
+            int dAx = -1, dStep = 0, dMag = 0;
+            for (int ax = 0; ax < 3; ++ax)
+            {
+              const int LEN = (int)LENF[ax];
+              int delta = (int)lcenters[chiefW][ax] - (int)old.x[ax];
+              if (delta >  LEN / 2)       delta -= LEN;
+              else if (delta < -(LEN / 2)) delta += LEN;
+              const int mag = delta < 0 ? -delta : delta;
+              if (mag > dMag) { dMag = mag; dAx = ax; dStep = (delta > 0) ? +1 : -1; }
+            }
+            myAx = dAx; myStep = dStep;   // re-cohere on the family chief
+          }
+        }
+#endif
+        if (myAx >= 0 && myStep != 0 && old.t != lastMoveT[w])
+        {
+          old.reloc[myAx] += myStep;
+          lastMoveT[w] = old.t;
+          ++consumer_transports;
+        }
+#else
         if (bestAx >= 0 && bestStep != 0 && old.t != lastMoveT[w])
         {
           old.reloc[bestAx] += bestStep;
           lastMoveT[w] = old.t;
           ++consumer_transports;
         }
+#endif
         for (int ax = 0; ax < 3; ++ax) old.c[ax] = 0;
         old.cB = 0;
       }

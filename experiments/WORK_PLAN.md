@@ -693,6 +693,32 @@ its time-box.
   Audit is automated: `experiments/finish_island_census_dir.ps1` waits for the
   process and writes `build/island_census_dir/run64/analysis.txt` (analyzer output
   + the per-frame trend table + the SUMMARY line) as soon as the run exits.
+- **2026-09-12 -- WP8 option (2) patch prepared: FAMILY-SELECTIVE directionality.**
+  New candidate macros (both OFF in the reference; reference re-verified
+  bit-identical: `6468/0/0`, `alpha_A = 0.003756878`):
+  **`FAMILY_SELECTIVE_FSM`** -- producer restricted to INTRA-family pairs in the
+  relative-displacement encoding (the cross-family tie-break and the
+  absolute-coordinate encodings are excluded, since they are what dragged
+  different families together), and consumer co-movement: the copies of a family
+  share ONE decision per light frame and step together, so a family keeps a single
+  centre; and **`FAMILY_RIGID_FSM`** -- a family whose copies are not co-located
+  sends every copy to its family chief, so an island re-coheres instead of
+  splitting (self-correcting, not a freeze).
+  Design and rationale: `experiments/FAMILY_SELECTIVE_DESIGN.md`; build variants
+  `build_rest_shell_probe_fam{rigid}.bat` and `build_island_census_fam{rigid}.bat`.
+  **Structural finding (forced by measurement):** the only `homB` write the SLOT II
+  homing stage can SEE is the per-CELL one (`draft.homB`, the CUDA's
+  `dev_encounter4` pattern) -- a write into a source-centre draft is invisible to
+  that cell's neighbours until the frame ends and `homB` is cleared every frame.
+  With the pair producers alone the homing block reported `homb_seen = 0` while
+  `homb_events` was non-zero (`c_at_center = 0`, the channel silently dead);
+  restoring a per-family per-cell winner brought it back to `homb_seen = 184`.
+  Fast probe (15x9x9, N=3, 16 frames) now gives `homb_events=7, homb_seen=184,
+  c_at_center=393, cB_at_center=40, reloc_moves=9, reloc_cells=31909, consumed=5`
+  -- the same downstream chain as the non-family build, so the family restriction
+  does not disable the channel.  Census runs of both variants were launched
+  (20 journeys each) in parallel with the 64-journey baseline, which was at frame
+  15 with `centres=78` (matching the 20-journey run's frame 15 exactly).
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

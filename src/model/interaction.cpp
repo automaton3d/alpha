@@ -955,6 +955,77 @@ namespace automaton
         ++homb_events;
       };
 
+#ifdef FAMILY_SELECTIVE_FSM
+      // ==============================================================
+      // FAMILY_SELECTIVE_FSM (WP8 option 2): make the directionality
+      // FAMILY-SELECTIVE instead of global.
+      //
+      // The census expects islands of the form 1K + nD with n = L/3 - 1, i.e.
+      // exactly the L/3 W copies of ONE family (family = w / 3), so a family has
+      // to act as a single unit.  The direction is therefore decided by an
+      // INTRA-family pair and written in the only directional encoding (the
+      // relative displacement L + (own - anchor) % L), while the cross-family
+      // producers are excluded: producer (2)'s W-address tie-break and the
+      // absolute-coordinate encodings of (1)/(3) are what dragged constituents
+      // of DIFFERENT families together -- measured as the 20-journey census
+      // overshooting to 86-94 centres with max_families 3-4 instead of settling
+      // at 81.
+      //
+      // The consumer half is in simulation.cpp applyMomentum(): the copies of a
+      // family share ONE decision per light frame and step together, so a family
+      // keeps a single centre.  Defining FAMILY_RIGID_FSM additionally sends
+      // every copy of a NON-co-located family to its family chief, so an island
+      // re-coheres instead of splitting (no freeze: the rigid rule is
+      // self-correcting).  OFF in the reference build.
+      // ==============================================================
+      if (free && !diffFamily && (curr.pB != partner.pB) && (curr.sB || partner.sB) &&
+          currSrc.a != W_USED && partnerSrc.a != W_USED)
+      {
+        // The carrier/homer split of the CUDA branch is kept -- the CARRIER holds
+        // the target (c[] + cB) and the HOMER carries homB + cB, which is what the
+        // SLOT II homing stage needs to relay the field at all -- but it is
+        // restricted to the family, and the homer additionally receives the
+        // DIRECTIONAL encoding (the signed relative displacement) instead of the
+        // carrier's raw coordinate, so the step it walks is toward its anchor
+        // rather than an undirected drift.
+        makeDirected(curr.pB);
+        const Cell& walkerS = curr.pB ? partner : curr;   // out of phase: walks home
+        Cell&       walkerD = curr.pB ? partnerDraft : currDraft;
+        walkerD.c[0] = ELX + (unsigned)(walkerS.x[0] - (curr.pB ? curr.x[0] : partner.x[0])) % ELX;
+        walkerD.c[1] = ELY + (unsigned)(walkerS.x[1] - (curr.pB ? curr.x[1] : partner.x[1])) % ELY;
+        walkerD.c[2] = ELZ + (unsigned)(walkerS.x[2] - (curr.pB ? curr.x[2] : partner.x[2])) % ELZ;
+        walkerD.cB   = 1;
+      }
+      // (3-family) CUDA dev_encounter4, restricted to the family: ONE winner per
+      // FAMILY per turnaround, on the family's anchor layer (the first of its L/3
+      // copies).  This is the only producer whose write the SLOT II homing stage
+      // can actually SEE, because it writes `draft.homB` on a CELL: a write to a
+      // source-centre draft is not visible to that cell's neighbours until the
+      // frame ends, and homB is cleared at the end of every frame -- measured:
+      // with producers (1)/(2) alone the homing block reported homb_seen = 0
+      // while homb_events was non-zero.
+      if (curr.active && curr.sB && (curr.x[3] % 3u) == 0u)
+      {
+        static std::vector<unsigned char> latchedHombFam;
+        const unsigned nFam = (W_USED + 2u) / 3u;
+        if (latchedHombFam.size() != nFam) latchedHombFam.assign(nFam, 0);
+        const unsigned fam = curr.x[3] / 3u;
+        if (effective_t(curr.t) == (unsigned)(RMAX / 2))
+        {
+          if (!latchedHombFam[fam])
+          {
+            latchedHombFam[fam] = 1;
+            draft.homB = 1;
+            draft.cB   = 1;
+            ++homb_events;
+          }
+        }
+        else
+        {
+          latchedHombFam[fam] = 0;
+        }
+      }
+#else
       // (4) CUDA dev_encounter7 "same affinity" branch (lines 686-700) -- the
       //     RELATIVE-DISPLACEMENT encoding, and the only DIRECTIONAL one.  Within
       //     one island the in-phase cell (pB true) is the anchor whose raw position
@@ -1015,6 +1086,7 @@ namespace automaton
           latchedHomb[curr.x[3]] = 0;
         }
       }
+#endif
     }
 #endif
 
