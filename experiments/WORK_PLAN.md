@@ -413,6 +413,19 @@ its time-box.
   references).  Build: 55 pages (was 56), zero warnings.  The harness itself
   (`experiments/gravity_probe.cpp`, `gravity_probe_DESIGN.md`, `RESULTS.md`) is
   untouched; only the paper's presentation of it is gone.
+- **2026-09-11 -- Removed the Reproducibility subsection** (Conclusion, 13 lines):
+  the intro paragraph (kernel revisions, `MODEL_VERSION`, fingerprint, `run_all.bat`,
+  `RESULTS_v2.md`), the eight-item command list (wavefront fidelity, sieve sweep,
+  scaling study, polarization fidelity, CUDA status, attractor, sieve statistics,
+  charge census) and the closing inertia-probe caveat.  No `\ref` pointed at it,
+  but one *textual* pointer did exist ("(program `scatter_main.cpp`,
+  Reproducibility)" in the open-channel paragraph) and was fixed in a follow-up
+  commit.  **Loss to note:** the words "CPU"/"GPU" appear nowhere else in the
+  manuscript, so the statement that the reference build is CPU-only, that the
+  archived CUDA kernels are not parity, and that the implementation must not be
+  described as a strictly local integer-only transition now live only in
+  `doc/REFERENCE_CONFIG.md` (gate G0) and in the experiment notes -- not in the
+  paper.  Build: 55 pages, zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
