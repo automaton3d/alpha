@@ -93,7 +93,7 @@ chief (K) & the leading source of a $W$-island; delegates (D) are attached to it
 \hline
 drive pair & an affinity-bound photon-type pair carrying $\boldsymbol{m}\ne\mathbf{0}$; its $P\times K$ and $P\times D$ contacts sustain island motion; it cannot join a cluster & \ref{subsubsec:drive pair}\\
 \hline
-cluster & a group of superposed equal-status pairs with the gluon/photon charge geometry $R2$ & \ref{subsec:pairs}\\
+cluster & a group of superposed equal-status pairs with the gluon/photon-type charge geometry $R2$ & \ref{subsec:pairs}\\
 \hline
 homing & the $homB$ flag stage of the light frame that drives the relocation vector $c$ toward a target & \ref{subsec:algorithm}\\
 \hline
@@ -490,9 +490,9 @@ The \textit{cluster} is a group of superposed pairs having the same affinity, sa
 Certain pair combinations are not allowed to form clusters:
 \begin{itemize}
 \item Neutrino and antineutrino pairs possess color values $N, N$ and $\bar{N}, \bar{N}$, respectively.
-\item The up quark fragments $u$ exhibit equal, nontrivial colors and a positive charge in the case of Orbis.
+\item The up-quark-type fragments $u$ exhibit equal, nontrivial colors and a positive charge in the case of Orbis.
 \item The drive pair adds to the relativistic mass of the propelled fermion.\footnote{This mirrors a Kantian view: particles do not self-move but require an external cause---here, interaction with fragments---to change their state.}
-\item Pairs with fully complementary charges are \emph{gravitons}. They operate in both Orbis and Umbra,\footnote{Orbis and Umbra coexist spatially.} have fixed oscillation frequency $2$, and mediate static cross-sector interactions; without them, Umbra matter would appear inert in Orbis. Graviton-induced gravity is detailed in Sect.~\ref{subsec:emergence-of-gravity}.
+\item Pairs with fully complementary charges are \emph{graviton-type pairs}. They operate in both Orbis and Umbra,\footnote{Orbis and Umbra coexist spatially.} have fixed oscillation frequency $2$, and mediate static cross-sector interactions; without them, Umbra matter would appear inert in Orbis. The gravity induced by graviton-type pairs is detailed in Sect.~\ref{subsec:emergence-of-gravity}.
 \end{itemize}
 \subsection{Interaction principles}
 The guiding principles are:
@@ -547,7 +547,7 @@ On the other hand, if the two bubbles share the same affinity, but have differen
 For bound $P\times K/D$ transport, the pushing pair's $\boldsymbol{m}$ selects a unit step accumulated in $\boldsymbol{\mathit{reloc}}$, as specified in Sect.~\ref{subsec:translation}; copying the full magnitude of $\boldsymbol{m}$ as a displacement is not the inertial rule. The following contact-site reissue description concerns the other interaction channels.
 That is, one bubble is reissued from $\boldsymbol{x1}$, while the other from $(\boldsymbol{x_1}-\boldsymbol{x_2})\,\boldsymbol{mod}\,L$.
 
-For color-neutral combinations there are two cases: gluon$\times$gluon and quark$\times$gluon.
+For color-neutral combinations there are two cases: colored$\times$colored and colored$\times$colorless (the gluon-type and quark--gluon-type channels).
 In both cases, the two bubbles are reissued from the contact point and the partners colors are exchanged.
 
 In the electroweak sector, both $\mathit{active}$ bits must be true; together with $s2B$ they determine the harmonic behavior. This sieve mechanism applies only to electroweak interactions and helps explain why the strong force is stronger.
@@ -747,20 +747,20 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \begin{algorithmic}[1]
 \Function{CanFormPair}{$a,b$}
 \State $ca \gets a.ch$; $cb \gets b.ch$
-\If{$ca = 000000\mathrm{B}$ \textbf{and} $cb = 000000\mathrm{B}$} \Comment{R3: neutrino}
+\If{$ca = 000000\mathrm{B}$ \textbf{and} $cb = 000000\mathrm{B}$} \Comment{R3: neutrino-type pair}
 \State \Return \textbf{true}
-\ElsIf{$ca = 111111\mathrm{B}$ \textbf{and} $cb = 111111\mathrm{B}$} \Comment{R4: antineutrino}
+\ElsIf{$ca = 111111\mathrm{B}$ \textbf{and} $cb = 111111\mathrm{B}$} \Comment{R4: antineutrino-type pair}
 \State \Return \textbf{true}
-\ElsIf{$\overline{ca} = cb$} \Comment{R1: graviton, all six bits complementary}
+\ElsIf{$\overline{ca} = cb$} \Comment{R1: graviton-type pair, all six bits complementary}
 \State \Return \textbf{true}
 \EndIf
 \State $(q_a,w_{1,a},w_{0,a}) \gets$ decode bits of $ca$; $(q_b,w_{1,b},w_{0,b}) \gets$ decode bits of $cb$
 \State $col_a \gets ca \& 111\mathrm{B}$; $col_b \gets cb \& 111\mathrm{B}$
-\If{$q_a \neq q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} \neq w_{0,b}$ \textbf{and} $col_a \oplus col_b = 111\mathrm{B}$} \Comment{R2: gluon}
+\If{$q_a \neq q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} \neq w_{0,b}$ \textbf{and} $col_a \oplus col_b = 111\mathrm{B}$} \Comment{R2: gluon-type pair}
 \State \Return \textbf{true}
-\ElsIf{$q_a = q_b = 0$ \textbf{and} $w_{1,a} = w_{1,b} = 0$ \textbf{and} $w_{0,a} = w_{0,b} = 1$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5: up quark}
+\ElsIf{$q_a = q_b = 0$ \textbf{and} $w_{1,a} = w_{1,b} = 0$ \textbf{and} $w_{0,a} = w_{0,b} = 1$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5: up-quark-type pair}
 \State \Return \textbf{true}
-\ElsIf{$q_a = q_b = 1$ \textbf{and} $w_{1,a} = w_{1,b} = 1$ \textbf{and} $w_{0,a} = w_{0,b} = 0$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R6: up quark}
+\ElsIf{$q_a = q_b = 1$ \textbf{and} $w_{1,a} = w_{1,b} = 1$ \textbf{and} $w_{0,a} = w_{0,b} = 0$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R6: up-quark-type pair}
 \State \Return \textbf{true}
 \EndIf
 \State \Return \textbf{false}
@@ -775,11 +775,11 @@ the housekeeping tick $k$, the wavefront tick $t$, and the wave phase $f=\mathrm
 \State $ca \gets a.ch$; $cb \gets b.ch$
 \If{$ca = cb = 000000\mathrm{B}$ \textbf{or} $ca = cb = 111111\mathrm{B}$} \Comment{R3/R4 never cluster}
 \State \Return \textbf{false}
-\ElsIf{$\overline{ca} = cb$} \Comment{R1 graviton never clusters}
+\ElsIf{$\overline{ca} = cb$} \Comment{R1 graviton-type pair never clusters}
 \State \Return \textbf{false}
 \EndIf
 \State decode $(q,w_{1},w_{0})$ and $col$ of $ca,cb$ as in Algorithm~\ref{alg:pair}
-\If{$q_a = q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} = w_{0,b}$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5/R6 up quark never clusters}
+\If{$q_a = q_b$ \textbf{and} $w_{1,a} = w_{1,b}$ \textbf{and} $w_{0,a} = w_{0,b}$ \textbf{and} $col_a = col_b$ \textbf{and} $col_a \notin \{000,111\}\mathrm{B}$} \Comment{R5/R6 up-quark-type pair never clusters}
 \State \Return \textbf{false}
 \ElsIf{$a.\mathit{reloc} \neq 0$ \textbf{or} $b.\mathit{reloc} \neq 0$} \Comment{drive pair never clusters}
 \State \Return \textbf{false}
@@ -810,20 +810,20 @@ As given in Sect.~\ref{subsec:updating}, \textsc{SwapLattices} transfers the dra
 Some interaction details are now clarified.
 \subsection{Charge driven interactions}
 \subsubsection{Static interactions}
-A static interaction (Coulomb or magnetic) between two distant charges $q_1$ and $q_2$ begins when an orphan singleton from $q_1$ aligns with a vacuum graviton; both are reissued at the contact point. If the graviton then interacts with $q_2$, it is reissued there and acquires $q_2$'s affinity. Thus gravitons propagate along the flux of orphans from particle 1, increasing the chance of hitting $q_2$ and becoming one of its drive pairs. The same occurs in reverse.
+A static interaction (Coulomb or magnetic) between two distant charges $q_1$ and $q_2$ begins when an orphan singleton from $q_1$ aligns with a vacuum graviton-type pair; both are reissued at the contact point. If that pair then interacts with $q_2$, it is reissued there and acquires $q_2$'s affinity. Thus graviton-type pairs propagate along the flux of orphans from particle 1, increasing the chance of hitting $q_2$ and becoming one of its drive pairs. The same occurs in reverse.
 \subsubsection{Coulomb interaction} \label{subsec:Coulomb-interaction}
 The proposed Coulomb mechanism involves orphan wavefronts guiding free pairs toward another particle. A pair becomes that particle's drive pair only after acquiring its affinity; subsequent internal contacts can then transport its $K/D$ constituents in the pair's $\boldsymbol{m}$ direction. The receiving constituent does not become a drive pair. The current internal-transport tests do not establish the external capture rates, charge-sign dependence or a Coulomb distance law.
 \subsubsection{Static magnetic interaction}
-The magnetic case uses $sB$ instead of $pB$ and applies to charged leptons, quarks and W bosons. Because drive pairs emphasize $pB$ over $sB$, fast particles tend to acquire a component perpendicular to their direction of motion.
+The magnetic case uses $sB$ instead of $pB$ and applies to the charged-lepton--type, quark-type and $W$-type patterns. Because drive pairs emphasize $pB$ over $sB$, fast particles tend to acquire a component perpendicular to their direction of motion.
 \subsubsection{Neutrino interactions}
-Let $q_{0,1}$ be a complementary electric-bit pair. A neutrino fragment has charge content $q_{0,1}=00000B$; an antineutrino has $q_{0,1}=01111B$. (Anti)neutrino fragments interact only with (right-)left-handed particles.
-\subsubsection{The up quark and down quark fragments}
+Let $q_{0,1}$ be a complementary electric-bit pair. A neutrino-type fragment has charge content $q_{0,1}=00000B$; an antineutrino has $q_{0,1}=01111B$. (Anti)neutrino fragments interact only with (right-)left-handed particles.
+\subsubsection{The up-quark and down-quark fragments}
 The color combinations of fragment pairs are shown in Table~\ref{tab:color-combination}.
-(Anti)\emph{quark} fragments have non-trivial color and are marked as $1q$ or $1\bar{q}$, (anti)neutrinos are $\nu$ and $\bar{\nu}$, gluons are $g$, and photons are $\gamma$.
-Since half the gluon fragments are right-handed, they are shown as photons.
-The shaded cells (same-color pairs) with both quarks carrying electric charge $q=+$ may form an \emph{up quark} fragment.
-An \emph{up quark} $u$ can be any of the \emph{+R+R}, \emph{+G+G} or \emph{+B+B} pairs, while a \emph{down quark} $d$ can be any of the \emph{-R}, \emph{-G} or \emph{-B} single fragments. A proton fragment \emph{uud} has an uncompensated color, balanced dynamically by the matter and antimatter ends of gluons. Hence the \emph{electron} fragment must be $-N,-N,-N$.\footnote{This explains fractional quark charges.}
-The number of up-quark fragments in each sector sets an upper limit on proton, and hence \textit{atom}, production.
+(Anti)quark-type fragments have non-trivial color and are marked as $1q$ or $1\bar{q}$, (anti)neutrino-type pairs are $\nu$ and $\bar{\nu}$, gluon-type pairs are $g$, and photon-type pairs are $\gamma$.
+Since half the gluon-type fragments are right-handed, they are shown as photon-type pairs.
+The shaded cells (same-color pairs) with both colored fragments carrying electric charge $q=+$ may form an \emph{up-quark-type} fragment.
+An \emph{up-quark-type} $u$ can be any of the \emph{+R+R}, \emph{+G+G} or \emph{+B+B} pairs, while a \emph{down-quark-type} $d$ can be any of the \emph{-R}, \emph{-G} or \emph{-B} single fragments. A proton-type fragment \emph{uud} has an uncompensated color, balanced dynamically by the matter and antimatter ends of gluon-type pairs. Hence the \emph{electron} fragment must be $-N,-N,-N$.\footnote{This explains fractional quark charges.}
+The number of up-quark-type fragments in each sector sets an upper limit on the production of proton-type and hence atom-type aggregates (C).
 \subsection{Self-interference\label{subsec:Interference}}
 Space in this model retains a memory of particle trajectories, producing self-interference reminiscent of the double-slit experiment \cite{feynman-2}. The trace is encoded by the last affinity value $a$ and the most recent wave phase $f$ left in visited cells.
 During encounter (Sect.~\ref{subsec:encounter}), incoming and residual bubbles are compared. If $d=t$, standard cohesion occurs; if $d=f$, only the new bubble is reissued, altering the fermion's dynamics and creating interference patterns. This temporally shifted interaction among the constituent ``bits'' of qubits (Sect.~\ref{subsection:qubits}) provides a substrate for complex quantum behavior in a discrete framework.
@@ -935,7 +935,7 @@ During encounter (Sect.~\ref{subsec:encounter}), incoming and residual bubbles a
 \end{tabular}%
 }
 \caption{Color combination (rows $\times$ columns = the two fragment colors). \label{tab:color-combination}
-Legend: $1q$ = one quark, $1\ell$ = one lepton, $2q$ = a quark pair (up quark), $\nu$ = neutrino, $\gamma$ = photon and $g$ = gluon; a bar denotes the antiparticle ($1\bar{q}$ = antiquark, $1\bar{\ell}$ = antilepton, $\bar{\nu}$ = antineutrino). Since half the gluon fragments are right handed, they are shown as photons. The shaded cells mark the same-color pairs that, with electric charge $q=+$, may form an \emph{up quark} fragment in Orbis (cyan, matter colors) and its anti-up (yellow, antimatter colors).}
+Legend: $1q$ = one colored fragment (quark-type), $1\ell$ = one lepton-type fragment, $2q$ = a colored pair (up-quark-type), $\nu$ = neutrino-type pair, $\gamma$ = photon-type pair and $g$ = gluon-type pair; a bar denotes the complementary (anti) pattern ($1\bar{q}$ = antiquark-type, $1\bar{\ell}$ = antilepton-type, $\bar{\nu}$ = antineutrino-type). Since half the gluon-type fragments are right handed, they are shown as photon-type pairs. The shaded cells mark the same-color pairs that, with electric charge $q=+$, may form an \emph{up-quark-type} fragment in Orbis (cyan, matter colors) and its anti-up (yellow, antimatter colors).}
 \end{table}
 %%%%%%%% PARTICLES %%%%%%%%%%
 \section{Dynamic charge quantization and the scaling of $W$}\label{sec:dynamic-charge-quantization}
@@ -954,7 +954,7 @@ identical \emph{$W$-islands}, each containing
 \ell = \frac{L}{3}
 \end{equation}
 positions. A $W$-island is not an object in physical space; it is an internal charge family. All $\ell$ copies inside one island share the same six charge bits ($q$, $w_1$, $w_0$, $c_2$, $c_1$, $c_0$), but each copy carries a distinct $pB$/$sB$ pattern. This built-in multiplicity is why identical particles are so similar, while the distinct polarizations allow the radial spin-alignment pattern (Sect.~\ref{subsec:spin-alignment}) to emerge.
-Initially each internal address carries a singleton ($S$). Equal-charge singletons from different seed families may elect the same chief through encounter; neither their family index nor their affinity restricts this eligibility. Subsequent capture can therefore mix immutable $W$ addresses from different families within one spatial island. The proposed role of photon-mediated information transport is to enable further island formation and mixing over time; this process remains to be demonstrated numerically. A formed island has the form
+Initially each internal address carries a singleton ($S$). Equal-charge singletons from different seed families may elect the same chief through encounter; neither their family index nor their affinity restricts this eligibility. Subsequent capture can therefore mix immutable $W$ addresses from different families within one spatial island. The proposed role of photon-type-pair-mediated information transport is to enable further island formation and mixing over time; this process remains to be demonstrated numerically. A formed island has the form
 \begin{equation}
 1K + nD.
 \end{equation}
@@ -1023,7 +1023,7 @@ L\sim10^{61},
 \]
 where $l_{P}$ is the Planck length.  Appendix~\ref{sec:Calculation-of-X} derives this from the single surviving relation, the geometric route $O=\sqrt{3}\,L\,X$ of Eq.~\eqref{eq:obs}: the \emph{Grand Cube} diagonal equals the observed diameter $O=8.8\times10^{26}\,m$ by construction, so with $X=l_{P}$ one finds $L\approx3.1\times10^{61}$ (the mnemonic $L\approx2^{202}\approx6\times10^{60}$ is within a factor $\sim5$ of this value).  A second, bookkeeping route that counts the baryon and photon content fails by $\sim31$ orders of magnitude and is reported in Appendix~\ref{sec:Calculation-of-X} as a negative result: content-based counting cannot fix the scale.  The main text therefore quotes only the order of magnitude and reads the number as a \emph{scale of consistency}, not a prediction.  Two caveats, both developed in Appendix~\ref{sec:Calculation-of-X}, should be stated here.  First, $X=l_{P}$ is an \emph{input hypothesis}, not a prediction of the model: the appendix fixes the cell scale by \emph{assuming} the Planck length and calibrates $L$ against the observed diameter.  Second, the numbers carry no error bars: each input is taken at face value, so the result is a \emph{scale of consistency} (a check that the assumed cell scale reproduces the observed cosmic scale) and not a prediction.  The sensitivity of $L$ to the input hypotheses is quantified in Appendix~\ref{sec:Calculation-of-X}.
 \subsection{A charge-conjugation census (combinatorial study)}\label{subsec:charge-census}
-The census of this subsection is \emph{not} an output of the automaton. It is an independent combinatorial/stochastic study (programs \texttt{combine.c} and \texttt{virada.c}, Appendix~B) that randomly recombines the six-bit charge words and tabulates the resulting species; it is kept here as a one-paragraph summary so that the reader can locate the claim, while Appendix~B carries the full tables and the explicit caveats. The single conclusion it supports is arithmetic: random completion of mutually complementary charge words closes the matter--antimatter balance, and the $83{:}3$ ratio between charged matter and antimatter fragments is a kinematic consequence of building pairs by complement, not a net charge--conjugation asymmetry of the model. Because these numbers derive from hand-chosen combination probabilities ($0.001$ up, $0.999$ gluon, $\varepsilon=0.30$), they carry no dynamical weight and should not be read as model output.
+The census of this subsection is \emph{not} an output of the automaton. It is an independent combinatorial/stochastic study (programs \texttt{combine.c} and \texttt{virada.c}, Appendix~B) that randomly recombines the six-bit charge words and tabulates the resulting species; it is kept here as a one-paragraph summary so that the reader can locate the claim, while Appendix~B carries the full tables and the explicit caveats. The single conclusion it supports is arithmetic: random completion of mutually complementary charge words closes the matter--antimatter balance, and the $83{:}3$ ratio between charged matter and antimatter fragments is a kinematic consequence of building pairs by complement, not a net charge--conjugation asymmetry of the model. Because these numbers derive from hand-chosen combination probabilities ($0.001$ up-quark-type, $0.999$ gluon-type, $\varepsilon=0.30$), they carry no dynamical weight and should not be read as model output.
 % (Table of charge-combination results moved to Appendix~B.)
 \subsection{Proof of concept in a small lattice}\label{subsec:proof-of-concept}
 The values $X=l_{P}$ and $L\sim10^{61}$ (to order of magnitude, Sect.~\ref{sec:Results}) are boundary conditions for the physical interpretation: per the purity constraints (Sect.~\ref{subsec:purity}) they are fixed once at initialization as topological data and are not quantities the executable instantiates.  The reference implementation (Ref.~\cite{af_neto}, source code and executable) is a small-lattice proof of concept that exhibits the mechanisms of the model at accessible scales.  This subsection documents its parameters, the phenomena it reproduces, and the metrics it reports.
@@ -1065,7 +1065,7 @@ Each of the eight run scenarios (wavefront propagation, relocation, orphan expan
 \item a live charge census whose closure identity $D_{\mathrm{tot}}=d_{\mathrm{pair}}+d_{\mathrm{free}}$ is verified every $256$ ticks, showing no net matter--antimatter excess emerging from the six charge bits.
 \end{itemize}
 \subsubsection{Quantitative metrics}
-The charge-combination census of Sect.~\ref{subsec:charge-census} (full tables in Appendix~\ref{sec:charge-census-appendix}, Table~\ref{combina}) combines $6\times32{,}768=196{,}608$ charge-balanced fragments: gluons $36{,}760$ per sector, neutrinos $6{,}082$, $Z$ bosons $24{,}592{:}18{,}416$ and $W$ bosons $6{,}122{:}12{,}294$ across Orbis/Umbra.  Among the charged species the census shows $83$ matter against $3$ antimatter fragments ($\approx27.7{:}1$), yet no net excess remains once the pair complements cancel by construction.  The companion probe \texttt{virada.c} (Appendix~\ref{sec:charge-census-appendix}) confirms that a net asymmetry requires a state-dependent interaction-rate difference ($\varepsilon \neq 0$), not the turnaround geometry alone; both results are arithmetic of the charge algebra, not automaton dynamics.
+The charge-combination census of Sect.~\ref{subsec:charge-census} (full tables in Appendix~\ref{sec:charge-census-appendix}, Table~\ref{combina}) combines $6\times32{,}768=196{,}608$ charge-balanced fragments: gluon-type pairs $36{,}760$ per sector, neutrino-type pairs $6{,}082$, $Z$-type pairs $24{,}592{:}18{,}416$ and $W$-type pairs $6{,}122{:}12{,}294$ across Orbis/Umbra.  Among the charged species the census shows $83$ matter against $3$ antimatter fragments ($\approx27.7{:}1$), yet no net excess remains once the pair complements cancel by construction.  The companion probe \texttt{virada.c} (Appendix~\ref{sec:charge-census-appendix}) confirms that a net asymmetry requires a state-dependent interaction-rate difference ($\varepsilon \neq 0$), not the turnaround geometry alone; both results are arithmetic of the charge algebra, not automaton dynamics.
 \subsubsection{In-simulation diagnostics}
 To complement the standalone studies above, we report diagnostics produced by the cellular automaton itself, using the headless runner \texttt{attractor\_main.cpp} of Ref.~\cite{af_neto}.  Runs used $L=5$, $W=75$ ($\mathrm{BLOCK}=9{,}375$ cells, $W$-islands of size $1$) over $24$ light frames for the bound-state diagnostics, and $L=7$, $W=50$ ($\mathrm{RMAX}=3$) over $24$ frames for the wavefront diagnostics.
 \paragraph{Spontaneous pair formation.} No pair formation was registered in any checkpoint ($\mathrm{pairM}=\mathrm{pairA}=0$, $\mathrm{form}=0$, $\mathrm{cluster}=0$): from this seed the six-bit charge composition does not rearrange.  The conservation law holds, but trivially so.  This is an honest limitation of the present small-lattice run, not evidence of pair dynamics; spontaneous pair formation from the seed remains unobserved.
@@ -1183,7 +1183,7 @@ and the push localises weakly (~15--19 centers), so the production port does
 not yet reach the clean 1 K + 2 D form.  These candidates deliberately change
 the equal-charge cross-family aggregation semantics (canElectChief) and are
 reported as controlled experiments with ablation controls, not as model
-rules.  They do not establish the photon-mediated repulsion between dressed
+rules.  They do not establish the photon-type-pair-mediated repulsion between dressed
 islands that the complete-system version of this story requires (the pB/sB
 electric channel is pre-empted by the identity merge in the current
 encounter order; see the experiment log).
@@ -1251,9 +1251,9 @@ Localized particles are conjectured to be assemblies of many discrete fragments,
 A free electron's average motion, for example, may follow a direction vector that cannot be expressed with only discrete modulo-$L$ components; continuous descriptors are thus necessary idealizations at large scales. The same holds for isotropy: it looks uniform at macroscopic scales even though the lattice is fundamentally granular.
 \subsection{Color and weak quantization}
 Color quantization is presented as an extension of the electromagnetic case.
-Hadrons would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
+Hadron-type aggregates would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark-type and gluon-type fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quark-type fragments would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark--gluon-type exchange. This is a structural conjecture about the charge code; no hadron-type formation has been simulated.
 \subsection{Emergence of gravity}\label{subsec:emergence-of-gravity}
-General-relativistic spacetime is here conjectured to be an effective, coarse-grained approximation of the discrete lattice (a speculative projection).  Gravity would arise as a residual effect of electromagnetic interactions, mediated by the gravitons of Sect.~\ref{subsec:specialized-pairs} (fully complementary charge words), which couple to both \emph{Orbis} and \emph{Umbra}: being charge-neutral by construction, a graviton's electric and weak contributions cancel at leading order, leaving a geometry-driven attraction that might mimic dark-matter effects such as flat rotation curves.  Photon \textit{aging}---minor non-collapsing interactions with singletons and electrons---could then parallel cosmic redshift without expansion, in the spirit of Zwicky's non-expansion mechanism \cite{zwicky1929redshift}, and the drive-pair mechanism of Sect.~\ref{subsubsec:drive pair} might make acceleration frame-equivalent.  None of these behaviors has been observed in the implementation; they are suggestions, not measured effects.
+General-relativistic spacetime is here conjectured to be an effective, coarse-grained approximation of the discrete lattice (a speculative projection).  Gravity would arise as a residual effect of electromagnetic interactions, mediated by the graviton-type pairs of Sect.~\ref{subsec:specialized-pairs} (fully complementary charge words), which couple to both \emph{Orbis} and \emph{Umbra}: being charge-neutral by construction, a graviton-type pair's electric and weak contributions cancel at leading order, leaving a geometry-driven attraction that might mimic dark-matter effects such as flat rotation curves.  Photon \textit{aging}---minor non-collapsing interactions with singletons and electrons---could then parallel cosmic redshift without expansion, in the spirit of Zwicky's non-expansion mechanism \cite{zwicky1929redshift}, and the drive-pair mechanism of Sect.~\ref{subsubsec:drive pair} might make acceleration frame-equivalent.  None of these behaviors has been observed in the implementation; they are suggestions, not measured effects.
 \paragraph{Weak quantization.}
 Because weak interactions are rare, weak quantization may appear at cosmological scales, for instance in a constant ratio between the average galaxy separation and galactic bulge size. This large-scale granularity could be reinterpreted as gravitational quantization and may eventually yield an effective cosmological constant $\Lambda$ and metric tensor $g_{\mu\nu}$.
 \subsection{Stochastic behavior and the uncertainty principle}
@@ -1400,6 +1400,29 @@ $\mathrm{SEP}$ & initial bubble separation in the scattering runs & cells\\
 \end{tabular}
 \end{center}
 
+\medskip
+\noindent\textbf{Naming convention.}  A Standard-Model name carrying a qualifier --- \emph{fragment}, \emph{pair}, \emph{pattern}, \emph{cluster}, \emph{channel} or \emph{-type} --- denotes a \emph{model} object, i.e.\ one of the charge patterns of the six-bit word.  A \emph{bare} Standard-Model name denotes the observed particle, and every statement that the automaton produces one is a conjecture (C).  Two exemptions apply: inside Appendix~\ref{sec:Particles} and Appendix~\ref{sec:spectrum}, where the identifications are made, the names denote the conjectured model patterns of the decoder below.  The automaton does not produce quarks or gluons; it produces charge patterns that we \emph{name after} them.
+
+\medskip
+\noindent\textbf{Decoder: Standard-Model names in this paper.}
+\begin{center}
+\small
+\begin{tabular}{@{}p{2.6cm}p{8.6cm}p{3.2cm}@{}}
+\hline
+Name & Model object denoted here & Status \\
+\hline
+quark & colored fragment: a single bubble with non-trivial color & taxonomy (C) \\
+gluon & color-exchange pair, rule R2 & taxonomy (C) \\
+photon & complementary pair; the drive/mediator dressing is a photon-type pair & transport (M); identification (C) \\
+neutrino & colorless complementary pair, rules R3/R4 & taxonomy (C) \\
+lepton & fragment pattern with an odd electric bit & taxonomy (C) \\
+graviton & fully complementary pair, rule R1, cross-sector & mechanism (C) \\
+$W$, $Z$, Higgs & punctiform multi-cluster patterns & conjecture (C) \\
+hadron, atom & color-neutral aggregates of quark-type fragments & conjecture (C) \\
+\hline
+\end{tabular}
+\end{center}
+
 %%%%%%%% FUNDING %%%%%%%%%%
 \section*{Funding and competing interests}
 \begin{verbatim}
@@ -1436,12 +1459,12 @@ $B=100$, $\bar{G}=101$, $\bar{R}=110$, $\bar{N}=111$).
 \hline
 Rule & bubble $a$ & bubble $b$ & pair formed\\
 \hline
-R1 & $011001$ & $100110$ & graviton (all six bits complementary)\\
-R2 & $011001$ & $000110$ & gluon ($w_1$ equal, $q/w_0$/color complementary)\\
-R3 & $000000$ & $000000$ & neutrino\\
-R4 & $111111$ & $111111$ & antineutrino\\
-R5 & $010001$ & $010001$ & up quark ($q{=}0$, $w_1{=}0$, $w_0{=}1$, color $R$)\\
-R6 & $110001$ & $110001$ & up quark ($q{=}1$, $w_1{=}1$, $w_0{=}0$, color $R$)\\
+R1 & $011001$ & $100110$ & graviton-type pair (all six bits complementary)\\
+R2 & $011001$ & $000110$ & gluon-type pair ($w_1$ equal, $q/w_0$/color complementary)\\
+R3 & $000000$ & $000000$ & neutrino-type pair\\
+R4 & $111111$ & $111111$ & antineutrino-type pair\\
+R5 & $010001$ & $010001$ & up-quark-type pair ($q{=}0$, $w_1{=}0$, $w_0{=}1$, color $R$)\\
+R6 & $110001$ & $110001$ & up-quark-type pair ($q{=}1$, $w_1{=}1$, $w_0{=}0$, color $R$)\\
 \hline
 \end{tabular}
 \end{table}
@@ -1523,13 +1546,13 @@ Sensitivity of the surviving route: from $\ln L=\ln O-\ln\sqrt{3}-\ln X$ one has
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{The charge-conjugation census: definitions, tables, and caveats\label{sec:charge-census-appendix}}
 This appendix documents the combinatorial charge census summarized in Sect.~\ref{subsec:charge-census}.  It is \emph{not} a simulation of the automaton: no lattice is evolved here, and the numbers below are the output of hand-scripted random recombination of the six-bit charge words.  They are reported in full so that the reader can verify both the arithmetic and its limits.
-\paragraph{Method.} The program \texttt{combine.c} (this work, archived with the source) combined $6\times32768=196{,}608$ charge-balanced fragments in several million random attempts, tabulating the averages and assuming only ``hydrogen atoms'' form.  Since the strong force dominates, the search used probability $0.001$ for up quarks and $0.999$ for gluons, based on the smallest possible charge set.  The search proceeded in four stages: gluons and up quarks (plus electrons, whose number depends on up quarks), then photons and neutrinos, then $W$ and $Z$ fragments, and finally anti-atoms.  A companion program \texttt{virada.c} probes the ``turnaround'' charge-inversion mechanism of the model with a $C$-breaking interaction asymmetry $\varepsilon=0.30$; it shows that a net sector imbalance can appear only when matter and antimatter interact at different rates, and that the sign of the imbalance follows the sign of $\varepsilon$.  Both programs are studies of the charge algebra, not outputs of the cellular automaton; they are kept out of the main text for exactly this reason.
-\paragraph{Results.} Leftover bubbles that cannot form a pair or singleton indicate an ionized environment; inter-sector attenuation increases the photon count.  The data roughly resemble a few simple atoms plus multiple-pair photons.  Unmatched quark fragments may become mesons, virtual quarks, or contribute to dark matter ($50\%+25\%$).  Notably, the census shows no charge--conjugation preference in favor of antimatter: antimatter is scarce and balanced (antiup $2/2$; a single antielectron in Orbis, $1$ vs.\ $0$ in Umbra), while the only substantial sector imbalance, the complementary $W/Z$ pair, cancels out ($Z$: $24{,}592$ vs.\ $18{,}416$; $W$: $6{,}122$ vs.\ $12{,}294$; aggregate $30{,}714$ vs.\ $30{,}710$).  A static charge census therefore yields no net matter--antimatter excess; despite its naivety, the outcome is sensible as a toy universe in that any asymmetry would have to emerge from the dynamical contact rules rather than from charge counts alone.
-Classifying the Orbis column into explicit matter and antimatter fragments (leptons and quarks with a definite electric charge), the census gives $83$ matter fragments ($42$ up $+10$ down $+31$ electrons) against $3$ antimatter fragments ($2$ antiup $+1$ antielectron; antiquarks vanish).  The matter-to-antimatter ratio for the charged species is therefore $83{:}3\approx27.7{:}1$.  This apparent dominance is, however, purely kinematic and not a net excess: the overwhelmingly dominant gluon species ($36{,}760$) and every ``pair'' entry (photons, gravitons, $W$, $Z$, neutrinos) are built from a fragment plus its complement, so their matter and antimatter content cancels by construction.  Only the small charged remainder is left unbalanced, and the only genuinely sector-imbalanced entries ($W/Z$) annul each other in aggregate.
+\paragraph{Method.} The program \texttt{combine.c} (this work, archived with the source) combined $6\times32768=196{,}608$ charge-balanced fragments in several million random attempts, tabulating the averages and assuming only ``hydrogen-type atoms'' form.  Since the strong force dominates, the search used probability $0.001$ for up-quark-type fragments and $0.999$ for gluon-type pairs, based on the smallest possible charge set.  The search proceeded in four stages: gluon-type pairs and up-quark-type fragments (plus electron-type fragments, whose number depends on the up-quark-type count), then photon-type and neutrino-type pairs, then $W$ and $Z$ fragments, and finally anti-atom-type aggregates.  A companion program \texttt{virada.c} probes the ``turnaround'' charge-inversion mechanism of the model with a $C$-breaking interaction asymmetry $\varepsilon=0.30$; it shows that a net sector imbalance can appear only when matter and antimatter interact at different rates, and that the sign of the imbalance follows the sign of $\varepsilon$.  Both programs are studies of the charge algebra, not outputs of the cellular automaton; they are kept out of the main text for exactly this reason.
+\paragraph{Results.} Leftover bubbles that cannot form a pair or singleton indicate an ionized environment; inter-sector attenuation increases the photon-type pair count.  The data roughly resemble a few simple atom-type aggregates plus multiple-pair photon-type clusters.  Unmatched quark-type fragments may become meson-type or virtual-quark-type patterns, or contribute to dark matter ($50\%+25\%$).  Notably, the census shows no charge--conjugation preference in favor of antimatter: antimatter is scarce and balanced (antiup-type $2/2$; a single antielectron-type in Orbis, $1$ vs.\ $0$ in Umbra), while the only substantial sector imbalance, the complementary $W/Z$ pair, cancels out ($Z$: $24{,}592$ vs.\ $18{,}416$; $W$: $6{,}122$ vs.\ $12{,}294$; aggregate $30{,}714$ vs.\ $30{,}710$).  A static charge census therefore yields no net matter--antimatter excess; despite its naivety, the outcome is sensible as a toy universe in that any asymmetry would have to emerge from the dynamical contact rules rather than from charge counts alone.
+Classifying the Orbis column into explicit matter and antimatter fragments (lepton-type and quark-type fragments with a definite electric charge), the census gives $83$ matter fragments ($42$ up-type $+10$ down-type $+31$ electron-type) against $3$ antimatter fragments ($2$ antiup-type $+1$ antielectron-type; antiquark-type vanish).  The matter-to-antimatter ratio for the charged species is therefore $83{:}3\approx27.7{:}1$.  This apparent dominance is, however, purely kinematic and not a net excess: the overwhelmingly dominant gluon-type species ($36{,}760$) and every ``pair'' entry (photon-type, graviton-type, $W$, $Z$, neutrino-type) are built from a fragment plus its complement, so their matter and antimatter content cancels by construction.  Only the small charged remainder is left unbalanced, and the only genuinely sector-imbalanced entries ($W/Z$) annul each other in aggregate.
 \paragraph{The proton--electron mass ratio: a scale-of-consistency coincidence.} The proton--electron mass ratio comes out as $1187$ in both sectors, against the empirical value $\approx1836$ (CODATA~\cite{codata}): a relative deviation of $35\%$.  We deliberately do \emph{not} call this a prediction: the ratio depends on the hand-chosen combination probabilities and on the coarse counting of ``fragments'' in this appendix, so it is reported only as a scale-of-consistency coincidence, with no error bar and no claim of precision.  A prediction would require the ratio to emerge from the dynamical rules with quantified sensitivity to the input assumptions.
 \begin{table}[htbp]
 \centering
-\caption{Charge combination (combinatorial study; averages over several million random attempts of 196,608 fragments).}
+\caption{Charge combination (combinatorial study; averages over several million random attempts of 196,608 fragments).  Counts are of charge patterns (fragments), not of particles.}
 \label{combina}
 \begin{centering}
 {\small{}}%
@@ -1538,29 +1561,29 @@ Classifying the Orbis column into explicit matter and antimatter fragments (lept
 \textbf{\small{}Fragment} & \textbf{\small{}Type} & \textbf{\small{}Orbis} & \textbf{Umbra} & \textbf{\small{}Obs.}\tabularnewline
 \hline
 \hline
-{\small{}Gluon} & {\small{}Pair} & {\small{}36,760.0} & {\small{}36,760.0} & \tabularnewline
+{\small{}Gluon-type} & {\small{}Pair} & {\small{}36,760.0} & {\small{}36,760.0} & \tabularnewline
 \hline
-{\small{}Up quark} & {\small{}Pair} & {\small{}42.0} & {\small{}42.0} & \tabularnewline
+{\small{}Up-quark-type} & {\small{}Pair} & {\small{}42.0} & {\small{}42.0} & \tabularnewline
 \hline
-{\small{}Down quark} & {\small{}Single} & {\small{}10.0} & {\small{}10.0} & \tabularnewline
+{\small{}Down-quark-type} & {\small{}Single} & {\small{}10.0} & {\small{}10.0} & \tabularnewline
 \hline
-{\small{}Electron} & {\small{}Single} & {\small{}31.0} & {\small{}31.0} & \tabularnewline
+{\small{}Electron-type} & {\small{}Single} & {\small{}31.0} & {\small{}31.0} & \tabularnewline
 \hline
-{\small{}Photon} & {\small{}Pair} & {\small{}20.0} & {\small{}20.0} & \tabularnewline
+{\small{}Photon-type} & {\small{}Pair} & {\small{}20.0} & {\small{}20.0} & \tabularnewline
 \hline
-{\small{}Graviton} & {\small{}Pair} & {\small{}12.0} & {\small{}12.0} & \tabularnewline
+{\small{}Graviton-type} & {\small{}Pair} & {\small{}12.0} & {\small{}12.0} & \tabularnewline
 \hline
-{\small{}Z boson} & {\small{}Pair} & {\small{}24,592.0} & {\small{}18,416.0} & \tabularnewline
+{\small{}Z-type} & {\small{}Pair} & {\small{}24,592.0} & {\small{}18,416.0} & \tabularnewline
 \hline
-{\small{}W boson} & {\small{}Pair} & {\small{}6,122.0} & {\small{}12,294.0} & \tabularnewline
+{\small{}W-type} & {\small{}Pair} & {\small{}6,122.0} & {\small{}12,294.0} & \tabularnewline
 \hline
-{\small{}Neutrino} & {\small{}Pair} & {\small{}6,082.0} & {\small{}6,082.0} & \tabularnewline
+{\small{}Neutrino-type} & {\small{}Pair} & {\small{}6,082.0} & {\small{}6,082.0} & \tabularnewline
 \hline
-{\small{}Antiup} & {\small{}Pair} & {\small{}2.0} & {\small{}2.0} & \tabularnewline
+{\small{}Antiup-type} & {\small{}Pair} & {\small{}2.0} & {\small{}2.0} & \tabularnewline
 \hline
-{\small{}Antielectron} & {\small{}Single} & {\small{}1.0} & {\small{}0.0} & \tabularnewline
+{\small{}Antielectron-type} & {\small{}Single} & {\small{}1.0} & {\small{}0.0} & \tabularnewline
 \hline
-{\small{}Antiquark} & {\small{}Single} & {\small{}0.0} & {\small{}0.0} & \tabularnewline
+{\small{}Antiquark-type} & {\small{}Single} & {\small{}0.0} & {\small{}0.0} & \tabularnewline
 \hline
 {\small{}Leftover} & {\small{}Single} & {\small{}24,624.0} & {\small{}24,620.0} & {\small{}Adds to dark matter}\tabularnewline
 \hline
@@ -1572,20 +1595,20 @@ Classifying the Orbis column into explicit matter and antimatter fragments (lept
 \end{table}
 
 %%%%%%%% MOVED FROM THE CONJECTURES SECTION (WP5) %%%%%%%%
-\section{Particles}\label{sec:Particles}
-\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
+\section{Conjectured identifications with Standard-Model particles}\label{sec:Particles}
+\emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation, and the naming convention stated in the Nomenclature applies throughout: outside the taxonomy sections a bare Standard-Model name denotes the observed particle (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
 Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as drive pairs for transport.
 In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
 \subsubsection{Fermions}
 A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
-Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
+Confinement of the colored (quark-type) fragments would follow from the priority of color cohesion and the quark--gluon-type interaction, unlike the electromagnetic case (C). In atoms, electrons distribute around the nucleus according to spherical harmonics.
 Specialized pairs do not form clusters and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus drive pair contributions.
 \subsubsection{Bosons}\label{bosons}
 A boson is made of one or more clusters. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles.
 A photon is a single cluster with all pairs superposed. In this model the frequency of a photon is not a continuous parameter but a count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs therefore has frequency $2n$. A multifrequency photon is a superposition of several such stacks, or a cluster containing populations at different even frequencies $2,4,6,\dots$. There are no harmonics in the continuous sense; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such clusters, combined in time and space.}
 The automaton reads this frequency as a population, not as a waveform. During encounter (Sect.~\ref{subsec:encounter}) each detected pair registers one frequency unit on the stack; a stack of $n$ superposed pairs therefore accumulates $n$ times the frequency of a single pair, and the same factor multiplies the firing rate of the sieve bit $s2B$ (Sect.~\ref{subsec:Sine}), which is gated by the active flag and grows with the local amplitude $u$. A multifrequency photon thus presents, at its active surface, the summed population of all its stacks: each even mode contributes its own pair count, and the interaction machinery responds to the total, not to a continuous spectrum. Because pair formation requires the same wavefront tick $t_1=t_2$, the different modes are sampled at their respective ticks of the local clock. This superposition is read by encounter, which is superluminal in coordinate terms but strictly non-signaling and non-manipulable (Sect.~\ref{subsec:observers}): the coexistence of modes is a fact of the fabric, not a channel any observer can steer, so causality is unaffected. The frequency an observer reports in laboratory units is an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}); the underlying quantity is always the count $2n$.
 $W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several clusters sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
-Orphans ($a=W$) do not interact with photons but do interact with gravitons. Neutral orphan pairs do not interact electromagnetically.
+Orphans ($a=W$) do not interact with photon-type pairs but do interact with graviton-type pairs. Neutral orphan pairs do not interact electromagnetically.
 %%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
 
 \section{Cellular automata and quantum formalism}\label{sec:bridge}
@@ -1612,7 +1635,7 @@ The Born rule follows once superposition states are accepted; it predicts the fi
 The recipe above applies to the reversible fragment of the readable dynamics---the local wave propagation between dissipative events.  The sieve, collapse-and-reissue, and overwrite steps are many-to-one and are therefore excluded from the unitary step; in the 't Hooft reading they would enter as information loss that coarse-grains ontological states into equivalence classes---the direction in which a reconciliation with the automaton's arrow of time would have to proceed.  Until that reconciliation is carried out, the formulation remains the Status~(C) analogy stated above, not a derivation.
 
 %%%%%%%% MOVED FROM THE CONJECTURES SECTION (WP5) %%%%%%%%
-\section{Speculative particle spectrum and decay channels}
+\section{Speculative particle spectrum and decay channels}\label{sec:spectrum}
 As a heuristic exercise, this model offers a framework to speculate on the composition of known particles; the identifications below are structural analogies based on the six-bit charge code, none produced by the small-lattice implementation.
 In the discussion that follows, the fragments will be characterized by their charge content: \(q, w1, w0, c2, c1, c0\).
 For example, we designate the fragment \(100000\) as \(-L\) and \(001111\) as \(-\bar{L}\), and so forth.
@@ -1664,12 +1687,12 @@ n^0\rightarrow\,p^{+}+e^{-}+\nu_e
 In this model, nuclear decay processes emerge from the internal structure and composition of compound particles representing atomic nuclei.
 These instabilities trigger reorganizations via the electroweak collapse mechanism, where the sieve test result ($s2B$) determines the feasibility of transformations.
 The decay process is similar to the free neutron decay seen above.
-The perturbing particles are typically neutrinos and Z bosons that permeate the vacuum. Once again, if these perturbing particles belong to the other sector (Orbis/Umbra), then we have spontaneous decay.
+The perturbing patterns are typically neutrino-type and $Z$-type pairs that permeate the vacuum. Once again, if these perturbing particles belong to the other sector (Orbis/Umbra), then we have spontaneous decay.
 This internal annihilation mechanism is offered as a possible account of decay processes; whether it reproduces the empirical tables of nuclides is not established, since no nuclear-scale configuration has been simulated.
-\paragraph{Heavier quarks.}
-The framework speculatively suggests that the other quarks could follow the composition of leptons, with additional neutrinos and antineutrinos, besides a variable number of drive pairs.
+\paragraph{Heavier quark-type identifications.}
+The framework speculatively suggests that the other quark-type patterns could follow the composition of the lepton-type ones, with additional neutrino-type and antineutrino-type patterns, besides a variable number of drive pairs.
 \paragraph{Atoms.}
-Bound states of protons, neutrons, and electrons might naturally be expected in this scenario; their formation is not demonstrated by the current implementation.
+Bound states of proton-type, neutron-type and electron-type aggregates might naturally be expected in this scenario; their formation is not demonstrated by the current implementation.
 \paragraph{The abundance of neutrinos.}
 Despite the relatively small number of neutrinos observed in Table \ref{tab:color-combination}, their large cosmic abundance reflects their low mass, approximately five million times smaller than the mass of an electron.
 This characteristic allows neutrinos to exist in enormous quantities across the universe, even if their presence appears limited.
