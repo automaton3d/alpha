@@ -463,6 +463,22 @@ its time-box.
   mentioned the map was reworded for accuracy.  **Note:** the paper no longer carries
   a claim-to-artefact map, so provenance now rests on the per-table captions and on
   the experiment notes.  Build: 52 pages, zero warnings.
+- **2026-09-11 -- Referee response: Standard-Model naming confusion.**  Added to the
+  Nomenclature (i) a **naming convention** -- a Standard-Model name carrying a
+  qualifier (fragment / pair / pattern / cluster / channel / -type) denotes a *model*
+  object, a bare name denotes the *observed* particle -- and (ii) a **decoder table**
+  mapping each Standard-Model name to the model object it denotes here, with its
+  status.  Qualified the model-object uses throughout: interaction channels, the
+  magnetic channel, neutrino-type fragments, the up/down-quark fragment subsection,
+  the colour-combination legend, the algorithm comments for rules R1..R6, the
+  pair-rule table, the combinatorial-census prose and table, the Coulomb relay
+  mechanism, and the gravity conjecture.  Retitled `Particles` ->
+  `Conjectured identifications with Standard-Model particles` and added the
+  `sec:spectrum` label.  New instrument `experiments/audit_sm_terms.ps1` reports every
+  unqualified Standard-Model noun outside the exempt taxonomy sections: **86 -> 35**
+  candidates, and the remaining 35 were reviewed individually and are legitimate
+  (cosmology bookkeeping -- CMB photon, proton rest mass (CODATA), Eddington number;
+  observer/relativity text; conjectures tagged (C)).  Build: 52 pages, zero warnings.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
