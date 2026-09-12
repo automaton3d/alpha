@@ -643,6 +643,29 @@ its time-box.
   The missing `\label{sec:Introduction}` was added (the new item list is the only
   place that cited the Introduction by number; pdflatex reported it as the sole
   undefined reference).  PDF rebuilt clean through doc/latexpdf.bat (55 pages).
+- **2026-09-12 -- WP8 census on the production path: the absorbing plateau
+  BREAKS.**  Rebuilt the production census (`experiments/island_census.cpp`) with
+  the candidate channel via the new
+  `experiments/build_island_census_dir.bat` -> `build/island_census_dir/`, and ran
+  8 journeys at L=9/W=243 (53.5 s/frame).  Frames 0--6 are bit-identical to the
+  documented reference plateau (K=235, D=8, centres=1, groups=235, max_pop=2,
+  span=0, captures=escapes=births=deaths=0), i.e. the channel changes nothing
+  before the election stamp is live.  The plateau breaks at **journey 7** --
+  exactly when `bstamp` becomes live at the source centre (`bstamp=3514`,
+  `pol=(4,0)`, `pB` set under the magnitude convention): K 235 -> 86, D 8 -> 157,
+  groups 235 -> 86, unresolved 0 -> 125, max_population 2 -> 3, escapes 157,
+  births 149; and at journey 8 `distinct_centers` goes **1 -> 2** (the first
+  spatial separation ever recorded on this path) with captures=50, escapes=52,
+  births=24, deaths=24.  Final histogram: population 1: 62 groups, 2: 18, 3: 6 --
+  **six groups at the target population L/3 = 3**, which the reference never
+  reaches in 64 journeys -- and all 86 groups are localised (span <= RMAX).
+  Scored as a candidate mechanism (C): the channel supplies the deterministic
+  asymmetry the SEED_ASYMMETRY negative said was missing, but the bifurcation is
+  global (1 -> 2 centres) rather than per-family, so the 81-distinct-centres
+  acceptance signature is not reached; the remaining requirement is
+  family-selective directionality (the W-address tie-break branch), not time.
+  A 20-journey run was launched to check whether the bifurcation continues; the
+  result is appended to `experiments/ISLAND_CENSUS.md`.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

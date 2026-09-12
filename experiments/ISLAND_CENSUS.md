@@ -135,5 +135,45 @@ At L=9/W=243 the production path costs about 50 s per light-frame journey
 (878 ticks x 177,147 cells) in the current single-threaded CPU build, i.e.
 roughly 53 minutes for the 64-frame run (8 breathing cycles).  The run's
 outputs are in `build/island_census/run64/` (census.csv, groups.csv,
-summary.txt, analysis.txt).  This cost is the main constraint for
-higher-L / longer-era campaigns on the CPU path.
+summary.txt, analysis.txt).  This cost is the main constraint for higher-L /
+longer-era campaigns on the CPU path.
+
+## Directional-channel census (candidate build, 8 journeys)
+
+Harness: the same `island_census.cpp`, rebuilt with the WP8 candidate channel
+(`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE`, `HOMB_PRODUCER_FSM`,
+`HOMB_CONSUMER_TRANSPORT`, `POLAR_MAGNITUDE_FSM`) by
+`experiments/build_island_census_dir.bat` into
+`build/island_census_dir/island_census_dir.exe`; run as
+`build\island_census_dir\island_census_dir.exe 8 16384 build\island_census_dir\run8`
+(53.5 s/frame, 428.2 s total).  Candidate macros only: this is not a measurement
+of the reference dynamics.
+
+| frame | K | D | centres | groups | unresolved | maxpop | captures | escapes | births | deaths |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0--1 | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 2 | 235 | 8 | 1 | 235 | 0 | 2 | 243 | 0 | 235 | 0 |
+| **3--6** | **235** | **8** | **1** | **235** | **0** | **2** | **0** | **0** | **0** | **0** |
+| 7 | 86 | 157 | 1 | 86 | 125 | 3 | 32 | 157 | 149 | 0 |
+| 8 | 86 | 157 | **2** | 86 | 127 | 3 | 50 | 52 | 24 | 24 |
+
+Frames 0--6 are bit-identical to the reference plateau documented above (the
+`run64` rows for frames 3 onward are all identical to frame 3); the plateau
+breaks at journey 7, i.e. exactly when the broadcast election stamp becomes live
+at the source centre (`bstamp = 3514`, `pol = (4,0)`, so `pB` is set under the
+magnitude convention).  Final-frame histogram: **population 1: 62 groups,
+population 2: 18, population 3: 6**, i.e. six groups reach the target population
+`L/3 = 3` (the reference never reaches it in 64 journeys), and all 86 groups are
+localised (span <= RMAX = 4).  `max_families` rises from 1 to 2, so families do
+not mix appreciably, and `distinct_centers` goes 1 -> 2: the seed centre splits
+once, which is the first spatial separation ever produced on this production path.
+
+Interpretation: the candidate channel does what the SEED_ASYMMETRY negative said
+was missing -- it supplies a deterministic spatial asymmetry that dissolves the
+absorbing chief-saturated state (K 235 -> 86, groups 235 -> 86), produces groups
+at the predicted population `L/3`, and splits the centre.  It does **not** reach
+the 81-distinct-centres acceptance signature: the bifurcation is global (1 -> 2
+centres) rather than per-family, consistent with the transport moving whole W
+layers coherently.  Scoring this as a candidate mechanism (C), the remaining
+requirement is family-selective directionality (the W-address tie-break branch),
+not more time.
