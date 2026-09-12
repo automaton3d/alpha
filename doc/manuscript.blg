@@ -1,15 +1,15 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'manuscript.blg'
-[117] biber-MSWIN64:342> INFO - === 
-[154] Biber.pm:421> INFO - Reading 'manuscript.bcf'
-[283] Biber.pm:1002> INFO - Found 33 citekeys in bib section 0
-[299] Biber.pm:4487> INFO - Processing section 0
-[311] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
-[363] bibtex.pm:1713> INFO - LaTeX decoding ...
-[419] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
-[594] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[594] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[594] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
-[594] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[619] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
-[636] bbl.pm:779> INFO - Output to manuscript.bbl
+[118] biber-MSWIN64:342> INFO - === 
+[156] Biber.pm:421> INFO - Reading 'manuscript.bcf'
+[298] Biber.pm:1002> INFO - Found 32 citekeys in bib section 0
+[314] Biber.pm:4487> INFO - Processing section 0
+[326] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
+[380] bibtex.pm:1713> INFO - LaTeX decoding ...
+[436] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
+[610] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[610] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[610] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
+[610] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
+[635] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
+[651] bbl.pm:779> INFO - Output to manuscript.bbl

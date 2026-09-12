@@ -615,33 +615,6 @@
       \field{pages}{015002}
       \range{pages}{1}
     \endentry
-    \entry{hofer}{article}{}{}
-      \name{author}{1}{}{%
-        {{hash=b914804f1414db36cff11d04f2fa32b3}{%
-           family={Hofer},
-           familyi={H\bibinitperiod},
-           given={W.\bibnamedelimi A.},
-           giveni={W\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
-      }
-      \strng{namehash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{fullhash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{fullhashraw}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{bibnamehash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{authorbibnamehash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{authornamehash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{authorfullhash}{b914804f1414db36cff11d04f2fa32b3}
-      \strng{authorfullhashraw}{b914804f1414db36cff11d04f2fa32b3}
-      \field{sortinit}{2}
-      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{journaltitle}{Journal of Physics: Conference Series}
-      \field{title}{{Elements of Physics for the 21st Century}}
-      \field{volume}{504}
-      \field{year}{2014}
-      \field{pages}{012014}
-      \range{pages}{1}
-    \endentry
     \entry{elshatlawy2025towards}{online}{}{}
       \true{moreauthor}
       \true{morelabelname}
@@ -704,8 +677,8 @@
       \strng{authornamehash}{e37513857acccb4664d14ff0cdd9f941}
       \strng{authorfullhash}{e37513857acccb4664d14ff0cdd9f941}
       \strng{authorfullhashraw}{e37513857acccb4664d14ff0cdd9f941}
-      \field{sortinit}{3}
-      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{journaltitle}{Classical and Quantum Gravity}
