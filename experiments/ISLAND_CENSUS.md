@@ -211,6 +211,19 @@ row stable for >= 5 frames; the reference, in 64 journeys, never leaves one
 centre and never reaches the predicted population.  Graded (C): candidate macros
 only, and the +-2 jitter is unexplained.
 
+**Caveat added 2026-09-12 (locality audit).**  The `family + rigid` row above was
+produced by `FAMILY_RIGID_FSM`, which read the host's per-layer table
+(`lcenters[]`) across the family's layers in the same tick and used the comparison
+as a predicate on the transport -- a non-local coupling with a readable
+consequence, outside the non-signaling idealisation.  A purely local probe showed
+that every field arrival lands in the family's *first* copy only
+(N=3 `c0=393/c1=0/c2=0`; N=6 `c0=801/c1=0/c2=0`), so no co-movement can emerge from
+the field and the table predicate was doing all the work; and with the predicate
+removed the two binaries produce identical output.  **The 79 +- 2 row is therefore
+a host-level result, not a property of the model's local rule**, and
+`FAMILY_RIGID_FSM` has been withdrawn (no-op).  The remaining lever that is local is
+the encounter-level producer; see `FAMILY_SELECTIVE_DESIGN.md`.
+
 
 ### 8 journeys: the plateau breaks
 

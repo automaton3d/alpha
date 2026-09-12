@@ -788,6 +788,27 @@ its time-box.
   `lcenters` read.  The base consumer is unaffected (it reads only the cell's own
   `c[]`, `x[]`, `t`).  Full write-up:
   `experiments/FAMILY_SELECTIVE_DESIGN.md` ("Locality audit of the rigid rule").
+- **2026-09-12 -- Step 1 done: the non-local consumption is REMOVED.**  Both
+  non-local parts of the consumer in `applyMomentum` were deleted -- the block that
+  gathered a family's copies through `lcenters[]` to form one shared decision, and
+  the `FAMILY_RIGID_FSM` re-cohesion -- so the consumer is now purely local (the
+  cell's own `c[]`, own `x[]`, own `t`), and `FAMILY_RIGID_FSM` is a no-op.
+  What survives of `FAMILY_SELECTIVE_FSM` is its ENCOUNTER half (the producer),
+  which pairs two cells already in contact and reads only their own `x[3]`.
+  Two measured consequences: (a) the withdrawal changed no behaviour of the `fam`
+  build (identical counters), because the family-gathering loop sat behind the
+  consumer's outer `c[] != 0` guard and therefore never ran for copies 1 and 2 --
+  which never carry a field at all; its apparent co-movement was already inert;
+  (b) the **differential test passes**: with the predicate gone the `fam` and
+  `famrigid` binaries produce byte-identical output, so the settled 79 +- 2 of the
+  20-journey census was produced entirely by the table predicate -- `famrigid` is
+  retired as a host-level artefact, not a candidate mechanism.
+  Reference re-verified untouched: `6468/0/0`, `alpha_A = 0.003756878`.
+  Docs updated (`FAMILY_SELECTIVE_DESIGN.md`: macro marked WITHDRAWN + "Action
+  taken"; `ISLAND_CENSUS.md`: cable caveat on the `family + rigid` row).
+  Next: the local reformulation -- the encounter writes the displacement into each
+  copy's own layer, so every copy carries the field locally and any co-movement is
+  emergent, with no `lcenters` read anywhere.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

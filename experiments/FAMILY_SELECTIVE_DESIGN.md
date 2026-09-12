@@ -28,11 +28,20 @@ The reference build is unaffected: `alpha_probe` still reports
     family share **one decision per light frame**, read from the family's own
     copies (largest decodable distance, ties by ascending `w`) and applied to
     every copy, so a family keeps a single centre.
-* **`FAMILY_RIGID_FSM`** (implies the above)
-  - additionally, a family whose copies are **not co-located** sends every copy to
-    its family chief (the `K` copy, else the first), so an island **re-coheres**
-    instead of splitting.  This is self-correcting, not a freeze: once the copies
-    are co-located the shared family decision takes over again.
+* **`FAMILY_RIGID_FSM`** — **WITHDRAWN (2026-09-12); it is now a no-op.**
+  It used to read `lcenters[]` for the family's other layers, in the same tick, and
+  use the comparison as a predicate on the transport: a non-local read with a
+  readable consequence, outside the non-signaling idealisation.  The purely local
+  probe below falsified the alternative (that the rigidity is emergent from the
+  shared field), and the differential test confirmed the audit: with the predicate
+  removed, the `fam` and `famrigid` binaries produce **identical** output, so the
+  table predicate was doing 100% of the difference.  The rule may only return as a
+  local (encounter-level) reformulation; see "Locality audit" below.
+  Its former intent was: a family whose copies are not co-located sends every copy
+  to its family chief (the `K` copy, else the first), so an island re-coheres
+  instead of splitting -- self-correcting rather than a freeze.
+  *(Historical result, host-level, not a claim about the model's local rule: with
+  it enabled the island count settled at 79 +- 2 over journeys 15--20.)*
 
 ## Structural finding (forced by measurement)
 
@@ -159,5 +168,31 @@ Consequences:
   read anywhere.
 * The base consumer (`HOMB_CONSUMER_TRANSPORT`) is unaffected by this criticism: it
   reads only the cell's own `c[]`, own `x[]` and own `t`.
+
+### Action taken: the non-local consumption is removed
+
+Both non-local parts of the consumer have been deleted: the block that gathered the
+family's copies through `lcenters[]` to form one decision, and the `FAMILY_RIGID_FSM`
+re-cohesion.  The consumer is now purely local (own `c[]`, own `x[]`, own `t`), and
+`FAMILY_RIGID_FSM` is a no-op.  What survives of `FAMILY_SELECTIVE_FSM` is its
+**encounter** half (the producer), which pairs two cells already in contact and reads
+only their own `x[3]`.
+
+Two consequences measured immediately:
+
+* the withdrawal changed **no** behaviour of the `fam` build (identical counters,
+  `homb_events=7, homb_seen=184, c_at_center=393, reloc_moves=9, reloc_cells=31909,
+  consumed=5`), because the family-gathering loop sat behind the consumer's outer
+  `c[] != 0` guard and therefore never ran for copies 1 and 2 -- which never carry a
+  field at all.  Its apparent "co-movement" was already inert;
+* the differential test passes: with the predicate gone, the `fam` and `famrigid`
+  binaries produce **identical** output, so the settled 79 +- 2 of the 20-journey
+  census was produced entirely by the table predicate, and `famrigid` is retired as a
+  host-level artefact rather than a candidate mechanism.
+
+Next: the local reformulation, i.e. let the **encounter** write the displacement into
+each copy's own layer, so every copy carries the field locally and any co-movement is
+emergent from per-copy fields with no `lcenters` read anywhere.
+
 
 
