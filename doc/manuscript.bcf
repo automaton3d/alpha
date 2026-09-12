@@ -2417,12 +2417,11 @@
     <bcf:citekey order="36" intorder="1">halpbern</bcf:citekey>
     <bcf:citekey order="37" intorder="1">archeops</bcf:citekey>
     <bcf:citekey order="38" intorder="1">codata</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">af_neto</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">thooft</bcf:citekey>
     <bcf:citekey order="40" intorder="1">thooft</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">thooft</bcf:citekey>
-    <bcf:citekey order="41" intorder="2">Elze2019</bcf:citekey>
-    <bcf:citekey order="41" intorder="3">rizzo2020perturbing</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">ito</bcf:citekey>
+    <bcf:citekey order="40" intorder="2">Elze2019</bcf:citekey>
+    <bcf:citekey order="40" intorder="3">rizzo2020perturbing</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">ito</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

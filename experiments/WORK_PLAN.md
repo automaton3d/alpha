@@ -405,6 +405,14 @@ its time-box.
   entry.  The physics is unchanged -- only the attribution and the
   accessible-reference note went.  Build: 56 pages, zero warnings, no undefined
   references; the bibliography drops from 33 to 32 entries.
+- **2026-09-11 -- Removed the appendix "Controlled two-bubble scattering and the
+  rectangular tube"** (`app:gravity-probes`, 85 lines): the cube-scattering probe,
+  the rectangular-tube long-axis probe, their tables and the closing status
+  paragraph.  The label was referenced nowhere else and the section contained no
+  other labels, so no cross-reference needed rewiring (verified: zero undefined
+  references).  Build: 55 pages (was 56), zero warnings.  The harness itself
+  (`experiments/gravity_probe.cpp`, `gravity_probe_DESIGN.md`, `RESULTS.md`) is
+  untouched; only the paper's presentation of it is gone.
   **G1 resolved: Route A** (falsification backbone; EM repulsion a labelled
   candidate) -- see `experiments/CANDIDATE_VERSION.md`.
 - **2026-09-11 -- G1 RESOLVED (Route A).**  Decided to keep the pre-registered
