@@ -68,3 +68,44 @@ structure (81 families), which is what the census runs test.
 Run as `island_census_fam.exe <frames> <sieve> build\island_census_fam\run<N>`;
 the acceptance signature is 81 distinct source centres with the three copies of
 each family co-located.
+
+## Result: 20 journeys, three-way comparison
+
+All three runs are 20 journeys at L=9/W=243, sieve 16384 (the baseline also has a
+64-journey run, `build/island_census_dir/run64`).  `distinct_centers` per frame:
+
+| frame | 2--6 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |
+|---|---|---|---|---|---|---|---|---|---|
+| **baseline** (non-family) | 1 | 62 | 73 | 78 | **81** | 94 | 87 | 89 | 86 |
+| **family** | 1 | 82 | 83 | (83) | 97 | 100 | 98 | 101 | 93 |
+| **family + rigid** | 1 | 63 | 69 | 78 | **80** | 82 | 79 | 79 | **79** |
+
+Stability over the last six journeys (f15--f20):
+
+| variant | f15 ... f20 | amplitude | final | localized | pop == L/3 |
+|---|---|---|---|---|---|
+| baseline | 78, 81, 94, 87, 89, 86 | **16** | 86 | 40 | 15 |
+| family | 83, 97, 100, 98, 101, 93 | **18** | 93 | 33 | 11 |
+| **family + rigid** | 78, 80, 82, 79, 79, **79** | **4** | **79** | 35 | 9 |
+
+Readings:
+
+* The family restriction alone makes the seed shatter **faster** (82 centres by
+  journey 13 against 62 for the baseline) but then **overshoots badly** (97--101):
+  the three copies share a step, yet nothing holds them together, so the family's
+  own copies drift apart and `distinct_centers` exceeds 9L = 81.
+* The **rigid** rule (a non-co-located family homes every copy on its chief) is the
+  stabiliser: it tracks the 81 signature from journey 15 onwards and holds
+  **79 +- 2**, i.e. it removes both the baseline's overshoot (78 -> 94) and the
+  plain family variant's shattering (83 -> 101).
+* All variants keep `P = 0`, `stable>=5frames = 235`, and every variant produces
+  groups at the predicted population `L/3` (baseline 15, family 11, rigid 9) --
+  whereas the reference produces **none** in 64 journeys.
+
+Verdict (graded (C), candidate macros only): `FAMILY_RIGID_FSM` is the first
+configuration in which the island count of this model **settles on the predicted
+value** instead of drifting.  It is not bit-stable (the count still moves between
+78 and 82) and the underlying chiefs still reorganise freely, so the next question
+is what sets the +-2 jitter and whether a longer run or a stricter anchor (e.g.
+binding the family to its K chief permanently) removes it.
+

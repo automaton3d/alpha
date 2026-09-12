@@ -736,6 +736,32 @@ its time-box.
   binaries (20 journeys each, in parallel with the 64-journey baseline), and the
   baseline itself reached **`centres=81` at journey 16**, an independent
   reproduction of the 20-journey signature in a longer run.
+- **2026-09-12 -- CENSUS RESULT: the family-rigid variant SETTLES on 9L.**
+  Four runs of the canonical seed (L=9/W=243, sieve 16384): a 64-journey baseline
+  and three 20-journey runs (baseline channel, `FAMILY_SELECTIVE_FSM`, and the
+  latter plus `FAMILY_RIGID_FSM`).  `distinct_centers` over journeys 15--20:
+  - baseline (non-family): 78, 81, 94, 87, 89, 86 -- amplitude 16, final 86;
+  - plain family: 83, 97, 100, 98, 101, 93 -- amplitude 18, final 93;
+  - **family + rigid: 78, 80, 82, 79, 79, 79 -- amplitude 4, final 79.**
+  Report cards at journey 20: baseline `chiefs=123, localized=40, pop==L/3=15`;
+  family `137 / 33 / 11`; rigid `121 / 35 / 9`; the reference produces **0** at the
+  predicted population in 64 journeys.
+  **The 64-journey baseline answers the stabilisation question for the unpatched
+  channel**: it reaches exactly 81 at journey 16, then drifts in the 83--94 band
+  through journey 30 (81, 94, 87, 89, 86, 84, 88, 85, 85, 83, 83, 80, 74, 73, 69)
+  and thereafter **re-coalesces** -- it neither holds 81 nor stays fragmented.
+  Readings: the plain family restriction shatters for the same reason it fragments
+  fast (the copies share a step but nothing binds them together, so
+  `distinct_centers` exceeds 9L), and the rigid rule -- a non-co-located family
+  homing every copy on its chief -- is the stabiliser at 79 +- 2.  Graded (C):
+  candidate macros only, and the +-2 jitter is unexplained; the natural next
+  question is a stricter anchor (bind the family to its K chief permanently) and a
+  longer run to see whether the jitter vanishes.
+  Docs updated: `experiments/ISLAND_CENSUS.md` (three-way table + verdict) and
+  `experiments/FAMILY_SELECTIVE_DESIGN.md` (design, both structural findings, the
+  result, the open question).  Every run's independent audit is written by
+  `experiments/finish_island_census_dir.ps1` into that run's `analysis.txt`
+  (analyzer output + trend table + SUMMARY), now parameterised by process name.
 - **2026-09-12 -- WP8 iteration: producer guards, and the phase-quadrant finding.**
   Instrumented the harness per frame: the end-of-run counters for `c`/`homB` are
   *always* zero because those fields are cleared every light frame

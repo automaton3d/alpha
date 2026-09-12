@@ -190,6 +190,27 @@ deterministic spatial asymmetry whose absence the SEED_ASYMMETRY negative and th
 appears as a transient.  Stabilising it -- and making the directionality
 family-selective rather than global -- is the remaining problem.
 
+### Family-selective variants: the count settles on 9L
+
+Three 20-journey runs of the canonical seed (baseline = the directional channel
+above; `family` = `FAMILY_SELECTIVE_FSM`; `family + rigid` = plus
+`FAMILY_RIGID_FSM`; see `FAMILY_SELECTIVE_DESIGN.md` for the macros and the
+harness), `distinct_centers` over the last six journeys:
+
+| variant | f15 ... f20 | amplitude | final | localized | pop == L/3 |
+|---|---|---|---|---|---|
+| baseline | 78, 81, 94, 87, 89, 86 | 16 | 86 | 40 | 15 |
+| family | 83, 97, 100, 98, 101, 93 | 18 | 93 | 33 | 11 |
+| **family + rigid** | 78, 80, 82, 79, 79, **79** | **4** | **79** | 35 | 9 |
+
+The rigid variant is the first configuration whose island count **settles on the
+predicted 9L = 81** (79 +- 2 over six journeys) instead of drifting through the
+86--101 band; the plain family variant shatters its own families (97--101) because
+nothing holds the copies together.  All three keep `P = 0` and every chief census
+row stable for >= 5 frames; the reference, in 64 journeys, never leaves one
+centre and never reaches the predicted population.  Graded (C): candidate macros
+only, and the +-2 jitter is unexplained.
+
 
 ### 8 journeys: the plateau breaks
 

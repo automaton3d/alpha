@@ -1,14 +1,14 @@
-param([string]$RunDir = "build\island_census_dir\run64")
-# Waits for the directional island census to exit, then writes an independent
-# audit next to the run directory: the standard analyzer output plus a compact
-# trend table of the per-frame census, so the stabilisation question (does the
-# count of distinct centres settle at 9L = 81?) can be read without re-running
-# anything.  Usage:
-#   powershell -ExecutionPolicy Bypass -File experiments\finish_island_census_dir.ps1 [rundir]
+param([string]$RunDir = "build\island_census_dir\run64", [string]$ProcName = "island_census_dir")
+# Waits for the named census process to exit, then writes an independent audit
+# next to the run directory: the standard analyzer output plus a compact trend
+# table of the per-frame census, so the stabilisation question (does the count of
+# distinct centres settle at 9L = 81?) can be read without re-running anything.
+# Usage:
+#   powershell -ExecutionPolicy Bypass -File experiments\finish_island_census_dir.ps1 [rundir] [procname]
 $ErrorActionPreference = "Continue"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
-while (Get-Process island_census_dir -ErrorAction SilentlyContinue) { Start-Sleep -Seconds 20 }
+while (Get-Process $ProcName -ErrorAction SilentlyContinue) { Start-Sleep -Seconds 20 }
 $abs = Join-Path $root $RunDir
 $out = Join-Path $abs "analysis.txt"
 "# AUDIT of $RunDir" | Out-File -Encoding utf8 $out
