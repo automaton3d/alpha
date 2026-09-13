@@ -269,6 +269,19 @@ Reading:
   note found missing.  What it establishes is that the formation question has a
   **one-rule, local** answer.
 
+**Cell-local form (verified bit-identical).**  The rule reads ONLY the cell's own
+fields: its address (`old.x[3]`) and its coordinates (`old.x[0..2]`).  It does not read
+another layer's centre -- that was the defect of the withdrawn `FAMILY_RIGID_FSM` -- and
+it does not read even this layer's `lcenters[w]` entry, which is redundant because
+`trackCenter()` mirrors the centre cell's coordinates into that table.  Both forms were
+run side by side on the canonical seed and the whole census series is identical frame by
+frame (`0:1, 1:5, 2:13, 3:25, 4:41, 5:57, 6:69, 7:77, 8:81, 9:81, ...`), which is itself
+the proof that the table was only a mirror: the rule never depended on it, and never on
+anything outside the cell.  The residual caveat is therefore not locality of *data* but
+the one already recorded in the manuscript's Limitations: the transport stage
+(`applyMomentum`) is host-side, exactly as it is in the reference.
+
+
 ## Quantised islands: the placed seed + the model's own island convention
 
 Prepared-seed census (L=9/W=243, sieve 16384, 6 journeys), core rules apart from the

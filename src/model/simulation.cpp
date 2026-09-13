@@ -640,12 +640,18 @@ namespace automaton
       // ==============================================================
       if (ISLAND_SIZE > 0u && EL > 0u)
       {
-        const unsigned isl = w / ISLAND_SIZE;
+        // CELL-LOCAL ONLY: the address and the position are read from the cell
+        // itself (old.x[3] is this cell's W address, old.x[0..2] its coordinates).
+        // lcenters[w] is the host's mirror of exactly these fields (trackCenter
+        // copies them), so reading the cell instead removes any reliance on the
+        // host table: nothing outside this cell is consulted -- not another
+        // layer's centre, and not even this layer's table entry.
+        const unsigned isl = (unsigned)old.x[3] / ISLAND_SIZE;
         const unsigned tX  = isl % EL;
         const unsigned tY  = (isl / EL) % EL;
         const unsigned tZ  = CENTER;
         const int LENc[3]  = { (int)ELX, (int)ELY, (int)ELZ };
-        const int own[3]   = { (int)cx, (int)cy, (int)cz };
+        const int own[3]   = { (int)old.x[0], (int)old.x[1], (int)old.x[2] };
         const int tgt[3]   = { (int)tX, (int)tY, (int)tZ };
         int bestAx = -1, bestMag = 0, bestStep = 0;
         for (int ax = 0; ax < 3; ++ax)

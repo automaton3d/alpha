@@ -860,6 +860,18 @@ its time-box.
   and `..._align.bat` (control); docs in `experiments/ISLAND_CENSUS.md`.  Graded (C):
   the W index is read as a position label -- exactly the deterministic asymmetry the
   SEED_ASYMMETRY note found missing.  Reference untouched (macros OFF).
+- **2026-09-12 -- ADDRESS_TARGET_FSM made strictly cell-local, verified bit-identical.**
+  The rule now reads only the cell's own fields -- its address `old.x[3]` and its
+  coordinates `old.x[0..2]` -- instead of the surrounding loop's `cx,cy,cz` (which are
+  the `lcenters[w]` entry for this same layer).  Reason (raised in review): `lcenters`
+  is the HOST table, and although this particular entry is not a cross-layer global
+  (that was the withdrawn `FAMILY_RIGID_FSM`, which read `lcenters[f]` for the family's
+  other layers), the rule should not touch the table at all.  `trackCenter()` mirrors
+  the centre cell's coordinates into `lcenters`, so the two forms are equivalent in
+  principle; they were run side by side on the canonical seed and the entire census
+  series is **identical frame by frame** (`1, 5, 13, 25, 41, 57, 69, 77, 81, 81, ...`)
+  -- which proves the table was only a mirror.  Residual caveat: the transport stage
+  `applyMomentum` is host-side, exactly as in the reference (Limitations item 5).
 - **2026-09-12 -- Step 1 done: the non-local consumption is REMOVED.**  Both
   non-local parts of the consumer in `applyMomentum` were deleted -- the block that
   gathered a family's copies through `lcenters[]` to form one shared decision, and
