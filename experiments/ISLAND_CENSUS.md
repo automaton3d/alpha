@@ -242,6 +242,29 @@ the islands can be seen directly.  Builds: `build_island_census_placed.bat`,
 All three runs are static: frames 2--6 are identical, with `captures = escapes = 0`,
 and frames 0--1 show the seed itself (`S=243`, centres = 81).
 
+### 20-journey persistence of the quantised state (the acceptance result)
+
+`build/island_census_rot/run20` (same build, 20 journeys = 2.5 complete breathing
+cycles of `2*RMAX = 8` frames):
+
+```
+frame | K  | D   | centres | groups | unresolved | max_pop | max_span | captures | escapes | births | deaths
+  2   | 81 | 162 |   81    |   81   |     0      |    3    |    0     |   243    |    0    |   81   |   0
+  3..20 (every frame identical)                                        |    0     |    0    |    0   |   0
+SUMMARY frames=20 chiefs_total=81 chiefs_at_end=81 stable>=5frames=81
+        localized_at_end=81 pop==L/3_at_end=81
+```
+
+Every metric of the report card is **81**: 81 chiefs (one per island), all present at
+the end, all stable for >= 5 frames, **all localised**, and **all 81 groups at the
+predicted population `L/3 = 3`** -- against the reference's 64-journey outcome
+(`chiefs_at_end = 235`, `pop == L/3 = 0`, `localized = 8`).  The state is reached at
+journey 2 and then never changes a single number for 18 further journeys: the
+quantised island is not a transient in this construction, it is the absorbing state.
+
+Independent audit: `build/island_census_rot/run20/analysis.txt`
+(`experiments/finish_island_census_dir.ps1` -> `analyze_island_census.py`).
+
 Reading:
 
 * With the placed seed the **81 islands are visible and stationary from frame 0 in

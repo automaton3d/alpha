@@ -816,6 +816,28 @@ its time-box.
   are mutually in contact -- "separate islands" can only mean distinct CENTRES.
   Graded (C): prepared seed + two candidate rules; the FORMATION question (canonical
   superposed seed) is untouched.  A 20-journey persistence run was launched.
+- **2026-09-12 -- PERSISTENCE RESULT: the quantised state is the ABSORBING state.**
+  `build/island_census_rot/run20`, 20 journeys = 2.5 complete breathing cycles of
+  `2*RMAX = 8` frames.  Frames 2--20 are **bit-identical**: `K=81, D=162,
+  distinct_centers=81, groups=81, unresolved=0, max_population=3 = L/3, max_span=0,
+  max_families=1`, with `captures=243` only at frame 2 (the election) and
+  `captures=escapes=births=deaths=0` thereafter.  Report card:
+  `SUMMARY frames=20 chiefs_total=81 chiefs_at_end=81 stable>=5frames=81
+  localized_at_end=81 pop==L/3_at_end=81` -- **every metric is 81**, against the
+  reference's 64-journey outcome (`chiefs_at_end=235`, `pop==L/3=0`,
+  `localized=8`).  So the model's own prediction -- `9L` islands of `1K + nD` with
+  `n = L/3 - 1`, localized and persistent -- is now satisfied exactly in this
+  construction: 81 islands, each `1K + 2D`, each at its own site, at rest, absorbing.
+  No drive pairs, no inertia, no transport and none of the advanced-channel macros
+  are involved.  What it took: (i) a PREPARED seed (one site per island),
+  (ii) `DD_INTRA_ISLAND_FIX` (the model's own `isIslandChief` convention in the
+  election) and (iii) `ISLAND_ALIGNED_W_ROTATION` (the cross-layer schedule aligned
+  with the island partition -- the decisive one).  Graded (C).  Independent audit:
+  `build/island_census_rot/run20/analysis.txt` (helper + `analyze_island_census.py`).
+  **Still open: FORMATION from the canonical superposed seed** -- the islands now
+  demonstrably exist and persist; making the single-point seed reach them is the
+  remaining question, and it is now a well-posed one because the target state is
+  fully characterised.
 - **2026-09-12 -- Step 1 done: the non-local consumption is REMOVED.**  Both
   non-local parts of the consumer in `applyMomentum` were deleted -- the block that
   gathered a family's copies through `lcenters[]` to form one shared decision, and
