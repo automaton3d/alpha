@@ -366,6 +366,35 @@ void initCenters(unsigned wDim)
     // zero radius.  All source centers therefore start superposed at
     // (CENTER, CENTER, CENTER); they separate only later through
     // interaction-driven relocation (applyMomentum), never at birth.
+#ifdef PLACED_FAMILY_SEED
+    // PREPARED SEED -- visualisation of the QUANTISED ISLANDS.
+    //
+    // The islands the model itself predicts are the ISLAND_COUNT = 9*EL groups
+    // of ISLAND_SIZE = W/(9*EL) = L/3 layers (initSim.cpp:322-324), whose chief
+    // is by convention the first layer of the group
+    // (isIslandChief(w) = (w % ISLAND_SIZE == 0), simulation.h:377).  This seed
+    // places every island at its OWN site, on a flat EL x EL grid of distinct
+    // locations, so the quantised islands can be seen directly: one point per
+    // island, at rest, each at a different location.
+    //
+    // It is a PREPARED initial condition (like the inertia fixtures): it does not
+    // assert that the canonical superposed seed separates by itself.  The island
+    // size is recomputed here from the model's own formula so the seed does not
+    // depend on the order in which calculateParameters() ran.
+    const unsigned islSize = (9u * EL > 0u) ? (W_USED / (9u * EL)) : 1u;
+    for (unsigned w = 0; w < wDim; ++w)
+    {
+        const unsigned isl = (islSize > 0u) ? (w / islSize) : 0u;
+        const unsigned gx  = (EL > 0u) ? (isl % EL) : 0u;
+        const unsigned gy  = (EL > 0u) ? ((isl / EL) % EL) : 0u;
+        lcenters[w][0] = gx;
+        lcenters[w][1] = gy;
+        lcenters[w][2] = CENTER;
+
+        printf("initCenters(placed): w=%u, island=%u, center=(%u,%u,%u)\n",
+               w, isl, lcenters[w][0], lcenters[w][1], lcenters[w][2]);
+    }
+#else
     for (unsigned w = 0; w < wDim; ++w)
     {
         lcenters[w][0] = CENTER;
@@ -375,6 +404,7 @@ void initCenters(unsigned wDim)
         printf("initCenters: w=%u, center=(%u,%u,%u)\n",
                w, lcenters[w][0], lcenters[w][1], lcenters[w][2]);
     }
+#endif
 }
 
   /**

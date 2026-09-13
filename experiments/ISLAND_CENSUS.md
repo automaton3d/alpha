@@ -224,6 +224,51 @@ a host-level result, not a property of the model's local rule**, and
 `FAMILY_RIGID_FSM` has been withdrawn (no-op).  The remaining lever that is local is
 the encounter-level producer; see `FAMILY_SELECTIVE_DESIGN.md`.
 
+## Quantised islands: the placed seed + the model's own island convention
+
+Prepared-seed census (L=9/W=243, sieve 16384, 6 journeys), core rules apart from the
+macros named below.  Seed: `PLACED_FAMILY_SEED` (`initSim.cpp::initCenters`) places
+island `i` -- the model's own partition, `ISLAND_COUNT = 9*EL` islands of
+`ISLAND_SIZE = W/(9*EL) = L/3` layers -- at its own site on a flat `EL x EL` grid, so
+the islands can be seen directly.  Builds: `build_island_census_placed.bat`,
+`..._placed_fix.bat`, `..._rot.bat`.
+
+| build | frame 2 | centres | groups | unresolved | max_pop | max_span | max_families |
+|---|---|---|---|---|---|---|---|
+| placed, core only | K=235 D=8 | 81 | 235 | 0 | 2 | 0 | 1 |
+| + `DD_INTRA_ISLAND_FIX` | K=227 D=16 | 81 | 227 | 0 | 3 | 0 | 1 |
+| **+ `ISLAND_ALIGNED_W_ROTATION`** | **K=81 D=162** | **81** | **81** | **0** | **3** | **0** | **1** |
+
+All three runs are static: frames 2--6 are identical, with `captures = escapes = 0`,
+and frames 0--1 show the seed itself (`S=243`, centres = 81).
+
+Reading:
+
+* With the placed seed the **81 islands are visible and stationary from frame 0 in
+  every build** (`distinct_centers = 81`, `max_span = 0`, no captures/escapes): the
+  visualisation target -- `9L` islands, at rest, one per location -- is met.
+* The **identity quantisation** needs the model's own island convention in the
+  election (`DD_INTRA_ISLAND_FIX`, which elects the first layer of each
+  `ISLAND_SIZE` block as the single chief, `isIslandChief`) **and** a cross-layer
+  schedule aligned with the island partition.  The reference schedule rotates the
+  partner lattice by ONE slice per frame (`rotatePartners()`, `utils.cpp`; "cross-layer
+  adjacency is owned by `rotatePartners()`'s rotation schedule, not by spatial
+  geometry", `simulation.cpp:86-88`), so at `ISLAND_SIZE = 3` two of every three
+  pairings are between *different* islands and the election cascades on the W address
+  (235 K / 8 D -- identical on the superposed and the placed seed, i.e. the identity
+  structure does not depend on positions at all).  Rotating cyclically **within each
+  `ISLAND_SIZE` block** gives exactly `1 K + 2 D` per island: `groups = 81`,
+  `K = 81`, `D = 162`, population `= L/3 = 3`, `unresolved = 0`, `max_families = 1`.
+* Graded **(C)**: the seed is a PREPARED initial condition and the two macros are
+  candidate rules.  This proves the quantised island **exists and is stationary** in
+  this construction; it does not show that the canonical superposed seed forms it
+  (that remains the open formation question, `SEC_ASYMMETRY` / Sect. SEED_ASYMMETRY).
+* Geometric note (independent of the above): at L=9, `RMAX = L/2 = 4 = CENTER`, so at
+  the turnaround a bubble's maximal shell reaches the antipode -- any two bubbles at
+  L=9 are mutually in contact at the turnaround.  "Separated islands" can therefore
+  only mean distinct **centres** (what this census measures), never isolated objects.
+
+
 
 ### 8 journeys: the plateau breaks
 

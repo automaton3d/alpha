@@ -788,6 +788,34 @@ its time-box.
   `lcenters` read.  The base consumer is unaffected (it reads only the cell's own
   `c[]`, `x[]`, `t`).  Full write-up:
   `experiments/FAMILY_SELECTIVE_DESIGN.md` ("Locality audit of the rigid rule").
+- **2026-09-12 -- MILESTONE: the 9L quantised islands exist, stationary, one per
+  site.**  Following the directive to park the sophisticated machinery and first
+  PROVE the islands, three core-rules builds were run on a prepared seed
+  (`PLACED_FAMILY_SEED`, `initSim.cpp::initCenters`): island `i` of the model's own
+  partition (`ISLAND_COUNT = 9*EL`, `ISLAND_SIZE = W/(9*EL) = L/3`) is placed at its
+  own site on a flat `EL x EL` grid.  At L=9/W=243:
+  - placed, core only: frame 2 `K=235 D=8`, centres 81, groups 235, max_pop 2;
+  - + `DD_INTRA_ISLAND_FIX`: `K=227 D=16`, centres 81, groups 227, max_pop 3;
+  - + `ISLAND_ALIGNED_W_ROTATION`: **`K=81 D=162`, centres 81, groups 81,
+    unresolved 0, max_pop 3 = L/3, max_span 0, max_families 1.**
+  All three are static (frames 2--6 identical, captures = escapes = 0) and all three
+  show the seed itself at frames 0--1 (`S=243`, centres 81).  So the quantised
+  island -- `1 K + 2 D`, population `L/3`, one per site, at rest -- is achieved
+  exactly, as predicted before the run.
+  Diagnosis recorded: the reference schedule rotates the partner lattice by ONE
+  slice per frame (`rotatePartners()`, `utils.cpp`; "cross-layer adjacency is owned
+  by rotatePartners()'s rotation schedule, not by spatial geometry",
+  `simulation.cpp:86-88`), so at `ISLAND_SIZE = 3` two of every three pairings are
+  between different islands and the election cascades on the W address; and the
+  identity structure does not depend on positions at all (the superposed and the
+  placed seed give identical K/D counts).  Rotating cyclically within each
+  `ISLAND_SIZE` block fixes it.  New macro `ISLAND_ALIGNED_W_ROTATION` + build
+  `experiments/build_island_census_rot.bat`; reference re-verified untouched after
+  the hot-path change: `6468/0/0`, `alpha_A = 0.003756878`.
+  Also recorded: at L=9 `RMAX = L/2 = CENTER` so at the turnaround any two bubbles
+  are mutually in contact -- "separate islands" can only mean distinct CENTRES.
+  Graded (C): prepared seed + two candidate rules; the FORMATION question (canonical
+  superposed seed) is untouched.  A 20-journey persistence run was launched.
 - **2026-09-12 -- Step 1 done: the non-local consumption is REMOVED.**  Both
   non-local parts of the consumer in `applyMomentum` were deleted -- the block that
   gathered a family's copies through `lcenters[]` to form one shared decision, and

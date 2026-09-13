@@ -16,6 +16,7 @@ namespace automaton
   extern unsigned EL;
   extern unsigned W_USED;
   extern unsigned CENTER;
+  extern unsigned ISLAND_SIZE;
   extern std::vector<Cell> lattice_curr;
   extern std::vector<Cell> lattice_partner;
 
@@ -43,6 +44,44 @@ namespace automaton
       return ((size_t)x * ELY + y) * ELZ + z;
     };
 
+#ifdef ISLAND_ALIGNED_W_ROTATION
+    // CANDIDATE -- align the cross-layer schedule with the model's own island
+    // partition.  The model defines ISLAND_COUNT = 9*EL islands of ISLAND_SIZE =
+    // W/(9*EL) = L/3 layers, with the chief by convention the first layer of the
+    // block (isIslandChief(w) = (w % ISLAND_SIZE == 0), simulation.h).  The
+    // reference rotates the whole partner lattice by ONE slice per frame, so at
+    // ISLAND_SIZE = 3 two of every three pairings are between DIFFERENT islands:
+    // the election then cascades on the W address (measured: 235 K / 8 D on both
+    // the superposed and the placed seed) instead of quantising one chief per
+    // island.  Here the rotation is cyclic WITHIN each ISLAND_SIZE block, so the
+    // partner of a slot always belongs to the SAME island.
+    const unsigned blk = (ISLAND_SIZE > 0u) ? ISLAND_SIZE : 1u;
+    if (blk < 2u || W_USED < blk)
+      return;                              // nothing to rotate
+
+    std::vector<Cell> temp(sliceVol);
+    for (unsigned base = 0; base + blk <= W_USED; base += blk)
+    {
+      // Save the block's last slice.
+      for (unsigned x = 0; x < ELX; ++x)
+        for (unsigned y = 0; y < ELY; ++y)
+          for (unsigned z = 0; z < ELZ; ++z)
+            temp[sliceIndex(x, y, z)] = getCell(lattice_partner, x, y, z, base + blk - 1);
+
+      // Shift the block's slices forward by one (stays inside the block).
+      for (unsigned x = 0; x < ELX; ++x)
+        for (unsigned y = 0; y < ELY; ++y)
+          for (unsigned z = 0; z < ELZ; ++z)
+            for (unsigned w = base + blk - 1; w > base; --w)
+              getCell(lattice_partner, x, y, z, w) = getCell(lattice_partner, x, y, z, w - 1);
+
+      // Wrap the saved slice into the block's first slot.
+      for (unsigned x = 0; x < ELX; ++x)
+        for (unsigned y = 0; y < ELY; ++y)
+          for (unsigned z = 0; z < ELZ; ++z)
+            getCell(lattice_partner, x, y, z, base) = temp[sliceIndex(x, y, z)];
+    }
+#else
     // Save the last W-slice
     std::vector<Cell> temp(sliceVol);
     for (unsigned x = 0; x < ELX; ++x)
@@ -62,6 +101,7 @@ namespace automaton
       for (unsigned y = 0; y < ELY; ++y)
         for (unsigned z = 0; z < ELZ; ++z)
           getCell(lattice_partner, x, y, z, 0) = temp[sliceIndex(x, y, z)];
+#endif
   }
 
   /*
