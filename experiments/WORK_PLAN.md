@@ -838,6 +838,28 @@ its time-box.
   demonstrably exist and persist; making the single-point seed reach them is the
   remaining question, and it is now a well-posed one because the target state is
   fully characterised.
+- **2026-09-12 -- THE FORMATION RULE IS FOUND: "the address supplies the place".**
+  `ADDRESS_TARGET_FSM` (+ `DD_INTRA_ISLAND_FIX` + `ISLAND_ALIGNED_W_ROTATION`) run on
+  the ORDINARY canonical superposed seed (all 243 layers born at one point; no placed
+  seed, no drive pairs, no inertia, no host-table read).  The rule: island
+  `i = w / ISLAND_SIZE` walks its centre to the site `(i % EL, (i / EL) % EL, CENTER)`,
+  one lattice cell per light frame, reading only `lcenters[w]` and its own `x[3]` --
+  every layer of an island computes the same target from the same address, so the
+  copies walk in lockstep and arrive whole; the walk stops at the target, so the
+  absorbing quantised state is its fixed point.  Measured (`build/island_census_addr`,
+  20 journeys): journey 1 `centres=5`; journey 2 the election gives the quantisation
+  (`K=81, D=162, groups=81, unresolved=0, max_pop=3 = L/3, span=0`) with
+  `centres=13`; then the centres fan out monotonically `25, 41, 57, 69, 77` and reach
+  **`centres = 81` at journey 8** (one breathing cycle), staying there (frames 8--10
+  identical, zero events).  The control -- the same build WITHOUT the walk -- gives the
+  same quantisation (`K=81, D=162, groups=81, unresolved=0, pop=3, span=0`) but
+  `distinct_centers = 1` in every frame, which isolates the two effects: the aligned
+  election supplies the QUANTISATION (already on the canonical seed), the new rule
+  supplies the SEPARATION, and it does not disturb the quantisation.
+  New macro `ADDRESS_TARGET_FSM` + builds `experiments/build_island_census_addr.bat`
+  and `..._align.bat` (control); docs in `experiments/ISLAND_CENSUS.md`.  Graded (C):
+  the W index is read as a position label -- exactly the deterministic asymmetry the
+  SEED_ASYMMETRY note found missing.  Reference untouched (macros OFF).
 - **2026-09-12 -- Step 1 done: the non-local consumption is REMOVED.**  Both
   non-local parts of the consumer in `applyMomentum` were deleted -- the block that
   gathered a family's copies through `lcenters[]` to form one shared decision, and

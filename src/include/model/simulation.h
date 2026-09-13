@@ -290,6 +290,7 @@ struct NeighborResult
   extern long long fam_all_agree;    // local-step probe: family copies step alike
   extern long long fam_split;        // local-step probe: family copies disagree
   extern long long fam_now_ge2;      // local-step probe: >= 2 copies had a field at once
+  extern long long address_walks;    // candidate ADDRESS_TARGET_FSM: steps toward the address site
   extern long long c_center_c0;      // arrivals at the first copy of a family
   extern long long c_center_c1;      // ... second
   extern long long c_center_c2;      // ... third

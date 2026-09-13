@@ -62,6 +62,7 @@ namespace automaton
   long long fam_all_agree = 0;   // all decodable copies of a family gave the same step
   long long fam_split     = 0;   // ... they gave different steps
   long long fam_now_ge2   = 0;   // ticks where >= 2 copies of a family had a field AT ONCE
+  long long address_walks = 0;   // candidate ADDRESS_TARGET_FSM: centre steps toward its address site
   // Which COPY of a family receives the field?  (w % 3 = position inside the
   // family, so these three counters break the arrivals down by copy.)
   long long c_center_c0   = 0;   // arrivals at the first copy of a family

@@ -617,6 +617,61 @@ namespace automaton
       }
 #endif
 
+#ifdef ADDRESS_TARGET_FSM
+      // ==============================================================
+      // CANDIDATE RULE: the ADDRESS supplies the PLACE (formation test).
+      //
+      // In the canonical superposed seed all ISLAND_COUNT = 9*EL islands are born
+      // at one point, and nothing in the core rules transports a source centre, so
+      // the islands never separate (measured: distinct_centers = 1, max_span = 0
+      // over 64 journeys).  The only datum that distinguishes one island from
+      // another LOCALLY is its own address: island i = w / ISLAND_SIZE.  This rule
+      // reads that address on the cell and walks the layer's centre to the site the
+      // address labels -- (i % EL, (i / EL) % EL, CENTER) -- one lattice cell per
+      // light frame, using only lcenters[w] (this layer) and its own x[3].  No
+      // table, no communication, no partner: every one of the island's ISLAND_SIZE
+      // layers computes the SAME target from the SAME address, so the copies walk
+      // in lockstep and an island arrives whole and stays co-located.  The walk
+      // stops when the site is reached, so the absorbing state characterised in
+      // experiments/ISLAND_CENSUS.md ("quantised islands") is this rule's fixed
+      // point.  One axis per light frame (the harness asserts <= 1 cell per frame
+      // per constituent, inertia_fixture.h:95) and only when no other impulse is
+      // pending.  OFF in the reference build.
+      // ==============================================================
+      if (ISLAND_SIZE > 0u && EL > 0u)
+      {
+        const unsigned isl = w / ISLAND_SIZE;
+        const unsigned tX  = isl % EL;
+        const unsigned tY  = (isl / EL) % EL;
+        const unsigned tZ  = CENTER;
+        const int LENc[3]  = { (int)ELX, (int)ELY, (int)ELZ };
+        const int own[3]   = { (int)cx, (int)cy, (int)cz };
+        const int tgt[3]   = { (int)tX, (int)tY, (int)tZ };
+        int bestAx = -1, bestMag = 0, bestStep = 0;
+        for (int ax = 0; ax < 3; ++ax)
+        {
+          const int LEN = LENc[ax];
+          int d = tgt[ax] - own[ax];
+          if (d >  LEN / 2)      d -= LEN;
+          else if (d < -(LEN / 2)) d += LEN;
+          const int mag = d < 0 ? -d : d;
+          if (mag > bestMag) { bestMag = mag; bestAx = ax; bestStep = (d > 0) ? +1 : -1; }
+        }
+        if (bestAx >= 0 && bestStep != 0 &&
+            !old.reloc[0] && !old.reloc[1] && !old.reloc[2])
+        {
+          static std::vector<unsigned> lastWalkT;
+          if (lastWalkT.size() != W_USED) lastWalkT.assign(W_USED, 0u);
+          if (old.t != lastWalkT[w])
+          {
+            old.reloc[bestAx] += bestStep;
+            lastWalkT[w] = old.t;
+            ++address_walks;
+          }
+        }
+      }
+#endif
+
       // Free photon pairs expand and are gradually consumed. At maximum
       // radius (t == RMAX) one pair is consumed; when the stack empties the
       // two partner source centers are released as singletons moving apart.

@@ -224,6 +224,51 @@ a host-level result, not a property of the model's local rule**, and
 `FAMILY_RIGID_FSM` has been withdrawn (no-op).  The remaining lever that is local is
 the encounter-level producer; see `FAMILY_SELECTIVE_DESIGN.md`.
 
+## Formation from the canonical seed: the address supplies the place
+
+`ADDRESS_TARGET_FSM` (+ `DD_INTRA_ISLAND_FIX` + `ISLAND_ALIGNED_W_ROTATION`) run on the
+ORDINARY canonical superposed seed -- all 243 layers born at one point; no placed seed,
+no drive pairs, no inertia, no host-table read.  Build
+`experiments/build_island_census_addr.bat`; control (same build without the walk)
+`experiments/build_island_census_align.bat`.
+
+| frame | K | D | distinct_centers | groups | unresolved | max_pop | max_span |
+|---|---|---|---|---|---|---|---|
+| 0 | 0 | 0 | 1 | 0 | 0 | 0 | 0 |
+| 1 | 0 | 0 | 5 | 0 | 0 | 0 | 0 |
+| 2 | 81 | 162 | 13 | 81 | 0 | 3 | 0 |
+| 3 | 81 | 162 | 25 | 81 | 0 | 3 | 0 |
+| 4 | 81 | 162 | 41 | 81 | 0 | 3 | 0 |
+| 5 | 81 | 162 | 57 | 81 | 0 | 3 | 0 |
+| 6 | 81 | 162 | 69 | 81 | 0 | 3 | 0 |
+| 7 | 81 | 162 | 77 | 81 | 0 | 3 | 0 |
+| **8** | 81 | 162 | **81** | 81 | 0 | 3 | 0 |
+| 9--10 | 81 | 162 | 81 | 81 | 0 | 3 | 0 |
+
+Control (canonical seed, aligned election, NO walk): `K=81, D=162, groups=81,
+unresolved=0, max_pop=3, max_span=0` -- but `distinct_centers = 1` in every frame.
+
+Reading:
+
+* The **quantisation** comes from the aligned election alone and happens on the
+  canonical seed: 81 groups of `1K + 2D`, population `L/3`, `unresolved = 0`, from
+  journey 2 -- with all islands still at one point.
+* The **separation** comes from the new rule alone and does not disturb the
+  quantisation: the centres fan out monotonically, `1 -> 5 -> 13 -> 25 -> 41 -> 57 ->
+  69 -> 77 -> 81`, arriving at journey 8 (one breathing cycle of `2*RMAX = 8`) and
+  staying there.
+* **The rule: the address supplies the place.**  Island `i = w / ISLAND_SIZE` walks
+  its centre to the site `(i % EL, (i / EL) % EL, CENTER)`, one lattice cell per light
+  frame, reading only `lcenters[w]` (its own layer) and its own `x[3]`.  Every layer of
+  an island computes the SAME target from the SAME address, so the copies walk in
+  lockstep and arrive whole; the walk stops at the target, so the absorbing quantised
+  state characterised below is this rule's fixed point.  No table, no communication,
+  no partner, no randomness.
+* Graded **(C)**: `ADDRESS_TARGET_FSM` is a candidate rule -- the model's own W index
+  read as a position label, which is the deterministic asymmetry the SEED_ASYMMETRY
+  note found missing.  What it establishes is that the formation question has a
+  **one-rule, local** answer.
+
 ## Quantised islands: the placed seed + the model's own island convention
 
 Prepared-seed census (L=9/W=243, sieve 16384, 6 journeys), core rules apart from the
