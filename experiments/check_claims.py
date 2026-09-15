@@ -84,8 +84,10 @@ def load_artifacts():
         for dirpath, _dirs, files in os.walk(base):
             for f in files:
                 low = f.lower()
-                # skip the manuscript backups and this tool's own output
-                if f in SKIP_FILES or "manuscript" in low or "claims_lint" in low:
+                # skip the manuscript backups, this tool's generated table and
+                # its own note (which quotes the manuscript's numbers by design)
+                if (f in SKIP_FILES or "manuscript" in low
+                        or low.startswith("claims_lint")):
                     continue
                 if os.path.splitext(f)[1].lower() not in ARTIFACT_EXT:
                     continue

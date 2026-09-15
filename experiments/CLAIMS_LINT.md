@@ -39,11 +39,18 @@ checks that a human has to make.
 
 | bucket | sentences |
 |---|---|
-| STRONG (number + shared context) | 52 |
+| STRONG (number + shared context) | 53 |
 | WEAK (number only) | 2 |
-| NONE (prose-only) | 12 |
+| NONE (prose-only) | 11 |
 
-Of the 12 prose-only items, four classes matter; the rest are notation (bit patterns in the
+**Drift of +-1, and why.**  The first measurement of this lint, before this session's own
+documentation was committed, gave 52 / 2 / 12.  Re-running after `WORK_PLAN.md` and this note
+quote the manuscript's numbers moves one item (the `0.9950` correlation, quoted in the work-plan
+entry) from NONE to STRONG: any repository prose that *discusses* a claim links it.  The tool
+excludes only its own outputs, so the NONE bucket is a **lower bound** on claims without
+artefacts, and the counts should be re-read whenever the campaign notes grow.
+
+Of the 11 prose-only items, four classes matter; the rest are notation (bit patterns in the
 algorithm listings and in Table `tab:charge-examples`) and are false positives of the lexical
 method:
 
