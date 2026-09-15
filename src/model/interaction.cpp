@@ -81,13 +81,31 @@ namespace automaton
   long long& conv_adiah    = enc_adiah;
   long long& conv_repel    = enc_repel;
 
+#ifdef SURFACE_ESCAPE_FSM
+  // Candidate (item 4 of WORK_PLAN): members released by the surface-escape
+  // rule.  Macro-guarded; the reference build does not see it.
+  unsigned surface_escapes = 0;
+#endif
+
   namespace
   {
     std::vector<Cell> sourceBefore, sourceAfter;
     std::vector<std::pair<WIndex, WIndex>> internalContacts;
     std::vector<unsigned char> contactSeen;
+#ifdef SURFACE_ESCAPE_FSM
+    // Candidate (item 4): shell-overlap signal for the escape rule.  A separate
+    // bitmap from contactSeen, because the reference `internal` predicate covers
+    // only delegate-delegate / pair cases and adding entries there would also add
+    // a cohesion step.  Here any contact between two same-charge sources counts.
+    std::vector<unsigned char> surfaceContactSeen;
+#endif
     std::vector<std::array<long long,3>> transportDebt;
     unsigned long long transportFrame = 0;
+#ifdef SURFACE_ESCAPE_FSM
+    // Per source: consecutive light frames without an internal contact with its
+    // own group (the escape timer).  Sized lazily, like contactSeen above.
+    std::vector<unsigned> framesWithoutContact;
+#endif
 #ifdef ORPHAN_GUIDANCE_FSM
     // Experimental P2: island pairs whose mediator engaged a shell during this
     // frame, with the requested sign (+1 repel / -1 attract).  Collected by
@@ -351,6 +369,9 @@ namespace automaton
       recruitPushes.clear();
 #endif
       contactSeen.assign((size_t)W_USED * W_USED, 0);
+#ifdef SURFACE_ESCAPE_FSM
+      surfaceContactSeen.assign((size_t)W_USED * W_USED, 0);
+#endif
     }
   }
 
@@ -468,6 +489,41 @@ namespace automaton
         for (int k=0;k<3;++k) sourceAfter[w].reloc[k] += moves[w][k];
       ++transportFrame;
     }
+
+#ifdef SURFACE_ESCAPE_FSM
+    // Candidate (item 4): escape by surface.
+    //
+    // A delegate that shares no shell overlap with its own group for one full
+    // partner rotation is released back to a singleton.  The rotation period is
+    // W_USED light frames: rotatePartners() (utils.cpp:36) advances the partner
+    // lattice by one slice per frame, so every ordered pair of layers is given
+    // the chance to meet within W_USED frames -- "no contact for one rotation"
+    // is therefore the local, parameter-free test of "no shell overlap".
+    // Contacts are the frame's same-charge source contacts (the shell-overlap
+    // signal recorded in encounter()), so the test needs no ISLAND_SIZE and no L.
+    void applySurfaceEscape()
+    {
+      if (framesWithoutContact.size() != W_USED)
+        framesWithoutContact.assign(W_USED, 0);
+      std::vector<unsigned char> contacted(W_USED, 0);
+      for (size_t i = 0; i < surfaceContactSeen.size(); ++i)
+        if (surfaceContactSeen[i]) {
+          contacted[(unsigned)(i / W_USED)] = 1;
+          contacted[(unsigned)(i % W_USED)] = 1;
+        }
+      for (unsigned w = 0; w < W_USED; ++w)
+      {
+        if (sourceAfter[w].kind != SourceKind::D) { framesWithoutContact[w] = 0; continue; }
+        if (contacted[w])                         { framesWithoutContact[w] = 0; continue; }
+        if (++framesWithoutContact[w] < W_USED)   continue;
+        framesWithoutContact[w] = 0;
+        sourceAfter[w].kind     = SourceKind::S;
+        sourceAfter[w].parent   = NO_PARENT;
+        sourceAfter[w].leader_w = NO_LEADER_W;
+        ++surface_escapes;
+      }
+    }
+#endif
 
 #ifdef EXCLUSION_FSM
     // Frame-edge separation push for cross-family equal-charge pairs
@@ -588,6 +644,11 @@ namespace automaton
 #ifdef EXCLUSION_FSM
       resolveExclusionPush();
 #endif
+#ifdef SURFACE_ESCAPE_FSM
+      // Candidate (item 4): runs after this frame's contacts have been resolved
+      // and before the sources are committed, so a release reaches the draft.
+      applySurfaceEscape();
+#endif
     }
 #ifdef ORPHAN_KICK_PER_WINDOW
     resolveRecruitHits();      // per tick: pay out the engagement windows
@@ -639,6 +700,21 @@ namespace automaton
       ++enc_self;
       return false;
     }
+#ifdef SURFACE_ESCAPE_FSM
+    // Candidate (item 4): any contact between two sources of the same charge
+    // word is a shell overlap for the escape rule -- chief-delegate contacts
+    // included, which the reference `internal` predicate does not cover.  The
+    // bitmap is separate, so no cohesion step is added to these pairs.
+    {
+      const WIndex wa = curr.x[3], wb = partner.x[3];
+      if (wa < W_USED && wb < W_USED &&
+          surfaceContactSeen.size() == (size_t)W_USED * W_USED &&
+          sourceBefore[wa].ch == sourceBefore[wb].ch) {
+        const WIndex a = std::min(wa, wb), b = std::max(wa, wb);
+        surfaceContactSeen[(size_t)a * W_USED + b] = 1;
+      }
+    }
+#endif
 
     ++enc_calls;
 

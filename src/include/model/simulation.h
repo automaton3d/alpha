@@ -298,6 +298,10 @@ struct NeighborResult
 
   // Deprecated aliases of the enc_* counters above.
   extern long long& conv_calls;
+#ifdef SURFACE_ESCAPE_FSM
+  extern unsigned surface_escapes;   // candidate: members released by surface escape
+#endif
+
   extern long long& conv_s2b;
   extern long long& conv_pair;
   extern long long& conv_self;
