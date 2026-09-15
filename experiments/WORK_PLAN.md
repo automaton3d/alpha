@@ -559,7 +559,16 @@ its time-box.
   the `#ifdef`), new harness modes in `experiments/p7_concentration.cpp`
   (`chain`, `gap2`, `mid`, `edge` beside `co`/`spread`, each printing the prediction
   itself) and a third binary in `experiments/build_p7_concentration.bat`; log
-  `experiments/PREDICTED_NS_RULE.md`.  The rule is exactly what section 6 of
+  `experiments/PREDICTED_NS_RULE.md`.  Folded into the manuscript: a paragraph
+  "A constructed balance rule selects N* = 1 or 2, not L/3 (M)" at the end of the
+  fixed-point subsection (Sect. 8.2, which now carries the label
+  `subsec:dynamic-charge-quantization` for the rate-balance reference) and a new
+  Limitations bullet "The balance route is closed by measurement, not only by
+  degeneracy (M)", with the neighbouring bullet about the quantum being 2 amended to
+  say that the natural candidate of that class has been constructed and measured
+  without success.  The membership ledger's open-gate row also gained a provenance
+  caveat for its 93 pair halves (item 3's measurement), so the table is not left
+  unqualified.  The rule is exactly what section 6 of
   `DYNAMIC_QUANTIZATION_DERIVATION.md` asked for: **capture by shell overlap**
   (unchanged reference gate) versus **escape by surface** (a delegate with no
   same-charge contact for one full partner rotation, `W_USED` frames, is released) --
