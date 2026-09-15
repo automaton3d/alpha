@@ -118,6 +118,14 @@ value** instead of drifting.  It is not bit-stable (the count still moves betwee
 is what sets the +-2 jitter and whether a longer run or a stricter anchor (e.g.
 binding the family to its K chief permanently) removes it.
 
+**Caveat added 2026-09-14, superseding the verdict above.**  `FAMILY_RIGID_FSM`
+was withdrawn as a host-level artefact: its predicate read `lcenters[]` across a
+family's copies within one tick -- non-local, and a readable consequence -- and
+with the predicate removed the `fam` and `famrigid` binaries are **bit-identical**,
+so the `79 +- 2` settled count was produced entirely by that read.  See the
+"Locality audit" and "Action taken" sections below.  The verdict above is
+retained only as the historical record of the 20-journey run.
+
 ## Locality audit of the rigid rule (measured)
 
 `FAMILY_RIGID_FSM` reads `lcenters[f]` for the family's *other* layers and uses the

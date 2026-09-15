@@ -1,0 +1,23 @@
+== 1. Data sanity ==
+run ref_L15                    islands=675  frames/island=4..4  sum(cap)=675 sum(esc)=0  islands with zero escapes=675
+  WARNING: zero escapes in this run -- affiliation is a fixed partition here, so dN = 0 and no drift can be estimated (the basic32_seed_1 failure mode).
+
+== 2. Binned fluxes ==
+N range 1..3 in 12 bins of width 0.17
+bin            count   meanN    cap      esc     
+[1.0,1.2)      699     1.00     0.000    0.000   
+[2.0,2.2)      1977    2.00     0.333    0.000   
+[2.8,3.0)      24      3.00     0.667    0.000   
+mean dN by population: N=1:0.00 N=2:0.33 N=3:0.67
+an attractor requires this curve to cross zero with the drift going + -> - (b < 0).
+
+== 3. Drift fit dN ~ a + b N ==
+a=-0.33333  b=0.33333  over 2700 island-frames
+b >= 0: no restoring drift, so no attractor N*.
+AR(1) of residuals = -0.189
+
+== 4. Surrogate test (permute dN within island) ==
+skipped (no attractor in the real data)
+
+== 5. Verdict ==
+INCONCLUSIVE: zero escapes -- affiliation is a fixed partition in these runs. Re-run with escape-capable dynamics (and per-event flux logging) before any attractor claim.

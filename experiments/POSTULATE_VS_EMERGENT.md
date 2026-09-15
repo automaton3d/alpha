@@ -22,6 +22,8 @@ given so a referee can check each entry.
 | Speed of light `c` | **E** (observer reading) | manuscript, special relativity | `c` is the value an observer assigns to `v_max`; not in the rule |
 | Polarization pair `(pol_u,pol_v)`, `pB/sB` | **C** (postulated broadcast, NOT emergent) | `polarization.cpp`; `SEED_ASYMMETRY.md` | does not bootstrap from the zero seed; `alpha_D` unobservable |
 | Aggregation (`1 K + n D` islands) | **C** (not emergent from the seed) | `ISLAND_CENSUS.md` | production path reaches an absorbing plateau; needs a candidate (EXCLUSION / `DD_INTRA_ISLAND_FIX`) |
+| Island population quantum `N* = 2` | **M** (derived) | membership transitions T1-T5 (`chief_transition.h`); `DYNAMIC_QUANTIZATION_DERIVATION.md` | fixed-point theorem: every group <= 2, at most one group of population 2 per charge word; verified at `L=9` and `L=15` (667 K + 8 D, `pop == L/3 = 0`) and at every `S` tested |
+| Charge unit `L/3` (the quantisation claim) | **P** (axiom of the internal dimension) | seed address map (`initSim.cpp`, family index `w / (L/3)`), `subsec:w-islands` | not derived: it is reproduced only by candidates that switch (T2) off inside a family; the SM's hypercharge normalisation is arbitrary in the same way |
 | Island inertia / transport | **C** (prepared, controlled) | `INERTIA_REVALIDATION.md` | K-only transport passes; multi-constituent island identity fragile |
 
 ## Reading

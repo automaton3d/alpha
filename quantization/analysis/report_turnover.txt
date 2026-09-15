@@ -1,0 +1,26 @@
+== 1. Data sanity ==
+run cand_turnover              islands=243  frames/island=20..20  sum(cap)=1093 sum(esc)=899  islands with zero escapes=12
+
+== 2. Binned fluxes ==
+N range 1..7 in 12 bins of width 0.50
+bin            count   meanN    cap      esc     
+[1.0,1.5)      2045    1.00     0.000    0.350   
+[2.0,2.5)      2174    2.00     0.236    0.049   
+[3.0,3.5)      488     3.00     0.752    0.109   
+[4.0,4.5)      129     4.00     1.457    0.155   
+[5.0,5.5)      19      5.00     0.842    0.158   
+[6.0,6.5)      3       6.00     2.000    0.000   
+[6.5,7.0)      2       7.00     1.000    0.000   
+mean dN by population: N=1:-0.35 N=2:0.19 N=3:0.64 N=4:1.30 N=5:0.68 N=6:2.00 N=7:1.00
+an attractor requires this curve to cross zero with the drift going + -> - (b < 0).
+
+== 3. Drift fit dN ~ a + b N ==
+a=-0.82401  b=0.49397  over 4860 island-frames
+b >= 0: no restoring drift, so no attractor N*.
+AR(1) of residuals = 0.046
+
+== 4. Surrogate test (permute dN within island) ==
+skipped (no attractor in the real data)
+
+== 5. Verdict ==
+FAIL: no restoring drift (b >= 0). The measured fluxes do not support a population attractor N*.

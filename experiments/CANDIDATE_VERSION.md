@@ -1,8 +1,9 @@
 # Candidate version — manuscript change summary (WP6)
 
-**Manuscript:** `doc/manuscript.tex` / `doc/manuscript.pdf` (revision of 11 Sep 2026).
+**Manuscript:** `doc/manuscript.tex` / `doc/manuscript.pdf` (revision of 14 Sep 2026).
 **Build:** `doc\latexpdf.bat` (`pdflatex` + `biber` + `pdflatex` + `pdflatex`);
-compiles with **zero warnings** and no undefined citations.
+compiles with **no undefined references and no missing citations** (eight
+overfull hboxes remain).
 **Model reference:** `MODEL_VERSION` `model-ref-v1` (`doc/REFERENCE_CONFIG.md`);
 fingerprint verified by `experiments/model_fingerprint.ps1`.
 
@@ -31,6 +32,31 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
   the taxonomy and the QM bridge carry an explicit Status (C).
 - Added an explicit **determinism / no-seeds** note to the campaign section.
 
+## Scope reduction (13/14 Sep 2026)
+
+The revision that followed the aggregation campaign **reduces the paper's central
+claim to what the rules support**; this is the largest change of the revision and
+it is a reduction, not a defence:
+
+- New subsection **"The group population is fixed by the transitions"**
+  (`subsec:fixed-point`) with the membership transition list (T1-T5), the
+  fixed-point statement (*every group at most 2; at most one group of population 2
+  per charge word*), its proof sketch, the co-location scope paragraph, and Table
+  `tab:ledger` (reference `235 K + 8 D`; open gate `145 K + 5 D` with `93` pair
+  halves; candidate family rules `81 K + 162 D`).
+- The abstract and the `L/3` hypothesis sentence now state the outcome: the
+  reference dynamics freezes at population **2**, and the charge unit `L/3` is a
+  **topological axiom of the internal dimension**, not a dynamical output (the
+  same epistemic position as hypercharge normalisation in the Standard Model).
+- Limitations gained the item **"The population quantum is `2`, not `L/3` (M)"**,
+  with the verification at two lattice sizes.
+- New measurements folded in: the full-scale candidate census (`81 K + 162 D` at
+  `L=9`/`W=243`), the sieve-modulus sweep on the production census (the
+  electroweak channel rearranges roles but never reaches `L/3`), the
+  distinct-family mediated-duo probe (no mediator-based separation), the `P7`
+  co-location control, and the `L=15` lattice-side check (`667 K + 8 D`,
+  `max_population = 2`, `pop == L/3 = 0`).
+
 ## Data and reproducibility
 
 - **Re-ran the sieve sweep** at the current kernel and replaced `tab:sieve`
@@ -42,7 +68,8 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
 ## Style
 
 - **American English** standardization (no British spellings remain).
-- Float specifiers `[h]` -> `[htbp]`: **zero build warnings**.
+- Float specifiers `[h]` -> `[htbp]`: no float-placement warnings remain (eight
+  overfull hboxes are left in the current build).
 - Split the two largest paragraphs ("Distinct bubbles"; "Diffusion, translation
   and collapse in one reading") into readable paragraphs via blank-line breaks
   only (no text change).
@@ -57,7 +84,10 @@ simulated referees are in `experiments/RESPONSE_TO_REFEREES.md`.
 ## Evidence artefacts
 
 `experiments/` : `RESULTS_v2.md`, `ABLATION_81x3.md`, `POSTULATE_VS_EMERGENT.md`,
-`PBSB_ISLANDS.md`, `RESPONSE_TO_REFEREES.md`, `WORK_PLAN.md`.
+`PBSB_ISLANDS.md`, `RESPONSE_TO_REFEREES.md`, `WORK_PLAN.md`,
+`DYNAMIC_QUANTIZATION_DERIVATION.md`, `SIEVE_SWEEP_PRODUCTION.md`,
+`PHOTON_MEDIATION_FAR.md`, and the harnesses `p7_concentration.cpp`,
+`island_census.cpp`, `alpha_probe.cpp` with their build scripts.
 `doc/REFERENCE_CONFIG.md`; `run_all.bat`; `experiments/model_fingerprint.ps1`.
 
 ## Gate G1 — resolved: Route A
@@ -74,3 +104,14 @@ negative battery is the robust, complete contribution.
 *Override (Route B):* would require reframing the title, abstract and Introduction
 around the repulsion and presenting `EM_NOS2B_FSM` as a proposed model extension —
 a larger edit, deferred by choice.
+
+**Strengthened (14 Sep 2026).**  The distinct-family probe closes the last
+interpretation gap.  With the two equal-charge bodies in *different* charge
+families (so the identity merge cannot act) and the EM reorder live
+(`EM_FIRST_FSM`), the R2 photon and R1 graviton mediators produce **bit-identical
+trajectories** and the pair always reaches contact; beyond the contact range there
+are zero contacts at all (`PHOTON_MEDIATION_FAR.md`).  The Route-B mechanism is
+therefore not merely unproven but **measured negative in its best-case
+configuration**, and the earlier `W=4` "repulsion" is explained as the
+identity/cohesion background being partially counteracted.  Route A stands on
+stronger ground than at the time of the gate decision.

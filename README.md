@@ -116,11 +116,16 @@ the matching `experiments\*.md` note (see the documentation map below).
 
 The six pre-registered candidates for the fine-structure constant (alpha_A..F)
 all fail at accessible lattice sizes; the superposed Platonic seed does not
-self-assemble into `9L` islands of `L/3` constituents; and the mediated
+self-assemble into `9L` islands of `L/3` constituents; the mediated
 photon/graviton repulsion between equal-charge islands is at a documented
-geometric impasse. Controlled positives exist (K-only island transport; a
-family-preserving `81 x 3` exclusion control). Full detail:
-`experiments\RESULTS.md` and the WORK_PLAN.
+geometric impasse; and the island population is now *proved* to quantise to **two
+constituents** -- never to the postulated `L/3` -- a statement verified at `L=9`
+(multiplicity 3) and `L=15` (multiplicity 5), with controls that separate the
+geometry from the transition.  The charge unit `L/3` is stated as an axiom of the
+internal dimension.  Controlled positives exist (K-only island transport; a
+family-preserving `81 x 3` exclusion control).  Full detail:
+`experiments\RESULTS.md`, `experiments\DYNAMIC_QUANTIZATION_DERIVATION.md` and the
+WORK_PLAN.
 
 ## Documentation map
 
@@ -139,6 +144,20 @@ family-preserving `81 x 3` exclusion control). Full detail:
 | `experiments\INERTIA.md`, `INERTIA_REVALIDATION.md` | Island-inertia transport experiments |
 | `experiments\ISLAND_CENSUS.md`, `ATTRACTOR_CENSUS.md` | Production-path aggregation census |
 | `experiments\ABLATION_81x3.md`, `LIGHTMATTER_DECOUPLE.md`, `PBSB_ISLANDS.md` | Candidate aggregation/EM mechanisms |
+| `experiments\DYNAMIC_QUANTIZATION_DERIVATION.md` | Membership fixed-point theorem (population quantum 2), ledger, `P7` control, `L=15` check |
+| `experiments\TURNOVER_ABLATION.md` (+ `turnover_ablation.cpp`, `build_turnover_ablation.bat`) | Item 2: the `EXCLUSION` on/off ablation on a configuration with turnover (the hard core isolates, it does not select) |
+| `experiments\SPACING_PROBE.md` (+ `spacing_probe.cpp`, `build_spacing_probe.bat`) | Item 1: the spacing threshold (`d >= 2*RMAX+1`) and the test that no model channel provides spacing |
+| `experiments\PREDICTED_NS_RULE.md` (+ `build_p7_concentration.bat`, modes `chain/gap2/mid/edge`) | Item 4: a rule with a predicted `N*` (capture by shell overlap vs escape by surface) -- prediction falsified at `gap = 3,4`; cause = contact duty cycle dropping 3/4 -> 1/4 of the 4-frame breathing period |
+| `experiments\CHARGE_SPECTRUM.md` (+ `analyze_charge_spectrum.py`) | Item 3: the charge words and pair channels the rules allow (3 of 6 algebraically closed), the seed's 41:40 inventory verified live, and the Appendix-B census arithmetic recomputed |
+| `experiments\SIEVE_SWEEP_PRODUCTION.md` | Sieve-modulus sweep on the production census (the sieve channel does not quantise) |
+| `experiments\PHOTON_MEDIATION_FAR.md` | Distinct-family mediated-duo probe (no mediator-based separation) |
+| `experiments\analyze_sieve_sweep.py` | Summarise every `build\island_census\sweep_S*` directory |
+| `experiments\GEOMETRIC_QUANTUM.md` | Geometric-quantum hypothesis tested and falsified (contact, shell and ball capacities) |
+| `experiments\BRIDGE_REVISION_IF_PROVEN.md` + `experiments\bridge_proven.tex` | Conditional revision of `sec:bridge` (as if the conjectures were proven): derivation text + the H1-H4 obligation map and swap procedure |
+| `quantization\README.md`, `quantization\FINDINGS.md` | Flux harness for the attractor hypothesis (`Gamma_cap = Gamma_esc`) and its first results on real data |
+| `quantization\flux_from_census.py`, `quantize_stdlib.py`, `make_synth_stdlib.py` | Adapter (`constituents.csv` -> flux CSV), stdlib port of the harness (with `--by-run`), stdlib synthetic controls |
+| `experiments\analyze_geometric_quantum.py` | Reader for the above: capacities, contact-graph completeness, realised-population histogram |
+| `experiments\p7_concentration.cpp` (+ `build_p7_concentration.bat`) | P7: co-located vs spread prepared island, reference vs `DD_INTRA_ISLAND_FIX` |
 | `experiments\pbsb_two_wide.cpp` | WP4.3: two-cloud pB/sB probe (ordinary + `/D EM_FIRST_FSM`) |
 | `experiments\POSTULATE_VS_EMERGENT.md` | Postulate-vs-emergent table (editor response, Limitations) |
 | `experiments\RESPONSE_TO_REFEREES.md` | WP6: simulated referee reports + point-by-point responses + action list |

@@ -153,10 +153,42 @@ L=9 structure.
 | reference (macro off) | K=2 D=1 S=0 | 2 K + 1 D (over-promoted) |
 | `DD_INTRA_ISLAND_FIX` | K=1 D=2 S=0 | **1 K + 2 D (island)** |
 
-The fix is validated at the rule level.  Still open: re-running the full
-production census (`island_census` at L=9/W=243, ~50 s/frame) with
-`-D DD_INTRA_ISLAND_FIX` together with EXCLUSION to confirm 81 K + 162 D at full
-scale (heavy).
+The fix is validated at the rule level.  **Full-scale confirmation (13 Sep
+2026).**  Build `experiments/build_island_census_exc_fix.bat` (ordinary
+production `simulation()` + `EXCLUSION_FSM` + `DD_INTRA_ISLAND_FIX`) and run
+
+    build\island_census\island_census_exc_fix.exe 12 16384 build/island_census/prod_exc_fix
+
+on the canonical superposed Platonic seed (L=9, W=243, all 243 layers born
+coincident, no placed seed, no host-table read).  Frame 2 census row
+(`census.csv`):
+
+| frame | K | D | centres | groups | unresolved | mixed charge | max_pop | max_families |
+|---|---|---|---|---|---|---|---|---|
+| 2 | **81** | **162** | 9 | 81 | 0 | 0 | **3 = L/3** | 1 |
+
+The production path now yields exactly **one chief per seed family** (1 K + 2 D,
+population `L/3`) instead of the reference 2 K + 1 D; the cross-family tribes
+stay absent (unresolved = 0, mixed charge = 0).  Controls in the same table:
+EXCLUSION only -> 162 K / 81 D (15-19 centres); reference production path ->
+235 K / 8 D at one centre, no group at population `L/3`.  Residuals, unchanged:
+the excluded layout localises weakly (9 occupied centres at frame 2 in this
+build) and the identity hard core remains a candidate that alters the
+`canElectChief` semantics (see the reading above).
+
+**Stability (same run, frames 2..12).**  Every row is identical in the role and
+population columns (`K=81`, `D=162`, `groups=81`, `unresolved=0`,
+`mixed_charge=0`, `max_population=3`, `max_families=1`), with
+`captures = escapes = births = deaths = 0` from frame 3 onward.  The harness
+report card is
+
+    SUMMARY frames=12 chiefs_total=81 chiefs_at_end=81 stable>=5frames=81 localized_at_end=81 pop==L/3_at_end=81
+    wall_seconds=688.49 seconds_per_frame=57.374
+
+Occupied centres fluctuate in the 9-19 band (9, 15, 19, 17, 17, 19, 19, 19, 19,
+15, 19, 17): several islands share a centre, which is exactly what the
+`localized_at_end` criterion (span <= RMAX, population >= 2) records, and the
+spatial spread stays the weak point of this candidate.
 
 ## WP3.2 -- spread81 membership and extent distribution (11 Sep 2026)
 

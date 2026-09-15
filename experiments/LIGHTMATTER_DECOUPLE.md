@@ -304,6 +304,20 @@ Superposed Platonic cube (L=9, W=243), frames 2..12 (run
 |---|---|---|---|---|---|
 | **162** | 81 | 15-19 | 162 | 0 | 0 |
 
+**Full-scale WP3.3 confirmation (13 Sep 2026).**  Same ordinary
+`simulation()` path, now with `EXCLUSION_FSM` **and** `DD_INTRA_ISLAND_FIX`
+(build `experiments/build_island_census_exc_fix.bat`, run
+`build/island_census/island_census_exc_fix.exe 12 16384 build/island_census/prod_exc_fix`):
+frame 2 of the canonical superposed seed gives **K=81 / D=162**, groups 81,
+unresolved 0, mixed charge 0, `max_population = 3 = L/3`, `max_families = 1`,
+9 occupied centres -- exactly one chief per seed family (1 K + 2 D), i.e. the
+production path now reaches the 81 x 3 form the candidate construction
+requires, not only the rule-level harness (`promotion_three`).  Frames 2-12 are
+identical in every role/population column; the report card is
+`chiefs_total=81 chiefs_at_end=81 stable>=5frames=81 localized_at_end=81
+pop==L/3_at_end=81` (688.49 s, 57.4 s/frame), with occupied centres in the
+9-19 band (several islands share a centre).
+
 Every frame is identical after the first interaction journey.  The
 cross-family charge-word tribes are gone (production without the rule: K=235,
 D=8, 1 centre) and the 81 seed families are never mixed (unresolved = 0,

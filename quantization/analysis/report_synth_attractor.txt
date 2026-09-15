@@ -1,0 +1,33 @@
+== 1. Data sanity ==
+run att                        islands=6  frames/island=300..300  sum(cap)=3571 sum(esc)=3582  islands with zero escapes=0
+
+== 2. Binned fluxes ==
+N range 19..43 in 12 bins of width 2.00
+bin            count   meanN    cap      esc     
+[19.0,21.0)    7       19.71    4.143    1.286   
+[21.0,23.0)    19      21.63    2.947    1.211   
+[23.0,25.0)    88      23.58    2.216    1.352   
+[25.0,27.0)    163     25.57    2.436    1.675   
+[27.0,29.0)    267     27.47    2.206    1.809   
+[29.0,31.0)    390     29.48    2.008    1.967   
+[31.0,33.0)    331     31.52    1.846    2.006   
+[33.0,35.0)    256     33.45    1.879    2.199   
+[35.0,37.0)    173     35.45    1.676    2.503   
+[37.0,39.0)    85      37.34    1.400    2.306   
+[39.0,41.0)    16      39.38    1.000    2.250   
+[41.0,43.0)    5       42.00    1.000    3.200   
+mean dN by population: N=19:1.50 N=20:3.40 N=21:1.71 N=22:1.75 N=23:0.86 N=24:0.86 N=25:0.83 N=26:0.71 N=27:0.49 N=28:0.29 N=29:0.02 N=30:0.06 N=31:0.06 N=32:-0.37 N=33:-0.29
+an attractor requires this curve to cross zero with the drift going + -> - (b < 0).
+
+== 3. Drift fit dN ~ a + b N ==
+a=4.43241  b=-0.14588  over 1800 island-frames
+N* = -a/b = 30.38  (attractor iff b < 0: OK)
+AR(1) of residuals = 0.033
+bootstrap over islands: N* 95% CI [29.87, 30.91] (500/500 usable resamples)
+
+== 4. Surrogate test (permute dN within island) ==
+p(|b| surrogate >= observed) = 0.0050 over 200 shuffles
+small p -> the drift is real dynamics, not a regression-to-the-mean artifact of the N distribution.
+
+== 5. Verdict ==
+PASS: restoring drift b=-0.1459 < 0, N*=30.38, surrogate p=0.004975. Consistent with dynamic charge quantization; next step is the EXCLUSION on/off ablation on the same harness.

@@ -144,7 +144,7 @@ Each WP lists objective, tasks, deliverable, **acceptance criterion** and effort
   (spread81 membership/extent distribution, from kept data), WP3.3 (the
   production 1 K + 2 D fix, validated at rule level with `promotion_three`) and
   WP3.4 (postulate-vs-emergent table) are delivered; WP3.5 is the WP2 S-scan.
-  The only open item is the full-scale WP3.3 confirmation (island_census at L=9,
+  The full-scale WP3.3 confirmation is DONE (13 Sep 2026; see the session log):
   heavy).
 
 ### WP4 -- (PULLED FORWARD, time-boxed) Deepen one positive -- ~8-20 sessions, uncertain
@@ -197,9 +197,15 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   outcome to the abstract**; and **added a dedicated "Falsification campaign"
   section** (`sec:campaign`, `tab:campaign`) before Results presenting the six
   pre-registered candidates and their failure at the current HEAD -- closing the
-  gap where the abstract/intro promised a campaign the body did not show.  Clean
-  two-pass `pdflatex` reports no warnings.  Remaining: prose tightening of the
-  Conjectures.
+  gap where the abstract/intro promised a campaign the body did not show.
+- **Status: DONE (14 Sep 2026).**  The revision also carries the membership
+  fixed-point subsection (`subsec:fixed-point`), the axiom statement for the
+  charge unit, the `L=15` and P7 verifications and the geometric falsification.
+  *Build claim corrected:* the manuscript compiles with **no undefined references
+  and no missing citations** (eight overfull hboxes remain).  Earlier entries in
+  this log that say "zero warnings" describe the state before the box count was
+  measured; this line supersedes them.  Remaining: optional prose tightening of
+  the Conjectures.
 
 ### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
 - **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
@@ -207,7 +213,15 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   respond point by point; standardise American English, notation, bibliography.
 - **Deliverable:** `RESPONSE_TO_REFEREES.md` + a candidate version.
 - **Acceptance:** every report point answered with evidence or a reduced scope.
-- **Depends on:** WP5.
+- **Depends on:** WP5.  **Status: DONE (13/14 Sep 2026).**  Two rounds of
+  simulated reports are written (round 1: scope/novelty, causality/non-locality,
+  numerics; round 2: the theorem's value, the frame windows, the measurement
+  audits, P7's construction), with **13 action items, all satisfied**.  The
+  third-party reproduction test was executed in this pass: `run_all.bat`
+  reported `gui_build OK / probe_build OK / probe_smoke OK`, and the 200-frame
+  reference probe reproduced `active-passes = 6468`, `s2B = 0`, `pairs = 0`,
+  `alpha_A = 0.003756878` (2.87 s).  Evidence: `RESPONSE_TO_REFEREES.md`,
+  `DATA_DEPOSIT.md`.
 
 ### WP7 -- Submission and data repository -- ~1-2 sessions
 - **Tasks:** a data/code deposit plan (Zenodo/OSF with `run_all` + CSVs + commit
@@ -215,7 +229,12 @@ Executes `REVISION_PLAN.md` sec.4 on the current structure:
   pipeline (`doc/latexpdf.bat`).
 - **Deliverable:** `experiments/DATA_DEPOSIT.md`, `experiments/COVER_LETTER.md`;
   the actual DOI deposit is performed by the author.
-- **Depends on:** WP6.  **Status: started** -- both notes written.
+- **Depends on:** WP6.  **Status: notes complete for submission (14 Sep 2026).**
+  `DATA_DEPOSIT.md` carries the table-to-script map, the frozen expected-values
+  table (acceptance for a reproducer), the cost profile and the reproduction
+  status; `COVER_LETTER.md` states the scope reduction (the charge unit is an
+  axiom; the population quantum is 2).  The DOI deposit itself remains the
+  author's action.
 
 ---
 
@@ -358,12 +377,320 @@ its time-box.
   `experiments/promotion_three.cpp` (+ `build_promotion_three.bat`) shows
   reference K=2/D=1 vs fix K=1/D=2 for a 3-copy family.  Reference build
   re-verified 6468/0/0; model fingerprint advanced `29ef0e...` -> `937449...`.
+- **2026-09-13 -- WP3.3 full-scale confirmation DONE.**  New build
+  `experiments/build_island_census_exc_fix.bat` (`EXCLUSION_FSM` +
+  `DD_INTRA_ISLAND_FIX`, ordinary production `simulation()`), run
+  `build/island_census/island_census_exc_fix.exe 12 16384 build/island_census/prod_exc_fix`
+  on the canonical superposed Platonic seed (L=9, W=243, no placed seed): frame 2
+  = **K=81 / D=162**, groups 81, unresolved 0, mixed charge 0,
+  `max_population = 3 = L/3`, `max_families = 1` -- i.e. exactly one chief per
+  seed family (1 K + 2 D), against the reference path (235 K / 8 D, one centre,
+  no group at L/3) and the EXCLUSION-only port (162 K / 81 D).  Frames 2-12 are
+  identical in the census (no captures/escapes/births/deaths from frame 3);
+  occupied centres fluctuate 9, 15, 19, 17 (weak localisation: several islands
+  share a centre).
+  The full 12-frame run completed in `build/island_census/prod_exc_fix/` with the
+  report card `chiefs_total=81 chiefs_at_end=81 stable>=5frames=81
+  localized_at_end=81 pop==L/3_at_end=81` (wall 688.49 s, 57.4 s/frame).
+  Recorded in `ABLATION_81x3.md` (WP3.3) and
+  `LIGHTMATTER_DECOUPLE.md` (production-path port).  Residuals unchanged: weak
+  spatial localisation and the candidate status of the identity hard core
+  (`canElectChief` semantics).
+- **2026-09-13 -- Item A (circularity) probed: the sieve channel does NOT
+  quantise.**  With the ORDINARY reference census build (no candidate macro) the
+  only free knob that can rearrange the role census is the electroweak sieve
+  modulus `S`.  Sweep at L=9, W=243, canonical superposed seed, 6 journeys each
+  (`build/island_census/sweep_S*`, read by the new
+  `experiments/analyze_sieve_sweep.py`; log `experiments/SIEVE_SWEEP_PRODUCTION.md`):
+  `S=16384` and `8192` reproduce the reference plateau `235 K / 8 D` (max
+  population 2, one centre); every `S <= 4096` switches to `145 K / 5 D` with
+  `P = 93` pair halves (the electroweak channel opens; `145+5+93 = 243`), still
+  max population 2 and one centre.  No group reaches `L/3 = 3`, in either
+  regime, and `captures = escapes = births = deaths = 0` from frame 3 on: the
+  census is absorbing at population 2.  So the sieve channel rearranges roles
+  and binds pairs but does not produce `N* = L/3`; the `81 x 3` quantisation
+  comes from the candidate rules that carry `ISLAND_SIZE = L/3`.  Window covered:
+  frames 2-10, including journey 7 where the broadcast stamp goes live -- the
+  12-journey `S = 64` run (`build/island_census/sweep_S64_long`) does **not**
+  break at frame 7 either (frames 2-10 are the identical low-S row).  `L` is
+  hardcoded to 9 in the harness,
+  so the `L/3`-vs-`L` dependence test remains out of reach.
+
+- **2026-09-13 -- Item C: the distinct-family ("far") mediated-duo probe is
+  NEGATIVE.**  New combined build `experiments/build_probe_em_orphan.bat`
+  (`EM_FIRST_FSM` + `ORPHAN_GUIDANCE_FSM` + the polarization bootstrap macros).
+  Layout `far` (W=9: bodies w=0/w=3 in different families, free mediator at
+  w=6/7), EL=11, SEP=4, 20 frames, same charge 0x08, mediator bare/photon/grav
+  (`experiments/PHOTON_MEDIATION_FAR.md`, logs under `build/probe_far/`): with
+  the orphan channel alone (identity first) all three merge at frame 4; with the
+  EM reorder live, the R2 channel still does nothing at the reference sieve
+  (d -> 0 at frame 5) and, with the gate open (`S = 64`), the photon and
+  graviton trajectories are **bit-identical** (same d(t), 506 recruits, 0 repel,
+  32 attract, 26 annihilations) -- the separation that appears is the opened
+  electroweak branch, not a charge-word-selective mediator effect.  The earlier
+  W=4 "repel" positives were the identity/cohesion background being partially
+  counteracted.  So no reference-dynamics mechanism separates two equal-charge
+  islands; the separation in the `81 x 3` candidates comes from the
+  `EXCLUSION_FSM` stand-in.  Residuals: one lattice size, one SEP, mediator
+  planted by the probe, `pol` relies on the candidate bootstrap.
+- **2026-09-13 -- Item D: the membership fixed point is DERIVED (the quantum is
+  2, not `L/3`).**  New note `experiments/DYNAMIC_QUANTIZATION_DERIVATION.md`.
+  From the coded transitions (`chief_transition.h:4-56`,
+  `interaction.cpp:631,1227-1250`) the frozen membership states satisfy: every
+  group has population <= 2 and, per charge word, at most one group of
+  population 2.  Proof: a group of size >= 3 contains two same-charge delegates;
+  the schedule rotates one slice per frame (`utils.cpp:36`) so every pair meets
+  within `W` frames, and `promotesDelegate` (which requires only
+  `main.w < mirror.w`) then promotes one -> the size drops; two same-charge
+  size-2 groups are likewise split.  None of the transitions reads
+  `ISLAND_SIZE`/`L/3`, and the bound 2 holds for every multiplicity `m = L/3 >= 2`
+  -- so `N* = 2` for every `L` and every `S`.  Checks: reference `235 K + 8 D`
+  with **exactly 8** non-singleton groups (= the 8 distinct charge words);
+  low-`S` `145 K + 5 D` (5 <= 8); `prod_exc_fix` `81 x 3` only because
+  `DD_INTRA_ISLAND_FIX` removes the promotion inside a family.  Also explains why
+  the manuscript's `Gamma_cap(N*) = Gamma_esc(N*)` reading misleads: both rates
+  are 0 in the absorbing corner, so `N*` comes from the reachable set, not from
+  a balance.  Decisive non-circular falsifier left: run the ordinary build at
+  `EL = 15` (`W = 675`) and check `max_population = 2` / `pop == L/3 = 0`.
+- **2026-09-13/14 -- Steps 1+2 done: derivation folded into the manuscript; the
+  `L=15` falsifier launched.**  (1) `doc/manuscript.tex` gained
+  `\subsection{The group population is fixed by the transitions}`
+  (`subsec:fixed-point`): the T1-T5 transition list, the fixed-point statement
+  with its proof sketch, the corner-not-balance remark, `tab:ledger`
+  (235/8/0, 145/5/93, 81/162 rows), the status paragraph (the charge unit `L/3`
+  is a topological axiom, on the footing of the SM hypercharge normalisation;
+  the candidate rules work by switching (T2) off inside a family) and the scope
+  paragraph (co-location; the prepared islands of the inertia runs).  The
+  abstract, the `L/3` hypothesis sentence in Sect. Dynamic charge quantization
+  and the Limitations list were updated to match, and
+  `experiments/POSTULATE_VS_EMERGENT.md` gained two rows: island population
+  quantum `N* = 2` -- **M** (derived), charge unit `L/3` -- **P** (axiom).
+  Build `pdflatex -> biber -> pdflatex x2`: 56 pages, **no undefined
+  references** (8 overfull hboxes, as before).  (2)
+  `experiments/island_census.cpp` now accepts an optional fifth argument `[EL]`
+  (default 9, must be a multiple of 3), so the census can run at other lattice
+  sides; the change is backwards compatible (check run `el9_check` at `EL=9`:
+  frames 0-1 identical, 64.2 s/frame, report card written).  Launched the
+  falsifier `island_census.exe 4 16384 build/island_census/L15 15`
+  (~33x the `L=9` cost per frame, ~30 min/frame; frame 0 done, `S=675`).
+  Prediction to check on the frame-2 row: `max_population = 2` and
+
+- **2026-09-14 -- The `L=15` falsifier ran and the theorem HOLDS.**  Completed
+  `build/island_census/L15` (`island_census.exe 4 16384 build/island_census/L15 15`;
+  `EL=15`, `W=675`, five copies per family, `RMAX=7`, `FRAME=2285`, 7460 s,
+  31 min/frame).  Frozen state from frame 2: **667 K + 8 D**, groups 667,
+  unresolved 0, mixed charge 0, `max_population = 2`, one centre; report card
+  `chiefs_total=667 chiefs_at_end=667 localized_at_end=8 pop==L/3_at_end=0`;
+  frames 3 and 4 identical (zero captures/escapes/births/deaths).  So the
+  population quantum is **2 at multiplicity 3 and at multiplicity 5**: `L/3` is
+  not an attractor at either size, and `P1` is confirmed at a second lattice
+  side.  The sharper reading: `K = W - 8` and `D = 8` at both sizes, i.e.
+  exactly one delegate per charge word -- the theorem's bound is attained.
+  Recorded in `DYNAMIC_QUANTIZATION_DERIVATION.md` (new section 9, plus the
+  ledger row and the `P1` status), and the manuscript's fixed-point subsection
+  and Limitations item now report the check.
+- **2026-09-14 -- Item 1 done: spacing is not emergent (threshold measured).**
+  New `experiments/spacing_probe.cpp` (+ `build_spacing_probe.bat`, three arms) and
+  log `experiments/SPACING_PROBE.md`.  A three-copy family (`K`, `D1`, `D2`) in a
+  `27x5x5` tube (`RMAX=2`, contact range 4), varying only the `D1-D2` gap `dD`:
+  **every `dD` from 0 to 4 promotes** (`T2` fires, final `2K+1D`), while
+  `dD = 5` keeps `1K+2D` for 40 journeys -- so the threshold is
+  `d >= 2*RMAX + 1`.  The electric channel was given its prerequisite
+  (`POLAR_BOOTSTRAP_ADDRESS` + `POLAR_BROADCAST_WAVE` + `SPACING_POL`) and the
+  ordering fix (`EM_FIRST_FSM`): identical outcomes, and the `conv_repel` counter
+  never fires.  With `PHOTON_MEDIATION_FAR.md` (mediated channel sign-blind) and
+  `GEOMETRIC_QUANTUM.md` (complete contact graph in a cube) this closes every
+  space-providing candidate; the candidates that *do* hold copies apart
+  (`ADDRESS_TARGET_FSM`, `ISLAND_ALIGNED_W_ROTATION`) derive their destinations
+  from the family index `w / ISLAND_SIZE`, i.e. from the `L/3` partition.  Design
+  criterion recorded for any future attempt: hold the copies at
+  `d >= 2*RMAX + 1` with cell-local data only, no `ISLAND_SIZE`, no `L`.
+  Folded into the manuscript's candidate-mechanism paragraph.
+- **2026-09-14 -- Item 4 done: a rule with a predicted `N*` (prediction falsified,
+  cause diagnosed).**  New macro `SURFACE_ESCAPE_FSM` in `src/model/interaction.cpp`
+  (OFF by default, so the reference build is bit-identical: every change sits inside
+  the `#ifdef`), new harness modes in `experiments/p7_concentration.cpp`
+  (`chain`, `gap2`, `mid`, `edge` beside `co`/`spread`, each printing the prediction
+  itself) and a third binary in `experiments/build_p7_concentration.bat`; log
+  `experiments/PREDICTED_NS_RULE.md`.  The rule is exactly what section 6 of
+  `DYNAMIC_QUANTIZATION_DERIVATION.md` asked for: **capture by shell overlap**
+  (unchanged reference gate) versus **escape by surface** (a delegate with no
+  same-charge contact for one full partner rotation, `W_USED` frames, is released) --
+  both local, no `ISLAND_SIZE`, no `L`.  Pre-registered prediction: `N* = 2` for
+  constituent separation `gap <= 2*RMAX = 4`, `N* = 1` above.  Measured over the six
+  gaps `0,1,2,3,4,5`: the escape boundary sits between `gap = 2` and `gap = 3`, so the
+  prediction is **falsified at `gap = 3` and `4`** (escapes fire: `2K+0D+1S`,
+  `max_pop = 1`) and confirmed at `0-2` and `5`.  Diagnosis from the same table: the
+  reference still contacts at `gap = 3,4` (it promotes), so the shells do overlap --
+  but *intermittently*: the measured contact duty cycle (fraction of the `2*RMAX = 4`
+  frame breathing period in which a pair is simultaneously open) is `3/4` for
+  `gap <= 2` and `1/4` for `gap = 3,4`, and the timer (3 consecutive contact-free
+  frames) turns exactly that drop into the boundary.  The rule therefore measures
+  contact *persistence*, not overlap *existence*.  Consequence: with the rule on, the stable
+  population is 2 at best and 1 beyond ~2 cells, so `N* = L/3 = 3` appears nowhere --
+  the balance route is now closed *with* an interior crossing (both rates nonzero),
+  which is a stronger statement than the earlier absorbing-corner argument.  By-product
+  for the contact channel: the reference contact range `2*RMAX` is now confirmed from
+  both sides (`gap = 4` promotes, `gap = 5` does not).
+
+- **2026-09-14 -- Item 3 done: the charge spectrum the rules allow is derived
+  (and the paper's census arithmetic verified).**  New
+  `experiments/analyze_charge_spectrum.py` (stdlib only) + log
+  `experiments/CHARGE_SPECTRUM.md`.  From the code (`initSim.cpp:76-80`) the
+  seed realises the diagonal `c0 = w0`, `c1 = w1` of the 32-word manifold
+  `M = {ch : q ^ w0 = w1}` -- exactly 8 of 64 words, which the generator
+  explains rather than assumes.  Since the *only* writers of `cell.ch` are the
+  seed and the gated conjugation hook (`simulation.cpp:872`, `ch ^= 0x1F`,
+  `mm_eps = 0` by default), every reachable word lies in `M`, and an exhaustive
+  enumeration against the real `canFormPair` shows **R1, R4 and R5 have zero
+  admissible pairs: three of the six channels are algebraically closed**; R2 is
+  exactly `{w, w ^ 0x1F}` (16 pairs, requires the conjugates the seed never
+  makes), R3 is `0x00/0x00`, R6 is six words.  So in a canonical run only R3 and
+  R6 can fire and **the photon channel is dormant for lack of charge geometry** --
+  the charge-side explanation of the item-1/`PHOTON_MEDIATION_FAR`/item-C
+  negatives.  The seed's matter/antimatter inventory (4 matter words vs 3
+  antimatter + 1 anti-neutral, `81 = 8*10+1` putting the extra family on
+  `0x00`) predicts `freeM = 89667`, `freeA = 87480`, `D = +2187` at L=9, which a
+  live canonical run reproduces to the cell.  Appendix B's table was
+  independently recomputed: 13 rows sum to 196,587 as printed, `W+Z` 30,714 vs
+  30,710, charged 83:3.  The spectrum itself stays integral in fragment units --
+  thirds still need the `L/3` axiom -- so this is a derived statement about the
+  charge *pattern*, not a road to quantisation.  Started, not finished: the
+  census harness now takes an optional `argv[5] = mm_eps` (default unchanged) and
+  two arms (`build/mm0.txt`, `build/mm1.txt`) were launched; the hook is entered
+  but its turnaround latch is not yet armed (`draft_t = 1` at tick 1024,
+  `RMAX = 4`), and no pair had formed by tick 1025 in either arm.
+
+- **2026-09-14 -- Item 2 followed through with a MOVING body (continuing
+  exchange).**  Extended `experiments/turnover_ablation.cpp` with `move_co` /
+  `move_far`: body = one `K` + one drive pair (`0x00`/`0x1F`, `m[0]=+RMAX`, bound
+  to layer 0, as `inertia_fixture::prepare`), reservoir ahead at `x=8,14,20`, 120
+  journeys; controls = same geometry with different charge words, and the same
+  configuration under `EXCLUSION_FSM`.  **Results:** `ref/move_co` -> 10 captures
+  / 7 escapes (continuing exchange; a lone `K`+pair oscillates and the first
+  capture makes the transport directional via the `P x D` contact);
+  `ref/move_far` -> **0/0** with contacts still counted (the exchange is
+  charge-word selective, as `chiefContact` requires); `excl/move_co` -> 6/3 but
+  **per-chief attribution shows the body never gains a member** (the turnover is
+  internal to the reservoir family) -- the hard core *isolates*.  **Flux harness
+  on the viable dataset:** `mv_ref_co` gives `b = +0.030` with the binned drift
+  rising with population (`N=2: -0.02`, `N=3: +0.11`) -> **FAIL: no restoring
+  drift**, so even with continuing turnover the population dynamics is
+  anti-restorative.  Log updated (`TURNOVER_ABLATION.md`) and the manuscript's
+  candidate-mechanism paragraph now carries both the static and the moving
+  measurements.
+- **2026-09-14 -- Item 2 done: the turnover ablation is measured (was vacuous).**
+  New harness `experiments/turnover_ablation.cpp` (+
+  `build_turnover_ablation.bat`, reference and `EXCLUSION_FSM` binaries) and log
+  `experiments/TURNOVER_ABLATION.md`.  Design: tube `27x5x5` (`RMAX=2`, contact
+  range 4), body `K+2D` of one family at `x=3,10,17` (pairwise > 4), reservoir in
+  another family at `x=6,13,20` (mode `co`) or `x=24` (mode `far`, out of reach),
+  40 journeys, `constituents.csv` written in the census format so
+  `quantization/flux_from_census.py` consumes it.  **Results, matching the
+  pre-registered expectations:** `ref`+`co` -> 5 captures / 2 escapes (turnover);
+  `ref`+`far` -> 0/0; `excl`+`co` -> **0/0**.  So the identity hard core
+  *isolates* an island from its environment instead of selecting a population,
+  and the exchange is a one-off relaxation (everything in frame 3, then 38 frozen
+  frames; flux-harness verdict INCONCLUSIVE with surrogate `p = 1.00`).  The same
+  run freezes at `K=3 D=3 groups=3 max_population=4` -- a frozen group larger than
+  2, because the constituents are spread beyond the contact range: the theorem's
+  scope clause measured, and the frozen size set by reach (three reservoir
+  singletons), not by a quantum.  Folded into the manuscript's candidate-mechanism
+  subsection.
+- **2026-09-14 -- `quantization/` analysed and wired to the simulator (the flux
+  harness for `Gamma_cap = Gamma_esc`).**  The author's harness (`quantize.py`)
+  tests the manuscript's attractor hypothesis from per-event fluxes instead of
+  population levels; it needed numpy/pandas (absent here) and an adapter.  Added
+  in that directory: `flux_from_census.py` (`constituents.csv` ->
+  `run,island,frame,N,captures,escapes`, exact fluxes, `--derive-fluxes` never
+  needed on real data), `quantize_stdlib.py` (stdlib port of the five sections
+  plus `--by-run` for `N*` vs `L`) and `make_synth_stdlib.py` (stdlib twins of the
+  synthetic controls).  **Validated**: the synthetic attractor is recovered
+  (`N* = 30.38`, CI [29.87, 30.91], surrogate p = 0.005 -> PASS) and the fixed
+  partition returns INCONCLUSIVE.  **Six real datasets**: four are *frozen* in the
+  harness's own sense (zero escapes -- reference at `L=9` and `L=15`, `EXCLUSION`,
+  `ADDRESS_TARGET`) -> INCONCLUSIVE, i.e. the membership theorem's corner reached
+  by an independent instrument; the two directional-channel runs, which *do* have
+  turnover, show an **anti-restorative drift** (`b = +0.494` at 20 frames and
+  `+0.495` at 64 frames; the binned curve rises with population) -> FAIL, with no
+  `N*` anywhere.  So no population attractor exists in the repository's data, and
+  the attractor form of the quantization claim is falsified where it could be
+  measured.  Details: `quantization/FINDINGS.md` (table, commands, and what would
+  make the harness decision-grade).
+- **2026-09-14 -- Conditional revision of `sec:bridge` written (exercise: "as if
+  the conjectures were proven").**  New `experiments/bridge_proven.tex` (kept out
+  of the build; compiles standalone via `build/bridge_check.tex`, 4 pages) and the
+  companion `experiments/BRIDGE_REVISION_IF_PROVEN.md`.  The revision turns the
+  mapping into a derivation with named hypotheses: Lemma 1 (orthonormal basis from
+  the finiteness of the state space), Theorem 2 (the reversible fragment is a
+  permutation, hence unitary, hence `H = i hbar/T ln U` Hermitian), Corollary 3
+  (equidistant spectrum `dE = 2 pi hbar/(N T)`; a non-uniform spectrum cannot come
+  from `U` alone), Theorem 4 (Born weights from the counting measure on the fibres
+  of the many-to-one steps), plus the arrow-of-time subsection and the no-signalling
+  corollary that replaces the postulate of `subsec:nosignaling-formal`.  The note
+  maps H1-H4 to what would have to be proven, what the repository already has
+  (H1/H2 have a head start: the dissipative stages are what the membership theorem
+  and the sieve work characterise) and what is absent (H3, a preparation
+  assumption that a deterministic rule cannot prove); it also lists the eight
+  knock-on edits (Introduction map and status paragraph, abstract, the
+  no-signalling remark, `POSTULATE_VS_EMERGENT`, the WP6/WP7 status lines) and
+  states explicitly that **nothing was applied**: the submission keeps Status (C).
+- **2026-09-14 -- The geometric-quantum hypothesis is FALSIFIED (last positive
+  path closed).**  New note `experiments/GEOMETRIC_QUANTUM.md` + reader
+  `experiments/analyze_geometric_quantum.py`.  Three independent arguments:
+  (i) the contact graph at the turnaround is **complete at every accessible
+  size** (`d_max = sqrt(3)(L-1)/2 < L = 2*RMAX` for `L = 7..15`), so the contact
+  capacity is `W`, not a small integer; (ii) the shell and ball capacities (the
+  free-sphere and toroidal conventions agree up to `RMAX`: shells
+  `26, 66, 158, ...`, balls `27, 93, 251, ...`) contain none of the stable
+  populations `2, 3, 5`; (iii) scanning all 59 `groups.csv` under `build/` shows
+  the realised populations form a **continuum** `1..24` (plus 26-28, 30, 33 in the
+  merging-tribe runs) rather than a gap spectrum.  **Documentation discrepancy
+  found:** the manuscript's quoted shell triple `(6, 26, 98)` is reproduced by
+  neither convention (band `(26, 66, 158)`, exact-squared cumulative
+  `(6, 32, 98)`), so the sieve-weighting estimate was corrected (expected `s2B`
+  passes ~18 -> ~35; the conclusion is unchanged) and the geometric paragraph now
+  cites the verified numbers plus the completeness result.  What survives
+  geometrically: the clock (`era = 2*RMAX = L` frames) and the contact counter as
+  an overlap measure.
+- **2026-09-14 -- P7 written, run and CONFIRMED (the scope clause measured).**  New
+  harness `experiments/p7_concentration.cpp` (+ `build_p7_concentration.bat`,
+  reference and `DD_INTRA_ISLAND_FIX` binaries): a prepared `1K+2D` island of one
+  charge word in a 15x5x5 tube (`RMAX = 2`, contact range `2*RMAX = 4`), planted
+  either co-located (one site) or spread 5 cells apart (beyond contact).  Results
+  (`build/p7_concentration/*.log`): reference + co-located -> contacts appear at
+  frame 2 (156, then the periodic 396/156/0 pattern) and **one promotion** fires,
+  `1K+2D -> 2K+1D`, max group 2; reference + spread -> **zero contacts in every
+  frame**, roles conserved, max group 3; `DD_INTRA_ISLAND_FIX` + co-located ->
+  identical contacts, **zero promotions**, population 3 survives.  So (i) the
+  theorem's bound is reached dynamically, (ii) the scope clause (co-location) is
+  what the theorem measures, and (iii) the candidate's `81 x 3` positive is
+  exactly the removal of T2 inside a family, now isolated at rule level.
+  Manuscript updated: the Scope paragraph of Sect.~\ref{subsec:fixed-point}
+  reports the run and the Limitations item no longer lists it as pending; the
+  derivation note gained section 8 with the four-run table.
+
+  `pop == L/3 = 0` (i.e. the theorem survives `L=15`); anything else falsifies
+  it.
+
+
+
+
 - **2026-09-11 -- WP4.5 DONE (cleanest Route-B positive).** At R = 5 (tube
   21x15x15, both pB and sB live = 2730 cells) with an open sieve, `EM_FIRST_FSM`
   keeps two equal-charge clouds as two distinct S singletons for 16 frames
   (`enc_repel` 182); at s2b=256 and the reference sieve they merge.  Recorded in
   `PBSB_ISLANDS.md`.
-- **Next:** commit the WP7 notes + the readability pass; then DOI deposit and submit.
+- **Next:** commit the session's artefacts -- the new notes
+  (`DYNAMIC_QUANTIZATION_DERIVATION.md`, `SIEVE_SWEEP_PRODUCTION.md`,
+  `PHOTON_MEDIATION_FAR.md`, `GEOMETRIC_QUANTUM.md`), the readers
+  (`analyze_sieve_sweep.py`, `analyze_geometric_quantum.py`), the harnesses
+  (`p7_concentration.cpp` + `build_p7_concentration.bat`,
+  `build_island_census_exc_fix.bat`, `build_probe_em_orphan.bat`), the
+  `island_census.cpp` `[EL]` argument, and the edited notes and manuscript -- then
+  the DOI deposit (author) and submission.  Optional, not blocking: the local
+  reformulation of the family-rigid idea, and a candidate rule keyed on the shell
+  index (its falsifier is in `GEOMETRIC_QUANTUM.md` section 5).
 - **2026-09-11 -- Readability pass (author request).**  Split the two largest
   paragraphs ("Distinct bubbles"; "Diffusion, translation and collapse in one
   reading") into readable paragraphs by inserting blank lines at logical
