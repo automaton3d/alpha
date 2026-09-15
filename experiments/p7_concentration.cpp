@@ -32,7 +32,7 @@ using namespace inertia_fixture;
 using namespace automaton;
 
 static void placeLayer(unsigned w, unsigned x, unsigned y, unsigned z,
-                       unsigned char ch)
+                       unsigned char ch, unsigned phase = 0u)
 {
   lcenters[w] = {x, y, z};
   for (unsigned xx = 0; xx < ELX; ++xx)
@@ -47,7 +47,9 @@ static void placeLayer(unsigned w, unsigned x, unsigned y, unsigned z,
       }
   Cell& c = getCell(lattice_curr, x, y, z, w);
   c.r2 = 0u; c.r = 0; c.u = 2048; c.v = 0;
-  c.t = 0; c.f = 0; c.bstamp = 0; c.pol_u = c.pol_v = 0;
+  // The breathing phase of the source: distinct values make the copies
+  // distinguishable for the PHASE_DISTINCT_FSM candidate.
+  c.t = phase; c.f = 0; c.bstamp = 0; c.pol_u = c.pol_v = 0;
   c.active = 0; c.phiB = false;
   c.c[0] = c.c[1] = c.c[2] = 0;
 }
@@ -106,30 +108,35 @@ int main(int argc, char** argv)
     // consecutive constituents; RMAX = 2 here, so the wavefront-overlap range is
     // 2*RMAX = 4 cells.  The gap sequence 0, 1, 3, 4, 5 brackets that range from
     // both sides, which is what the escape rule's prediction is stated against.
-    unsigned xs[3] = {7u, 7u, 7u};
+    unsigned xs[5] = {7u, 7u, 7u, 7u, 7u};
+    unsigned phaseStep = 0u;      // 1 => copy w gets breathing phase w
+    unsigned copies = 3u;         // family multiplicity
     if      (strcmp(mode, "co")     == 0) { xs[0]=7;  xs[1]=7;  xs[2]=7;  }
     else if (strcmp(mode, "chain")  == 0) { xs[0]=7;  xs[1]=8;  xs[2]=9;  }
     else if (strcmp(mode, "gap2")   == 0) { xs[0]=7;  xs[1]=9;  xs[2]=11; }
     else if (strcmp(mode, "mid")    == 0) { xs[0]=7;  xs[1]=10; xs[2]=13; }
     else if (strcmp(mode, "edge")   == 0) { xs[0]=6;  xs[1]=10; xs[2]=14; }
+    else if (strcmp(mode, "coPhase") == 0) { xs[0]=7;  xs[1]=7;  xs[2]=7; phaseStep = 1u; }
+    else if (strcmp(mode, "five")    == 0) { copies = 5u; phaseStep = 1u; }
+    else if (strcmp(mode, "fiveCo")  == 0) { copies = 5u; }
     else if (strcmp(mode, "spread") == 0) { xs[0]=2;  xs[1]=7;  xs[2]=12; }
     else { fprintf(stderr, "mode must be co|chain|mid|edge|spread\n"); return 2; }
     const bool co = (strcmp(mode, "co") == 0);
     const unsigned gap = xs[1] - xs[0];
     const bool escapePredicted = gap > 2u * RMAX;
 
-    constexpr unsigned LX = 15, LY = 5, LZ = 5, W = 3;
+    constexpr unsigned LX = 15, LY = 5, LZ = 5;
+    const unsigned W = copies;
     if (!tryAllocateTube(LX, LY, LZ, W))
       throw std::runtime_error(lastAllocationError);
     initSimulation(0);
-    ISLAND_SIZE = 3;                    // one family of 3 copies
+    ISLAND_SIZE = 3;                    // one family of 3 copies (tube default)
     const unsigned site = (LY - 1) / 2;
     for (unsigned w = 0; w < W; ++w)
-      placeLayer(w, xs[w], site, site, 0x08);
+      placeLayer(w, xs[w], site, site, 0x08, w * phaseStep);
     replicate();
     markChief(0, 0x08);
-    markDelegate(1, 0, 0x08);
-    markDelegate(2, 0, 0x08);
+    for (unsigned w = 1; w < W; ++w) markDelegate(w, 0, 0x08);
     replicate();
 
     printf("P7 mode=%s ELX=%u ELY=%u ELZ=%u W=%u RMAX=%u ISLAND_SIZE=%u "
@@ -144,6 +151,14 @@ int main(int argc, char** argv)
            escapePredicted
              ? "gap > 2*RMAX -> no shell overlap, every delegate released"
              : "gap <= 2*RMAX -> contacts keep the group, T2 caps max_pop at 2");
+#ifdef PHASE_DISTINCT_FSM
+    const char* phaseRule = "ON";
+#else
+    const char* phaseRule = "OFF";
+#endif
+    printf("PREDICTION phase-distinct=%s step=%u: %s\n", phaseRule, phaseStep,
+           phaseStep ? "distinct phases -> one group of 3 expected (max_pop 3)"
+                     : "identical phases -> no group expected, all S (max_pop 1)");
 
     unsigned frame = 0, promotions = 0;
     long long prevCalls = conv_calls;

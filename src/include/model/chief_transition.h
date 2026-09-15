@@ -1,6 +1,16 @@
 #pragma once
 #include "model/island_identity.h"
 namespace automaton {
+#ifdef PHASE_DISTINCT_FSM
+  // Candidate (see experiments/EMERGENCE_SEARCH.md): identity is the pair
+  // (charge word, breathing phase).  The reference already refuses merges
+  // between different charge words; this refuses them also between sources that
+  // agree in word AND phase, because such bubbles are indistinguishable in the
+  // model's own sense.  Reads only ch and t: no ISLAND_SIZE, no L.
+  inline bool phaseConflict(const Cell& a, const Cell& b) {
+    return a.ch == b.ch && a.t == b.t;
+  }
+#endif
 inline bool promotesDelegate(const Cell& main,const Cell& mirror) {
   // Active/radius contact gates belong to encounter. No affinity, parent,
   // spin, separation, or population condition is imposed here.
@@ -26,6 +36,13 @@ inline void makeDelegate(Cell& draft,WIndex chief) {
 }
 inline void chiefContact(const Cell& main,const Cell& mirror,Cell& draft) {
   if(main.w==mirror.w || main.ch!=mirror.ch) return;
+#ifdef PHASE_DISTINCT_FSM
+  // Candidate: the reference refuses merges between different words; this also
+  // refuses them between sources that agree in word AND breathing phase, i.e.
+  // between indistinguishable bubbles.  Covers (T1), (T3) and (T4) here and
+  // (T2) through promotesDelegate below.
+  if(phaseConflict(main,mirror)) return;
+#endif
 #ifdef DD_INTRA_ISLAND_FIX
   // Candidate (WP3.3): within one seed FAMILY (w / ISLAND_SIZE) the chief is the
   // family-minimum address, so a 3-constituent family elects exactly ONE chief

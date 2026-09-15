@@ -29,4 +29,13 @@ cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /D SURFACE_ESCAPE_FSM ^
  experiments\p7_concentration.cpp src\model\charges.cpp src\model\initSim.cpp ^
  src\model\interaction.cpp src\model\polarization.cpp src\model\simulation.cpp ^
  src\model\utils.cpp /Fobuild\p7_concentration\obj_escape\ /Fe:build\p7_concentration\p7_concentration_escape.exe
+if errorlevel 1 exit /b 1
+rem Candidate of the emergence search (EMERGENCE_SEARCH.md): identity by
+rem (charge word, breathing phase).  Prediction printed by the harness itself.
+if not exist build\p7_concentration\obj_phase mkdir build\p7_concentration\obj_phase
+cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /D PHASE_DISTINCT_FSM ^
+ /I src\include /I src\include\zlib /I src ^
+ experiments\p7_concentration.cpp src\model\charges.cpp src\model\initSim.cpp ^
+ src\model\interaction.cpp src\model\polarization.cpp src\model\simulation.cpp ^
+ src\model\utils.cpp /Fobuild\p7_concentration\obj_phase\ /Fe:build\p7_concentration\p7_concentration_phase.exe
 exit /b %errorlevel%
