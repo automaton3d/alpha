@@ -381,6 +381,82 @@ assets:
 	if exist "bin\logo_bar.png"  copy /Y "bin\logo_bar.png"  "$(BUILD_DIR)"
 
 # ================================================
+# Dependencia global de headers
+#
+# As regras por ficheiro listam apenas o seu proprio header.  Um header
+# partilhado alterado (config.h, globals.h, model\simulation.h, ...) nao
+# recompilava os dependentes, deixando objectos compilados com um layout de
+# struct antigo -- um ABI silenciosamente errado (foi o que produziu o arranque
+# com o campo de visao em 0.1 graus, i.e. "zoom no maximo", em 15/09/2026).
+# Esta regra SEM comandos obriga a recompilar todos os objectos quando
+# qualquer header muda.  nmake nao tem $(wildcard): a lista abaixo e explicita,
+# por isso um header NOVO tem de ser acrescentado aqui (ou os objectos ficam
+# com o layout antigo).
+# ================================================
+
+ALL_HEADERS = \
+	src\include\animator.h \
+	src\include\app_context.h \
+	src\include\button.h \
+	src\include\callbacks.h \
+	src\include\camera.h \
+	src\include\color_utils.h \
+	src\include\config.h \
+	src\include\core.h \
+	src\include\cortina.h \
+	src\include\draw_utils.h \
+	src\include\dropdown.h \
+	src\include\glm_config.h \
+	src\include\globals.h \
+	src\include\GUI.h \
+	src\include\GUI3D.h \
+	src\include\help.h \
+	src\include\hslider.h \
+	src\include\hud.h \
+	src\include\input.h \
+	src\include\layers.h \
+	src\include\logo.h \
+	src\include\menubar.h \
+	src\include\mouse_helper.h \
+	src\include\progress.h \
+	src\include\projection.h \
+	src\include\projection_manager.h \
+	src\include\radio.h \
+	src\include\recorder.h \
+	src\include\renderer.h \
+	src\include\Renderer2D.h \
+	src\include\render_pipeline.h \
+	src\include\replay.h \
+	src\include\replay_progress.h \
+	src\include\scene.h \
+	src\include\shader.h \
+	src\include\sinc_overlay.h \
+	src\include\splash.h \
+	src\include\stats.h \
+	src\include\stb_image.h \
+	src\include\text_renderer.h \
+	src\include\thread_safety.h \
+	src\include\tickbox.h \
+	src\include\tinyfiledialogs.h \
+	src\include\tomography.h \
+	src\include\voxel.h \
+	src\include\vslider.h \
+	src\include\model\attractor.h \
+	src\include\model\chief_transition.h \
+	src\include\model\color_contact.h \
+	src\include\model\election_payload.h \
+	src\include\model\geometry.h \
+	src\include\model\island_identity.h \
+	src\include\model\polarization.h \
+	src\include\model\polarization_candidate.h \
+	src\include\model\simulation.h \
+	src\include\model\wavefront.h \
+	src\include\zlib\cuda\cuda_common.h \
+	src\include\zlib\cuda\cuda_sim_optimized.h
+
+$(OBJ): $(ALL_HEADERS)
+
+# ================================================
 # Limpeza
 # ================================================
 

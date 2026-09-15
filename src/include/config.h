@@ -77,6 +77,17 @@ struct {
 
         float thickness = 0.01f;
     } tomography;
+
+    // =========================
+    // GUI-only display flags
+    //
+    // Kept at the END of the struct on purpose: this header is included by
+    // nearly every translation unit, and the Makefile objects can lag behind a
+    // header-only change.  Appending here cannot shift the offsets of the
+    // members above, so a stale object still reads the same layout for all of
+    // them (inserting in the middle silently corrupts them).
+    // =========================
+    bool data3DVisited = false;   // "Visited" toggle of the 3-D view
 };
 
 // global

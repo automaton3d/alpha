@@ -173,6 +173,30 @@ namespace sinc_overlay
     static std::array<std::vector<float>, 2> peakHistoryBufs;
     static std::array<std::vector<float>, 2> andMaskBufs;
 
+    // Sine-mask trail: the cells the wavefront lit through the sieve gate,
+    // kept for a whole pass so the HUD can draw the dim ghost of the last pass
+    // (see sinc_overlay.h).
+    static std::array<std::vector<uint8_t>, 2> visitedMaskBufs;
+    static std::atomic<unsigned> maskCells{0};
+
+    // Simulation-thread-only state of the trail: per-cell stamp of the last
+    // light frame in which the cell was a sine-mask hit (0 = never), the
+    // light-frame index seen by the previous update, the layer the stamps
+    // belong to (a trail is only meaningful for one layer at a time) and the
+    // current snapshot.
+    static std::vector<uint32_t> g_lastHitFrame;
+    static uint32_t              g_hitFrameSeen  = 0;
+    static unsigned              g_hitFrameLayer = 0;
+    static std::vector<uint8_t>  g_visitedMask;
+
+    // Pass bookkeeping: the trail keeps the marks of the last pass of the
+    // front THAT PRODUCED GATE HITS.  When the sieve stays shut for a whole
+    // pass -- measured with the reference modulus, where the gate closes in
+    // steady state -- the pass is extended instead of dropping the marks, so
+    // the visited cloud stays visible instead of blinking out.
+    static uint32_t g_passStartFrame = 0;
+    static long long g_passHits      = 0;
+
     static std::atomic<int>      frontIdx{0};
     static std::atomic<unsigned> pulseRadius{0};
     static std::atomic<unsigned> gGraphSize{0};
@@ -197,6 +221,12 @@ namespace sinc_overlay
     unsigned currentRadius() { return pulseRadius.load(std::memory_order_acquire); }
     unsigned graphSize()     { return gGraphSize.load(std::memory_order_acquire); }
     bool ready()             { return readyFlag.load(std::memory_order_acquire); }
+
+    const std::vector<uint8_t>& visitedMask()
+    {
+        return visitedMaskBufs[frontIdx.load(std::memory_order_acquire)];
+    }
+    unsigned maskSize() { return maskCells.load(std::memory_order_acquire); }
 
     void update(unsigned selectedW)
     {
@@ -231,6 +261,59 @@ namespace sinc_overlay
         std::vector<int64_t> sumU(graphSize, 0);
         std::vector<int64_t> cntU(graphSize, 0);
 
+        // ------------------------------------------------------------
+        // Sine-mask trail (the "Visited" overlay).
+        //
+        // Every cell the sieve gate lights (active && s2B) is stamped with the
+        // light frame of the hit, so the trail is the union of the gate draws
+        // over the last pass of the front (one breathing period = 2*RMAX light
+        // frames).  The current light frame is left out: the "Sine mask"
+        // overlay already draws its cells in full colour.
+        // ------------------------------------------------------------
+        const size_t layerCells =
+            (size_t)automaton::ELX * automaton::ELY * automaton::ELZ;
+
+        if (g_lastHitFrame.size() != layerCells || g_hitFrameLayer != selectedW)
+        {
+            // Layer switch or lattice resize: the stamps belong to one layer.
+            g_lastHitFrame.assign(layerCells, 0u);
+            g_hitFrameLayer = selectedW;
+            g_hitFrameSeen  = 0u;
+            g_passStartFrame = 0u;
+            g_passHits       = 0;
+        }
+
+        const uint32_t frameLen = (automaton::FRAME > 0u)
+                                ? (uint32_t)automaton::FRAME : 1u;
+        // Light-frame index (1-based; 0 is reserved for "never visited").
+        const uint32_t frameNow =
+            (uint32_t)(automaton::pulse_tick / frameLen) + 1u;
+
+        if (frameNow < g_hitFrameSeen)
+        {
+            // Fresh run (the tick clock restarted): the recorded pass is void.
+            std::fill(g_lastHitFrame.begin(), g_lastHitFrame.end(), 0u);
+            g_passStartFrame = frameNow;
+            g_passHits       = 0;
+        }
+        g_hitFrameSeen = frameNow;
+
+        // One pass of the front = one breathing period of the light clock.
+        const uint32_t passFrames =
+            (uint32_t)std::max(1u, 2u * automaton::RMAX);
+
+        if (g_passStartFrame == 0u)
+            g_passStartFrame = frameNow;
+
+        // A pass closed: start a new one only if the one that ended had hits,
+        // otherwise keep extending it (the last productive pass stays shown).
+        if ((frameNow - g_passStartFrame) >= passFrames && g_passHits > 0)
+        {
+            std::fill(g_lastHitFrame.begin(), g_lastHitFrame.end(), 0u);
+            g_passStartFrame = frameNow;
+            g_passHits       = 0;
+        }
+
         for (unsigned x = 0; x < automaton::EL; ++x)
         for (unsigned y = 0; y < automaton::EL; ++y)
         for (unsigned z = 0; z < automaton::EL; ++z)
@@ -249,8 +332,33 @@ namespace sinc_overlay
             {
                 g_activeCount[r]++;
                 if (c.s2B)
+                {
                     g_andAcc[r]++;
+
+                    // Stamp the passage of the front: this cell was a
+                    // sine-mask point on this light frame.
+                    const size_t cell =
+                        ((size_t)x * automaton::ELY + (size_t)y) *
+                        automaton::ELZ + (size_t)z;
+                    if (cell < g_lastHitFrame.size())
+                    {
+                        g_lastHitFrame[cell] = frameNow;
+                        ++g_passHits;
+                    }
+                }
             }
+        }
+
+        // Snapshot of the trail: every cell stamped by the last productive
+        // pass, the current light frame excluded (age 0).
+        g_visitedMask.assign(layerCells, 0u);
+        for (size_t i = 0; i < layerCells; ++i)
+        {
+            const uint32_t stamp = g_lastHitFrame[i];
+            if (stamp == 0u)
+                continue;
+            if ((frameNow - stamp) >= 1u)
+                g_visitedMask[i] = 1u;
         }
 
         // Per-shell average of u(r) (signed) and running peak.
@@ -324,6 +432,13 @@ namespace sinc_overlay
         andMaskBufs[backIdx]     = std::move(andMask);
         triggerRateBufs[backIdx] = std::move(triggerRate);
         peakHistoryBufs[backIdx] = std::move(peakHistoryNorm);
+
+        // Trail snapshot: the gate fires on every tick, so the mask is rebuilt
+        // here and copied into the back buffer for the render thread.
+        if (g_visitedMask.size() != layerCells)
+            g_visitedMask.assign(layerCells, 0u);
+        visitedMaskBufs[backIdx] = g_visitedMask;
+        maskCells.store((unsigned)layerCells, std::memory_order_release);
 
         pulseRadius.store(pulseR, std::memory_order_release);
         gGraphSize.store(graphSize, std::memory_order_release);

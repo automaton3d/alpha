@@ -82,6 +82,21 @@ namespace framework
     }
 
     // -----------------------------------------------------------------
+    // "Visited" toggle: bottom-right corner of the 3-D scene, just below
+    // the right-hand panel (which ends at screenH - 110).
+    // Coordinates are top-left origin, like every other tickbox.
+    // -----------------------------------------------------------------
+    void renderSineVisitedToggle(int screenW, int screenH)
+    {
+        if (!sineVisitedToggle)
+            return;
+
+        sineVisitedToggle->setPosition(screenW - 250, screenH - 95);
+        sineVisitedToggle->setFontScale(0.6f);
+        sineVisitedToggle->draw(hudText);
+    }
+
+    // -----------------------------------------------------------------
     // Tomography direction radios (only when tomography is enabled)
     // -----------------------------------------------------------------
     void renderTomoRadios()

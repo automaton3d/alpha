@@ -78,6 +78,36 @@ namespace framework
         );
     }
 
+    // Breathing era of the light clock.  One era is the time the pulsating
+    // front takes to expand from the source centre to RMAX and contract back,
+    // i.e. 2*RMAX light frames -- the period of effective_t(t) -- so the era
+    // number advances once per complete breathing cycle.  Counted from the
+    // same clock as the "Light:" readout (one light frame = FRAME ticks), so
+    // it advances in both simulation and replay.
+    void renderEra()
+    {
+        if (gConfig.simulation.scenario < 0 || FRAME == 0)
+            return;
+
+        const unsigned long long eraLen =
+            2ull * (unsigned long long)(RMAX > 0u ? RMAX : 1u);
+
+        char s[64];
+        std::snprintf(s, sizeof(s),
+                      "Era: %llu",
+                      timer / (unsigned long long)FRAME / eraLen + 1ull);
+
+        hudText.RenderText(
+            s,
+            900.0f,
+            gViewport[3] - 80.0f,
+            1.0f,
+            glm::vec3(1.0f),
+            gViewport[2],
+            gViewport[3]
+        );
+    }
+
     void renderComputeStats()
     {
         float x = 650.0f;

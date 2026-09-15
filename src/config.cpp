@@ -121,6 +121,9 @@ bool loadConfig(const std::string& path)
         else if (key == "data3D.axes")
             gConfig.data3D[7] = parseBool(value);
 
+        else if (key == "data3D.visited")
+            gConfig.data3DVisited = parseBool(value);
+
         else if (key == "data3D.plane")
             gConfig.data3D[8] = parseBool(value);
 

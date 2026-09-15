@@ -121,6 +121,16 @@ namespace framework
         }
 
         // ------------------------------------------------------------
+        // "Visited" toggle (bottom-right corner of the 3-D scene).
+        // Dim ghost of the sine-mask points the wavefront visited during its
+        // last pass.  The position is recomputed every frame from the
+        // viewport size, so the box stays in the corner after a resize.
+        // ------------------------------------------------------------
+        sineVisitedToggle = new Tickbox(0, 0, "Visited", gConfig.data3DVisited);
+        sineVisitedToggle->setFontScale(0.6f);
+        sineVisitedToggle->onToggle = [](bool state) { gConfig.data3DVisited = state; };
+
+        // ------------------------------------------------------------
         // Delay tickboxes
         // ------------------------------------------------------------
         delays = {
@@ -213,17 +223,18 @@ namespace framework
             glm::vec3(0.80f, 0.80f, 0.80f),
             glm::vec3(0.90f, 0.90f, 0.90f)
         );
-        scenarioHelpToggle->setColors(
-            glm::vec3(0.20f, 0.80f, 0.40f),
-            glm::vec3(0.95f, 0.95f, 0.95f),
-            glm::vec3(0.80f, 0.80f, 0.80f),
-            glm::vec3(0.90f, 0.90f, 0.90f)
-        );
-        tomoEnable->setColors(
-            glm::vec3(0.20f, 0.80f, 0.40f),
-            glm::vec3(0.95f, 0.95f, 0.95f),
-            glm::vec3(0.80f, 0.80f, 0.80f),
-            glm::vec3(0.90f, 0.90f, 0.90f)
+
+        // Tickbox palette.  These are shared statics: fillOn/fillOff used to be
+        // two near-identical light greys (0.80 vs 0.90), so the checked and
+        // unchecked states were almost indistinguishable and the white check
+        // mark had no contrast against either.  Off is now a dark box (the same
+        // family as the panel background) and on is the blue fill the Tickbox
+        // defaults define, so the check mark stands out clearly.
+        Tickbox::setColors(
+            glm::vec3(0.20f, 0.80f, 0.40f),   // border (accent)
+            glm::vec3(0.95f, 0.95f, 0.95f),   // label text
+            glm::vec3(0.10f, 0.45f, 0.80f),   // fill, checked   (blue)
+            glm::vec3(0.09f, 0.09f, 0.14f)    // fill, unchecked (dark)
         );
         // Create the menu bar
         menuBar = new MenuBar(textRenderer, gViewport[2], gViewport[3]);

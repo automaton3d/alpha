@@ -410,9 +410,13 @@ void renderHUD(int screenW, int screenH)
 
     renderTomoControls();
 
+    renderSineVisitedToggle(screenW, screenH);
+
     renderTomoRadios();
 
     renderSimulationStats();
+
+    renderEra();
 
     renderComputeStats();
 

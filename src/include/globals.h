@@ -98,6 +98,10 @@ extern int tomoPos;
 
 extern Tickbox* tomoEnable;
 
+// Bottom-right toggle of the 3-D view: dim ghost of the sine-mask points the
+// wavefront visited during its last pass (defined in globals.cpp).
+extern Tickbox* sineVisitedToggle;
+
 // globals.h or GUI.h
 extern Button* gHelpLink;
 

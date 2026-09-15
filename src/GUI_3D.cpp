@@ -15,6 +15,7 @@
 #include "render_pipeline.h"
 #include "draw_utils.h"
 #include "projection_manager.h"
+#include "sinc_overlay.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -237,7 +238,17 @@ namespace framework {
             int wx=(x+gConfig.view.vis_dx+EL)%EL;
             int wy=(y+gConfig.view.vis_dy+EL)%EL;
             int wz=(z+gConfig.view.vis_dz+EL)%EL;
-            if (getCell(lattice_curr,wx,wy,wz,layerList->getSelected()).phiB) {
+
+            // The "Sine mask" is the sieve-gated part of the wavefront: the cells
+            // that are active AND carry the electroweak sieve bit s2B.  Their
+            // count per spherical shell is the r*sin(r) density (the "wave cloud"
+            // of the manuscript), i.e. exactly the set binned into the red
+            // "gate hits" points of the 2-D radial profile (bridge.cpp,
+            // sinc_overlay::update).  phiB is only a copy of `active`, so using it
+            // here would simply repaint the saturated wavefront shell already
+            // drawn by the "Wavefront" tickbox.
+            const Cell& cell = getCell(lattice_curr,wx,wy,wz,layerList->getSelected());
+            if (cell.active && cell.s2B) {
               float px=(int)(x-CENTER_INT)*GRID_SIZE;
               float py=(int)(y-CENTER_INT)*GRID_SIZE;
               float pz=(int)(z-CENTER_INT)*GRID_SIZE;
@@ -251,6 +262,53 @@ namespace framework {
       glm::mat4 mvp = projection * view * model;
 
       drawPoints(pts, glm::vec3(1.0f,1.0f,0.0f), mvp, 1.7f);
+  }
+
+  // ---------------------------------------------------------------------
+  // "Visited" overlay
+  //
+  // Dim ghost of the sine-mask points the wavefront visited during its last
+  // pass (one breathing period, see sinc_overlay::visitedMask).  Same yellow
+  // as the "Sine mask" overlay at a much lower intensity, so the current
+  // front keeps the attention and the swept cloud stays readable behind it.
+  // ---------------------------------------------------------------------
+  void renderVisitedMask()
+  {
+      const float GRID_SIZE=0.5f/EL;
+      const int CENTER_INT=EL/2;
+
+      const std::vector<uint8_t>& visited = sinc_overlay::visitedMask();
+      const unsigned maskCells = sinc_overlay::maskSize();
+      if (maskCells == 0 || visited.size() != (size_t)maskCells)
+        return;                        // no completed pass recorded yet
+
+      std::vector<glm::vec3> pts;
+
+      for (unsigned x=0;x<EL;x++)
+        for (unsigned y=0;y<EL;y++)
+          for (unsigned z=0;z<EL;z++) {
+            if (tomoEnable && tomoEnable->getState() && !tomography::isVoxelVisible(x,y,z)) continue;
+
+            int wx=(x+gConfig.view.vis_dx+EL)%EL;
+            int wy=(y+gConfig.view.vis_dy+EL)%EL;
+            int wz=(z+gConfig.view.vis_dz+EL)%EL;
+
+            const size_t cell =
+              ((size_t)wx * ELY + (size_t)wy) * ELZ + (size_t)wz;
+            if (cell < (size_t)maskCells && visited[cell]) {
+              float px=(int)(x-CENTER_INT)*GRID_SIZE;
+              float py=(int)(y-CENTER_INT)*GRID_SIZE;
+              float pz=(int)(z-CENTER_INT)*GRID_SIZE;
+              pts.emplace_back(px,py,pz);
+            }
+          }
+
+      glm::mat4 view = ctx.camera.GetViewMatrix();
+      glm::mat4 projection = framework::mProjection_;
+      glm::mat4 model = glm::mat4(1.0f);
+      glm::mat4 mvp = projection * view * model;
+
+      drawPoints(pts, glm::vec3(0.38f,0.38f,0.0f), mvp, 1.7f);
   }
 
   void renderHunting()
@@ -844,6 +902,8 @@ void renderGizmo()
       if (data3D[0].getState()) renderWavefront();
       if (data3D[1].getState()) renderMomentum(ctx);
       if (data3D[2].getState()) renderSpin();
+      // Visited trail first: the bright sine mask is drawn on top of it.
+      if (sineVisitedToggle && sineVisitedToggle->getState()) renderVisitedMask();
       if (data3D[3].getState()) renderSineMask();
       // data3D[4] now toggles polarisation colouring (handled in bridge.cpp)
       if (data3D[5].getState()) renderCenters();

@@ -152,6 +152,11 @@ namespace framework {
                             cb.onClick(mouseX, mouseY);
                             if (cb.contains(mouseX, mouseY)) return;
                         }
+                        if (sineVisitedToggle &&
+                            sineVisitedToggle->contains(mouseX, mouseY)) {
+                            sineVisitedToggle->onClick(mouseX, mouseY);
+                            return;
+                        }
                         for (Tickbox& cb : delays) {
                             if (cb.contains(mouseX, mouseY)) {
                                 cb.onClick(mouseX, mouseY);
