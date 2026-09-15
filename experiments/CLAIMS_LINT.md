@@ -76,10 +76,11 @@ These came from reading the artefacts against the text during the sessions that 
    the repository.  Either add the source (and a log) or reword the caption.  This is the most
    exposed quantitative claim in the paper, because it is unreproducible *and* its producer is
    absent, while the deposit's own map presents it as covered.
-2. **The 93 pair-halves of the reference ledger are not reproducible from the deposit.**  The
-   figure appears in `DYNAMIC_QUANTIZATION_DERIVATION.md` (ledger, `S = 64` row) but no log of
-   that run is archived; a fresh 16-frame canonical run (item 4 session) reached tick 1025 with
-   `pairM = pairA = 0`, i.e. no pair at all in that window.  Add the log or re-run and cite it.
+2. **The 93 pair-halves of the reference ledger are no longer an open item.**  The row is reproduced
+   exactly by the reference build under its own conditions (log `build/census_ref_el9_s64.txt`:
+   `S = 64`, `EL = 9`, frame 2 → `K = 145, D = 5, P = 93`, `145` groups, five population-2 groups),
+   so the lint item is closed by measurement; the suspicion recorded in the earlier draft of the
+   item-3 note is withdrawn, and its falsifiable statement is now qualified as *reference-sieve*.
 3. **The `1187` proton--electron ratio (Appendix B) is not recomputable from the table it sits
    in.**  The appendix already calls it a "scale-of-consistency coincidence"; the lint's
    recommendation is to add the counting recipe (fragment masses) to the same appendix, or to
@@ -98,7 +99,7 @@ These came from reading the artefacts against the text during the sessions that 
 | # | action | cost |
 |---|---|---|
 | 1 | add `lorentz_mm.cpp` (or reword the `tab:scaling` caption) | source, if it still exists |
-| 2 | archive the `S = 64` ledger log, or re-run and cite | one run |
+| 2 | ~~archive the `S = 64` ledger log, or re-run and cite~~ **DONE: reproduced exactly and archived at `experiments/census_ref_el9_s64/census.csv`** | none |
 | 3 | add `experiments/wavefront_metrics.py` for `tab:scaling` and the `0.9950` correlation | small script |
 | 4 | add a short script for Appendix A's derived constants (`n_p`, `n_pT`) | small script |
 | 5 | add the fragment-mass recipe behind `1187`, or drop the number | prose |

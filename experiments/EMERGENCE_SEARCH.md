@@ -252,8 +252,19 @@ these stayed singletons.  So the historical "93" is a real dynamical count of th
 scripting artefact: the same-word pairs the algebra allows (`R3`, `R6`) do form once the election
 stops consuming them, and the number of halves is set by the seed's geometry rather than by the rule
 that unblocks the branch.  This supersedes the earlier reading of this work stream, which had called
-the ledger row suspicious.  Reproduction under the row's own conditions (reference build, `S = 64`,
-`EL = 9`) was launched as this was written and is logged in `build/census_ref_el9_s64.txt`.
+the ledger row suspicious.  Reproduction under the row's own conditions **landed and matches every
+entry**: reference build, `S = 64`, `EL = 9`, frame 2 gives
+
+```
+K = 145, D = 5, S = 0, P = 93, groups = 145, max_pop 2     (150 in roles + 93 halves = 243)
+```
+
+against the row's `sources in roles 150 | K 145 | D 5 | P halves 93 | groups with pop 2 = 5`
+(archived log `experiments/census_ref_el9_s64/census.csv`).  The row is therefore not merely plausible
+but **reproduced**, with no macro and no candidate rule; and the mechanism is the one the branch order
+allows, since at the open gate the pair branch wins against the election for part of the sources
+inside the same tick.  This is the cleanest correction of the session: an artefact I had flagged as
+suspect is vindicated by measurement.
 
 The multiplicity check retired the *seed-side* version of this prediction: giving every layer its
 own phase (`cell.t = w mod (2*RMAX)`) lifts the reference's cap from `2` to `3` at five copies but

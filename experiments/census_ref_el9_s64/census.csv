@@ -1,0 +1,5 @@
+frame,tick,K,D,S,P,distinct_centers,groups,unresolved,mixed_charge,max_population,max_span,max_families,captures,escapes,births,deaths
+0,0,0,0,243,0,1,0,0,0,0,0,0,0,0,0,0
+1,878,0,0,243,0,1,0,0,0,0,0,0,0,0,0,0
+2,1756,145,5,0,93,1,145,0,0,2,0,1,150,0,145,0
+3,2634,145,5,0,93,1,145,0,0,2,0,1,0,0,0,0

@@ -168,17 +168,19 @@ rules whose words *differ* — R1 and R2 — can ever form a pair.  This is not 
 * R5 is dead twice over: algebraically outside `M`, and dynamically shadowed because its two
   words are necessarily identical.
 * The ledger row `S = 64: 145 K + 5 D + 93 P halves` in
-  `DYNAMIC_QUANTIZATION_DERIVATION.md` **is not reproducible at the reference sieve** -- at
-  `S = 16384` the branch order makes identical-word pairing unreachable -- but it is **consistent
-  under its own stated conditions**, and the "93" is a real dynamical count rather than a scripting
-  artefact.  Two independent pieces of evidence: (a) the row's own gate is open (`S = 64`), which
-  changes how many cells pass the sieve in the same tick, so the pair branch can win against the
-  election for some sources; (b) refusing the election directly (`PHASE_DISTINCT_FSM`) makes the
-  same-word pairs reachable and reproduces the row's *split* exactly at `EL = 9`, frame 3:
-  `S = 150, P = 93` against the row's `150` sources in roles plus `93` halves (`243` either way).
-  The reproduction run under the row's own conditions (reference build, `S = 64`, `EL = 9`) is
-  registered in `experiments/EMERGENCE_SEARCH.md`; the earlier reading of this work stream, that the
-  row was suspicious, is superseded by these two measurements.
+  `DYNAMIC_QUANTIZATION_DERIVATION.md` is **reproduced exactly by the reference build** under its own
+  conditions, and the earlier reading of this work stream -- that the row was suspicious because
+  identical-word pairs cannot reach the pair branch -- was too strong and is **withdrawn**.  Archived
+  log `experiments/census_ref_el9_s64/census.csv`: reference build, `S = 64`, `EL = 9` (`W = 243`),
+  frame 2 gives
+  `K = 145, D = 5, S = 0, P = 93`, `groups = 145`, `max_pop = 2`, `captures = 150`, `births = 145`
+  --- every entry of the row, including its five population-2 groups.  The pair branch is therefore
+  reachable for same-word sources *at the open gate*, where the branch order within a tick lets the
+  pair win against the election for 93 of the 243 sources; at the reference sieve (`S = 16384`) the
+  measurement of section 5b stands (no pair forms).  Independent confirmation from the rule side:
+  refusing the election outright (`PHASE_DISTINCT_FSM`) also un-shadows the branch and reaches the
+  same split (`S = 150, P = 93`) at `EL = 9`, stably across frames, and `4 P` then `12 P` at `EL = 6`
+  where the reference has zero.
 * `PAIR_WORD_LOG` makes the check cheap for whoever wants to settle it: any canonical run that
   prints more than zero `[pairword]` lines falsifies the statement above.
 

@@ -544,7 +544,11 @@ its time-box.
   the in-phase tube arm I predicted no group at all; the harness plants `1K+2D` and the rule cannot
   dissolve an existing group).  Folded into the manuscript: a paragraph "A local variant of the
   family candidate (M)" in the fixed-point subsection, plus the sieve-qualified reachability
-  caveat in the charge-census appendix.
+  caveat in the charge-census appendix.  **The reproduction landed exactly**: reference build,
+  `S = 64`, `EL = 9`, frame 2 gives `K = 145, D = 5, P = 93`, `145` groups, `max_pop 2`,
+  `captures = 150`, `births = 145` --- every entry of the ledger row, so the row is a
+  reproduction result and the suspicion is withdrawn; the log is archived in the repository
+  (`experiments/census_ref_el9_s64/census.csv`) and closes lint action 2.
 
   runs, and the algebra's "R3/R6 can fire" was wrong.**  New harness
   `experiments/pair_channel_probe.cpp` (+ `build_pair_channel_probe.bat`) and the
