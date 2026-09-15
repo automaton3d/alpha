@@ -10,6 +10,14 @@
 //                   distinct centres, span to the chief)
 //   summary.txt     per-chief statistics over the run + final report card.
 //
+// Usage: island_census [frames] [sieve] [outdir] [EL]
+//   The optional 5th argument changes the lattice side EL (default 9), which
+//   sets W = 3*EL^2 = 9*EL families of EL/3 copies.  Added for the L-sweep
+//   falsifier of DYNAMIC_QUANTIZATION_DERIVATION.md (the population quantum is
+//   predicted to be 2 at every L, never EL/3).  EL must be a multiple of 3;
+//   the cost grows roughly as L^5 (L=15 is ~13x the L=9 cell count and ~3x the
+//   per-frame tick count), so EL=15 is a background job, not a quick run.
+//
 // This is measurement campaign 1A: it checks whether the production dynamics
 // convert the seed's chief associations into localised, persistent 1K+nD
 // groups (manuscript: 9L spatial islands of ~L/3 constituents is a hypothesis
@@ -261,8 +269,9 @@ int main(int argc, char** argv)
     int sieve = 16384;            // reference electroweak sieve modulus
     const char* outdir = "build/island_census";
 
-    if (argc > 4)
-      throw std::runtime_error("usage: island_census [frames] [sieve] [outdir]");
+    if (argc > 6)
+      throw std::runtime_error(
+          "usage: island_census [frames] [sieve] [outdir] [EL] [mm_eps]");
     if (argc >= 2)
     {
       char* end = nullptr;
@@ -279,9 +288,31 @@ int main(int argc, char** argv)
         throw std::runtime_error("sieve must be >= 0");
       sieve = (int)v;
     }
-    if (argc == 4) outdir = argv[3];
+    if (argc >= 4) outdir = argv[3];
 
-    constexpr unsigned L = 9;
+    unsigned L = 9;
+    if (argc >= 5)
+    {
+      char* end = nullptr;
+      unsigned long v = strtoul(argv[4], &end, 10);
+      if (end == argv[4] || *end || v < 3 || v % 3u != 0u || v > 63)
+        throw std::runtime_error("EL must be a multiple of 3 in [3, 63]");
+      L = (unsigned)v;
+    }
+
+    // Optional: enable the charge-conjugation hook (simulation.cpp:810-899).
+    // Absent or 0 keeps the documented default (mm_eps = 0 -> exact no-op), so
+    // every existing invocation stays bit-identical.  argv[5] is the C-violating
+    // bias; the base probability stays at its default mm_pbase = 1.
+    if (argc >= 6)
+    {
+      char* end = nullptr;
+      const double eps = strtod(argv[5], &end);
+      if (end == argv[5] || *end || eps < 0.0 || eps > 1.0)
+        throw std::runtime_error("mm_eps must be in [0,1]");
+      gConfig.simulation.mm_eps = eps;
+    }
+
     if (!tryAllocate(L, 3u * L * L)) throw std::runtime_error(lastAllocationError);
     calculateParameters(L, 3u * L * L);
     if (W_USED != 3u * L * L || FRAME == 0 || RMAX == 0 || ISLAND_SIZE == 0)
