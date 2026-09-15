@@ -55,9 +55,12 @@ Three of the six channels are therefore **closed for every admissible word**, an
 channel is exactly the "word + its conjugate" geometry.  Consequence:
 
 * With the canonical seed and the default configuration, the words are frozen at the eight
-  seed words and **only R3 (`0x00/0x00`) and R6 (`0x2A/0x2A`, `0x2E/0x2E`) can fire** —
-  the seed's words contain no conjugate pair (its conjugates are
+  seed words and **only R3 (`0x00/0x00`) and R6 (`0x2A/0x2A`, `0x2E/0x2E`) survive
+  `canFormPair`** — the seed's words contain no conjugate pair (its conjugates are
   `0x1F, 0x1B, 0x06, 0x02, 0x35, 0x31, 0x2C, 0x28`, none of which the seed generates).
+  **Section 5b corrects this**: "survives `canFormPair`" was read from the predicate alone,
+  and the probe shows that the membership election intercepts every *identical-word* pair
+  before the pair branch is reached, so R3 and R6 never fire either.
 * **The photon (R2) channel is dormant in every canonical run**, not because it is weak but
   because the charge geometry it needs does not exist in the lattice.  This is the
   charge-side reason behind three earlier negatives (the electric channel `conv_repel` never
@@ -123,6 +126,56 @@ photon-type `20` entries use R1/R2 geometry that the automaton itself cannot rea
 (section 2).  The proton--electron ratio 1187 is likewise not recomputable from the table
 alone, consistent with the appendix's own "scale-of-consistency coincidence" status.
 
+## 5b. Measured: which pair channels actually fire (probe)
+
+The reachability table of section 2 is *algebra*: it asks which word pairs `canFormPair`
+accepts.  Whether such a pair can ever *form* is a different question, because the pair branch
+sits **after** the membership transitions in `encounter()`.  `experiments/pair_channel_probe.cpp`
+plants co-located, in-phase `S` sources with chosen words in a `15x5x5` tube, presets the sieve
+bit and sets `s2b_target = 1` (so the electroweak gate is open, as in `island_census`), and
+reports every formation.  It measures rule acceptance, not sieve timing.  The model now carries
+a `PAIR_WORD_LOG` macro that prints the words of every formation, so a long canonical run can be
+checked the same way.
+
+| mode | planted words | pre-registered | measured | verdict |
+|---|---|---|---|---|
+| `r1` | `0x00` / `0x3F` | 1 pair | **1 pair** (`0x00/0x3F`) | confirmed |
+| `r2` | `0x00` / `0x1F` | 1 pair | **1 pair** (`0x00/0x1F`) | confirmed |
+| `r2b` | `0x2A` / `0x35` | 1 pair | **1 pair** (`0x2A/0x35`) | confirmed |
+| `r3` | `0x00` / `0x00` | 1 pair | **0** | **falsified** |
+| `r5` | `0x11` / `0x11` | 1 pair | **0** | **falsified** |
+| `r6` | `0x2A` / `0x2A` | 1 pair | **0** | **falsified** |
+| `r4`, `r6b` | `0x3F/0x3F`, `0x2E/0x2E` | 0 (diagnosed) | 0 | confirmed |
+| `cross` | `0x00` / `0x19` | 0 | 0 | confirmed |
+| `seedset` | the eight seed words + repeats of `0x00`, `0x2A`, `0x2E` | 3 pairs | **0** (also 0 after 40 frames) | **falsified** |
+
+**The rule behind the four failures.**  R3, R4, R5 and R6 all require the two words to be
+*identical* (R3 and R4 explicitly; R5 and R6 demand the same `q`, `w1`, `w0` and the same
+non-trivial colour, which is the same word).  Two identical-word `S` sources are consumed by
+`chiefContact` (T1) inside the same call, which turns one into a chief and the other into its
+delegate; the following `internal` test then sees two bodies of one group and returns **before**
+the pair branch.  The election therefore shadows every identical-word rule, and only the two
+rules whose words *differ* — R1 and R2 — can ever form a pair.  This is not a timing effect: the
+`r3` run was repeated with 40 frames and still formed nothing.
+
+**Consequences.**
+
+* The dynamic pair channel of the model is exactly `{R1, R2}` — i.e. the graviton-type and
+  photon-type geometries, both of which need words the canonical seed never generates
+  (`0x3F`, or a conjugate).  **In a canonical run no pair forms at all**, which is why the
+  16-frame census run read `pairM = pairA = 0` at every sampled tick and why the electric
+  channel was never observed to act (items 1 and 4, `PHOTON_MEDIATION_FAR`, item C).
+* R5 is dead twice over: algebraically outside `M`, and dynamically shadowed because its two
+  words are necessarily identical.
+* The ledger row `S = 64: 145 K + 5 D + 93 P halves` in
+  `DYNAMIC_QUANTIZATION_DERIVATION.md` is **inconsistent with the current rule order**: 93 pair
+  halves cannot form from the seed's eight words under this branch ordering.  The row needs a
+  log or a re-derivation (the lint lists it too).  Candidates for its origin: a run whose seed
+  carried planted pair words, or a `P` count taken with the pair words present as initial
+  conditions.
+* `PAIR_WORD_LOG` makes the check cheap for whoever wants to settle it: any canonical run that
+  prints more than zero `[pairword]` lines falsifies the statement above.
+
 ## 6. Conjugation-hook probe (started, not finished)
 
 To test the dormancy claim empirically the census harness gained one optional argument
@@ -147,13 +200,15 @@ only configuration in which R2 pairs appear at all.
 
 ## 7. Falsifiable statements
 
-1. In any canonical run (`mm_eps = 0`) every pair that ever forms is R3 or R6, hence both
-   partners carry a word in `{0x00, 0x2A, 0x2E}`; no R1/R2/R4/R5 pair can form.  (Testable by
-   logging `a.ch`/`b.ch` in the pair branch.)
+1. In any canonical run (`mm_eps = 0`) **no pair forms at all**: the only dynamically reachable
+   rules are R1 and R2, and both need words the seed never generates.  (Testable with
+   `PAIR_WORD_LOG` -- any canonical run printing a `[pairword]` line falsifies it.  Measured:
+   the probe's `seedset` mode plants the seed's own words and forms nothing in 40 frames.)
 2. The seed's cell census starts at `freeM = 89667`, `freeA = 87480`, `D = +2187` for L=9 —
    41 matter islands against 40 antimatter, at `ISLAND_SIZE x 3^6` cells each.  (Verified.)
-3. No macro re-opens R1/R4/R5, because the obstruction is the invariant `q ^ w0 = w1`
-   preserved by the only two writers of `ch`.
+3. No macro re-opens R1/R4/R5: R1 needs a word outside the manifold `M` and R4/R5 are shadowed
+   by the membership election (their words are necessarily identical), so their closure survives
+   every candidate build.
 
 ## Limits
 

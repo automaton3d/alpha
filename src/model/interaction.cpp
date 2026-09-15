@@ -1383,6 +1383,16 @@ namespace automaton
         partnerSrc.kind == SourceKind::S && canFormPair(currSrc, partnerSrc))
     {
       ++enc_pair;
+#ifdef PAIR_WORD_LOG
+      // Menu item 3, closed by measurement: which charge words actually reach
+      // the pair branch.  Prints one line per formation so a long canonical run
+      // can be checked against the reachability table of CHARGE_SPECTRUM.md
+      // (canonically only R3 0x00/0x00 and R6 0x2A/0x2A, 0x2E/0x2E).
+      printf("[pairword] w=%u ch=0x%02X | w=%u ch=0x%02X\n",
+             (unsigned)currSrc.w, (unsigned)currSrc.ch,
+             (unsigned)partnerSrc.w, (unsigned)partnerSrc.ch);
+      fflush(stdout);
+#endif
       bool dressing = (currSrc.leader_w != NO_LEADER_W &&
                        currSrc.leader_w == partnerSrc.leader_w);
       WIndex newLeader = dressing ? currSrc.leader_w : NO_LEADER_W;

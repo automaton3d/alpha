@@ -506,7 +506,32 @@ its time-box.
   criterion recorded for any future attempt: hold the copies at
   `d >= 2*RMAX + 1` with cell-local data only, no `ISLAND_SIZE`, no `L`.
   Folded into the manuscript's candidate-mechanism paragraph.
-- **2026-09-14 -- Item 5 done: claims-vs-artifacts lint (the referee's first pass).**
+- **2026-09-14 -- Item 3 closed by measurement: the pair channel is EMPTY in canonical
+  runs, and the algebra's "R3/R6 can fire" was wrong.**  New harness
+  `experiments/pair_channel_probe.cpp` (+ `build_pair_channel_probe.bat`) and the
+  `PAIR_WORD_LOG` macro in `interaction.cpp`, which prints the words of every pair
+  formation.  The probe plants co-located, in-phase `S` sources with chosen words in a
+  `15x5x5` tube, presets the sieve bit and sets `s2b_target = 1` so the electroweak gate
+  is open (as `island_census` does), and reports every formation.  Result over ten
+  modes: the *different-word* rules fire exactly as predicted (`0x00/0x3F` R1,
+  `0x00/0x1F` and `0x2A/0x35` R2), while the *identical-word* rules never fire
+  (`0x00/0x00`, `0x2A/0x2A`, `0x2E/0x2E`, `0x3F/0x3F`, `0x11/0x11` -- all zero, and the
+  `0x00/0x00` case stays zero after 40 frames, so it is not a timing effect).  Cause,
+  located in the code: `chiefContact` (T1) consumes two identical-word `S` sources
+  inside the same call, and the following `internal` test then returns **before** the
+  pair branch, so the membership election shadows every identical-word rule.  R5 and R6
+  are identical-word by construction, hence dead in two independent ways (R5 also
+  violates the manifold invariant).  Consequence: the dynamic pair channel is exactly
+  `{R1, R2}`, both needing words the canonical seed never generates, so **no pair can
+  form in a canonical run** -- which is why the 16-frame census read `pairM = pairA = 0`
+  at every sampled tick and why the electric channel never acted.  The `seedset` mode
+  (the seed's own words plus repeats) forms nothing in 40 frames.  This also puts the
+  ledger row `S = 64: 145 K + 5 D + 93 P halves` under suspicion: 93 halves are
+  impossible under this branch order, so the row needs a log or a re-derivation.
+  `CHARGE_SPECTRUM.md` gained section 5b with the table, the mechanism and the
+  corrected falsifiable statements; the earlier "canonically only R3 and R6" reading is
+  marked as superseded.
+
   New `experiments/check_claims.py` (stdlib), note `experiments/CLAIMS_LINT.md`, and the
   `check-claims` target in the `Makefile`.  The scanner extracts number-like tokens from
   every non-bibliography sentence and links them to files under `experiments/`,

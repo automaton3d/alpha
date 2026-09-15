@@ -149,7 +149,7 @@ WORK_PLAN.
 | `experiments\SPACING_PROBE.md` (+ `spacing_probe.cpp`, `build_spacing_probe.bat`) | Item 1: the spacing threshold (`d >= 2*RMAX+1`) and the test that no model channel provides spacing |
 | `experiments\CLAIMS_LINT.md` (+ `check_claims.py`, `make check-claims`) | Item 5: the claims-vs-artifacts lint (52 STRONG / 2 WEAK / 12 NONE over 66 claim sentences) and the semantic findings the tool cannot see |
 | `experiments\PREDICTED_NS_RULE.md` (+ `build_p7_concentration.bat`, modes `chain/gap2/mid/edge`) | Item 4: a rule with a predicted `N*` (capture by shell overlap vs escape by surface) -- prediction falsified at `gap = 3,4`; cause = contact duty cycle dropping 3/4 -> 1/4 of the 4-frame breathing period |
-| `experiments\CHARGE_SPECTRUM.md` (+ `analyze_charge_spectrum.py`) | Item 3: the charge words and pair channels the rules allow (3 of 6 algebraically closed), the seed's 41:40 inventory verified live, and the Appendix-B census arithmetic recomputed |
+| `experiments\CHARGE_SPECTRUM.md` (+ `analyze_charge_spectrum.py`, `pair_channel_probe.cpp`, `build_pair_channel_probe.bat`) | Item 3: the charge words and pair channels the rules allow (3 of 6 algebraically closed), the seed's 41:40 inventory verified live, the Appendix-B census arithmetic recomputed, and the measured result that the pair channel is EMPTY (only R1/R2 reach the branch) |
 | `experiments\SIEVE_SWEEP_PRODUCTION.md` | Sieve-modulus sweep on the production census (the sieve channel does not quantise) |
 | `experiments\PHOTON_MEDIATION_FAR.md` | Distinct-family mediated-duo probe (no mediator-based separation) |
 | `experiments\analyze_sieve_sweep.py` | Summarise every `build\island_census\sweep_S*` directory |
