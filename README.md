@@ -147,6 +147,7 @@ WORK_PLAN.
 | `experiments\DYNAMIC_QUANTIZATION_DERIVATION.md` | Membership fixed-point theorem (population quantum 2), ledger, `P7` control, `L=15` check |
 | `experiments\TURNOVER_ABLATION.md` (+ `turnover_ablation.cpp`, `build_turnover_ablation.bat`) | Item 2: the `EXCLUSION` on/off ablation on a configuration with turnover (the hard core isolates, it does not select) |
 | `experiments\SPACING_PROBE.md` (+ `spacing_probe.cpp`, `build_spacing_probe.bat`) | Item 1: the spacing threshold (`d >= 2*RMAX+1`) and the test that no model channel provides spacing |
+| `experiments\CLAIMS_LINT.md` (+ `check_claims.py`, `make check-claims`) | Item 5: the claims-vs-artifacts lint (52 STRONG / 2 WEAK / 12 NONE over 66 claim sentences) and the semantic findings the tool cannot see |
 | `experiments\PREDICTED_NS_RULE.md` (+ `build_p7_concentration.bat`, modes `chain/gap2/mid/edge`) | Item 4: a rule with a predicted `N*` (capture by shell overlap vs escape by surface) -- prediction falsified at `gap = 3,4`; cause = contact duty cycle dropping 3/4 -> 1/4 of the 4-frame breathing period |
 | `experiments\CHARGE_SPECTRUM.md` (+ `analyze_charge_spectrum.py`) | Item 3: the charge words and pair channels the rules allow (3 of 6 algebraically closed), the seed's 41:40 inventory verified live, and the Appendix-B census arithmetic recomputed |
 | `experiments\SIEVE_SWEEP_PRODUCTION.md` | Sieve-modulus sweep on the production census (the sieve channel does not quantise) |

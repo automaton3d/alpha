@@ -408,6 +408,13 @@ copy_config:
 run:
 	cd "$(BUILD_DIR)" && $(TARGET)
 
+# ================================================
+# Claims-vs-artifacts lint (menu item 5)
+# ================================================
+
+check-claims:
+	python experiments\check_claims.py --top 14 --md build\claims_lint_generated.md
+
 rebuild:
 	nmake clean
 	nmake

@@ -506,7 +506,29 @@ its time-box.
   criterion recorded for any future attempt: hold the copies at
   `d >= 2*RMAX + 1` with cell-local data only, no `ISLAND_SIZE`, no `L`.
   Folded into the manuscript's candidate-mechanism paragraph.
-- **2026-09-14 -- Item 4 done: a rule with a predicted `N*` (prediction falsified,
+- **2026-09-14 -- Item 5 done: claims-vs-artifacts lint (the referee's first pass).**
+  New `experiments/check_claims.py` (stdlib), note `experiments/CLAIMS_LINT.md`, and the
+  `check-claims` target in the `Makefile`.  The scanner extracts number-like tokens from
+  every non-bibliography sentence and links them to files under `experiments/`,
+  `quantization/` and `build/`, in three buckets: STRONG (number plus at least two
+  shared content words), WEAK (number only) and NONE (no artefact carries it).
+  Manuscript backups under `build/` and the tool's own output are excluded, otherwise
+  the match is circular.  Result: 66 sentences carry a claim-like number -- 52 STRONG,
+  2 WEAK, **12 NONE**.  Four classes of NONE matter: the whole wavefront-metric table
+  `tab:scaling` (manuscript L410) and the `0.9950` envelope correlation (L1167) have no
+  reproducing artefact; Appendix A's derived constants (`n_p`, `n_pT`) are arithmetic
+  that no script recomputes; the rest are bit-string notation (false positives of the
+  lexical method, documented as such).  The semantic checks a lexical tool cannot make
+  are listed separately, and they are the ones with teeth: the `tab:scaling` caption
+  names a producer (`lorentz_mm.cpp`) that the deposit calls "(historical)" but that
+  **exists nowhere in the repository**; the 93 pair-halves of the reference ledger have
+  no archived log (a fresh 16-frame canonical run reached tick 1025 with
+  `pairM = pairA = 0`); the `1187` proton--electron ratio is not recomputable from the
+  table it sits in; the taxonomy's example words `0x00/0x1F` and `0x00/0x3F` are planted
+  (now covered by the Appendix B caveat); and the flux-harness figure `N* = 30.38` must
+  not be presented as model output, since the same document reports no attractor in the
+  repository's data.  Six actions listed with costs in the note.
+
   cause diagnosed).**  New macro `SURFACE_ESCAPE_FSM` in `src/model/interaction.cpp`
   (OFF by default, so the reference build is bit-identical: every change sits inside
   the `#ifdef`), new harness modes in `experiments/p7_concentration.cpp`
