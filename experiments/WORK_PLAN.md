@@ -506,7 +506,33 @@ its time-box.
   criterion recorded for any future attempt: hold the copies at
   `d >= 2*RMAX + 1` with cell-local data only, no `ISLAND_SIZE`, no `L`.
   Folded into the manuscript's candidate-mechanism paragraph.
-- **2026-09-14 -- Item 3 closed by measurement: the pair channel is EMPTY in canonical
+- **2026-09-15 -- Emergence search opened: a LOCAL rule holds the family multiplicity
+  (`PHASE_DISTINCT_FSM`), and the seed-side route is closed.**  New note
+  `experiments/EMERGENCE_SEARCH.md`, macro `PHASE_DISTINCT_FSM` in `chief_transition.h`
+  (OFF by default), new `p7_concentration` modes (`coPhase`, `five`, `fiveCo`, variable
+  multiplicity and per-layer breathing phase) and a fourth binary.  Rule: identity is the
+  pair (charge word, breathing phase), i.e. the reference's refusal of different-word
+  merges is extended to indistinguishable same-word same-phase bubbles; it reads only
+  `ch` and `t`.  Measured in a tube: at `m = 3` the reference splits in phase
+  (`2K+1D`, one promotion) while the rule holds `1K+2D` with promotions `1 -> 0` and the
+  contact count unchanged; at `m = 5` the rule holds `1K+4D` (`max_pop 5`) against the
+  reference's `4K+1D` cascade, so `N* = m` at both multiplicities.  With distinct phases
+  the rule is inert (identical to the reference), so its scope is measurable.  The
+  *seed-side* alternative was tested and closed: a phase-spread seed still promotes twice
+  at `m = 5` and lands at `3`, so the three-copy tube result was multiplicity-specific.
+  The obstruction is stated first: no local quantity equals `L/3`
+  (`L/3 = (2L/(3(L-1))) RMAX`), so a fixed local rule can only be asymptotically
+  proportional -- what is available dynamically is a scaling with `L`, not the value;
+  the value stays the seed's multiplicity, i.e. the topological axiom.  On the locality
+  criterion the new rule is strictly better than `DD_INTRA_ISLAND_FIX`.  Registered,
+  not yet run: with the rule on the canonical superposed seed, `81` groups of `1K+2D`
+  (`max_pop 3 = L/3`) at `L = 9` and `135` groups of `1K+4D` (`max_pop 5`) at `L = 15`,
+  promotions zero, control `235K+8D` without the macro.  One of my own registered
+  predictions was mis-specified (I predicted no group at all in the in-phase arm; the
+  harness plants `1K+2D` and the rule cannot dissolve an existing group) and is recorded
+  as such rather than amended.  Folded into the manuscript: a paragraph "A local variant
+  of the family candidate (M)" in the fixed-point subsection.
+
   runs, and the algebra's "R3/R6 can fire" was wrong.**  New harness
   `experiments/pair_channel_probe.cpp` (+ `build_pair_channel_probe.bat`) and the
   `PAIR_WORD_LOG` macro in `interaction.cpp`, which prints the words of every pair
