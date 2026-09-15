@@ -168,11 +168,17 @@ rules whose words *differ* — R1 and R2 — can ever form a pair.  This is not 
 * R5 is dead twice over: algebraically outside `M`, and dynamically shadowed because its two
   words are necessarily identical.
 * The ledger row `S = 64: 145 K + 5 D + 93 P halves` in
-  `DYNAMIC_QUANTIZATION_DERIVATION.md` is **inconsistent with the current rule order**: 93 pair
-  halves cannot form from the seed's eight words under this branch ordering.  The row needs a
-  log or a re-derivation (the lint lists it too).  Candidates for its origin: a run whose seed
-  carried planted pair words, or a `P` count taken with the pair words present as initial
-  conditions.
+  `DYNAMIC_QUANTIZATION_DERIVATION.md` **is not reproducible at the reference sieve** -- at
+  `S = 16384` the branch order makes identical-word pairing unreachable -- but it is **consistent
+  under its own stated conditions**, and the "93" is a real dynamical count rather than a scripting
+  artefact.  Two independent pieces of evidence: (a) the row's own gate is open (`S = 64`), which
+  changes how many cells pass the sieve in the same tick, so the pair branch can win against the
+  election for some sources; (b) refusing the election directly (`PHASE_DISTINCT_FSM`) makes the
+  same-word pairs reachable and reproduces the row's *split* exactly at `EL = 9`, frame 3:
+  `S = 150, P = 93` against the row's `150` sources in roles plus `93` halves (`243` either way).
+  The reproduction run under the row's own conditions (reference build, `S = 64`, `EL = 9`) is
+  registered in `experiments/EMERGENCE_SEARCH.md`; the earlier reading of this work stream, that the
+  row was suspicious, is superseded by these two measurements.
 * `PAIR_WORD_LOG` makes the check cheap for whoever wants to settle it: any canonical run that
   prints more than zero `[pairword]` lines falsifies the statement above.
 
@@ -200,10 +206,12 @@ only configuration in which R2 pairs appear at all.
 
 ## 7. Falsifiable statements
 
-1. In any canonical run (`mm_eps = 0`) **no pair forms at all**: the only dynamically reachable
-   rules are R1 and R2, and both need words the seed never generates.  (Testable with
-   `PAIR_WORD_LOG` -- any canonical run printing a `[pairword]` line falsifies it.  Measured:
-   the probe's `seedset` mode plants the seed's own words and forms nothing in 40 frames.)
+1. In any canonical run (`mm_eps = 0`) **no pair forms at all at the reference sieve**: the only
+   dynamically reachable rules are R1 and R2, and both need words the seed never generates.  (The
+   statement is sieve-dependent, and this was learned the hard way: with the gate open, or with the
+   election refused, same-word pairs do form -- see the ledger item in section 5b.  Testable with
+   `PAIR_WORD_LOG`: any reference-sieve canonical run printing a `[pairword]` line falsifies it.
+   Measured: the probe's `seedset` mode plants the seed's own words and forms nothing in 40 frames.)
 2. The seed's cell census starts at `freeM = 89667`, `freeA = 87480`, `D = +2187` for L=9 —
    41 matter islands against 40 antimatter, at `ISLAND_SIZE x 3^6` cells each.  (Verified.)
 3. No macro re-opens R1/R4/R5: R1 needs a word outside the manifold `M` and R4/R5 are shadowed

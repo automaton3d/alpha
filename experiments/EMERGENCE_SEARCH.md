@@ -160,7 +160,100 @@ dissolve an existing group, so the measured `1K+2D` is the correct outcome of th
 The prediction that mattered -- that the reducer is refused -- is confirmed (promotions `1 -> 0`).
 Recorded here rather than quietly amended.
 
-## 7. The decisive test this opens (registered, not yet run)
+## 7. Correction before running the census (my registered prediction was wrong)
+
+Preparing the census run exposed an error in the prediction registered in section 6c, and it is
+corrected here **before** the run rather than after it.
+
+**What was wrong.**  The tube arms of sections 6 and 6b start from a *planted* `1K+2D` family, so
+they measure what the rule does to an **existing** group.  The census starts from the canonical
+superposed seed, where the 243 layers are all singletons $S$ and the group must be **formed** by the
+membership transitions.  With the rule as implemented -- refuse the merge of any two sources that
+agree in charge word *and* phase -- and with the canonical seed's layers all at $t = 0$, the refusal
+also blocks (T1), the $S \times S$ election that forms a chief in the first place.  The predicted
+`81` groups of `1K+2D` was extrapolated from the planted family and contradicts the rule's own
+scope.
+
+**Corrected prediction, registered before the run.**  `PHASE_DISTINCT_FSM` on the canonical
+superposed seed, reference dynamics otherwise, at any `L`:
+
+* **no group forms at all**: `K = 0`, `D = 0`, every source stays `S`, `max_pop = 1`,
+  promotions `0`, for the whole run;
+* at `L = 9` that is `243 S` in place of the reference's `235 K + 8 D`;
+* the prediction is *cheap to check*: it is visible in the first two frames, and at `EL = 6`
+  (`W = 108`, two copies per family) the whole run costs minutes rather than hours.
+
+**And the design question this exposes.**  Scoping the refusal to (T2) alone -- the reducer --
+instead of to all merges would let groups form, but then the phase criterion cannot stop (T4) from
+absorbing *every* layer of the same charge word, including the other families': the copies of one
+word number about `10 x (L/3)` at `L = 9`, so the predicted population would be of that order, not
+`3`.  A phase criterion cannot separate copies that belong to different families, because phases
+are assigned per layer and the family boundary is not a local quantity (section 2).  So the honest
+statement is: the rule preserves a family **once formed**, and it cannot be the mechanism that forms
+one, while any local rule that *does* form one cannot stop at `L/3` members.
+
+Measurements follow in section 7b.
+
+## 7b. The census measurement (rule on the canonical seed)
+
+Harness `build/island_census/island_census_phase.exe` (canonical superposed seed, reference sieve),
+against the reference binary at the same size.  `EL = 6` costs seconds per frame, so the borderline
+case is cheap; `EL = 9` is the size the paper uses.
+
+**`EL = 6` (`W = 108`, two copies per family), six frames.**  Columns are `K, D, S, P, groups,
+max_pop`:
+
+| frame | tick | reference | rule `PHASE_DISTINCT_FSM` |
+|---|---|---|---|
+| 0 | 0 | `0, 0, 108, 0, 0, 0` | `0, 0, 108, 0, 0, 0` |
+| 1 | 421 | `0, 0, 108, 0, 0, 0` | `0, 0, 108, 0, 0, 0` |
+| 2 | 842 | `100, 8, 0, 0, 100, 2` | `0, 0, **104**, **4**, 0, 0` |
+| 3 | 1263 | `100, 8, 0, 0, 100, 2` | `0, 0, 104, 4, 0, 0` |
+| 4 | 1684 | `100, 8, 0, 0, 100, 2` | `0, 0, 108, 0, 0, 0` |
+| 5 | 2105 | `100, 8, 0, 0, 100, 2` | `**26, 2, 80**, 0, 26, 2` |
+| 6 | 2526 | `100, 8, 0, 0, 100, 2` | `26, 2, 68, 12, 26, 2` |
+
+Four things are established.
+
+**(i) The corrected prediction holds for the first five frames.**  Zero groups, `K = D = 0`, every
+source a singleton: the phase refusal does block the aggregation exactly as derived, and the
+reference at the same size runs to `100 K + 8 D` with `max_pop 2` from frame 2 (the theorem's
+behaviour, and `108 = 100 + 8` closes with one population-2 group per charge word, as at `L = 9`).
+
+**(ii) The sector is released later, and the release has a cause.**  The rule is broken at frame 5 by
+the model's own clock resets: pairs form at frames 2-3 (see below), and a pair release resets the
+breathing clocks of its two layers (`reemitAtContact`), which destroys the phase degeneracy the
+refusal depends on; the ordinary membership transitions then resume, producing `26 K 2 D` and, by
+frame 6, `12 P` again.  So the phase criterion is **not stable** on this seed: it is defeated by the
+dynamics, not by a parameter.  That closes the phase route for an emergent quantum in the canonical
+setting, and it does so with a mechanism rather than with a null result.
+
+**(iii) A by-product that independently confirms the item-3 diagnosis.**  Refusing the election
+removes the transition that was *shadowing* the pair branch: the reference has **zero** pair halves
+at every frame, while the rule reaches `4 P` at frame 2 and `12 P` at frame 6.  Recall that in the
+algebra the seed's words admit `R3` (`0x00/0x00`) and `R6` pairs, and that item 3 measured them as
+unreachable because `chiefContact` consumes identical-word sources before the pair branch.  Refusing
+that consumption makes them reachable, which is the other side of the same measurement -- and it is
+also a concrete explanation for the historical ledger row `S = 64: 93 P halves`: a run whose
+election did not consume identical-word pairs would produce exactly this kind of signal.
+
+**(iv) `EL = 9` (the paper's size) behaves the same way, and reproduces the ledger's split.**  The
+run at `EL = 9` (`W = 243`, six frames, same rule) gave `K = D = 0`, `S = 243` for frames 0-2 and,
+at frames 3 and 4, the *same* state twice:
+
+```
+S = 150, P = 93        (243 = 150 + 93)
+```
+
+so the split is not a transient snapshot but a stable configuration of that run, which is
+**exactly the split of the ledger row** (`150` sources in roles plus `93` pair halves, `243`
+either way), with the difference that the row's 150 went through the election (`145 K + 5 D`) while
+these stayed singletons.  So the historical "93" is a real dynamical count of this seed rather than a
+scripting artefact: the same-word pairs the algebra allows (`R3`, `R6`) do form once the election
+stops consuming them, and the number of halves is set by the seed's geometry rather than by the rule
+that unblocks the branch.  This supersedes the earlier reading of this work stream, which had called
+the ledger row suspicious.  Reproduction under the row's own conditions (reference build, `S = 64`,
+`EL = 9`) was launched as this was written and is logged in `build/census_ref_el9_s64.txt`.
 
 The multiplicity check retired the *seed-side* version of this prediction: giving every layer its
 own phase (`cell.t = w mod (2*RMAX)`) lifts the reference's cap from `2` to `3` at five copies but
@@ -189,17 +282,30 @@ rem census: needs the island_census harness rebuilt with -D PHASE_DISTINCT_FSM (
 build\island_census\island_census_phase.exe 12 16384 build/island_census/phase_distinct
 ```
 
-## 8. What the search has established so far
+## 8. What the search has established
 
-* No local quantity equals `L/3`; the obstruction is quantitative (`L/3 = (2L/(3(L-1))) RMAX`),
-  so a fixed local rule can only be asymptotically proportional to it.
-* The *seed-side* route is closed: a phase-spread seed reduces the rate of the reducer but does not
-  remove it (`m = 5` still promotes twice), so the three-copy result was multiplicity-specific.
-* The *rule-side* route is open and measured: `PHASE_DISTINCT_FSM` --- identity by (charge word,
-  breathing phase) --- holds `N* = m` at `m = 3` and `m = 5` on a prepared family, refuses exactly
-  the merges it should (promotions `3 -> 0`, contact count unchanged), and is inert when the phases
-  are distinct, i.e. it has a measurable scope rather than being a blanket freeze.
-* On the locality criterion this rule is strictly better than the earlier family-index candidate
-  (`DD_INTRA_ISLAND_FIX`): it reads only `ch` and `t`, with no `ISLAND_SIZE`, no `L` and no host
-  table.  What it does **not** do is derive the value: the multiplicity is the seed's, i.e. the
-  topological axiom, which is where the paper already puts it.
+* **No local quantity equals `L/3`.**  `L/3 = (2L/(3(L-1))) RMAX` has a coefficient that differs at
+  every accessible size, so a fixed local rule can only be asymptotically proportional to the axiom's
+  value.  What the dynamics can supply is a *scaling* with `L`, not the number; the number is the
+  factorisation of the topology equation `W = (9L)(L/3)`, i.e. an input, which is where the paper
+  already locates it.
+* **The seed-side route is closed.**  A phase-spread seed reduces the *rate* of the reducer but does
+  not remove it (`m = 5` still promotes twice and lands at `3`), so the three-copy tube result was
+  multiplicity-specific.
+* **The rule-side route works on a formed family and fails on the canonical seed -- for a stated
+  reason.**  `PHASE_DISTINCT_FSM` holds `N* = m` at `m = 3` and `m = 5` on a prepared family, with the
+  contact count unchanged and promotions `-> 0`, and is inert when the phases differ.  On the
+  canonical superposed seed it blocks aggregation for five frames exactly as derived (`K = D = 0`,
+  `EL = 6`), and is then defeated by the model's own clock resets, which the pair branch performs
+  (`reemitAtContact`): the phase degeneracy the refusal depends on is destroyed, and ordinary
+  membership resumes.  The criterion is therefore not stable against the dynamics, and no parameter
+  choice repairs that.
+* **By-product, and a better explanation than the one the ledger note offered.**  The same run shows
+  the pair branch being *un-shadowed* by the refusal (`4 P` then `12 P` where the reference has zero
+  at every frame), which confirms item 3's shadowing diagnosis from the opposite direction and gives a
+  concrete account of the historical `93 P halves`.
+* **Net gain on the design criterion.**  The rule reads only `ch` and `t` -- no `ISLAND_SIZE`, no `L`,
+  no host table -- so it dominates `DD_INTRA_ISLAND_FIX` on locality; what it cannot do is *form* a
+  family or *pick* its size.  Any rule that does form one, locally, cannot stop at `L/3` members,
+  because copies of one charge word belonging to different families are indistinguishable to every
+  cell-local criterion available.

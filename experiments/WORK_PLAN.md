@@ -524,14 +524,27 @@ its time-box.
   (`L/3 = (2L/(3(L-1))) RMAX`), so a fixed local rule can only be asymptotically
   proportional -- what is available dynamically is a scaling with `L`, not the value;
   the value stays the seed's multiplicity, i.e. the topological axiom.  On the locality
-  criterion the new rule is strictly better than `DD_INTRA_ISLAND_FIX`.  Registered,
-  not yet run: with the rule on the canonical superposed seed, `81` groups of `1K+2D`
-  (`max_pop 3 = L/3`) at `L = 9` and `135` groups of `1K+4D` (`max_pop 5`) at `L = 15`,
-  promotions zero, control `235K+8D` without the macro.  One of my own registered
-  predictions was mis-specified (I predicted no group at all in the in-phase arm; the
-  harness plants `1K+2D` and the rule cannot dissolve an existing group) and is recorded
-  as such rather than amended.  Folded into the manuscript: a paragraph "A local variant
-  of the family candidate (M)" in the fixed-point subsection.
+  criterion the new rule is strictly better than `DD_INTRA_ISLAND_FIX`.  **Census run (item 1 of
+  the follow-up list) done, and it corrected two of my own claims.**  First, the registered
+  prediction was wrong *before* the run: the tube arms start from a *planted* `1K+2D`, while the
+  census must *form* the group, and the rule refuses the `S x S` election too.  Corrected
+  prediction, registered pre-run: no group at all (`K = D = 0`, `max_pop 1`).  Measured at
+  `EL = 6` (cheap: 3.1 s/frame): frames 0-4 exactly that (`K = D = 0`, `S = 108`/`104`), reference
+  at the same size `100 K + 8 D`, `max_pop 2` from frame 2; at frames 5-6 the sector is released
+  (`26 K 2 D`) because pair releases reset the breathing clocks (`reemitAtContact`) and destroy the
+  phase degeneracy the refusal relies on -- so the route is **closed with a mechanism**, not with a
+  null.  At `EL = 9` the rule reaches a *stable* `S = 150, P = 93` (frames 3 and 4, `K = D = 0`).
+  Second, that split **is the ledger row's split** (`150` in roles + `93` halves = 243), and the
+  93 halves are therefore a real dynamical count: the pair branch is reachable for same-word
+  sources once the election stops consuming them (`4 P` then `12 P` at `EL = 6` against zero in the
+  reference), which supersedes item 3's reading that the row was suspicious and qualifies its
+  falsifiable statement as *reference-sieve*.  Reproduction under the row's own conditions
+  (reference build, `S = 64`, `EL = 9`, log `build/census_ref_el9_s64.txt`) was launched.  One more
+  of my registered predictions was mis-specified and is recorded as such rather than amended (in
+  the in-phase tube arm I predicted no group at all; the harness plants `1K+2D` and the rule cannot
+  dissolve an existing group).  Folded into the manuscript: a paragraph "A local variant of the
+  family candidate (M)" in the fixed-point subsection, plus the sieve-qualified reachability
+  caveat in the charge-census appendix.
 
   runs, and the algebra's "R3/R6 can fire" was wrong.**  New harness
   `experiments/pair_channel_probe.cpp` (+ `build_pair_channel_probe.bat`) and the
