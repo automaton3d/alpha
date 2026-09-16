@@ -119,6 +119,7 @@ namespace framework
   void renderTomoRadios();
   void renderHyperlink();
   void renderScenarioHelpPane();
+  void renderEra();
 
   void drawPanel(float x, float y, float w, float h,
                  const glm::vec3& bgColor = glm::vec3(0.05f, 0.05f, 0.1f),

@@ -78,35 +78,38 @@ namespace framework
         );
     }
 
-    // Breathing era of the light clock.  One era is the time the pulsating
-    // front takes to expand from the source centre to RMAX and contract back,
-    // i.e. 2*RMAX light frames -- the period of effective_t(t) -- so the era
-    // number advances once per complete breathing cycle.  Counted from the
-    // same clock as the "Light:" readout (one light frame = FRAME ticks), so
-    // it advances in both simulation and replay.
-    void renderEra()
-    {
-        if (gConfig.simulation.scenario < 0 || FRAME == 0)
-            return;
+// Breathing era of the light clock.  One era is the time the pulsating
+// front takes to expand from the source centre to RMAX and contract back,
+// i.e. 2*RMAX light frames -- the period of effective_t(t) -- so the era
+// number advances once per complete breathing cycle.  Counted from the
+// same clock as the "Light:" readout (one light frame = FRAME ticks), so
+// it advances in both simulation and replay.
+ void renderEra()
+ {
+     if (gConfig.simulation.scenario < 0 || FRAME == 0)
+         return;
 
-        const unsigned long long eraLen =
-            2ull * (unsigned long long)(RMAX > 0u ? RMAX : 1u);
+     const unsigned long long eraLen =
+         2ull * (unsigned long long)(RMAX > 0u ? RMAX : 1u);
 
-        char s[64];
-        std::snprintf(s, sizeof(s),
-                      "Era: %llu",
-                      timer / (unsigned long long)FRAME / eraLen + 1ull);
+     char s[64];
+     std::snprintf(s, sizeof(s),
+                   "Era: %llu",
+                   timer / (unsigned long long)FRAME / eraLen + 1ull);
 
-        hudText.RenderText(
-            s,
-            900.0f,
-            gViewport[3] - 80.0f,
-            1.0f,
-            glm::vec3(1.0f),
-            gViewport[2],
-            gViewport[3]
-        );
-    }
+     // Anchored to the right edge so it never falls off a narrow window.
+     const float x = (float)gViewport[2] - 380.0f;
+     hudText.RenderText(
+         s,
+         x < 10.0f ? 10.0f : x,
+         gViewport[3] - 80.0f,
+         1.0f,
+         glm::vec3(1.0f),
+         gViewport[2],
+         gViewport[3]
+     );
+ }
+
 
     void renderComputeStats()
     {
@@ -219,7 +222,9 @@ namespace framework
             );
         }
 
-        // Mode
+        // Mode -- anchored to the right edge, kept clear of the Era readout
+        // (which sits 380 px from the right) so they never overlap on any width.
+        const float modeX = (float)gViewport[2] - 900.0f;
         std::snprintf(
             s,
             sizeof(s),
@@ -230,13 +235,10 @@ namespace framework
 
         hudText.RenderText(
             s,
-            1400.0f,
+            modeX < 10.0f ? 10.0f : modeX,
             gViewport[3] - 80.0f,
-            1.0f,
-            glm::vec3(1.0f),
-            gViewport[2],
-            gViewport[3]
-        );
+
+          );
     }
 
     void renderLayers()
