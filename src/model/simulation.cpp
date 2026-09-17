@@ -1,6 +1,7 @@
 /*
  * simulation.cpp
  * Implements the main functionality of the FSM.
+ * (comments in american english)
  */
 
 #include <thread>
