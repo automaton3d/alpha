@@ -15,7 +15,20 @@ rem All output is written under build\run_all\ ; a summary is printed at the end
 rem ============================================================================
 setlocal
 cd /d "%~dp0"
-call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul
+rem --- Check for custom vcvars64.bat path if USE_CUDA=1 is set
+if "%USE_CUDA%" == "1" (
+    if "%VCVARSBAT_PATH%" == "" (
+        set VCVARSBAT_PATH="C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat"
+        echo [run_all] Using default vcvars64.bat path: %VCVARSBAT_PATH%
+    )
+    call "%VCVARSBAT_PATH%" >nul
+) else (
+    call "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" >nul
+)
+if errorlevel 1 (
+    echo [run_all] vcvars64.bat not found or failed.
+    exit /b 1
+)
 if errorlevel 1 ( echo [run_all] vcvars64.bat not found or failed. & exit /b 1 )
 
 rem NOTE: the ambient VCPKG_ROOT may point at the vcpkg bundled with Visual

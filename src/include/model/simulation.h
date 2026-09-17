@@ -39,7 +39,7 @@
 #define CHARGE_MASK (W0_MASK | W1_MASK | C0_MASK | C1_MASK | C2_MASK | Q_MASK)
 
 /// Integer square root (binary method, table-free).
-inline int isqrt(int n)
+int isqrt(int n)
 {
     if (n <= 0) return 0;
     int result = 0;
@@ -98,12 +98,12 @@ namespace automaton
   using namespace std;
 
   using WIndex = uint32_t;
-  inline constexpr WIndex NO_LEADER_W = std::numeric_limits<WIndex>::max();
+  constexpr WIndex NO_LEADER_W = std::numeric_limits<WIndex>::max();
 
   // Source kinds for the spin-rev source model (K/S/D/P)
   enum class SourceKind : uint8_t { K = 0, S = 1, D = 2, P = 3 };
-  inline constexpr uint32_t NO_PARENT = std::numeric_limits<uint32_t>::max();
-  inline constexpr uint32_t NO_PAIR   = std::numeric_limits<uint32_t>::max();
+  constexpr uint32_t NO_PARENT = std::numeric_limits<uint32_t>::max();
+  constexpr uint32_t NO_PAIR   = std::numeric_limits<uint32_t>::max();
 
   extern unsigned EL;
   // Per-axis edges.  In the default cubic mode ELX == ELY == ELZ == EL.

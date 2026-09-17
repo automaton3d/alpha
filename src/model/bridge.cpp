@@ -809,45 +809,22 @@ void automaton::updateBuffer()
 
 namespace automaton
 {
+    // CUDA logic is handled in bridge_cuda.cu
     bool tryEnableCuda()
     {
-        printf("CUDA unavailable: the island transport rules currently require the CPU backend.\n");
+        // Placeholder for CUDA initialization
         return false;
     }
 
+    // Placeholder for CUDA cleanup
     void disableCuda()
     {
-        if (!useCuda)
-            return;
-
-        size_t totalCells =
-            static_cast<size_t>(EL) *
-            EL * EL * W_USED;
-
-        std::vector<::CellDevice> deviceCells(totalCells);
-
-        if (downloadLatticeFromCuda(
-                deviceCells.data(),
-                totalCells))
-        {
-            for (size_t i = 0; i < totalCells; ++i)
-            {
-                convertCellDeviceToCell(
-                    deviceCells[i],
-                    lattice_curr[i]);
-            }
-        }
-
-        cudaCleanup();
-
-        useCuda = false;
-
-        printf("CUDA DISABLED\n");
     }
 
+    // Placeholder for CUDA status check
     bool isCudaEnabled()
     {
-        return useCuda;
+        return false;
     }
 }
 

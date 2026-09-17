@@ -1031,6 +1031,12 @@ The factorization
 W = (9L)\left(\frac{L}{3}\right)
 \end{equation}
 splits the ledger into $9L$ charge families, each with $L/3$ identical copies. In a finite-state machine implementation the $W$ coordinate is therefore not a single integer accessed by modulo; it is a pair of registers, an island index in $[0,9L)$ and a copy index in $[0,L/3)$. This preserves the model's FSM character: all addressing and state transitions remain local and involve only comparison, copying, and small counters.
+
+\section{Multi frequency mechanics}
+Clusters ...
+Dynamic initialization ...
+Masks ...
+
 %%%%%%%% RESULTS %%%%%%%%%%
 At this point, the core construction of the cellular automaton is complete.
 
