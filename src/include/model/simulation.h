@@ -39,7 +39,10 @@
 #define CHARGE_MASK (W0_MASK | W1_MASK | C0_MASK | C1_MASK | C2_MASK | Q_MASK)
 
 /// Integer square root (binary method, table-free).
-int isqrt(int n)
+/// Keep this `inline`: the body lives in a header included by ~20 translation
+/// units, and a non-inline definition breaks the link (LNK2005/LNK1169).
+/// The `check-odr` make target guards this regression.
+inline int isqrt(int n)
 {
     if (n <= 0) return 0;
     int result = 0;
@@ -300,6 +303,17 @@ struct NeighborResult
   extern long long& conv_calls;
 #ifdef SURFACE_ESCAPE_FSM
   extern unsigned surface_escapes;   // candidate: members released by surface escape
+#endif
+#ifdef PAIR_STACK_ABSORB_FSM
+  extern long long enc_absorb;       // candidate: formations that absorbed identical stacks
+#endif
+#ifdef MULTIFREQ_RAY_FSM
+  extern long long mf_reads;         // candidate: ray walks for frequency-bearing sides
+  extern long long mf_hits;          // candidate: ... whose detection bit fired
+  extern long long mf_gated;         // candidate: pB/sB openings suppressed by freq_hit
+  extern std::vector<unsigned char> mfHitState;    // per-source freq_hit of the current tick
+  extern std::vector<unsigned>      mfDetU;        // ... u read at the detection cell
+  extern std::vector<std::array<int, 3>> mfDetPos; // ... detection cell coordinates
 #endif
 
   extern long long& conv_s2b;

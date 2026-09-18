@@ -43,7 +43,23 @@ set REPORT=build\run_all\report.txt
 echo alpha run_all report > "%REPORT%"
 call :stamp "start"
 
+rem --- 0. ODR/link gate (fast shared-header check) ---------------------------
+rem Catches non-inline definitions in shared headers (LNK2005/LNK1169) in
+rem seconds - the isqrt regression of 2026-09-17 (commit 3cc70c4) would have
+rem been caught here instead of after the full 45-object GUI build.
+echo [run_all] 0/3 running the ODR/link gate - nmake check-odr ...
+nmake check-odr > build\run_all\00_odr_gate.log 2>&1
+if errorlevel 1 goto :odr_fail
+call :stamp "odr_gate OK"
+goto :step1
+
+:odr_fail
+echo [run_all] ODR gate FAILED - duplicate symbols in shared headers - see build\run_all\00_odr_gate.log
+call :stamp "odr_gate FAILED"
+goto :end
+
 rem --- 1. GUI reference build (CPU) ------------------------------------------
+:step1
 echo [run_all] 1/3 building the GUI - nmake build\automaton.exe ...
 nmake build\automaton.exe > build\run_all\01_gui_build.log 2>&1
 if errorlevel 1 goto :gui_fail

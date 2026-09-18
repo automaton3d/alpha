@@ -87,6 +87,27 @@ namespace automaton
   unsigned surface_escapes = 0;
 #endif
 
+#ifdef PAIR_STACK_ABSORB_FSM
+  // Candidate (multi-frequency mechanics): free S+S formations that absorbed
+  // identical co-located stacks.  Always zero without the macro, so the
+  // reference measurement is unaffected.
+  long long enc_absorb = 0;
+#endif
+
+#ifdef MULTIFREQ_RAY_FSM
+  // Candidate (multi-frequency mechanics, the required-mechanics pieces):
+  // per-tick results of the ray detection for each W source.  mfHitState[w]
+  // is the binary freq_hit of the manuscript; mfDetU/mfDetPos record the
+  // interrogation inputs (probe visibility).  All reset every tick by
+  // beginSourceTick(); always empty without the macro.
+  std::vector<unsigned char> mfHitState;
+  std::vector<unsigned>      mfDetU;
+  std::vector<std::array<int, 3>> mfDetPos;
+  long long mf_reads = 0;   // frequency-bearing sides whose ray was walked
+  long long mf_hits  = 0;   // ... whose detection cell answered freq_hit = 1
+  long long mf_gated = 0;   // pB/sB channel openings suppressed by freq_hit = 0
+#endif
+
   namespace
   {
     std::vector<Cell> sourceBefore, sourceAfter;
@@ -229,6 +250,155 @@ namespace automaton
              ((cola ^ colb) == 0x07u);
     }
 
+#ifdef PAIR_STACK_ABSORB_FSM
+    // Candidate absorption for the multi-frequency mechanics: count the free
+    // stacks IDENTICAL to the forming pair (a, b) that are superposed on the
+    // forming pair's site, register their population on the formed pair, and
+    // release the absorbed halves as singletons.  A stack is a mutual P pair
+    // with affinity W_USED (free), centred where the forming sources are
+    // (same voxel, same wavefront radius f) and carrying the same unordered
+    // charge words; only the leader half (lower W address) is processed, and
+    // the release reuses the deterministic split of the consumption path in
+    // simulation.cpp (axis = leader % 3, sign by parity).  Returns the formed
+    // pair's count (1 when nothing was absorbed), clamped to 255 so a growing
+    // stack can never wrap the uint8_t bookkeeping.
+    uint8_t absorbCoLocatedStacks(const Cell& a, const Cell& b)
+    {
+      unsigned total = 1;
+      for (unsigned w = 0; w < W_USED; ++w)
+      {
+        const Cell& s = sourceBefore[w];
+        if (s.kind != SourceKind::P || s.a != W_USED)
+          continue;                       // free stacks only
+        if (s.pair_idx >= W_USED || w >= s.pair_idx)
+          continue;                       // malformed pair / non-leader half
+        const Cell& sp = sourceBefore[s.pair_idx];
+        if (sp.kind != SourceKind::P || sp.pair_idx != w || sp.a != W_USED)
+          continue;                       // mutual free pair
+        // Idempotence inside one sweep: if this stack was already absorbed
+        // by an earlier encounter window (encounter is evaluated from both W
+        // directions), its sourceAfter kind is already S -- skip, so the
+        // release split is applied exactly once.
+        if (sourceAfter[w].kind != SourceKind::P ||
+            sourceAfter[s.pair_idx].kind != SourceKind::P)
+          continue;
+        // Superposed on the forming pair's site with the same wavefront
+        // radius (the manuscript stack condition: same site, same radius).
+        if (s.x[0] != a.x[0] || s.x[1] != a.x[1] ||
+            s.x[2] != a.x[2] || s.f != a.f)
+          continue;
+        // Identical unordered charge words -> the same kind of pair.
+        if (!((sp.ch == a.ch && s.ch == b.ch) ||
+              (sp.ch == b.ch && s.ch == a.ch)))
+          continue;
+
+        // Absorb: release both halves as singletons (consumption split).
+        Cell& dl = sourceAfter[w];
+        Cell& dp = sourceAfter[s.pair_idx];
+        dl.kind       = SourceKind::S;
+        dl.pair_idx   = NO_PAIR;
+        dl.pair_count = 0;
+        dl.leader_w   = NO_LEADER_W;
+        dl.a          = W_USED;
+        dp.kind       = SourceKind::S;
+        dp.pair_idx   = NO_PAIR;
+        dp.pair_count = 0;
+        dp.leader_w   = NO_LEADER_W;
+        dp.a          = W_USED;
+        const int axis = (int)(w % 3u);
+        const int sign = (w & 1u) ? +1 : -1;
+        dl.reloc[axis] += sign;
+        dp.reloc[axis] -= sign;
+        total += s.pair_count;
+      }
+      return (total > 255u) ? 255u : (uint8_t)total;
+    }
+#endif
+
+#ifdef MULTIFREQ_RAY_FSM
+    // Multi-frequency ray detection (the manuscript's required mechanics,
+    // Sect. "Multi frequency mechanics").  mfFreqBearing: any source that
+    // carries a non-trivial pair_count.  mfComputeRayDetect derives the
+    // effective tick from the population, walks the pure-climb DDA ray
+    // along m (the climb component of the polarization walker with the
+    // orbital budget set to zero -- adds and compares only), and
+    // interrogates the wave cloud on the detection cell: freq_hit.
+    bool mfFreqBearing(const Cell& src)
+    {
+      return src.kind == SourceKind::P && src.pair_count > 0;
+    }
+
+    void mfComputeRayDetect(const Cell& src)
+    {
+      const unsigned w = src.x[3];
+      if (w >= W_USED) return;
+      ++mf_reads;
+
+      // Effective tick from the population: t_eff = 2 * pair_count (the even
+      // frequency 2n; a shift and an add).  The stamp covers 0..RMAX, so the
+      // free scale choice clamps into the walked range.
+      int tEff = (int)src.pair_count << 1;
+      if (tEff > (int)RMAX) tEff = (int)RMAX;
+
+      // Pure-climb DDA along m: absa[i] = |m[i]|, climb_total =
+      // |m0|+|m1|+|m2|; every step is a climb step chosen by the DDA argmax
+      // (no multiplication or division of dynamic quantities).
+      const int absa[3] = { src.m[0] < 0 ? -src.m[0] : src.m[0],
+                            src.m[1] < 0 ? -src.m[1] : src.m[1],
+                            src.m[2] < 0 ? -src.m[2] : src.m[2] };
+      const int sgn[3]  = { src.m[0] < 0 ? -1 : 1,
+                            src.m[1] < 0 ? -1 : 1,
+                            src.m[2] < 0 ? -1 : 1 };
+      const int climbTotal = absa[0] + absa[1] + absa[2];
+      const int edges[3]   = { (int)ELX, (int)ELY, (int)ELZ };
+      int dda[3] = { 0, 0, 0 };
+      int pos[3] = { (int)src.x[0], (int)src.x[1], (int)src.x[2] };
+
+      int  detU      = 0;
+      bool detActive = false, detS2B = false;
+      for (int k = 0; k <= (int)RMAX; ++k)
+      {
+        if (k > 0 && climbTotal > 0)
+        {
+          dda[0] += absa[0]; dda[1] += absa[1]; dda[2] += absa[2];
+          int i = 0;
+          if (dda[1] > dda[i]) i = 1;
+          if (dda[2] > dda[i]) i = 2;
+          dda[i] -= climbTotal;
+          pos[i] += sgn[i];
+          if (pos[i] < 0)         pos[i] += edges[i];
+          if (pos[i] >= edges[i]) pos[i] -= edges[i];
+        }
+        if (k == tEff)
+        {
+          // The detection point: the ray cell whose stamp equals t_eff.
+          const Cell& c = getCell(lattice_curr, pos[0], pos[1], pos[2], (int)w);
+          detU        = c.u;
+          detActive   = c.active != 0;
+          detS2B      = c.s2B;
+          mfDetPos[w] = { pos[0], pos[1], pos[2] };
+        }
+      }
+      const bool hit = (detActive && detS2B) || detU > 0;
+      mfHitState[w] = hit ? 1u : 0u;
+      mfDetU[w]     = (unsigned)detU;
+      if (hit) ++mf_hits;
+    }
+
+    // The gated channel flags: a frequency-bearing side whose detection bit
+    // did not fire contributes no pB/sB ("only after freq_hit is true is the
+    // ordinary pB/sB channel allowed to fire for that frequency mode").
+    bool mfGatedFlag(const Cell& src, bool flag)
+    {
+      if (mfFreqBearing(src) && !mfHitState[src.x[3]])
+      {
+        if (flag) ++mf_gated;
+        return false;
+      }
+      return flag;
+    }
+#endif
+
     // Add an impulse (dx, dy, dz) to the source-center cell and reemit phase 0.
     // The long-term momentum-direction vector m is preserved; the consumable
     // relocation vector reloc records the pending displacement.  The actual move
@@ -362,6 +532,11 @@ namespace automaton
       sourceBefore[w] = getCell(lattice_curr, p[0], p[1], p[2], w);
     }
     sourceAfter = sourceBefore;
+#ifdef MULTIFREQ_RAY_FSM
+    mfHitState.assign(W_USED, 0);
+    mfDetU.assign(W_USED, 0);
+    mfDetPos.assign(W_USED, {0, 0, 0});
+#endif
     if ((!lattice_curr.empty() && lattice_curr.front().k == 0) ||
         contactSeen.size() != (size_t)W_USED * W_USED) {
       internalContacts.clear();
@@ -700,6 +875,19 @@ namespace automaton
       ++enc_self;
       return false;
     }
+#ifdef MULTIFREQ_RAY_FSM
+    // Multi-frequency mechanics: the first action of Encounter for any
+    // source that carries a non-trivial pair_count is to derive the
+    // effective tick from the population and interrogate the detection cell
+    // of its pure-climb ray along m (freq_hit), before the sieve gate.
+    {
+      const WIndex mfWa = curr.x[3], mfWb = partner.x[3];
+      if (mfWa < W_USED && mfFreqBearing(sourceBefore[mfWa]))
+        mfComputeRayDetect(sourceBefore[mfWa]);
+      if (mfWb < W_USED && mfWb != mfWa && mfFreqBearing(sourceBefore[mfWb]))
+        mfComputeRayDetect(sourceBefore[mfWb]);
+    }
+#endif
 #ifdef SURFACE_ESCAPE_FSM
     // Candidate (item 4): any contact between two sources of the same charge
     // word is a shell overlap for the escape rule -- chief-delegate contacts
@@ -1210,11 +1398,20 @@ namespace automaton
 #else
         curr.s2B;
 #endif
+#ifdef MULTIFREQ_RAY_FSM
+    const bool eCurrPB = mfGatedFlag(currSrc, curr.pB);
+    const bool eCurrSB = mfGatedFlag(currSrc, curr.sB);
+    const bool ePartPB = mfGatedFlag(partnerSrc, partner.pB);
+    const bool ePartSB = mfGatedFlag(partnerSrc, partner.sB);
+#else
+    const bool eCurrPB = curr.pB, eCurrSB = curr.sB;
+    const bool ePartPB = partner.pB, ePartSB = partner.sB;
+#endif
     if (currSrc.ch == partnerSrc.ch && emGate &&
-        (curr.pB || partner.pB || curr.sB || partner.sB))
+        (eCurrPB || ePartPB || eCurrSB || ePartSB))
     {
-      const bool electricCollapse = curr.pB && partner.pB;
-      const bool magneticCollapse = curr.sB && partner.sB;
+      const bool electricCollapse = eCurrPB && ePartPB;
+      const bool magneticCollapse = eCurrSB && ePartSB;
       const bool collapse          = electricCollapse || magneticCollapse;
 
       if (collapse)
@@ -1399,19 +1596,36 @@ namespace automaton
       unsigned newA    = dressing ? (unsigned)newLeader : W_USED;
       WIndex parent    = dressing ? currSrc.leader_w : NO_PARENT;
 
-      // If both sources are already a pair with each other, do not re-form.
-      bool alreadyPaired = (currSrc.kind == SourceKind::P &&
-                            partnerSrc.kind == SourceKind::P &&
-                            currSrc.pair_idx == partnerSrc.w &&
-                            partnerSrc.pair_idx == currSrc.w);
-      if (alreadyPaired)
-        return false;
-
       chargesMarkPair();          // idea B: count this registered formation
 
+      // Frequency bookkeeping.  A fresh pair always starts at count 1: this
+      // branch requires BOTH sources in state S (the guard above), so the
+      // former "1 + pair_count + pair_count" accumulation and the P+P
+      // alreadyPaired check that used to live here were unreachable dead
+      // code (dead since 381c1b49 fixed the branch to S+S).  Dynamic stack
+      // growth is the candidate rule PAIR_STACK_ABSORB_FSM below; without
+      // it, a multifrequency population exists only where a harness seeds
+      // it (alpha_probe "photonp").
       uint8_t newCount = 1;
-      if (currSrc.kind == SourceKind::P) newCount += currSrc.pair_count;
-      if (partnerSrc.kind == SourceKind::P) newCount += partnerSrc.pair_count;
+#ifdef PAIR_STACK_ABSORB_FSM
+      // Idempotence guard (candidate only): encounter is evaluated from both
+      // W directions of a site.  If the first direction already formed this
+      // pair (and possibly absorbed stacks into it), the reverse evaluation
+      // must not run again, or it would overwrite the absorbed count.
+      // Reference build: no guard, byte-identical to the pre-candidate tree.
+      if (sourceAfter[currSrc.w].kind == SourceKind::P &&
+          sourceAfter[currSrc.w].pair_idx == partnerSrc.w)
+        return false;
+      // Candidate absorption (multi-frequency mechanics): a free S+S
+      // formation superposed on identical free stacks registers those
+      // stacks' population on the new pair and releases the absorbed halves
+      // as singletons, so a stack of n identical pairs grows by one unit
+      // per encounter.  With newCount > 1 the blob branch below revives as
+      // originally intended ("a single fresh pair is not yet a group").
+      newCount = absorbCoLocatedStacks(currSrc, partnerSrc);
+      if (newCount > 1)
+        ++enc_absorb;
+#endif
 
       currDraft.kind  = SourceKind::P;
       partnerDraft.kind = SourceKind::P;
@@ -1454,10 +1668,22 @@ namespace automaton
     }
 
     // pB triggers the electric channel, sB the magnetic channel.
-    bool electricContact   = curr.pB || partner.pB;
-    bool magneticContact   = curr.sB || partner.sB;
-    bool electricCollapse  = curr.pB && partner.pB;
-    bool magneticCollapse  = curr.sB && partner.sB;
+    // MULTIFREQ_RAY_FSM: a frequency-bearing side opens the channel only
+    // after its freq_hit bit is set (gated read, fresh at this use site so
+    // the reference semantics of curr/partner are untouched).
+#ifdef MULTIFREQ_RAY_FSM
+    const bool gCurrPB = mfGatedFlag(currSrc, curr.pB);
+    const bool gCurrSB = mfGatedFlag(currSrc, curr.sB);
+    const bool gPartPB = mfGatedFlag(partnerSrc, partner.pB);
+    const bool gPartSB = mfGatedFlag(partnerSrc, partner.sB);
+#else
+    const bool gCurrPB = curr.pB, gCurrSB = curr.sB;
+    const bool gPartPB = partner.pB, gPartSB = partner.sB;
+#endif
+    bool electricContact   = gCurrPB || gPartPB;
+    bool magneticContact   = gCurrSB || gPartSB;
+    bool electricCollapse  = gCurrPB && gPartPB;
+    bool magneticCollapse  = gCurrSB && gPartSB;
     bool collapse          = electricCollapse || magneticCollapse;
 
     if (!electricContact && !magneticContact)

@@ -492,37 +492,133 @@ Certain pair combinations are not allowed to form clusters:
 \end{itemize}
 
 \subsection{Multi frequency mechanics}\label{subsec:multi-frequency}
-Dynamic initialization generates the half-wave pattern for the emergent density $r\cdot\sin(r)$, the polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$, and the active wavefront from the integer wave equation and the elected-axis broadcast alone (Sect.~\ref{subsec:Sine} and Sect.~\ref{subsec:polarization-pair}). The radial density of active cells that pass the sieve therefore follows $r\cdot\sin(r)$ as a geometric consequence of the $\sin(r)/r$ amplitude per cell times the $r^{2}$ shell volume; no precomputed mask is required.
+Dynamic initialization (the static sine/momentum masks having been removed) generates the half-wave pattern for the emergent density $r\cdot\sin(r)$, the polarization pair $(\mathrm{pol}_u,\mathrm{pol}_v)$, and the active wavefront from the integer wave equation and the elected-axis broadcast alone (Sect.~\ref{subsec:Sine} and Sect.~\ref{subsec:polarization-pair}). The radial density of active cells that pass the sieve therefore follows $r\cdot\sin(r)$ as a geometric consequence of the $\sin(r)/r$ amplitude per cell times the $r^{2}$ shell volume; no precomputed mask is required.
 
 A photon is a single cluster with all pairs superposed. Frequency is not a continuous parameter but an integer count: a single overlapping pair at the same lattice site and wavefront radius has the fundamental even frequency $2$; a stack of $n$ such pairs has frequency $2n$. A multifrequency photon is a superposition of several such stacks (or a cluster containing populations at different even frequencies $2,4,6,\dots$). There are no continuous harmonics; the spectrum is discrete and composed only of these even-integer modes.\footnote{Laboratory and environmental photons are groups of such clusters, combined in time and space.}
 
-Clusters are therefore intrinsically multifrequency. Each constituent pair (or stack) carries its own integer population (\texttt{pair\_count}). The automaton reads frequency as a population, not as a waveform: during encounter each detected pair registers one frequency unit on the stack, so a stack of $n$ accumulates $n$ times the fundamental count.
+Clusters are therefore intrinsically multifrequency. Each constituent pair (or stack) carries its own integer population (\texttt{pair\_count}). The automaton reads frequency as a population, not as a waveform. In the reference dynamics the count is stamped once at formation and spent by the turnaround consumption; stacks grow only where a harness seeds them, because pair formation requires two sources in the single state $S$ and cannot re-reach a formed pair. The candidate absorption rule \texttt{PAIR\_STACK\_ABSORB\_FSM} (off in the reference build) makes each detected formation register the population of identical superposed stacks on the new pair, so a stack of $n$ accumulates toward $n+1$ per encounter; dynamic stacking therefore remains part of the required mechanics below.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  cell/.style={circle, draw=black!70, minimum size=0.55cm, inner sep=0pt},
+  activept/.style={cell, fill=blue!25},
+  detectpt/.style={cell, fill=orange!30},
+  centerpt/.style={cell, fill=black!10, thick},
+  cloud/.style={dashed, blue!60!black},
+  ray/.style={thick, black!75},
+  coord/.style={-Stealth, thick, dashed, red!70!black},
+  mvec/.style={-Stealth, very thick, green!50!black},
+]
+  % --- source centre ---
+  \node[centerpt, label={[yshift=-0.15cm]below:{source}}] (C) at (0,0) {};
+
+  % --- momentum arrow ---
+  \draw[mvec] (C) -- (6.2,0) node[midway, above, black, font=\footnotesize] {$\boldsymbol{m}$};
+
+  % --- stamped ray cells ---
+  \foreach \x/\lab in {1.0/0, 2.0/1, 3.0/2, 4.0/3, 5.0/4} {
+    \node[cell] (K\lab) at (\x,0) {};
+    \node[font=\scriptsize, below] at (\x,-0.35) {$k{=}\lab$};
+  }
+  % connect ray
+  \draw[ray] (C) -- (K0) -- (K1) -- (K2) -- (K3) -- (K4);
+
+  % --- active point (t) at k=2 ---
+  \node[activept] at (3.0,0) {};
+  \node[font=\footnotesize, above=0.25cm] at (3.0,0) {active $t$};
+
+  % --- detection point (t_eff) at k=4 ---
+  \node[detectpt] (Det) at (5.0,0) {};
+  \node[font=\footnotesize, above=0.25cm] at (5.0,0) {$t_{\mathrm{eff}}$};
+
+  % --- cloud arc (r sin r) intersecting near detection and active ---
+  \draw[cloud, thick] (0.3,1.6) arc[start angle=100, end angle=-10, radius=4.6];
+  \node[font=\footnotesize, blue!60!black] at (2.8,2.35) {$r\cdot\sin(r)$ cloud};
+
+  % dots suggesting density on the arc
+  \foreach \ang in {85,70,55,40,25,10,-5} {
+    \fill[blue!50] ({4.6*cos(\ang)},{4.6*sin(\ang)+0.05}) circle (1.2pt);
+  }
+
+  % --- local interrogation ---
+  \draw[-Stealth, thick, orange!70!black] (Det) -- ++(0,1.15)
+    node[above, font=\footnotesize, align=center, orange!50!black]
+    {interrogates cloud\\$\Rightarrow$ \texttt{freq\_hit}$\,\in\{0,1\}$};
+
+  % --- superluminal coordination back to centre ---
+  \draw[coord] (Det.south) to[out=-60, in=-20]
+    node[midway, below=0.15cm, font=\footnotesize, red!60!black]
+    {$\Psi$: \texttt{freq\_hit} $\to$ Encounter}
+    (C.south);
+
+  % --- legend box ---
+  \node[draw=black!40, rounded corners, fill=white, align=left, font=\scriptsize,
+        inner sep=4pt, anchor=north west] at (-0.2,-2.1) {
+    \textcolor{blue!50!black}{$\bullet$} active point ($t$) on ray\\
+    \textcolor{orange!70!black}{$\bullet$} detection point ($t_{\mathrm{eff}}$) on same ray\\
+    \textcolor{red!60!black}{dashed} coordination bit (hidden $\Psi$)\\
+    only if \texttt{freq\_hit}$=1$ does $pB$/$sB$ open for that mode
+  };
+\end{tikzpicture}
+\caption{Multifrequency selection on the lattice. Dynamic initialization stamps a pure-climb ray along the elected momentum $\boldsymbol{m}$. The ordinary active shell marks one cell of the ray (tick $t$). Independently, $t_{\mathrm{eff}}$ derived from \texttt{pair\_count} selects another cell of the same ray; that cell interrogates the already-propagated $r\cdot\sin(r)$ cloud and yields the binary coordination bit \texttt{freq\_hit}. The bit is written into source-centre $\Psi$ and, by the end of Encounter, gates the electromagnetic channel for that discrete mode. Different modes therefore interact at different radial phases of the same cloud.}
+\label{fig:multi-frequency}
+\end{figure}
 
 \paragraph{Limitation of the present mechanism.}
 The current implementation does \emph{not} yet determine the interaction point inside the $r\cdot\sin(r)$ cloud from the frequency. The active shell is set solely by the local wavefront tick of the sources ($r=\mathrm{effective\_t}(t)$), and the sieve $s2B$ is the local test
 \[
 \bigl((u\cdot t)\bmod S\bigr)<u,\qquad S=\mathrm{SHELL\_TARGET},
 \]
-gated by that same active flag. Consequently a multifrequency cluster interacts wherever its current active shell happens to lie; there is no selection of a radial phase that corresponds to a particular mode of the discrete spectrum. Electromagnetic (and magnetic) contacts therefore cannot be localized to the correct point of the cloud for a given frequency.
+gated by that same active flag. Consequently a multifrequency cluster interacts wherever its current active shell happens to lie; there is no selection of a radial phase that corresponds to a particular mode of the discrete spectrum. Electromagnetic (and magnetic) contacts therefore cannot be localized to the correct point of the cloud for a given frequency. Moreover, dynamic initialization elects the direction of the momentum vector $\boldsymbol{m}$ and installs it on the source centre, but it does \emph{not} yet materialize a straight-line sequence of cells along $\boldsymbol{m}$ on the lattice (the polarization walker produces a spiral, not a ray).
 
 \paragraph{Required mechanics.}
-Two ordered steps must precede any electromagnetic interaction involving a frequency-bearing object:
+Fixing multifrequency requires a linear sequence on the lattice together with a binary, frequency-conditioned trigger (Fig.~\ref{fig:multi-frequency}). The construction must remain pure (only addition, subtraction, bit shifts and comparisons of dynamic operands).
 
 \begin{enumerate}
-\item \textbf{Effective tick from pair count.}  
-  The first action of Encounter, for any source that carries a non-trivial \texttt{pair\_count}, is to compute an effective wavefront tick (or effective radius)
-  \[
-  t_{\mathrm{eff}} = t_{\mathrm{eff}}(\texttt{pair\_count})
-  \]
-  from that population. The precise mapping is still free (a linear multiple of the count, a modular reduction onto the triangular breathing phase, or a lookup that recovers the lobe of the half-wave), but it must be deterministic and local to the source data already present on the cell.
+\item \textbf{Linear sequence along $\boldsymbol{m}$.}
+  At the moment the axis is elected and $\boldsymbol{m}$ is written on the source centre, a pure-climb Bresenham walk (the climb component of the existing polarization DDA, with orbital budget set to zero) stamps successive cells along the ray with the step index $k=0,1,2,\dots,R_{\mathrm{MAX}}$. Only increments and the already-supported DDA steps are used; no multiplication or division of dynamic quantities occurs. The stamp may reuse $\mathrm{bstamp}$ or a short dedicated field. Cost is $O(R_{\mathrm{MAX}})$ and is incurred only on axis election.
 
-\item \textbf{Superluminal selection of the cloud point.}  
-  Once $t_{\mathrm{eff}}$ is known, a second, strictly non-signaling rule selects the precise location(s) on the $r\cdot\sin(r)$ density that correspond to that effective tick. Because the rule only \emph{reads} the already-propagated wave field and the elected polarization stamps, and writes only into the draft of the contacting cells, it remains superluminal in coordinate speed yet non-manipulable (Sect.~\ref{subsec:observers} and Sect.~\ref{subsec:nosignaling-formal}). The selected point becomes the unique site at which the $pB$/$sB$ electromagnetic (or magnetic) channel is allowed to fire for that frequency mode.
+\item \textbf{Effective tick from pair count.}
+  The first action of Encounter for any source that carries a non-trivial $\texttt{pair\_count}$ is to form
+  \[
+  t_{\mathrm{eff}}=t_{\mathrm{eff}}(\texttt{pair\_count})
+  \]
+  by shifts and additions alone (for example $t_{\mathrm{eff}}=\texttt{pair\_count}$ or $t_{\mathrm{eff}}=\texttt{pair\_count}\ll 1$). The mapping remains a free scale choice, but it is deterministic and local to the source data.
+
+\item \textbf{Two points on the same line.}
+  On the stamped ray there are two distinguished cells:
+  \begin{itemize}
+  \item the \emph{active point}, corresponding to the ordinary local tick $t$ (intersection of the current active shell with the ray, or the cell whose stamp equals $t$);
+  \item the \emph{detection point}, the cell whose stamp equals $t_{\mathrm{eff}}$.
+  \end{itemize}
+  The detection point performs a purely local interrogation of the wave cloud already present on that cell (for example $\mathit{active}\land s2B$, or a positive amplitude $u$). The outcome is a single binary result
+  \[
+  \texttt{freq\_hit}\in\{0,1\}.
+  \]
+
+\item \textbf{Superluminal propagation of the bit.}
+  The bit $\texttt{freq\_hit}$ must become available by the end of Encounter as the effective trigger of the electromagnetic (or magnetic) channel. It is written into the draft of the source-centre cell (or reduced by a short OR-sweep strictly along the already-marked ray). Because the write targets a coordination field and does not alter readable physical fields of distant cells, the propagation is of the same character as the other non-local updates already performed inside Encounter.
 \end{enumerate}
 
-With these two steps the interaction machinery responds to the discrete spectrum rather than to the accidental current shell. Different modes of a multifrequency cluster interact at different radial phases of the same cloud; the sieve $s2B$ continues to gate the local amplitude, but only after the frequency has first fixed \emph{where} on the cloud the gate is examined. The frequency an observer later reports in laboratory units remains an emergent conversion of the integer population through $v_{\max}$ and the emergent $c$ (Sect.~\ref{sec:Results}).
+Only after $\texttt{freq\_hit}$ is true is the ordinary $pB$/$sB$ channel allowed to fire for that frequency mode. Different modes of a multifrequency cluster therefore interact at different radial phases of the same cloud; the sieve $s2B$ continues to gate local amplitude, but only after frequency has first fixed \emph{where} on the ray the gate is examined.
 
-The dynamic half-wave generation, the stacking of \texttt{pair\_count}, and the amplitude-dependent sieve are already present in the executable (\texttt{initSim.cpp}, \texttt{simulation.cpp} phase\_step, \texttt{interaction.cpp}, \texttt{polarization.cpp}). The missing pieces are precisely the derivation of $t_{\mathrm{eff}}$ from the pair count and the subsequent superluminal selection of the corresponding point on the $r\cdot\sin(r)$ density; both must be introduced before electromagnetic contacts can be frequency-correct.
+\paragraph{Causal coherence (superluminal non-signaling).}
+The construction is examined against the formal no-signaling argument of Sect.~\ref{subsec:nosignaling-formal}. That argument partitions each cell into readable physical fields $\Phi$ (charge, affinity, radius, wave amplitudes, polarization bits, phase, active flag, local clock $t$) and hidden coordination fields $\Psi$ (housekeeping tick, $W$-ledger including $\texttt{pair\_count}$, source kind, relocation impulses, \ldots). A minimal observer reads only $\Phi$ and acts only by local rules; physical effects of any change in $\Psi$ reach other cells solely through the local six-neighbour transition and therefore at speed at most $v_{\max}$.
+
+The bit $\texttt{freq\_hit}$ remains coherent with that partition if and only if the following conditions hold:
+
+\begin{itemize}
+\item $\texttt{freq\_hit}$ is treated as a coordination quantity ($\Psi$), never as a readable physical field ($\Phi$). A minimal observer cannot sense it directly.
+\item Its only non-local write is into the draft of the source-centre cell (or another already-authorized $\Psi$ location of Encounter). Intermediate cells of the ray are not given new readable state.
+\item The physical consequence of the bit---the eventual firing of the $pB$/$sB$ channel---is realized exclusively by the ordinary local transition rules (collapse, reissue, one-step motion, \ldots). From that moment onward every influence propagates at or below $v_{\max}$.
+\item No admissible local intervention by an observer can modulate the bit in a controllable, spacelike fashion: $t_{\mathrm{eff}}$ is computed from data already resident at the source, and the cloud interrogation is a passive read of a field that has already been propagated by the local wave rule.
+\end{itemize}
+
+Under these restrictions the bit introduces no new species of superluminality; it re-uses the same non-signaling licence already granted to Encounter. The host-side scheduler of the present implementation inherits the same design-goal caveat already stated for all coordinated updates (Sect.~\ref{subsec:nosignaling-formal}): the property is required of the idealised transition function, not yet established for the concrete scheduler.
+
+The dynamic half-wave generation, the $\texttt{pair\_count}$ field with its formation and turnaround-consumption paths, the election of $\boldsymbol{m}$ and the amplitude-dependent sieve are already present in the executable (\texttt{initSim.cpp}, \texttt{simulation.cpp} \texttt{phase\_step}, \texttt{interaction.cpp}, \texttt{polarization.cpp}). Stack growth is not part of the reference dynamics: the formation rule requires both sources in the single state $S$, so the count is stamped once at formation and spent by consumption, and multifrequency populations exist only where a harness seeds them; the candidate absorption rule \texttt{PAIR\_STACK\_ABSORB\_FSM} (compiled off in the reference build) grows identical superposed stacks by one unit per encounter. The missing pieces are the pure-climb linear stamp along $\boldsymbol{m}$, the derivation of $t_{\mathrm{eff}}$, the binary detection at the stamped cell, and the coordination-only propagation of $\texttt{freq\_hit}$; all four must be introduced before electromagnetic contacts can be frequency-correct.
 
 \subsection{Interaction principles}
 The guiding principles are:
@@ -534,7 +630,7 @@ The guiding principles are:
 
 \medskip\noindent\textbf{Reciprocity.} Because only one draft can be updated at a time, the rules must later update the counterpart. This reciprocity is essential for the next subsection.
 \subsection{Encounter} \label{subsec:encounter}
-Encounter is the first step of the light frame (ending at $ENCOUNTER$) and contains the main interaction rules. Each site in the main lattice is compared with its partner along the $W$ dimension. This partner comparison is a rule-evaluation device that pairs lattice sites by internal address; it does not move bubbles along $W$---physical motion and merging always occur in the 3-torus (Sect.~\ref{subsec:w-islands}). For any frequency-bearing source the first actions are the two ordered steps of Sect.~\ref{subsec:multi-frequency}: derive the effective tick $t_{\mathrm{eff}}$ from \texttt{pair\_count}, then select the corresponding point on the $r\cdot\sin(r)$ cloud by a non-signaling superluminal rule. Only after that selection does the ordinary wave-phase $f$ and the sieve $s2B$ examine the local amplitude. Particles form or reform here. We postulate that the weak force only causes collapse, not limited reissues. Comparisons split into two cases: superposing or distinct bubbles.
+Encounter is the first step of the light frame (ending at $ENCOUNTER$) and contains the main interaction rules. Each site in the main lattice is compared with its partner along the $W$ dimension. This partner comparison is a rule-evaluation device that pairs lattice sites by internal address; it does not move bubbles along $W$---physical motion and merging always occur in the 3-torus (Sect.~\ref{subsec:w-islands}). For any frequency-bearing source the first actions follow Sect.~\ref{subsec:multi-frequency}: derive $t_{\mathrm{eff}}$ from \texttt{pair\_count}, interrogate the cloud at the corresponding stamped cell of the linear sequence along $\boldsymbol{m}$, and obtain the binary coordination bit \texttt{freq\_hit}. Only when that bit is set is the ordinary wave-phase $f$ and the sieve $s2B$ allowed to open the $pB$/$sB$ channel for that mode. Particles form or reform here. We postulate that the weak force only causes collapse, not limited reissues. Comparisons split into two cases: superposing or distinct bubbles.
 \subsubsection{Superposing bubbles}
 Two overlapping bubbles with the same wavefront tick $t_1=t_2$ can form a pair if they satisfy the following conditions:
 \begin{itemize}

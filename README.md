@@ -54,6 +54,13 @@ This calls `vcvars64.bat`, sets `VCPKG_ROOT`, and runs
 `nmake build\automaton.exe`, producing `build\automaton.exe` plus the runtime
 DLLs and assets. Run it with `nmake run` (executes from `build\`).
 
+Before the full build, `build_gui.bat` first runs the **ODR/link gate**
+(`nmake check-odr`): two tiny translation units (`experiments\odr_gate_tu1.cpp`,
+`odr_gate_tu2.cpp`) include the shared model headers and are linked together,
+so a header that *defines* a symbol with external linkage without `inline`
+fails in seconds with LNK2005/LNK1169 instead of after the full 45-object
+build. `run_all.bat` runs the same gate as step 0.
+
 For a one-command reproducibility smoke test (GUI build + headless probe),
 use the root `run_all.bat`:
 

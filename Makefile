@@ -491,6 +491,20 @@ run:
 check-claims:
 	python experiments\check_claims.py --top 14 --md build\claims_lint_generated.md
 
+# ================================================
+# ODR/link gate (header regression check)
+# ================================================
+# Two tiny TUs include the shared headers and are linked together.  A header
+# that DEFINES a function or variable with external linkage without "inline"
+# fails here with LNK2005/LNK1169 instead of breaking the full GUI build.
+# History: 2026-09-17, model/simulation.h defined isqrt non-inline
+# (commit 3cc70c4) and the GUI could no longer link; the last successful
+# executable predated that commit.
+check-odr: dirs
+	$(CC) $(CFLAGS) /c experiments\odr_gate_tu1.cpp experiments\odr_gate_tu2.cpp /Fo"$(OBJ_DIR)\\"
+	$(CC) $(OBJ_DIR)\odr_gate_tu1.obj $(OBJ_DIR)\odr_gate_tu2.obj /Fe:$(OBJ_DIR)\odr_gate.exe /link /SUBSYSTEM:CONSOLE
+	@echo [check-odr] OK - shared headers link cleanly (no duplicate symbols)
+
 rebuild:
 	nmake clean
 	nmake
@@ -499,4 +513,4 @@ rebuild:
 # Targets simbólicos
 # ================================================
 
-.SYMBOLIC: clean run rebuild all dirs dlls copy_config
+.SYMBOLIC: clean run rebuild all dirs dlls copy_config check-odr
