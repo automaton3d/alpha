@@ -304,6 +304,11 @@ struct NeighborResult
 #ifdef SURFACE_ESCAPE_FSM
   extern unsigned surface_escapes;   // candidate: members released by surface escape
 #endif
+#ifdef SPIN_GATED_FSM
+  extern unsigned spin_vetoes;       // J-programme S3: releases vetoed by group spin
+  extern unsigned long long spin_jmax2;   // S4 cap on |J|^2 (0 = disabled)
+  extern unsigned spin_cap_evictions;     // S4: members shed by the cap
+#endif
 #ifdef PAIR_STACK_ABSORB_FSM
   extern long long enc_absorb;       // candidate: formations that absorbed identical stacks
 #endif

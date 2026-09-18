@@ -790,6 +790,77 @@ its time-box.
   the DOI deposit (author) and submission.  Optional, not blocking: the local
   reformulation of the family-rigid idea, and a candidate rule keyed on the shell
   index (its falsifier is in `GEOMETRIC_QUANTUM.md` section 5).
+- **2026-09-18 -- J0 and J1 of the spin programme: circulation is real, and it protects.**
+  New note `experiments/J1_SPIN.md`.  Rationale: the aggregation line closed with a
+  frozen bound (T1-T5 cap a group at 2) because every mechanism tried so far either read
+  the seed multiplicity (`EXCLUSION_FSM`, `DD_INTRA_ISLAND_FIX`, `w / ISLAND_SIZE`) or
+  had no interior balance at all; a pile can be deformed 3 -> 2 continuously, a rotating
+  one cannot.  So the group is given a conserved spin `J = sum r x m` (r = member - chief,
+  toroidal; m = member momentum) and asked whether it does any work.
+  **J0 (reader only, no rule change, so the baseline is measurable):**
+  `experiments/island_census.cpp` gained `chiefSpin()` (int64 `sum r x m` with toroidal
+  offsets), a `spin_groups` / `max_Jmag2` pair of census columns and `Jx,Jy,Jz` per group;
+  `experiments/J0_spin_reader.py` (stdlib) reads them.  Sweeping every archive
+  (`build/island_census/J0_el9` = `L=9, S=16384` run at 4 frames, plus `L15`, `ref_el6`,
+  `mm0`, `mm1` and `census_ref_el9_s64`) gives **3206 groups, `nonzero_J = 0`,
+  `max_|J|^2 = 0`**.  The cause is structural, not a cancelling accident:
+  `inertia_fixture::prepare` assigns `m` only to the propeller layers, so every body
+  keeps `m = 0`, and in the production path a body's own `m` never self-propels it
+  (`m` is preserved at `utils.cpp:181-183` / `interaction.cpp:838` and enters motion only
+  through a *partner's* contribution to `reloc`, `interaction.cpp:1468-1470`,
+  `1794-1796`, consumed by `applyMomentum()`, `simulation.cpp:423`).
+  **J1 (candidate rule):** new macro `SPIN_GATED_FSM`, always built with
+  `SURFACE_ESCAPE_FSM` (whose release test it gates) and entirely inside the `#ifdef`, so
+  the reference build is untouched (diff `+44` lines all guarded; the plain
+  `build_island_census.bat` rebuild is clean).  S1 accumulates the chief-frame `J` before
+  the release test; S3 refuses to release a delegate while its chief's `J != 0`, without
+  resetting the timer, so the veto is a conservation constraint rather than a freeze.
+  New harness `experiments/spin_probe.cpp` + `build_spin_probe.bat` (`_ref` = threat
+  alone, `_gate` = threat + S1/S3) plants a **frozen rotor** in a 15x5x5 tube: K at x=2,
+  delegates at x=7 and x=12 (all pairwise toroidal distances 5 > 2*RMAX = 4, so nothing
+  ever contacts and the escape rule is the only agent), arm `j0` (m = 0) vs `jnz`
+  (m = +y / -y, `sum(m) = 0` but `J = (0,0,+10)` because both toroidal offsets have the
+  same sign in the cross product).
+  **All four registered predictions confirmed exactly:** `ref`+`j0`, `ref`+`jnz` and
+  `gate`+`j0` all release both delegates (`escapes = 2`, final `1K+0D+2S`), while
+  `gate`+`jnz` **holds the group (`escapes = 0`, `spin_vetoes = 20`, final `1K+2D`)**.
+  So `J` is inert on its own (adding the momenta changes nothing) but load bearing once a
+  rule consults it: the first measured case in the project where a group's membership is
+  decided by its circulation rather than by a read of `L/3`.  Stated limits: `J` protects a
+  size, it does not select one (no `dN` vs `N` crossing yet), the rotor is planted rather
+  than generated, `J` is not yet conserved across joining/promotion/pair formation, and
+  there is no `L`- or `RMAX`-sweep.  Registered follow-ups J2-J5 in the note.
+- **2026-09-18 -- J2 done: `J` protects a size, it does not SELECT one (and the
+  control is the interesting half).**  S3's veto tests `Jx || Jy || Jz`, i.e. it is a
+  *boolean* with no `N` dependence and no `|J|` magnitude, so the prediction
+  registered before the run was that protection is FLAT in `N`.  New harness
+  `experiments/spin_ring_probe.cpp` (built by the same `build_spin_probe.bat` into
+  `spin_ring_ref` / `spin_ring_gate`), tube `61 x 5 x 5` (`RMAX = 2`, contact
+  range 4), chief at `x = 30` and `N` delegates on the long axis at every pairwise
+  toroidal distance `>= 5 > 4` (so nothing ever contacts and the escape rule is the
+  only agent), swept `N = 1..6` x 2 builds x 3 arms = 36 runs at 8 light frames.
+  Arms: `j0` (all `m = 0`), `coherent` (members at `+5k`, all `m = (0,+1,0)`,
+  `J = 5*N(N+1)/2` = 5, 15, 30, 50, 75, 105) and `cancel` (members on alternating
+  sides in PAIRS at the same distance, same `m`, so the `r x m` terms cancel and
+  `J = 0` exactly).
+  **Result, both halves of the prediction exact:** `ref` releases all `N` in every
+  arm; `gate` releases all `N` for `j0` and `cancel`; `gate` releases **0 for every
+  `N = 1..6`** in `coherent` with all members held.  So (i) the protection curve is
+  flat -- **no `N` is selected, and `dN` vs `N` is the wrong instrument for S3** --
+  and (ii) the decisive control: `coherent` and `cancel` carry *identical individual
+  momenta* and differ only in whether the `r x m` terms add up, and `cancel` is
+  released exactly like the `m = 0` arm.  Protection therefore tracks `J` as a
+  **collective/coherent** quantity, not the motion of the members.
+  The veto arithmetic is closed-form: counts `7, 12, 15, 16, 15, 12` for
+  `N = 1..6` are exactly `N*(8-N)` (the timer expires at tick `W_USED = N+1`, so
+  each member is vetoed once per frame over the last `8-N` frames) -- one veto per
+  member per expired frame, no free parameter.  Also fixed in passing: the first
+  draft of the `cancel` arm placed members at `+-5k` (steps 1,2,3...) so it gave
+  `J = -15` instead of 0; the arm now pairs the distances.  Logs
+  `build/spin_probe/ring_<build>_N<N>_<arm>.log`; note the J1 entry above (J0/J1).
+  Registered next: S4 (`|J| > J_max` fission with `J_max` from the cavity `RMAX`,
+  the only kind of rule that can *select* a size without reading `L/3`) and S2 (the
+  orbital step that would make the rim-speed cap physical).
 - **2026-09-11 -- Readability pass (author request).**  Split the two largest
   paragraphs ("Distinct bubbles"; "Diffusion, translation and collapse in one
   reading") into readable paragraphs by inserting blank lines at logical

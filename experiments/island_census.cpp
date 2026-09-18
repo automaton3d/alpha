@@ -94,6 +94,8 @@ namespace
     unsigned groups          = 0;   // distinct chiefs with members
     unsigned unresolved      = 0;   // D naming a non-K (or absent) parent
     unsigned mixedCharge     = 0;   // groups whose members carry >1 charge word
+    unsigned spinGroups      = 0;   // J0: groups with nonzero total spin J
+    unsigned long long maxJmag2 = 0; // J0: max |J|^2 over groups this frame
 
     unsigned captures = 0, escapes = 0, births = 0, deaths = 0;
 
@@ -108,6 +110,28 @@ namespace
   unsigned copiesPerFamily = 0;   // ISLAND_SIZE = L/3 (3 for L=9, W=243)
   std::map<WIndex, std::vector<unsigned>> prevMembers;
   std::map<WIndex, ChiefStat> stats;
+
+  // J0: per-group total spin J = sum over members of (r x m), with
+  // r = member centre - chief centre (toroidal wrap) and m the
+  // immutable member momentum. Integers only; int64 accumulators.
+  inline void chiefSpin(WIndex chief, const std::vector<unsigned>& vec,
+                        long long& Jx, long long& Jy, long long& Jz)
+  {
+    Jx = Jy = Jz = 0;
+    const auto& cc = lcenters[chief];
+    for (unsigned w : vec)
+    {
+      const auto& mc = lcenters[w];
+      const Cell& s  = source(w);
+      const long long rx = axisDist((int)cc[0], (int)mc[0], ELX);
+      const long long ry = axisDist((int)cc[1], (int)mc[1], ELY);
+      const long long rz = axisDist((int)cc[2], (int)mc[2], ELZ);
+      const long long mx = s.m[0], my = s.m[1], mz = s.m[2];
+      Jx += ry * mz - rz * my;
+      Jy += rz * mx - rx * mz;
+      Jz += rx * my - ry * mx;
+    }
+  }
 
   void checkLatticeSources()
   {
@@ -211,11 +235,17 @@ namespace
       st.curStable = sameAsPrev ? st.curStable + 1u : 1u;
       st.maxStable = std::max(st.maxStable, st.curStable);
 
+      long long Jx = 0, Jy = 0, Jz = 0;
+      chiefSpin(chief, vec, Jx, Jy, Jz);
+      const unsigned long long Jmag2 =
+          (unsigned long long)(Jx * Jx + Jy * Jy + Jz * Jz);
+      if (Jmag2 > sn.maxJmag2) sn.maxJmag2 = Jmag2;
+      if (Jmag2 > 0) ++sn.spinGroups;
       if (groups)
-        fprintf(groups, "%u,%u,%u,%u,%u,%u,%u,%u,%d\n", frame, tick, chief,
+        fprintf(groups, "%u,%u,%u,%u,%u,%u,%u,%u,%d,%lld,%lld,%lld\n", frame, tick, chief,
                 population, nFamilies, nCentres, span,
                 (unsigned)chargeSets[chief].size(),
-                source(chief).kind == SourceKind::K ? 1 : 0);
+                source(chief).kind == SourceKind::K ? 1 : 0, Jx, Jy, Jz);
     }
 
     // Capture/escape events plus chief births/deaths vs the previous frame.
@@ -252,11 +282,12 @@ namespace
   void writeCensusRow(FILE* f, const Snapshot& sn)
   {
     fprintf(f,
-            "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
+            "%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%llu\n",
             sn.frame, sn.tick, sn.k, sn.d, sn.s, sn.p,
             sn.distinctCenters, sn.groups, sn.unresolved, sn.mixedCharge,
             sn.maxPopulation, sn.maxSpan, sn.maxFamilies,
-            sn.captures, sn.escapes, sn.births, sn.deaths);
+            sn.captures, sn.escapes, sn.births, sn.deaths,
+            sn.spinGroups, sn.maxJmag2);
   }
 }  // namespace
 
@@ -341,10 +372,10 @@ int main(int argc, char** argv)
     fprintf(census,
             "frame,tick,K,D,S,P,distinct_centers,groups,unresolved,"
             "mixed_charge,max_population,max_span,max_families,"
-            "captures,escapes,births,deaths\n");
+            "captures,escapes,births,deaths,spin_groups,max_Jmag2\n");
     fprintf(groups,
             "frame,tick,chief,population,seed_families,distinct_centers,"
-            "max_distance_to_chief,charge_words,valid_chief\n");
+            "max_distance_to_chief,charge_words,valid_chief,Jx,Jy,Jz\n");
 
     printf("ISLAND_CENSUS L=%u W=%u families=%lu copies=%u sieve=%d frames=%u out=%s\n",
            L, W_USED, (unsigned long)(9u * L), copiesPerFamily, sieve, frames,

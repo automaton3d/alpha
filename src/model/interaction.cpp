@@ -87,6 +87,22 @@ namespace automaton
   unsigned surface_escapes = 0;
 #endif
 
+#ifdef SPIN_GATED_FSM
+  // J-programme S1/S3 (experiments/J1_SPIN.md): releases vetoed because the
+  // leaving delegate would carry away the group's last unit of circulation.
+  // SPIN_GATED_FSM is always built together with SURFACE_ESCAPE_FSM -- it gates
+  // that rule's release test -- so it never introduces a counter on its own.
+  unsigned spin_vetoes = 0;
+
+  // J-programme S4 (J2b): the |J| magnitude cap.  spin_jmax2 == 0 disables it.
+  // When a chief's |J|^2 exceeds the cap the rotation is over-driven, so the
+  // OUTERMOST member is shed, overriding the S3 veto for that one member.  The
+  // cap is a runtime input so the same binary serves both the protect test
+  // (cap off) and the selection test (cap on), keeping the build matrix small.
+  unsigned long long spin_jmax2 = 0;
+  unsigned spin_cap_evictions = 0;   // members shed by the S4 cap
+#endif
+
 #ifdef PAIR_STACK_ABSORB_FSM
   // Candidate (multi-frequency mechanics): free S+S formations that absorbed
   // identical co-located stacks.  Always zero without the macro, so the
@@ -686,11 +702,47 @@ namespace automaton
           contacted[(unsigned)(i / W_USED)] = 1;
           contacted[(unsigned)(i % W_USED)] = 1;
         }
+#ifdef SPIN_GATED_FSM
+      // S1 (chief frame): total circulation J = sum over the members of
+      // r x m, with r the toroidal offset from the chief and m the immutable
+      // member momentum.  Integers only, no L and no ISLAND_SIZE.  A chief
+      // contributes r = 0, so only delegates can add to J.
+      std::vector<std::array<long long, 3>> chiefJ(W_USED, {0, 0, 0});
+      for (unsigned w = 0; w < W_USED; ++w)
+      {
+        const Cell& s = sourceAfter[w];
+        if (s.kind != SourceKind::D) continue;
+        const WIndex g = s.parent;
+        if (g >= W_USED) continue;
+        if (sourceAfter[g].kind != SourceKind::K) continue;   // orphan: no frame
+        const long long rx = delta(g, w, 0);
+        const long long ry = delta(g, w, 1);
+        const long long rz = delta(g, w, 2);
+        const long long mx = s.m[0], my = s.m[1], mz = s.m[2];
+        chiefJ[g][0] += ry * mz - rz * my;
+        chiefJ[g][1] += rz * mx - rx * mz;
+        chiefJ[g][2] += rx * my - ry * mx;
+      }
+#endif
       for (unsigned w = 0; w < W_USED; ++w)
       {
         if (sourceAfter[w].kind != SourceKind::D) { framesWithoutContact[w] = 0; continue; }
         if (contacted[w])                         { framesWithoutContact[w] = 0; continue; }
         if (++framesWithoutContact[w] < W_USED)   continue;
+#ifdef SPIN_GATED_FSM
+        // S3: a delegate may not leave while its group's circulation is
+        // non-zero, because the departure would carry the spin away.  The
+        // timer keeps running (no reset), so a group that later sheds J -- or
+        // whose contributions cancel -- is released on a later frame.
+        {
+          const WIndex g = sourceAfter[w].parent;
+          if (g < W_USED && sourceAfter[g].kind == SourceKind::K &&
+              (chiefJ[g][0] || chiefJ[g][1] || chiefJ[g][2])) {
+            ++spin_vetoes;
+            continue;
+          }
+        }
+#endif
         framesWithoutContact[w] = 0;
         sourceAfter[w].kind     = SourceKind::S;
         sourceAfter[w].parent   = NO_PARENT;
