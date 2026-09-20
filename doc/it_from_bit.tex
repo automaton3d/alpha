@@ -4,8 +4,10 @@
 %   removed : S9 "Results" (label sec:Results, manuscript.tex lines 1121-1363)
 %             S10 "Conjectures and prospects" (label sec:Prospects-and-conjectures,
 %             manuscript.tex lines 1364-1551)
-%   kept    : S1-S8 (the construction), the Conclusion (S9 here, S11 there),
-%             the Nomenclature, and Appendices A-D.
+%             the "Reproducibility" subsection of the Conclusion (lines 1581-1594,
+%             the command list for the measurements this variant does not report)
+%   kept    : S1-S8 (the construction), the Conclusion without that subsection
+%             (S9 here, S11 there), the Nomenclature, and Appendices A-D.
 %
 % The removed sections define 23 labels that the retained text referenced 39 times.
 % Every reference was repaired: the pointer is dropped, or the reader is sent to the
@@ -18,7 +20,8 @@
 %   related work 122, fabric 164, light frame 421-422, interactions 487-936,
 %   island section 1059 : pointers to removed subsections dropped
 %   conclusion 1567-1576 : evidence pointers now read "the full manuscript"
-%   conclusion 1585-1590 : table and equation pointers to removed material dropped
+%                            (the table/equation pointers at 1585-1590 sat inside the
+%                             Reproducibility subsection and went with it)
 %   appendix C 1685/1759, appendix D 1873/1876 : pointers retargeted
 %
 % LaTeX renumbers sections, tables, figures and equations automatically.  Build it with:
@@ -1179,19 +1182,7 @@ These limitations delimit the scope of the present work: the manuscript reports 
 Ongoing work simulates the geometric structures that emerge from these local, multi-layered updates. Preliminary tests already show that the collective dynamics of fragments produce a continuous $r \cdot \sin(r)$ density cloud, localized wave-packets, stable spiral patterns and macroscopic rotations directly from discrete bit distributions. These observations support the conjecture that the universal fabric can bridge discrete local rules and the smooth symmetries of physical spacetime.
 \subsection{Final thoughts}
 The model is an economical ontological framework\footnote{Especially when contrasted with the Many-Worlds Interpretation of quantum theory \cite{everett1957}.} operating at a deep subatomic scale. Observable reality is approximate and emergent, with continuous spacetime symmetries (Lie, Lorentz, diffeomorphism, CPT, etc.) arising from the dynamics. Each particle is composed of an enormous number of bubbles---each a miniature universe---so intrinsic non-locality provides a natural substrate for superposition-like behavior and qubit analogs. The theory remains to be refined computationally and tested against experiment; whether it can become a predictive, falsifiable, \emph{bona fide} physical theory is an open question.
-\subsection{Reproducibility}
-The current mechanical tests and the historical experiments must be distinguished. The source-transaction and seed revisions change the kernel, so the older wavefront, attractor and scattering tables below require rerunning before they can describe the current executable. Their original commands are retained for provenance; some historical runners are not present in this working tree. The current prepared-island experiment is \texttt{experiments/inertia\_probe.cpp}, with regression checks in \texttt{experiments/inertia\_test.cpp} and commands in \texttt{experiments/INERTIA.md}.
-\begin{itemize}
-\item \textbf{Wavefront fidelity ($L=7$, 50 layers):} \texttt{attractor\_main.cpp}, run \texttt{attract\_f1.exe 7 50 24} (seed 1, $\varepsilon=0$, $p_{\mathrm{base}}=1$); completeness, speed and Pearson correlation printed by \texttt{wavefront.cpp}.
-\item \textbf{Sieve sweep:} \texttt{scatter\_main.cpp}, run \texttt{scatter.exe 7 4 200 120 $S$} for $S\in\{16384,8192,\dots,4\}$; the encounter counters \texttt{conv\_calls/conv\_s2b/conv\_pair} are printed at the end of each run, and each run additionally prints the ``DYNAMICAL MEASUREMENTS'' block (pair-lifetime episodes, per-bubble deflection angles, center-of-mass response).  The reference row ($S=16384$) reproduces the previously reported $6{,}996$/$18$/$0$.
-\item \textbf{Scaling study:} \texttt{lorentz\_mm.cpp}, run \texttt{lorentz\_mm.exe $L$ 0 0 24} for $L=7,11,15,19,21$; the wavefront report is printed by \texttt{wavefront.cpp}.  (The control source is placed at the torus antipode, as documented in the source.)
-\item \textbf{Polarization fidelity (Table~\ref{tab:polar-fidelity}):} \texttt{polar\_fidelity.cpp} (no arguments); the reconstruction formulas (Eqs.~\eqref{eq:polu}--\eqref{eq:polv}) and \texttt{isqrt} are copied verbatim from the transition kernel.
-\item \textbf{CUDA status:} the archived GPU kernels do not implement the revised source transactions and internal transport. Runtime CUDA activation is disabled; the current reference executes on CPU, including builds made with \texttt{USE\_CUDA=1}. GPU parity requires a separate implementation and comparison.
-\item \textbf{Attractor ($N^{*}$, capture rate):} \texttt{attract\_f1.exe $L$ $W$ 24} with $W=63$ at $L=7$ and $W=18$ at $L=11$.
-\item \textbf{Sieve statistics:} \texttt{s2b\_sweep\_main.cpp} (no arguments).
-\item \textbf{Charge census (Appendix~\ref{sec:charge-census-appendix}):} \texttt{combine.c [seed]} and \texttt{virada.c} (seed $2463534242$).
-\end{itemize}
-The current inertia probes call the same simulation and encounter routines as the main simulator. Diagnostic positions are unwrapped across torus seams and averages use floating-point arithmetic outside the transport rule. Host-side polarization preparation also uses floating-point operations; the implementation must not be described as a verified strictly local, integer-only transition. The inertia probe does not implement checkpoint/resume.
+%%%%%%%% The Reproducibility subsection (manuscript.tex lines 1581-1594) is omitted in this variant; see the header of this file. %%%%%%%%%%
 
 \section*{Nomenclature}
 \begin{center}

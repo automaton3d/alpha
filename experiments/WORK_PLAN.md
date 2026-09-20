@@ -2202,3 +2202,15 @@ and instruments of programmes A and B, the test suite and the two repo checkers.
   outside the header comment.  Artifacts: `it_from_bit.tex`, `it_from_bit.pdf`, `it_from_bit.bbl` (copy of
   `manuscript.bbl`, so one pdflatex pass resolves the bibliography).  Uncommitted.
 
+
+- **2026-09-20 -- Variant curated: the "Reproducibility" subsection is out of `it_from_bit.tex`.**  Its
+  command list (wavefront fidelity, sieve sweep, scaling study, polarization fidelity, CUDA status,
+  attractor, sieve statistics, charge census) documents measurements that this variant does not report, so
+  the subsection -- the last one of the Conclusion, `manuscript.tex` lines 1581-1594, without a label of
+  its own and cited by nothing -- was dropped, together with the four reference repairs that lived inside
+  it.  The builder now applies 32 of 36 edits and reports all 32 matched exactly once; `attic/make_it_from_bit.ps1`
+  carries the extra range and the header comment names the removal.  Rebuilt and recompiled:
+  **39 pages, 0 errors, 0 undefined references, no `??`**, and zero occurrences of the subsection's heading
+  or content in the extracted text (the Conclusion now runs Limitations -> Future inclusions -> Final
+  thoughts -> Nomenclature).  `manuscript.tex` and `manuscript.pdf` untouched.
+

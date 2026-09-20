@@ -1,17 +1,17 @@
 [0] Config.pm:328> INFO - This is Biber 2.21
 [0] Config.pm:331> INFO - Logfile is 'manuscript.blg'
-[240] biber-MSWIN64:342> INFO - === 
-[324] Biber.pm:421> INFO - Reading 'manuscript.bcf'
-[454] Biber.pm:1002> INFO - Found 33 citekeys in bib section 0
-[472] Biber.pm:4487> INFO - Processing section 0
-[497] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
-[586] bibtex.pm:1713> INFO - LaTeX decoding ...
-[644] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
-[864] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[865] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[865] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
-[865] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
-[924] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
-[941] bbl.pm:779> INFO - Output to manuscript.bbl
-[942] Biber.pm:132> WARN - I didn't find a database entry for 'hofer' (section 0)
-[942] Biber.pm:134> INFO - WARNINGS: 1
+[113] biber-MSWIN64:342> INFO - === 
+[151] Biber.pm:421> INFO - Reading 'manuscript.bcf'
+[277] Biber.pm:1002> INFO - Found 33 citekeys in bib section 0
+[292] Biber.pm:4487> INFO - Processing section 0
+[304] Biber.pm:4678> INFO - Looking for bibtex file 'manuscript.bib' for section 0
+[359] bibtex.pm:1713> INFO - LaTeX decoding ...
+[414] bibtex.pm:1519> INFO - Found BibTeX data source 'manuscript.bib'
+[574] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[574] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[574] Biber.pm:4307> INFO - Sorting list 'none/global//global/global/global' of type 'entry' with template 'none' and locale 'en-US'
+[574] Biber.pm:4313> INFO - No sort tailoring available for locale 'en-US'
+[598] bbl.pm:676> INFO - Writing 'manuscript.bbl' with encoding 'UTF-8'
+[614] bbl.pm:779> INFO - Output to manuscript.bbl
+[614] Biber.pm:132> WARN - I didn't find a database entry for 'hofer' (section 0)
+[614] Biber.pm:134> INFO - WARNINGS: 1
