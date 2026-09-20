@@ -103,6 +103,14 @@ namespace automaton
   unsigned spin_cap_evictions = 0;   // members shed by the S4 cap
 #endif
 
+#ifdef WINDING_GATED_FSM
+  // T1 spatial-winding programme: SURFACE_ESCAPE leave-veto gated by a winding
+  // label on the chief.  Always built with SURFACE_ESCAPE_FSM.  The probe plants
+  // chief_W; production builds leave it at zero (macro off).
+  unsigned winding_vetoes = 0;
+  int chief_W[3] = {0, 0, 0};
+#endif
+
 #ifdef PAIR_STACK_ABSORB_FSM
   // Candidate (multi-frequency mechanics): free S+S formations that absorbed
   // identical co-located stacks.  Always zero without the macro, so the
@@ -129,6 +137,19 @@ namespace automaton
     std::vector<Cell> sourceBefore, sourceAfter;
     std::vector<std::pair<WIndex, WIndex>> internalContacts;
     std::vector<unsigned char> contactSeen;
+#ifdef PARENT_SELECTIVE_FSM
+    // Candidate (2026-09-19): equal-charge delegates of DIFFERENT dynamical islands,
+    // recorded once per light frame for the one-step separation push applied at the frame
+    // edge.  Same-island delegates are never recorded: their D x D contact is cohesion.
+    std::vector<std::pair<WIndex, WIndex>> parentRepel;
+#ifdef PARENT_FUSION_ABSORB
+    // Candidate (completed rule set, 2026-09-19): on a K x K fusion the demoted chief's
+    // delegation must be ABSORBED (re-pointed to the surviving chief) instead of orphaned --
+    // that is what makes "the two agglutinate" grow an island rather than dissolve it.
+    std::vector<std::pair<WIndex, WIndex>> fusionAbsorb;   // {demotedW, survivorW}
+    long long pselKClashes = 0;   // K x K encounters seen this frame, any ordering (diagnostic)
+#endif
+#endif
 #ifdef SURFACE_ESCAPE_FSM
     // Candidate (item 4): shell-overlap signal for the escape rule.  A separate
     // bitmap from contactSeen, because the reference `internal` predicate covers
@@ -528,6 +549,12 @@ namespace automaton
     sourceBefore.clear();
     sourceAfter.clear();
     internalContacts.clear();
+#ifdef PARENT_SELECTIVE_FSM
+    parentRepel.clear();
+#ifdef PARENT_FUSION_ABSORB
+    fusionAbsorb.clear();
+#endif
+#endif
     contactSeen.clear();
     transportDebt.clear();
     transportFrame = 0;
@@ -556,6 +583,12 @@ namespace automaton
     if ((!lattice_curr.empty() && lattice_curr.front().k == 0) ||
         contactSeen.size() != (size_t)W_USED * W_USED) {
       internalContacts.clear();
+#ifdef PARENT_SELECTIVE_FSM
+      parentRepel.clear();
+#ifdef PARENT_FUSION_ABSORB
+      fusionAbsorb.clear();
+#endif
+#endif
 #ifdef ORPHAN_GUIDANCE_FSM
       recruitPushes.clear();
 #endif
@@ -743,12 +776,175 @@ namespace automaton
           }
         }
 #endif
+#ifdef WINDING_GATED_FSM
+        // T1 S3: a delegate may not leave while the group's winding label is
+        // non-zero.  Timer does not reset -- if W later drops to 0, release can
+        // occur on a later frame.  No L / L/3 / ISLAND_SIZE.
+        {
+          const WIndex g = sourceAfter[w].parent;
+          if (g < W_USED && sourceAfter[g].kind == SourceKind::K &&
+              (chief_W[0] || chief_W[1] || chief_W[2])) {
+            ++winding_vetoes;
+            continue;
+          }
+        }
+#endif
         framesWithoutContact[w] = 0;
         sourceAfter[w].kind     = SourceKind::S;
         sourceAfter[w].parent   = NO_PARENT;
         sourceAfter[w].leader_w = NO_LEADER_W;
         ++surface_escapes;
       }
+    }
+
+
+#endif
+#ifdef PARENT_SHELL_RELEASE_FSM
+    // BRAKE (iii), parameter-free form (2026-09-19; experiments/PARENT_SELECTIVE.md).
+    //
+    // The driven fixture measured a RUNAWAY balance (capture outruns release, b = +0.0754), and the
+    // displacement route is closed: the harness asserts `length<=1` (inertia_fixture.h:95), i.e. a
+    // constituent may move at most ONE cell per light frame, so no rule can simply push harder because
+    // an island is bigger.  This brake acts where the size dependence is FREE: on a TRANSITION.
+    //
+    // Cohesion is the claim that a chief's shell holds its delegates.  The shell's radius is the model's
+    // own contact range 2*RMAX -- the same length the encounter predicate uses (two wavefronts can meet
+    // only while their centres are within 2*RMAX) and the one the fixtures state.  A delegate whose
+    // torus distance to its chief exceeds that range is outside the shell cohesion can claim, so it is
+    // released.  A small island keeps every member inside the shell and loses none; an island that
+    // grows past the range begins shedding its outer members -- size-dependent loss with NO new
+    // constant, reading only lcenters, parent and RMAX.  No seed partition, no ISLAND_SIZE, no L.
+    //
+    // Deliberately independent of the contact-free timer (SURFACE_ESCAPE_FSM), which needs W_USED = 243
+    // light frames in the cubic census (~3.4 h) and therefore never fires in a feasible run; this one
+    // fires on the first frame the geometry allows it.
+    void applyShellRelease()
+    {
+      const int range = 2 * (int)RMAX;
+      unsigned released = 0;
+      int maxDist = 0;
+      for (unsigned w = 0; w < W_USED; ++w)
+      {
+        const Cell& s = sourceAfter[w];
+        if (s.kind != SourceKind::D) continue;
+        const WIndex g = s.parent;
+        if (g >= W_USED) continue;                       // orphan: no shell to fall out of
+        if (sourceAfter[g].kind != SourceKind::K) continue;
+        int d = 0;
+        for (int k = 0; k < 3; ++k) { const int t = delta(w, g, k); d += (t < 0 ? -t : t); }
+        if (d > maxDist) maxDist = d;
+        if (d <= range) continue;                        // inside the shell cohesion holds
+#ifdef SURFACE_ESCAPE_FSM
+        framesWithoutContact[w] = 0;                     // keep the shared timer consistent when both are on
+#endif
+        sourceAfter[w].kind     = SourceKind::S;
+        sourceAfter[w].parent   = NO_PARENT;
+        sourceAfter[w].leader_w = NO_LEADER_W;
+        ++released;
+      }
+      fprintf(stderr, "[shell] frame-edge: range=%d max_dist=%d releases=%u\n",
+              range, maxDist, released);
+    }
+#endif
+
+#ifdef PARENT_SELECTIVE_FSM
+    // Frame-edge separation push for the parent-selective candidate: one antisymmetric unit
+    // step per pair per light frame, along the axis of largest shortest-torus separation
+    // (W-derived axis when coincident).  Pairs inside one island are never recorded by
+    // encounter(), and the impulse is deferred through reloc[] exactly like the exclusion
+    // push below, so applyMomentum consumes it once per light frame.  The push is skipped
+    // again here if the pair has become one island during the frame (a merge wins).
+    void resolveParentRepulsion()
+    {
+      for (const auto& [a, b] : parentRepel) {
+        const Cell& sa = sourceAfter[a];
+        const Cell& sb = sourceAfter[b];
+        if (sa.ch != sb.ch) continue;                                       // equal charge only
+        if (sa.kind != SourceKind::D || sb.kind != SourceKind::D) continue;  // delegates only
+        const WIndex ca = islandChief(sa), cb = islandChief(sb);
+        if (ca != NO_PARENT && ca == cb) continue;                          // same island: no push
+        int sep[3];
+        int best = 0, bestAbs = -1;
+        for (int axis = 0; axis < 3; ++axis) {
+          const int d = delta(a, b, axis);
+          sep[axis] = d;
+          const int ad = d < 0 ? -d : d;
+          if (ad > bestAbs) { bestAbs = ad; best = axis; }
+        }
+        int axis, sgn;
+        if (bestAbs > 0) { axis = best; sgn = sep[axis] > 0 ? -1 : 1; }
+        else { axis = (int)(((uint64_t)a + b) % 3u); sgn = a < b ? -1 : 1; }
+        sourceAfter[a].reloc[axis] += sgn;
+        sourceAfter[b].reloc[axis] -= sgn;
+      }
+    }
+#endif
+
+#ifdef PARENT_FUSION_ABSORB
+    // Frame-edge absorption for the completed rule set: every delegate whose parent is a
+    // chief demoted by a K x K fusion this frame is re-pointed to the surviving chief, so the
+    // fusion GROWS the survivor instead of orphaning a delegation.  Iterated to a fixed point
+    // because a demoted chief may itself have been re-pointed in the same frame (chains).
+    // Same standing as the other frame-edge bookkeeping: it reads and rewrites the membership
+    // relation only -- no geometry, no L, no seed partition.
+    void resolveFusionAbsorb()
+    {
+      if (fusionAbsorb.empty()) {
+        fprintf(stderr, "[absorb] frame-edge: no K x K fusion recorded this frame\n");
+        return;
+      }
+      unsigned repointed = 0;
+      for (unsigned pass = 0; pass < W_USED; ++pass) {
+        bool changed = false;
+        for (const auto& [demoted, survivor] : fusionAbsorb) {
+          for (WIndex w = 0; w < W_USED; ++w) {
+            Cell& s = sourceAfter[w];
+            if (s.kind != SourceKind::D) continue;
+            if (s.parent != demoted) continue;
+            s.parent = survivor;
+            s.leader_w = survivor;
+            changed = true;
+            ++repointed;
+          }
+        }
+        if (!changed) break;
+      }
+      fprintf(stderr, "[absorb] frame-edge: K x K encounters=%lld pairs=%zu delegates re-pointed=%u\n",
+              pselKClashes, fusionAbsorb.size(), repointed);
+      pselKClashes = 0;
+    }
+#endif
+
+#ifdef PARENT_NOMINATION_REPAIR
+    // Frame-edge repair for the completed rule set -- the piece that makes it self-consistent.
+    // T1/T4 may name as a parent a source that is NOT a chief (the minimum-W address of two
+    // S's, or the parent of a delegate).  In the REFERENCE path the T2 promotion cascade
+    // repaired such pending nominations; with T2 disabled they stay pending forever --
+    // measured at L=9: 1 chief, 242 delegates, 241 naming a non-K.  Here the named source is
+    // PROMOTED instead, which is what T1/T4 intended ("two S meet -> one becomes K, the other
+    // its D") and what T2 was doing globally.  One pass suffices: promoting a parent cannot
+    // invalidate another nomination.  Reads the membership relation only -- no geometry, no L,
+    // no seed partition.
+    void resolveParentNominations()
+    {
+      std::vector<unsigned char> pending(W_USED, 0);
+      for (WIndex w = 0; w < W_USED; ++w) {
+        const Cell& s = sourceAfter[w];
+        if (s.kind != SourceKind::D) continue;
+        if (s.parent < W_USED) pending[s.parent] = 1;
+      }
+      unsigned promoted = 0;
+      for (WIndex w = 0; w < W_USED; ++w) {
+        if (!pending[w]) continue;
+        Cell& s = sourceAfter[w];
+        if (s.kind == SourceKind::K) continue;
+        if (s.kind == SourceKind::P) continue;   // a pair half is not a chief
+        s.kind = SourceKind::K;
+        s.parent = NO_PARENT;
+        s.leader_w = w;
+        ++promoted;
+      }
+      fprintf(stderr, "[nomination] frame-edge: pending parents promoted=%u\n", promoted);
     }
 #endif
 
@@ -871,11 +1067,26 @@ namespace automaton
 #ifdef EXCLUSION_FSM
       resolveExclusionPush();
 #endif
+#ifdef PARENT_SELECTIVE_FSM
+      resolveParentRepulsion();
+#ifdef PARENT_FUSION_ABSORB
+      resolveFusionAbsorb();
+#endif
+#ifdef PARENT_NOMINATION_REPAIR
+      resolveParentNominations();
+#endif
+#endif
 #ifdef SURFACE_ESCAPE_FSM
       // Candidate (item 4): runs after this frame's contacts have been resolved
       // and before the sources are committed, so a release reaches the draft.
       applySurfaceEscape();
 #endif
+#ifdef PARENT_SHELL_RELEASE_FSM
+      // Same standing as the escape rule above: the frame's transitions are settled and the release
+      // must reach the draft.  Independent of the contact-free timer -- this is the geometric brake.
+      applyShellRelease();
+#endif
+
     }
 #ifdef ORPHAN_KICK_PER_WINDOW
     resolveRecruitHits();      // per tick: pay out the engagement windows
@@ -1569,8 +1780,41 @@ namespace automaton
     }
 #endif
     chiefContact(currSrc,partnerSrc,currDraft);
+#ifdef PARENT_FUSION_ABSORB
+    // The K x K clash demoted the larger-address chief (chiefContact ran above); record
+    // {demoted, survivor} so the frame edge can absorb the demoted chief's delegation.
+    if (currSrc.kind == SourceKind::K && partnerSrc.kind == SourceKind::K &&
+        currSrc.ch == partnerSrc.ch) {
+      ++pselKClashes;
+      if (currSrc.w > partnerSrc.w) fusionAbsorb.emplace_back(currSrc.w, partnerSrc.w);
+    }
+#endif
     if(currSrc.kind==SourceKind::K && partnerSrc.kind==SourceKind::K && currSrc.ch==partnerSrc.ch)
       return false; // Preserve the clash transition through the remaining branches.
+#ifdef PARENT_SELECTIVE_FSM
+    // Candidate (2026-09-19): two delegates of the same charge but of DIFFERENT dynamical
+    // islands repel by one step per light frame.  The island identity is read from the
+    // emergent parent linkage (islandChief), so the test contains no family index, no
+    // ISLAND_SIZE and no L.  Same-island delegate pairs are deliberately NOT recorded:
+    // they fall through to the cohesion handling below (T2 is disabled in
+    // chief_transition.h, so nothing ejects them).
+    if (currSrc.kind == SourceKind::D && partnerSrc.kind == SourceKind::D &&
+        currSrc.ch == partnerSrc.ch) {
+      const WIndex ca = islandChief(currSrc), cb = islandChief(partnerSrc);
+      if (ca != NO_PARENT && cb != NO_PARENT && ca != cb) {
+        const WIndex a = std::min(currSrc.w, partnerSrc.w);
+        const WIndex b = std::max(currSrc.w, partnerSrc.w);
+        if (contactSeen.size() == (size_t)W_USED * W_USED) {
+          const size_t index = (size_t)a * W_USED + b;
+          if (!contactSeen[index]) {
+            contactSeen[index] = 1;
+            parentRepel.emplace_back(a, b);
+          }
+        }
+        return false;
+      }
+    }
+#endif
     if(currSrc.kind==SourceKind::D && partnerSrc.kind==SourceKind::D && currSrc.ch==partnerSrc.ch)
       return false; // The older generic branches must not overwrite this transition.
 

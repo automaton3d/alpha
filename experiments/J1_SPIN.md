@@ -52,9 +52,12 @@ cancel; it is that rotation is never *supplied*.  `inertia_fixture::prepare()`
 (`experiments/inertia_fixture.h:65-70`) assigns `s.m[axis] = RMAX * direction` **only
 for the propeller layers** (`prop`), so every body -- `K`, `D`, `S` -- keeps
 `m = (0,0,0)`.  And in the production path `m` is not self-propulsion anyway: it is
-preserved (`utils.cpp:181-183`, `interaction.cpp:838`) and enters motion only when a
-*partner* contributes its `m` to `reloc` (`interaction.cpp:1468-1470`, `1794-1796`),
-which `applyMomentum()` (`simulation.cpp:423`) then consumes.  A body's own momentum
+preserved (`utils.cpp:181-183`, the copy; `simulation.cpp:413-415`: "the long-term
+momentum-direction vector m is preserved; only reloc is consumed") and `interaction.cpp` never
+writes it (it only reads it: `:729` for `J`, `:1541-1543`/`:1867-1869` for `reloc`).  It enters
+motion only when a *partner* contributes its `m` to `reloc`
+(`interaction.cpp:1541-1543`, `1867-1869`), which `applyMomentum()` (`simulation.cpp:423`)
+then consumes.  A body's own momentum
 therefore never moves it.
 
 So J0 closes with two statements: (i) the measurement exists and reads zero

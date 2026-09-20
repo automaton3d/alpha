@@ -12,10 +12,10 @@ given so a referee can check each entry.
 | Ingredient | Status | Definition (where) | Note |
 |---|---|---|---|
 | Cell size X | **P** (free unit) | manuscript, App. "Calculation of X" | fixes the metric normalisation; not derived |
-| Clock: front advance = 1 cell/tick | **P** (definition of the information clock) | `simulation.h` `effective_t` (372); `simulation.cpp` `phase_step` (264-265) | the active shell is the set `{r == effective_t(t)}`; `r` is maintained by `update_pulsating_wavefront()` (simulation.cpp:109) via additions. The 1/tick speed is the *definition* of the clock, not a measured emergent constant |
-| Breathing phase `f = effective_t(t)` (triangle, period 2·RMAX) | **P** | `simulation.h` (368-380) | |
+| Clock: front advance = 1 cell/tick | **P** (definition of the information clock) | `simulation.h` `effective_t` (415); `simulation.cpp` `phase_step` (264-266) | the active shell is the set `{r == effective_t(t)}`; `r` is maintained by `update_pulsating_wavefront()` (simulation.cpp:110) via additions. The 1/tick speed is the *definition* of the clock, not a measured emergent constant |
+| Breathing phase `f = effective_t(t)` (triangle, period 2·RMAX) | **P** | `simulation.h` (411-420) | |
 | `v_max = X/N_t` | **P** (identity) | manuscript "max information speed" | `N_t` = ticks per light frame |
-| `W = 3L^2`, `9L` islands of `L/3` | **P** (topology) | census allocates `W = 3L^2` (`island_census.cpp:285`) | the GUI cfg may set any `W` (e.g. 10); only the census uses the canonical value |
+| `W = 3L^2`, `9L` islands of `L/3` | **P** (topology) | census documents `W = 3*EL^2 = 9*EL` families of `EL/3` copies (`experiments/island_census.cpp:15`); `W_USED = W` at `initSim.cpp:419` | the GUI cfg may set any `W` (e.g. 10); only the census uses the canonical value |
 | Six charge bits + masks | **P** | `simulation.h` (31-39) | |
 | Wave update (Laplacian, damping, shell forcing) | **P** (rule, parameterised) | `simulation.cpp` `phase_step` (296-345) | the dispersion relation is a function of the chosen shifts, not fitted to data |
 | Charge conservation | **E** (measured) | `charges.cpp` census each tick | `Dtot == dPair + freeD: OK` every tick |

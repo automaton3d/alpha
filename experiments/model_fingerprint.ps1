@@ -6,18 +6,21 @@
   reference configuration documented in doc\REFERENCE_CONFIG.md.
 
   The default expected value is the current working-tree reference fingerprint
-  (post WP4.2: the macro-guarded EM_FORCE_PREREQ spike block was added to
-  interaction.cpp; the reference build behaviour is unchanged).  The historical
-  model-ref-v1 fingerprint was 5b0944258b8f9b750688375f2e9a4cd99e74f0355f1c6b1aa8edc769ab743673.
+  (re-measured 19 Sep 2026: interaction.cpp gained the macro-guarded
+  WINDING_GATED_FSM port -- 21 lines, inert with the macro OFF and verified
+  preprocessor-identical without it -- and simulation.cpp / initSim.cpp had two
+  stale in-source comment anchors corrected; the reference build behaviour is
+  unchanged, all candidate macros OFF).  The historical model-ref-v1 fingerprint
+  was 5b0944258b8f9b750688375f2e9a4cd99e74f0355f1c6b1aa8edc769ab743673.
 
   Usage:
     powershell -ExecutionPolicy Bypass -File experiments\model_fingerprint.ps1
     powershell -ExecutionPolicy Bypass -File experiments\model_fingerprint.ps1 -Expected 5b0944...
-  Exit code: 0 if it matches the expected value (default: the model-ref-v1
+  Exit code: 0 if it matches the expected value (default: the current reference
   fingerprint), 1 on mismatch.
 #>
 param(
-  [string]$Expected = "428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8"
+  [string]$Expected = "7f5eb50e14ebdb980b97fbde60f50eaf75317ee763c07b86113334894ae6b1a2"
 )
 
 $ErrorActionPreference = "Stop"

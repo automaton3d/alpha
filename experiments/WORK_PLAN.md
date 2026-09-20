@@ -435,8 +435,9 @@ its time-box.
   planted by the probe, `pol` relies on the candidate bootstrap.
 - **2026-09-13 -- Item D: the membership fixed point is DERIVED (the quantum is
   2, not `L/3`).**  New note `experiments/DYNAMIC_QUANTIZATION_DERIVATION.md`.
-  From the coded transitions (`chief_transition.h:4-56`,
-  `interaction.cpp:631,1227-1250`) the frozen membership states satisfy: every
+  From the coded transitions (`chief_transition.h:14-74`, the whole block from `promotesDelegate`
+  to the end of `chiefContact`; call site `interaction.cpp:1592`, contact gate `:942`)
+  the frozen membership states satisfy: every
   group has population <= 2 and, per charge word, at most one group of
   population 2.  Proof: a group of size >= 3 contains two same-charge delegates;
   the schedule rotates one slice per frame (`utils.cpp:36`) so every pair meets
@@ -639,7 +640,7 @@ its time-box.
   seed realises the diagonal `c0 = w0`, `c1 = w1` of the 32-word manifold
   `M = {ch : q ^ w0 = w1}` -- exactly 8 of 64 words, which the generator
   explains rather than assumes.  Since the *only* writers of `cell.ch` are the
-  seed and the gated conjugation hook (`simulation.cpp:872`, `ch ^= 0x1F`,
+  seed and the gated conjugation hook (`simulation.cpp:873`, `ch ^= 0x1F`,
   `mm_eps = 0` by default), every reachable word lies in `M`, and an exhaustive
   enumeration against the real `canFormPair` shows **R1, R4 and R5 have zero
   admissible pairs: three of the six channels are algebraically closed**; R2 is
@@ -806,9 +807,10 @@ its time-box.
   `max_|J|^2 = 0`**.  The cause is structural, not a cancelling accident:
   `inertia_fixture::prepare` assigns `m` only to the propeller layers, so every body
   keeps `m = 0`, and in the production path a body's own `m` never self-propels it
-  (`m` is preserved at `utils.cpp:181-183` / `interaction.cpp:838` and enters motion only
-  through a *partner's* contribution to `reloc`, `interaction.cpp:1468-1470`,
-  `1794-1796`, consumed by `applyMomentum()`, `simulation.cpp:423`).
+  (`m` is preserved at `utils.cpp:181-183`, the copy, and at `simulation.cpp:413-415`;
+  `interaction.cpp` never writes it) and enters motion only
+  through a *partner's* contribution to `reloc`, `interaction.cpp:1541-1543` /
+  `1867-1869`, consumed by `applyMomentum()`, `simulation.cpp:423`).
   **J1 (candidate rule):** new macro `SPIN_GATED_FSM`, always built with
   `SURFACE_ESCAPE_FSM` (whose release test it gates) and entirely inside the `#ifdef`, so
   the reference build is untouched (diff `+44` lines all guarded; the plain
@@ -861,6 +863,565 @@ its time-box.
   Registered next: S4 (`|J| > J_max` fission with `J_max` from the cavity `RMAX`,
   the only kind of rule that can *select* a size without reading `L/3`) and S2 (the
   orbital step that would make the rim-speed cap physical).
+- **2026-09-19 -- charge-quantization audit: anchors re-verified, and a live bug found and fixed
+  (the whole winding programme was defined only in a file that is never compiled).**  Audit of the
+  charge-quantization implementation (code anchors, `CHARGE_SPECTRUM.md`,
+  `DYNAMIC_QUANTIZATION_DERIVATION.md`, `analyze_charge_spectrum.py`, `POSTULATE_VS_EMERGENT.md`).
+  (i) *Anchors.*  The `file:line` references of the charge notes had drifted because they were
+  written against a never-compiled copy of the interaction source (`src/interaction.cpp`, era of
+  the pre-move build path).  Re-verified against the compiled tree and corrected: `canFormPair`
+  `147-173 -> 210-237` (`CHARGE_SPECTRUM.md` and `analyze_charge_spectrum.py`), conjugation-hook
+  XOR `simulation.cpp 872 -> 873`, turnaround latch `851 -> 852`, `effective_t 372 -> 415`, and the
+  whole T1-T5 table of `DYNAMIC_QUANTIZATION_DERIVATION.md` (T1 `chief_transition.h:53-56 ->
+  66-73`, T2 `4-16 -> 14-26` invoked at `:60`, T3 `20-23 -> 30-33` invoked at `:61-64`, T4
+  `interaction.cpp:1202-1221 -> chief_transition.h:66-73` reached via the call site
+  `interaction.cpp:1592`, T5 `28 -> 38`, contact gate `631-633 -> 942`).  Both notes now state the
+  convention (every path relative to `src/`, model sources under `src/model/`) and record the
+  correction, and no longer risk citing the duplicate.  NOTE for later entries: the port in (ii)
+  shifted `interaction.cpp` by +8 below old line 106 and by +21 below old line 746, so any anchor
+  written before it had to be re-mapped by MEANING, not by arithmetic -- the numbers above are the
+  post-port ones (see (vi) for the rest of the repository).
+  (ii) *The bug.*  `src/interaction.cpp` (untracked) was identical to the compiled
+  `src/model/interaction.cpp` **except** for two `#ifdef WINDING_GATED_FSM` hunks (21 lines: the
+  `winding_vetoes`/`chief_W` definitions and the T1-S3 leave-veto in the surface-escape loop).  No
+  build script compiles the root path -- every `*.bat` and the `Makefile` use
+  `src\model\interaction.cpp` -- so the winding feature was **implemented only in a file that no
+  build ever compiles**, while `simulation.h` (modified, uncommitted) declares its symbols.  The
+  two hunks were ported into `src/model/interaction.cpp` (`git diff --stat`: 21 insertions, the
+  file went 2145 -> 2166 lines) and the now redundant copy parked in
+  `attic/interaction_root_duplicate_ported.cpp`.  Inert for every existing build: all 21 lines sit
+  inside `#ifdef WINDING_GATED_FSM` (plus one blank line), and `interaction.cpp` compiles clean in
+  both modes.
+  (iii) *Second bug, in the probe.*  `experiments/winding_probe.cpp` re-declared the counters at
+  global scope (`extern unsigned surface_escapes;` etc.) beside `using namespace automaton;`, which
+  made every unqualified use ambiguous (`error C2872` at lines 222/255): the probe did not build at
+  all.  The redundant externs were removed -- `model/simulation.h` already declares all three
+  inside `namespace automaton`, which is the `spin_probe.cpp` style.
+  **Validated end to end:** both arms build (`ref_exit=0`, `gate_exit=0`) and the four arms
+  reproduce the registered prediction exactly -- `ref/w0` escapes 2, final `1K+0D+2S`; `ref/w1`
+  escapes 2 (`W` is inert while no rule consults it); `gate/w0` escapes 2, `vetoes=0`; `gate/w1`
+  **escapes 0, `winding_vetoes=20`, final `1K+2D` -> WINDING PROTECTS**.  Logs under
+  `build/winding_probe/`.
+  (iv) *Repository hygiene.*  The ten root-level `.obj` leftovers (13 Sep 2026, produced by the
+  pre-move build path) were deleted; `OBJ_DIR = obj` in the `Makefile`, so they were never inputs
+  and `*.obj` is already ignored.  `CHARGE_SPECTRUM.md` section 6 is now marked INCOMPLETE /
+  resumable with the exact commands that finish the `mm_eps` arm pair (the harness does not create
+  `outdir`, and the `gate`/`WINDING` builds above do not cover it).
+  (v) *Status of the claim itself is unchanged:* `L/3` stays an axiom, the measured population
+  quantum is 2, and `J` protects without selecting a size.  This entry is hygiene plus one repaired
+  feature, not new physics.
+  (vi) *Second anchor pass (whole-repository sweep).*  A scripted audit of every `file:line`
+  reference in `experiments/*.md` (39 anchors, script parked in `attic/` during the pass) showed the
+  drift was broader than the charge notes: most citations had been written against the same
+  pre-move duplicate, and the port in (ii) then shifted `interaction.cpp` by +8 / +21, invalidating
+  anchors that were correct before it.  All were re-mapped by MEANING and corrected:
+  `canFormPair` `202-229 -> 210-237`; the pair-branch ordering in `CHARGE_SPECTRUM.md`
+  (`1652-1654`, `chiefContact` call site `1592`, internal early return `1598-1613`); the contact
+  gate `interaction.cpp:942` (cited twice by `DYNAMIC_QUANTIZATION_DERIVATION.md`); `EM_FIRST_FSM`
+  `884-984 -> 1451-1473` (`PBSB_ISLANDS.md` and the WP4.1 entry below); the J0 entry above and
+  `J1_SPIN.md`: the "`m` is preserved" anchor `interaction.cpp:838` pointed at a function that never
+  touches `m` -- the verified statement is that the ONLY writers of `cell.m` are `initSim.cpp:133`
+  (zero at birth), `polarization.cpp:525` / `567-569` (the election) and the copy at
+  `utils.cpp:181-183`, so `interaction.cpp` never writes it; the partner contribution to `reloc` is
+  at `1541-1543` / `1867-1869` (was `1468-1470` / `1794-1796`), with the model's own statement at
+  `simulation.cpp:413-415`; `relocate()` `1542 -> 2046` (`draft = north` at `2067`) and
+  `applyMomentum()` `410 -> 423`; the `pB`/`sB` sign definition `365-366 -> 377-378` (also in the
+  source comment at `simulation.cpp:370`); the per-frame `homB` clear `1485-1487 -> 2111`; the
+  `rotatePartners` edge-pairing quote `simulation.cpp:86-88 -> 87-89` (`ISLAND_CENSUS.md` and
+  below); `update_pulsating_wavefront()` `109 -> 110`; the contact guard for the ported producers
+  `603 -> 942`; and `gravity_probe_DESIGN.md`'s "chief layer K, other layers S
+  (`initSim.cpp:135`)" -- a substantive error rather than a shifted line, since the seed leaves
+  EVERY source `S` (`initSim.cpp:120-121`) and `K` is elected dynamically.
+  Anchors that verified correct were left untouched: `utils.cpp:36`, `utils.cpp:181-183`,
+  `initSim.cpp:76-80`, `initSim.cpp:96`, `charges.cpp:177`, `config.h:61`, `island_identity.h:6`,
+  `chief_transition.h:14-26/30-33/38/66-73`, `simulation.cpp:423`, `simulation.cpp:873`,
+  `inertia_fixture.h:65-70`, `inertia_fixture.h:95`.  The same sweep was then run over the model
+  sources themselves (`src/model/*.cpp|inc`, `src/include/model/*.h`: 6 references), which found
+  three stale ones, all comment text only (no behaviour change): `simulation.cpp:370` cited
+  `simulation.cpp:365-366` for the reference `pB`/`sB` sign definition (now `377-378`);
+  `initSim.cpp:375` cited `simulation.h:377` for `isIslandChief` (now `405`); and
+  `POSTULATE_VS_EMERGENT.md` cited `island_census.cpp:285` for the `W = 3L^2` allocation (a printf
+  line) and `simulation.h` (368-380) for the breathing phase -- now `island_census.cpp:15` +
+  `initSim.cpp:419`, and `simulation.h` (411-420).
+
+- **2026-09-19 -- `REFERENCE_CONFIG.md` inventory completed, and its drift check repaired.**  The
+  candidate-macro inventory was missing the whole post-WP8/J-programme set and, on the other side,
+  the verification command it documents could never pass.  (i) *Macros added* (14 rows): the table
+  gained `SURFACE_ESCAPE_FSM`, `SPIN_GATED_FSM`, `WINDING_GATED_FSM` (marked PARKED / UNTESTED, per
+  the `winding_probe` parking entry below), `PHASE_DISTINCT_FSM`, `FAMILY_SELECTIVE_FSM`, `ADDRESS_TARGET_FSM`,
+  `ISLAND_ALIGNED_W_ROTATION`, `PLACED_FAMILY_SEED`, `MULTIFREQ_RAY_FSM`, `PAIR_STACK_ABSORB_FSM`,
+  `HOMB_CONSUMER_TRANSPORT`, `POLAR_MAGNITUDE_FSM`, `PAIR_WORD_LOG` and a harness-only row -- the
+  two tables are now one inventory split chronologically, stated to be COMPLETE (45 feature macros
+  in the model sources, no more), with a copy-pasteable enumeration command that reproduces them
+  (tested: 45 macros + the 5 include guards).  (ii) *Stale anchors corrected* in the rows that
+  already existed: `EM_FIRST_FSM` `~893 -> 1451-1473`, `EM_FORCE_PREREQ` `~884 -> 1251`,
+  `EM_NOS2B_FSM` `~906 -> 1464`, `ORPHAN_GUIDANCE_FSM` `61/624/823 -> 154/161/547/567/991/1190`,
+  `EXCLUSION_FSM` `442/558/988 -> 776/892/1575`, `HOMB_PRODUCER_FSM` `~899 ->
+  1261/1924/1935/2053` (+ `simulation.cpp` 432/447/753); the include-guard list was fixed as well
+  (`geometry.h` uses `GEOMETRY_H`, no trailing underscore -- the doc said `GEOMETRY_H_`).
+  (iii) *Fingerprint.*  The "current working-tree" line still read `4c2e60...` while
+  `experiments/model_fingerprint.ps1` defaulted to a third value (`428ece...`), so the documented
+  drift check could never match; both now carry the measured
+  `7f5eb50e14ebdb980b97fbde60f50eaf75317ee763c07b86113334894ae6b1a2`, and the frozen per-file table
+  was left untouched after re-verifying that its 23 hashes still combine to the recorded `5b0944...`
+  (the intermediate suspicion that the frozen table was inconsistent was my own quoting error and is
+  retracted; nine files differ from it today -- `attractor.h`, `bridge.cpp`, `charges.cpp`,
+  `chief_transition.h`, `initSim.cpp`, `interaction.cpp`, `simulation.cpp`, `simulation.h`,
+  `utils.cpp` -- because the working tree has accumulated post-freeze work).
+
+- **2026-09-19 -- `winding_probe` assessed and PARKED (not decision-grade).**  Question asked: is
+  the T1 spatial-winding harness useful?  Answer: as *science*, no -- and the reasons are
+  structural, not unfinished runs.  (1) The gated quantity is a file-scope global
+  (`interaction.cpp:111`, `chief_W[3]`), written only by `plantWinding` and read only by the
+  leave-veto (`:761`), so `W != 0` vetoes EVERY release in the lattice rather than the releases of
+  the group that carries the label -- invisible only because the harness tube holds one group; and
+  no winding number is computed anywhere in the model.  (2) No discriminating arm: unlike J1/J2,
+  where the protected quantity is derived (`J = sum r x m`) and `cancel` separates coherence from
+  motion, `w0` vs `w1` differ only in the value of the global -- no magnitude response, no axis
+  independence, no cancellation control.  (3) One geometry and four runs, with a hardcoded verdict
+  (`held = (nd == 2u && maxPop == 3u)`), against J2's 36 runs and its closed-form `N*(8-N)` veto
+  arithmetic.  (4) Undocumented: no note, no `REFERENCE_CONFIG.md` inventory row, and both the
+  source and its build script were untracked.  What it DID establish is plumbing -- it is the only
+  harness that exercises `WINDING_GATED_FSM` and it validated the port in the entry above (4/4
+  arms; `gate/w1` held with `winding_vetoes = 20`) -- a test of the harness, the loop and the
+  compile flag, not evidence that a physical winding protects anything.
+  **Decision:** `experiments/winding_probe.cpp` and `experiments/build_winding_probe.bat` are
+  parked in `attic/` (the source keeps the C2872 fix without which it never compiled), with an
+  `attic/WINDING_PROBE_PARKED.md` note that records the four defects, the revive procedure and the
+  two things that would make it useful: **T0** (compute the label -- net member displacement along
+  a cycle of T^3 per light frame) and the **two-group selectivity control**, which FAILS against
+  the implementation as of this date and is therefore the cheap kill test that forces the label to
+  become per-chief state (scoped like `parent` / `spin_jmax2`).  If a *selection* rule is ever
+  wanted (the registered S4 target), the winding route needs a magnitude threshold whose "cavity"
+  analogue is the torus perimeter, not `RMAX`.  The model-side macro is untouched and still OFF in
+  every reference build, so parking the harness leaves `WINDING_GATED_FSM` an explicitly UNTESTED
+  candidate rather than a tested one.
+
+- **2026-09-19 -- Manuscript: `L/3` retired; the section now ASKS the question it used to answer by
+  assumption.**  Requested radical change ("retire todas as referências a L/3 para nos concentrarmos
+  numa formação de ilhas realmente emergente").  19 edit sites in `doc/manuscript.tex` (35 lines
+  changed, no structural edit), and the result was verified in the COMPILED PDF, not only in the
+  source: `pdftotext` reports **0** occurrences of `L/3`, **0** of `charge quantization` and **0** of
+  `Dynamic charge quantization`; 57 pages, no LaTeX errors.  What changed:
+  (i) *The partition is now declared, not derived.*  `\ell=\frac{W}{N_{I}}` (twice, both places where
+  the old equation said `=L/3`), `W=3L^2=N_I\,\ell`, `ISLAND_SIZE = \ell = W/(9L)`, `N_I=9L` declared;
+  sentences added where the partition is introduced saying the two integers are declared by the
+  topology and derived by no rule.
+  (ii) *The hypothesis became the open question.*  The sentence that asserted `1+n=L/3` and
+  "`9L` spatial islands of `L/3` constituents" now reads: whether the aggregation dynamics selects a
+  *preferred* population, the same for every family or varying with the lattice, is the open question
+  the section tests; the seed declares how many addresses *share* a family, never how many end up in
+  one island.
+  (iii) *The negatives were kept, restated `L/3`-free.*  Max population 2 with no group above it at
+  `L=9` (235 K + 8 D) and `L=15` (667 + 8); the degenerate rate crossing; the flux harness'
+  INCONCLUSIVE/anti-restorative outcome; "no rule produces a larger quantum without *reading* the
+  seed's multiplicity".
+  (iv) *New use of the same identity*: `W=N_I\ell` now makes the no-independent-bound point with
+  numbers -- 235 chiefs against `N_I=81` at `L=9`, 667 against 135 at `L=15` -- i.e. the declared
+  partition does not control the dynamics at all.
+  (v) *`J` paragraphs*: "without reading the seed's partition" and "does not restore a
+  size-selecting quantum".
+  (vi) *Titles, keywords and the conjectural text*: section "Dynamic charge quantization and the
+  scaling of `W`" -> **"Emergent island formation and the scaling of `W`"**, subsection -> **"Is the
+  island population quantized?"**, keyword `charge quantization` -> `island aggregation`, comment
+  banner updated; and the prose that still *asserted* the mechanism ("sustained by dynamic charge
+  quantization"; "its stability comes from dynamic charge quantization") now reads "the
+  island-formation dynamics", with the stability claim explicitly conjectural (the balance it named
+  is the degenerate one).
+  (vii) *Second pass: `9L` removed as well* (requested after the first pass).  `N_I` is now declared
+  in prose with no formula, so all seven `9L` occurrences are gone: the two `N_I=9L` equation blocks
+  were deleted (the sentence declares `N_I` directly and states both integers are declared inputs of
+  the seed, evaluated once and reported with the run), `\nu\in[0,9L-1]` -> `[0,N_I-1]`, the
+  topological-constant list now reads `N_I`, the factorization prose reads "`N_I` charge families,
+  each with `\ell=W/N_I` copies", and the code-constant list reads `ISLAND_COUNT = N_I`,
+  `ISLAND_SIZE = \ell = W/N_I`.  Verified again in the compiled PDF: 0 occurrences of `L/3`, 0 of
+  `9L` (one `pdftotext` hit turned out to be the page number "9.9" followed by the heading
+  "Lorentz probes in the simulator"), 0 of `charge quantization`; 57 pages, no errors.
+  **Arithmetic path, closed (option 1 applied).**  The run comparison no longer reports the values of
+  `N_I`; it reports the *disparity* as a factor (`2.9x` at `L=9`, `4.9x` at `L=15`), which carries the
+  same argument (the declared partition does not bound the dynamics) without letting a reader divide
+  by `L` to recover `9L`.  One residual path remains and is inherent to reporting the candidate
+  honestly: the candidate-mechanism paragraph states "81 chief groups of exactly 3 constituents"
+  (`K=81`, `D=162`) at `L=9`, from which the family multiplicity `3` can be inferred.  Removing that
+  would mean hiding a measured outcome, so it is left and flagged here instead.  The deeper fix -- a
+  seed whose `N_I` is not proportional to `L` -- is still the only way to remove the axiom from the
+  MODEL, and it invalidates the archived census numbers.
+  **Caveat that must not be forgotten.**  `L/3` is still arithmetically recoverable from `W=3L^2`
+  and `N_I=9L`, because the SEED in the code partitions by `ISLAND_SIZE = W/(9L)` and the two
+  candidate macros (`EXCLUSION_FSM`, `DD_INTRA_ISLAND_FIX`) still read it.  The manuscript now
+  *says* the partition is an axiom instead of claiming a derived quantum; removing it from the MODEL
+  is a seed/rule change that would invalidate the archived census numbers, and it is a separate
+  decision.
+  **Knock-on, not done here:** the evidence notes keep their `L/3` (they are the measurement
+  record): `WORK_PLAN.md` (36), `EMERGENCE_SEARCH.md` (24), `DYNAMIC_QUANTIZATION_DERIVATION.md`
+  (20), `ISLAND_CENSUS.md` (18), `LIGHTMATTER_DECOUPLE.md` (12), `SIEVE_SWEEP_PRODUCTION.md` (11),
+  and the code (`initSim.cpp`, `interaction.cpp`, `utils.cpp`, `color_fsm.inc`, `simulation.h`,
+  `attractor.*`).  The ones that now CONTRADICT the manuscript and need a pass before submission are
+  the claim-facing documents: `POSTULATE_VS_EMERGENT.md` (the P/M/C row "Charge unit `L/3`"),
+  `CANDIDATE_VERSION.md`, `COVER_LETTER.md`, `RESPONSE_TO_REFEREES.md`, `README.md`,
+  `DATA_DEPOSIT.md`.  Also pre-existing and untouched: `manuscript.bib` has no `hofer` key, so the
+  bibliography warns `\missing{hofer}` on page 38 (the `.bbl` already recorded it as missing before
+  this edit).
+
+- **2026-09-19 -- Hard-to-adapt experiments RETIRED (34 files parked); the next battery waits for a
+  design discussion on emergent quantization.**  Follow-up to the manuscript pass: instead of
+  rewriting in place, the harnesses whose *setup or analysis* is parameterised by the retired
+  partition were parked in `attic/retired_experiments/` (9 sources + 25 build scripts; README there
+  records the criterion, the list, the kept set with reasons, and the restore procedure).  Parked:
+  `first_election` (families `9L`, `copies L/3`), `island_seed` (reduced-seed branch), `p7_concentration`
+  and `promotion_three` (plant a seed family of 3 copies), `turnover_ablation` (flux generator for the
+  falsified attractor claim), `spacing_probe` (planted electric channel on the `w/3` stand-in),
+  `coagulation_random` (counts groups of size `EL/3`), `lightmatter_decouple` (`targetPop = EL/3`),
+  `color_fsm` (family bookkeeping on `w/3`), plus the eleven `build_island_census_*` candidate-route
+  variants.  **Kept deliberately**: `island_census.cpp` + `build_island_census.bat` (the reference
+  aggregation instrument -- what it measures is exactly what the new focus needs), the spin/J probes,
+  the whole inertia family (the only harnesses where a body actually moves), `alpha_probe`, the
+  charge-word and unit-test harnesses, and the polarization-bootstrap line.  Verified afterwards: no
+  remaining build script references a parked source (0 dangling), 27 harnesses and 59 scripts remain in
+  `experiments/`.  The `.md` notes were NOT touched -- they stay as the measurement record and now
+  describe harnesses that live in `attic/`.  All 34 files are also in git history
+  (`git checkout -- experiments/<name>` restores), and no model source was touched.
+  **Next step is a discussion, not a build**: the proposed basis for the new battery is the three
+  non-contractible loops of the torus (H_1(T^3) = Z^3), i.e. the integer winding triple of a
+  persistent island.  Open design questions recorded for that discussion: (a) the winding must be
+  *computed* from the transport history, never planted (the parked `WINDING_GATED_FSM` probe's
+  failure mode), and the per-source accumulator must be cell state rather than a global, to respect
+  the purity constraint; (b) the instrument partly exists already -- `experiments/inertia_fixture.h`
+  accumulates `unwrapped[w][k] += d` per layer per axis, so `unwrapped mod L` *is* the winding triple
+  for the moving prepared islands, while the reference seed has no transport at all (J0: `J = 0`
+  identically; census: one centre, `max_pop = 2`, 64 frames), so the all-zero baseline comes first;
+  (c) the four questions the battery would have to answer: conservation of the triple across
+  capture/escape, whether the dynamics *prefers* particular triples, whether the triple couples to the
+  charge word (the only route by which charge quantization could become emergent), and axis-permutation
+  symmetry as a built-in falsifier; (d) the test grammar stays that of this work stream: computed
+  invariant, no partition parameter in the rule, a selection test not merely a protection test, a
+  two-group control, and a registered falsifier.  Also noted: `is_core` in `simulation.h` is labelled
+  "Winding core flag" and is never read -- a vestige of this same idea, to be used or deleted.
+- **2026-09-19 -- B0 DONE: the winding triple is measurable and the instrument is validated (no physics
+  claimed).**  New read-only harness `experiments/winding_observatory.cpp` +
+  `experiments/build_winding_observatory.bat` + note `experiments/WINDING_B0.md`; logs/CSVs under
+  `build/winding_observatory/`.  Design rule taken from the parked probe: define **no** rule and plant
+  **no** global -- the triple is computed from the transport history that already exists
+  (`inertia_fixture.h` accumulates `unwrapped[w][k] += wrappedDelta(previous, current)`), in contrast to
+  the parked `WINDING_GATED_FSM` probe, which planted a global `chief_W[3]` and was near tautological.
+  Geometry: transport axis long (15), others short (5), so `RMAX = 2` in all three arms and the arms
+  differ by an exact axis relabelling.  **Seven arms, 80 frames each, reference sieve:** `baseline`
+  `disp=(0,0,0) W=(0,0,0)`; `x+` `(+20,0,0) W=(5,0,0)`; `x-` `(-20,0,0) W=(10,0,0)`; `y+`
+  `(0,+20,0) W=(0,5,0)`; `y-` `(0,-20,0) W=(0,10,0)`; `z+` `(0,0,+20) W=(0,0,5)`; `z-` `(0,0,-20)
+  W=(0,0,10)`.  Three instrument facts: the accumulator reproduces exactly from the fixture's own stored
+  `previous` (`accum_mismatch = 0` in every arm -- note the *first* version of that check was itself
+  buggy and reported 60 false mismatches, see the note); the triple is axis-diagonal and
+  sign-covariant, so the registered axis-permutation falsifier already holds for the measurement; and
+  the no-driver baseline does not wind (the J0-style baseline).  Cross-validation: 20 cells in 80
+  frames = `0.250000` cells per light frame, the published one-drive-pair velocity, reproduced from an
+  independent harness.  **Two findings B1 must handle:** the body becomes `2K+1D` at frame 1 (a
+  reference `D x D` promotion) and stays there for 79 frames, so "the island" is ambiguous at group
+  level and B0 measures the *body's* centre of mass -- B1 must define the triple **per chief**; and
+  `member_spread = 0` throughout, i.e. the transport is rigid at this size.  Registered next steps (not
+  run): B1 conservation across capture/escape (falsifier: an `unwrapped` discontinuity not explained by
+  `wrappedDelta`), B2 the generator (the seed still transports nothing), B3 coupling of the per-chief
+  triple with the charge word (needs the seed to stop assigning charge words), B4 axis symmetry for
+  candidate rules.  Explicitly NOT established: selection (the driver imposes the value), anything about
+  the reference path, and conservation across events.
+- **2026-09-19 -- The definition of "quantization" is fixed as the CONCRETE one, and the archived
+  censuses already answer it: one equal-size island per charge word, at every lattice size.**  Author's
+  correction, accepted: the three abstract framings (preferred magnitude / conserved quantum number /
+  charge-equals-winding) all start from mathematical premises and miss what is meant.  The operative
+  definition is: **the spontaneous formation of islands whose bubbles carry the same charge and have
+  approximately equal size -- a geometric, structural, emergent phenomenon.**  That makes the observable
+  a **size distribution per charge word**, not an invariant, and it is measurable on data that already
+  exists.  New stdlib reader `experiments/analyze_island_spectrum.py` + note
+  `experiments/ISLAND_SPECTRUM.md`; measured on the reference build (all candidate macros OFF):
+  `L=9` (S=16384): 235 groups, histogram `1:227 2:8`, **8 non-singleton islands all of size 2, spread 0,
+  one per charge word, 8 of 8 words**; `L=15` (S=16384): 667 groups, `1:659 2:8`, the same **8 islands
+  of size exactly 2**, 8 of 8 words; open gate `S=64` at `L=9`: 145 groups, `1:140 2:5`, 5 of 5 words.
+  `mixed charge = 0` in every row (same charge: exact), the group count does not move from frame 2 on,
+  and the pattern is **independent of the lattice size** while the seed multiplicity changes 3 -> 5 --
+  and no membership transition reads the multiplicity, so this is emergent rather than a partition
+  effect.  **The honest gaps against the definition:** (i) it is not spatial -- `distinct_centers = 1`
+  everywhere, so what forms is a membership structure, not separated islands; (ii) the aggregating
+  sector is marginal -- 227 of 235 groups are singletons, i.e. 8 of 243 sources sit in a size-2 island;
+  (iii) nothing grows past 2, because the same fixed-point bound that makes the size uniform also caps
+  it, so the phenomenon is "one bound pair per charge word".  **Consequences for the next battery:**
+  the *cap* is already emergent (local `D x D` promotion, no partition input) -- that half of the
+  definition is met; what is missing is spatial formation, which needs transport, and no reference
+  process generates a driver from the seed (B0 baseline; J0 `J = 0`).  So the next experiment is
+  "can an island assembled by the reference rules acquire a driver spontaneously, and if it separates,
+  do the sizes stay equal?" -- with the falsifier registered: if separation spreads the sizes, the
+  uniform size was a property of the frozen co-located plateau only.  A cheaper, already-answerable
+  question: why *exactly one* per word rather than zero or two (the theorem bounds it at one; the
+  measurement attains one; the mechanism that makes it exactly one has not been isolated).
+- **2026-09-19 -- `PARENT_SELECTIVE_FSM` implemented and measured: the cap breaks and the islands
+  separate, but the rule set as specified has no chief source, so the membership collapses.**  Author's
+  rule set (restated): `S x S` -> one `K`, one `D` (unchanged); `D x D` same island -> cohesion, no
+  transition; `D x D` different islands -> one step apart per pair per light frame; `K x K` same charge
+  -> one demoted to `D`, the two agglutinate.  The discriminator is the **dynamical parent**
+  (`islandChief`), never the seed family -- which is what distinguishes this candidate from the retired
+  `FAMILY_SELECTIVE_FSM`/`EXCLUSION_FSM` line that keyed on `w/3`.  Implemented macro-guarded:
+  `chief_transition.h:17-26` (T2 off), `interaction.cpp:140-145` (`parentRepel`), `:545-547`/`:576-578`
+  (clears), `:1607-1630` (record equal-charge `D x D` pairs of different islands), `:788-819`
+  (`resolveParentRepulsion`, one antisymmetric step per pair per light frame through `reloc[]`, skipped
+  if the pair merged during the frame), `:907-909` (frame-edge call).  New build script
+  `experiments/build_island_census_parent.bat`; note `experiments/PARENT_SELECTIVE.md`.  **Reference
+  proven inert**: with the macro undefined the preprocessed `interaction.cpp` is identical to `HEAD`
+  after stripping `#line`/blank lines.  **Measured (L=9, S=16384, 4 frames,
+  `build/island_census_parent/run4`)**: frame 2 `K=1, D=242, S=0, groups=1, unresolved=241,
+  distinct_centers=57, max_pop=2, max_span=4, births=1, captures=2`; frames 3-4 frozen
+  (`centres 58 -> 59`, `max_span 2`, all counters 0).  Reference at the same conditions: `235 K, 8 D,
+  1 centre, 235 groups, 0 unresolved, births 235`.  **Two successes**: the cap is gone (nothing can
+  eject a member) and the **spatial separation happened** (`1 -> 57 -> 59` centres, and it comes from a
+  rule that reads only the emergent parent).  **One failure, with mechanism**: `births = 1` against
+  `235` -- in the reference almost every chief is born from the `D x D` promotion cascade, and T2 is now
+  off, so the only chief source is the one-off `S x S` election; meanwhile `K x K` keeps destroying
+  chiefs and `demotesChief` explicitly does not reassign the demoted chief's delegates, so 241 of 242
+  delegates are `unresolved`.  Chiefs are monotone non-increasing -> the structure collapses to 1.
+  **The piece missing from the rule set**: `K x K` fusion must *absorb*, not orphan -- reassign every
+  delegate of the demoted chief to the survivor (the `commitSourceTick()` frame-edge pattern already
+  exists for exactly this kind of bookkeeping).  **Registered prediction for that run:** chiefs fall
+  while populations grow, `max_population > 2` appears, several islands per charge word coexist, and
+  `distinct_centers` stays > 1 because the `D x D` repulsion is already active.  **Falsifier:** if it
+  collapses to one island per word (`max_pop ~ W/8`), fusion wins and the repulsion must become
+  size-dependent -- the same runaway the directional-channel candidate showed (`b = +0.49`).
+- **2026-09-19 -- `PARENT_NOMINATION_REPAIR`: the completed rule set resolves the structure (241 orphans
+  -> 0) and produces the first uniform, spatially separated island population; the fusion absorption
+  turned out to be inert, and the diagnostics say why.**  Follow-up to the entry above, which had
+  diagnosed the collapse as a `K x K` problem.  **The diagnosis was wrong and the instrumentation said
+  so:** the ablation build with the fusion absorption added (`PARENT_FUSION_ABSORB`) is *identical* to
+  the fsm-only build at every frame, because `[absorb] K x K encounters = 0` at every frame edge -- only
+  one chief ever exists there, so no `K x K` pair can form (consistent with `births = 1`).  The 241
+  `unresolved` delegates come from somewhere else: the generic merge of `chiefContact` names as parent
+  the **minimum-W address of two `S`** (not yet a chief), and T4 can copy a `D`'s parent; in the
+  REFERENCE path the T2 promotion cascade repaired such pending nominations globally, and with T2
+  disabled nothing did.  New frame-edge rule `PARENT_NOMINATION_REPAIR`: any source that a delegate
+  names as its parent but that is not a chief is **promoted** (one pass; exactly what T1/T4 intended and
+  what T2 was doing globally).  **Measured at L=9, sieve 16384, frame 2** (three builds, one ablation
+  line): reference `235 K + 8 D, 1 centre, 0 unresolved`; fsm-only `1 K + 242 D, 241 unresolved, 57
+  centres`; fsm+absorb identical to fsm-only; **fsm+absorb+repair `162 K + 81 D, 162 groups, 0
+  unresolved, 57 centres, max_pop 2, births 162`, size histogram `1:81, 2:81` with spread 0** and every
+  one of the 8 charge words carrying a non-singleton island (`[nomination] pending parents promoted=161`
+  at that frame edge).  So the rule set *can* be made self-consistent at rule level, and the result is
+  the first island population in the project that is simultaneously **resolved**, **uniform** (spread 0)
+  and **spatially separated** (57 centres against 1 in the reference) -- the spatial separation coming
+  from the parent-keyed `D x D` repulsion, which reads no partition parameter.  **What is not yet
+  shown:** growth past 2 (`max_population = 2`: by frame 2 no `S` is left to recruit), and the count
+  `162 = 2 x 81` suggests the pattern is **per seed family** (81 families of 3 copies -> 2 K + 1 D),
+  i.e. potentially **seed-multiplicity dependent**, the opposite of the reference's one-pair-per-charge-
+  word pattern.  **Registered decisive test:** the same builds at `L=15` (multiplicity 5): if the pattern
+  tracks `ell` the regularity is a partition effect (same class as the retired routes); if it is `ell`-
+  independent it is emergent.  Cost: ~31 min per light frame at `L=15`, so a background job.  **Cheaper
+  companion already identified:** add `SURFACE_ESCAPE_FSM` (the only reference process that *creates*
+  free `S` from a group) so release competes with recruitment -- the first non-degenerate rate balance
+  this programme can measure.  Files: `src/model/interaction.cpp` (two macro-guarded blocks +
+  frame-edge diagnostics `[absorb]`/`[nomination]`), `experiments/build_island_census_parent_repair.bat`,
+  note `experiments/PARENT_SELECTIVE.md` (three-way table + corrected mechanism + reproduce commands).
+- **2026-09-19 -- Release vs recruitment: built, inert at the cubic timescale, and the timescale itself
+  is the finding.**  Following the previous entry's plan, the release companion
+  (`PARENT_SELECTIVE_FSM + PARENT_FUSION_ABSORB + PARENT_NOMINATION_REPAIR + SURFACE_ESCAPE_FSM`,
+  `experiments/build_island_census_parent_escape.bat`) was built and measured at `L=9`: frame 2 is
+  **numerically identical** to the repair build (`162 K + 81 D, 162 groups, 0 unresolved, 57 centres,
+  max_pop 2, births 162`) with **`escapes = 0`**.  The reason is a timescale inside the release rule:
+  `applySurfaceEscape()` releases a delegate only when `++framesWithoutContact[w] >= W_USED`
+  (`interaction.cpp:762-764`), i.e. after `W_USED` **consecutive light frames without a same-charge
+  contact** -- **243 frames at `L=9`**, 675 at `L=15`.  At ~50 s per light frame that is **~3.4 h of run
+  time before a single release can fire**, so no rate balance can be reached in a cubic run of feasible
+  length.  **This also explains a standing observation**: the flux harness found `escapes = 0` in *every*
+  reference run (4-64 frames, `quantization/FINDINGS.md`), which was read as "the plateau is frozen";
+  the code adds a second, independent reason -- the release rule's own timescale is longer than the runs
+  made so far, so a frozen plateau and an inoperative release rule are indistinguishable inside them.
+  **Two ways forward, both recorded in `experiments/PARENT_SELECTIVE.md`:** (i) *small `W`* -- the
+  tube/prepared-island fixtures allocate `W = n + 2*pairs`, so the timer expires after 3-5 frames and
+  release competes with recruitment in seconds (cheap; loses the cube topology; natural next instrument:
+  a rate probe in the style of `winding_observatory.cpp`); (ii) *long cube run* -- ~250 frames at `L=9`
+  in the background (~3.5 h).  No model source changed in this step beyond the escape build's macro set;
+  the reference remains inert (preprocessed `interaction.cpp` identical to HEAD with all candidate macros
+  OFF).
+- **2026-09-19 -- Small-`W` rate probe built; the balance needs a different fixture, and the probe's own
+  first reading was corrected.**  New `experiments/island_rate_probe.cpp` +
+  `experiments/build_island_rate_probe.bat` (arms `rb_ref.exe` = `SURFACE_ESCAPE_FSM` and `rb_cand.exe` =
+  + `PARENT_SELECTIVE_FSM` + `PARENT_FUSION_ABSORB` + `PARENT_NOMINATION_REPAIR`), writing the
+  flux-harness format `run,island,frame,N,captures,escapes` (12 CSVs in `build/rate_probe/`).  Tube
+  `15x5x5` gives `W = N + 2*PAIRS` (2-7), so the escape timer expires in 2-7 light frames instead of 243.
+  **The probe now counts role transitions separately, and that corrected a first misreading of its own
+  output:** what the membership diff reports as "escapes" in the *reference* arm are **promotions**
+  (`D -> K`), not releases.  Measured: `ref` does `N-2` promotions and **zero releases** in every arm
+  (0,1,2,1,2,3 for `N`=2,3,4,3,4,5) with zero recruits; `cand` is **completely frozen** (0 releases, 0
+  promotions, 0 demotions, 0 recruits).  Two consequences.  (i) *Cross-validation*: the reference's
+  `N-2` promotions take the tube island to population **2** in every arm -- the `N* = 2` plateau
+  reproduced in a completely different geometry (tube, `W` = 2-7, `N` = 2-5) from the cubic census that
+  found it (235 K + 8 D at L=9).  (ii) *Why the small-`W` route alone is not enough*: the escape timer
+  is reset by any same-charge contact and a co-located prepared island contacts on every tick, so no
+  release fires **even at `W = 2`** -- **release requires spatial separation, not merely a short timer**.
+  And the candidate is inert in this fixture because a single co-located island has no
+  *different-island* `D x D` pair, so the repulsion never fires and there is no free `S` to recruit.
+  **Precise specification of the fixture the balance needs** (next instrument, ~40 lines in the
+  `p7_concentration`/duo style): at least two islands separated beyond `2*RMAX`, free `S` bubbles within
+  reach of each, small `W`, and enough frames for several release/recruit cycles.  Written up in
+  `experiments/PARENT_SELECTIVE.md`; the reference remains inert with all candidate macros OFF.
+- **2026-09-19 -- Placed multi-island fixture: first controlled turnover, and the release rule's
+  structural tension exposed.**  The four-condition configuration specified in the previous entry is now
+  built into the probe (`island_rate_probe placed FRAMES CSV`): `21x5x5` tube, `RMAX = 2` (contact range
+  4), `W = 6` (escape timer 6 light frames), `w0 K_A@2, w1 D_A@9, w2 K_B@18, w3 D_B@10, w4 S1@5,
+  w5 S2@15`, all `ch = 0x08` -- two islands beyond the contact range, one stray delegate per island out
+  of contact with its own chief, the two strays adjacent (a cross-island `D x D` pair), one free `S` in
+  contact with each chief.  **Measured, 30 light frames:** `ref` `islands=3, captures=2, escapes=1,
+  releases=0, promotions=2, recruits=2`; `cand` `islands=2, captures=2, escapes=0, releases=0,
+  promotions=0, recruits=2`.  So the reference turns over (promotions + recruitments -- **the first
+  controlled turnover this programme has produced**, and its third island is born from a promotion),
+  while the candidate recruits but never departs.  **Neither arm releases anything, and the mechanism is
+  now visible**: (1) *the escape timer is reset by contact with ANY same-charge source, not only with its
+  own group* (`contacted[w]` comes from `surfaceContactSeen`, `interaction.cpp:141-145`, `:763`), so the
+  reference's promoted stray at x=9 sits one cell from `D_B` at x=10 and resets its timer for the whole
+  run; (2) *the candidate's repulsion HEALS stray delegates back into their own islands*--with the two
+  strays between their two chiefs, pushing them apart along the inter-stray axis pushes each toward its
+  own chief (`D_A` from x=9 down to `K_A`@2, `D_B` from x=10 up to `K_B`@18).  **The structural tension
+  this exposes:** a delegate can be released only if it is *isolated from every same-charge source* for
+  `W` frames, while a released `S` can be recruited only if it is *in contact* with a chief -- isolation
+  and contact are mutually exclusive unless something carries the bubble in between, and a freed
+  singleton has `m = 0` ("a body's own momentum never moves it", J0).  Therefore the release -> recruit
+  cycle **requires transport** (the drive pairs: 0.25 cells per light frame), and *that*, not the
+  population dynamics, is why the flux harness has never seen turnover **and** stationarity together.
+  **Next iteration (specified, not guessed):** place one drive pair whose transport carries a freed `S`
+  across the gap between the islands (pair matched to the receiver island's affinity, `m` along the tube
+  axis), with `W = 6` and the strays isolated until their timers expire.  Written up in
+  `experiments/PARENT_SELECTIVE.md` (new section with the table, both structural facts and the tension).
+
+- **2026-09-19 -- Driven fixture: the release -> recruit cycle closes, and the first real rate fit FAILS
+  as registered (runaway, `b = +0.075`).**  The carrier the previous entry specified is implemented as
+  `island_rate_probe driven FRAMES CSV`: the placed configuration plus a reciprocal drive pair
+  affinity-matched to island B (`m` along `-x`, island A carrying a different affinity so the pair can
+  dress only B), which walks B across the gap at 0.25 cells per light frame.  **Measured, 60 light
+  frames:** `ref` `islands=3, captures=1, escapes=2, releases=1, promotions=1, recruits=1`;
+  `cand` `islands=1, captures=4, escapes=3, releases=1, promotions=0, demotions=1, recruits=1`.  **Both
+  arms now release *and* recruit** -- the first configuration in the project where the release -> recruit
+  cycle closes, and it closes exactly as the structural tension predicted (the pair carries B into
+  contact with the bubble island A released).  **The flux harness was then run on it
+  (`quantize_stdlib.py ... --by-run`) -- the first time it has received data with turnover:** sanity
+  passes with **zero islands reporting zero escapes** (the frozen-mode warning that fired on every
+  archived dataset does not fire); binned fluxes `N=1` cap 0.000/esc 0.035, `N=2` 0.077/0.077, `N=3`
+  **0.130/0.000**; mean `dN` monotone increasing (`-0.03, 0.00, +0.13`) with no zero crossing; drift fit
+  `a = -0.1156`, **`b = +0.0754`** over 135 island-frames; per run `cand` `b = +0.0923`, `ref`
+  `b = +1.0303`; **verdict FAIL (no restoring drift, no `N*`)**.  **Reading:** the structural hurdle is
+  passed but the balance is **runaway** -- recruitment outpaces release, larger islands grow faster, the
+  candidate ends with a single island -- which is precisely the falsifier registered in advance
+  ("if it collapses into one island per charge word while the repulsion is on, the repulsion must become
+  size-dependent"), and the same sign and shape as the directional-channel candidate (`b = +0.49`).
+  **Next ingredient is therefore a size-dependent brake, not another channel**, so that
+  `Gamma_esc(N)` can overtake `Gamma_cap(N)`; candidates, cheapest first: (i) repulsion steps paid per
+  light frame proportional to the number of *delegates* instead of one per pair;
+  (ii) a `|J|`-style threshold with the cap taken from the cavity radius (the spin programme's S4);
+  (iii) a release trigger that depends on island size rather than on the contact-free timer alone.
+  Written up in `experiments/PARENT_SELECTIVE.md` (new section with the table, the harness output and
+  the three candidate brakes); the reference remains inert with all candidate macros OFF.
+- **2026-09-19 -- Brake (i) falsified by the model's own step invariant; the brake must act on a
+  transition, not on displacement.**  The first brake (`PARENT_REPULSION_PRESSURE`, nested in
+  `PARENT_SELECTIVE_FSM`) made the per-pair repulsion impulse magnitude the number of *delegates* in the
+  two islands (`nA + nB`, clamped per source to `2*RMAX`), so that an island's ejection pressure would
+  grow with its own membership.  Built as a third arm (`rb_press.exe`: completed rule set + the macro) it
+  aborts:
+
+      [pressure] frame-edge: pairs=1 cap=4 max_push=2 clamped=0        (frame 1, placed fixture)
+      Assertion failed: length<=1, file inertia_fixture.h, line 95
+
+  `inertia_fixture.h:95` asserts that every constituent (P halves included) moves at most ONE cell per
+  light frame -- `m` is a direction, not a jump -- and one delegate per island already asks for two cells,
+  so `press` dies in frame 2 while `ref` and `cand` complete 40 frames on the same fixture.
+  **Structural, not a tuning problem:** any magnitude above one cell violates the invariant, so
+  size-proportional DISPLACEMENT is not expressible in this lattice; the size-dependent loss must come
+  from a size-dependent TRANSITION (a release).  Control that comes free: on the `driven` fixture the
+  brake is inert by construction (`[pressure] pairs=0` at every frame edge -- island B's delegate travels
+  with its chief) and `press` reproduced `cand` exactly (`4 captures, 3 escapes`, same mechanism
+  counters), confirming that no cross-island `D x D` pair means no brake effect.  **Brake (i) is dropped.**
+  The menu is now (ii) a `|J|`-style threshold with the cap from the cavity radius and (iii) a release
+  trigger that depends on island size, whose parameter-free form is "a delegate farther from its chief
+  than the contact range `2*RMAX` is outside the shell cohesion can hold".  The falsified variant is kept
+  verbatim in `attic/brake1_pressure_block.txt`; `src/model/interaction.cpp` is reverted (reference
+  pre-processed output re-verified byte-identical to `HEAD` after the revert) and the third build arm
+  removed, so `build_island_rate_probe.bat` is `ref` + `cand` again.  Written up in
+  `experiments/PARENT_SELECTIVE.md` (new section: the abort, the control, the revised menu).
+
+
+
+
+
+
+
+
+
+- **2026-09-19 -- Brake (iii) in its parameter-free form: the shell release fires, adds the missing loss
+  channel, limits the growing island in the cubic census -- and is blind while the island is co-located.**
+  `PARENT_SHELL_RELEASE_FSM` implements the brake on a TRANSITION (the displacement route being closed by
+  `inertia_fixture.h:95`): a delegate whose torus distance to its chief exceeds the model contact range
+  `2*RMAX` is outside the shell cohesion can claim and is released.  Reads only `lcenters`, `parent` and
+  `RMAX` -- no seed partition, no `ISLAND_SIZE`, no `L`.  **Rate probe, `placed`, 40 frames:** the brake fires
+  where the strays are (`[shell] frame-edge: range=4 max_dist=8 releases=2` on frame 1, then `max_dist <= 1`)
+  and it creates the transition the completed rule set did not have: `cand` had `escapes = 0, releases = 0`
+  where `shell` gives `escapes = 2, releases = 2` (captures 2 -> 3).  **Rate probe, `driven`, 60 frames:**
+  releases 1 -> 2, and the flux harness (`driven_ref` vs `driven_shell`) gives `b = +0.0525` over 130
+  island-frames against `+0.0754` for the same fixture without the brake -- it moves the balance in the right
+  direction and still **FAILS** (no restoring drift, no `N*`).  **Cubic census, L=9, frames 0-4: the brake
+  limits the island.**  While the island is co-located it cannot act -- `[shell] frame-edge: range=8
+  max_dist=0 releases=0` at the first two frame edges, with frames 1-2 byte-identical to the same rule set
+  without the brake (`162 K, 81 D, 57 centres, max_pop 2`) -- but after the frame-2 -> 3 reorganization the
+  delegates acquire extent (`max_dist = 12`), the brake fires (**releases = 72** at that edge, 49 at the next)
+  and **the largest island is cut from 33 members to 24 and then to 18**, against `8 K, 235 D, 0 S, max_pop 33`
+  for the same rule set without the brake at frame 3.  That is the first rule in this campaign that limits a
+  growing island's population in the cubic census.  **What it cannot do:** `parent` is a global label, so an
+  island can hold an unbounded population in ONE cell, and the runaway the rate probe measured is population
+  growth of that kind; the shell brake limits EXTENT, not count, and is blind in the co-located regime the
+  reference census lives in for its first two frames.  The `|J|` ceiling (candidate (ii)) is measured inert in
+  the same census (`J = sum r x m` vanishes when every `r = 0`; `max_Jmag2 = 0` at every frame, frame 3
+  included), so a rule that limits by COUNTING members remains the only route to a size-dependent loss for a
+  co-located island -- not exotic (the model already selects populations with a count: `<= 2`, one group of 2
+  per charge word) but one step from a DECLARED knob, the `L/3` lesson: any such rule must register its
+  prediction before it is run and must be checked against the trap that closed the old route (the selected
+  population may not track the seed multiplicity).  Implementation note: the first placement put the function
+  INSIDE the `SURFACE_ESCAPE_FSM` guard and the census build caught it as `error C3861: applyShellRelease:
+  identifier not found`; it now sits outside that guard, and the reference pre-processed output is
+  re-verified byte-identical to `HEAD`.  Third probe arm `rb_shell.exe`, census arm
+  `build_island_census_parent_shell.bat`; written up in `experiments/PARENT_SELECTIVE.md` (the "Brake (iii)"
+  section, plus the updated diagnostics and reproduce blocks).
+- **2026-09-19 -- Pre-registered before the run: the extended `L=9` census (`shell` vs `repair`, 10 frames)
+  to test whether the shell brake's size limit is a SELECTED PLATEAU or only a delay.**  Frames 0-4 measured
+  `max_pop = 33 -> 24 -> 18` with the brake on (against `33` without it at frame 3), so the open question is
+  what the limit converges to.  Three registered outcomes: **P1** size-selected plateau (`shell`'s `max_pop`
+  holds a value `> 2` for at least three consecutive frames while `repair` stays far above it -- that would
+  be the first size-selected plateau of the campaign, and the value becomes a candidate `N*` whose
+  `L`-dependence can then be tested); **P2** no brake (`shell` and `repair` converge, or fall together to
+  `max_pop = 2` or 1); **P3** collapse by shedding (`shell` falls to 2 while `repair` stays large -- the
+  brake is then a hard cap, not a balance).  **Registered prediction: P2 or P3, not P1** -- the "extent, not
+  count" finding says the brake acts on a geometric quantity that the reference geometry does not maintain,
+  so a plateau would require the dynamics to *regenerate* extent continuously rather than produce it once in
+  the frame-2 -> 3 reorganization; if P1 appears anyway, that regeneration is the discovery, and it is
+  falsifiable by the `L=15` arm (the plateau must then track `L` through `2*RMAX`).  Commands:
+  `build\island_census_parent\island_census_parent_shell.exe 10 16384 build\island_census_parent\shell_run10`
+  and the same for `..._repair.exe` into `repair_run10`; the CSVs land in
+  `build\island_census_parent\*_run10\census.csv`.  Written up in `experiments/PARENT_SELECTIVE.md` (the
+  "Brake (iii)" section, pre-registration block).
+
+- **2026-09-19 -- Ten-frame `L=9` census: the pre-registered prediction (P2/P3) is falsified in letter --
+  P1 appeared -- but the spectrum shows the plateau is CONDENSATION, not a selected quantum; the brake buys
+  DYNAMICS, not quantisation.**  Runs: `island_census_parent_shell.exe 10 16384 ...shell_run10` and
+  `..._repair.exe 10 16384 ...repair_run10`, both reproducing frames 0-4 of the shorter runs exactly.
+  **Measured `max_pop`:** `shell` 24, 18, 23, 26, 24, **26, 26, 26** for frames 3-10; `repair` 33 at every
+  frame from 3 on and **frozen** from frame 4 -- seven consecutive frames with exactly zero captures,
+  escapes, births and deaths -- while `shell` keeps turning over (releases 3-72 per frame edge, `max_dist`
+  10-12 at every edge).  The registered P1 condition ("`max_pop` holds a value > 2 for at least three
+  consecutive frames while `repair` stays far above it") is therefore MET, so my prediction of P2/P3 is
+  wrong, and **the brake keeps the cubic census out of the frozen state, which no other candidate has
+  done.**  **But the size spectrum rules out the reading that this is a selected quantum:** at frame 10
+  `shell` is `1:1 2:2 3:7 6:1 22:1 26:7` -- seven islands of exactly 26 plus debris -- with
+  `spread(max-min) = 24`, whereas `repair` is `30:7 33:1` with `spread = 3`.  **By the operational reading
+  of the phenomenon (same charge, approximately equal sizes, one island per charge word) the FROZEN build
+  is more quantised than the brake build**; what it lacks is movement, its equality being static.  Both
+  builds condense to one island per charge word (`8 of 8 reachable words`, `mixed_charge = 0`) at sizes of
+  order `243/8 ~ 30`, and the brake converts a static condensate into a dynamic one plus debris
+  (`7 x 26 + 22 + 9 small = 243`), so 26 is the condensation level after shedding, not a preferred quantum.
+  **Verdict for brake (iii): it buys dynamics, not quantisation.**  **Next, registered before running:**
+  the `L=15` arm (675 sources, the same 8 charge words, `2*RMAX` 8 -> 14) decides whether the mode tracks
+  `W/8` (condensation, and the campaign's size limit is geometric bookkeeping) or `2*RMAX` (the brake
+  selects EXTENT, and the plateau is a real if not yet charged quantum).  Written up in
+  `experiments/PARENT_SELECTIVE.md` (new section with the table, the spectrum, and the `L=15` registration).
+
 - **2026-09-11 -- Readability pass (author request).**  Split the two largest
   paragraphs ("Distinct bubbles"; "Diffusion, translation and collapse in one
   reading") into readable paragraphs by inserting blank lines at logical
@@ -1023,8 +1584,8 @@ its time-box.
   First measurement of the candidate at `15x9x9` (RMAX=4, R=2): the producers
   **fire** (`homb_events = 5`) and `sB` is live (40/59 samples) -- but the body
   still does not move (`MEAN_V = 0`) and the end-of-run counters for `c`/`homB`
-  read zero because those fields are cleared every frame
-  (`interaction.cpp:1485-1487`), so the effect must be sampled *within* the
+  read zero because `homB` is cleared at the end of every frame
+  (`interaction.cpp:2111`, `draft.homB = false;`), so the effect must be sampled *within* the
   frame; also the prepared 3-element island is a single family, which disables
   the address tie-break path.  Next: per-frame instrumentation and a
   multi-family seed.
@@ -1043,10 +1604,10 @@ its time-box.
   **Reading:** the chain is ALIVE end to end -- producer fires, consumer sees it,
   the field reaches the centre, and 30752 cell migrations follow -- yet the net
   displacement is exactly zero.  There are TWO transport machines:
-  (A) `relocate()` (interaction.cpp:1542), `draft = north; draft.c[0]--`, which
+  (A) `relocate()` (interaction.cpp:2046; the `draft = north; draft.c[0]--` slide at `:2067`), which
   slides the whole state pattern through the lattice keeping the address -- this
   is the archived CUDA kernel's actual transport, and `MEAN_V` cannot see it;
-  (B) `applyMomentum()` (simulation.cpp:410), which translates a source centre and
+  (B) `applyMomentum()` (simulation.cpp:423), which translates a source centre and
   updates `lcenters[w]` from `reloc[]`, fed only by contacts (moveOneStep,
   P×D/P×K via `m`) and pair release.
   The decisive structural finding came from the CUDA (`dev_encounter7`): `c[]` has
@@ -1074,7 +1635,7 @@ its time-box.
   **Gate 1 (reproducibility).**  `N=6` gives literally every counter zero --
   including the new branch -- because the reconstruction landed on `pol = (-4,0)`,
   so `pB = sB = false` for every cell and EVERY producer is keyed on pB/sB.  The
-  sign convention (`simulation.cpp:365-366`) is therefore not a nicety but a
+  sign convention (`simulation.cpp:377-378`) is therefore not a nicety but a
   precondition: in the dead quadrant the directional sector cannot fire at all.
   **Gate 2 (the field's own dynamics).**  In the live quadrant the field's relay
   rules dominate the producers' writes, so a faithful port of the producer
@@ -1302,7 +1863,7 @@ its time-box.
   Diagnosis recorded: the reference schedule rotates the partner lattice by ONE
   slice per frame (`rotatePartners()`, `utils.cpp`; "cross-layer adjacency is owned
   by rotatePartners()'s rotation schedule, not by spatial geometry",
-  `simulation.cpp:86-88`), so at `ISLAND_SIZE = 3` two of every three pairings are
+  `simulation.cpp:87-89`), so at `ISLAND_SIZE = 3` two of every three pairings are
   between different islands and the election cascades on the W address; and the
   identity structure does not depend on positions at all (the superposed and the
   placed seed give identical K/D counts).  Rotating cyclically within each
@@ -1399,11 +1960,11 @@ its time-box.
   cascade) gave 3 events in 16 frames; switching to the manuscript's own
   `t = RMAX/2` guard, and then dropping the phase guard from the two contact
   producers (the CPU encounter is source-level, so the contact condition at
-  `interaction.cpp:603` is the relevant guard), raised it to **7 events in 16
+  `interaction.cpp:942` is the relevant guard), raised it to **7 events in 16
   frames** at `15x9x9` with `N=3`: the ported producers do fire.
   **Finding (blocker class):** live polarization is a *phase lottery*.  The flags
   are defined by sign, `pB = (pol_u > 0)`, `sB = (pol_v > 0)`
-  (`simulation.cpp:365-366`), while `reconstructPair` returns
+  (`simulation.cpp:377-378`), while `reconstructPair` returns
   `(R(R-2j), ±2R·isqrt(j(R-j)))` with `j = (bstamp-1) mod 2R^2`.  In the same
   tube and with the same bootstrap, the `N=3` run landed on `pol = (0,4)`
   (`pB` false, `sB` true -> events) and the `N=6` run on `pol = (-4,0)` (both
@@ -1541,7 +2102,7 @@ its time-box.
   reference), recorded in `doc/REFERENCE_CONFIG.md`.  G1 stays open pending
   WP4.3.
 - **2026-09-11 -- WP4.1 DONE (negative/inert).** Found the reorder already
-  implemented as `EM_FIRST_FSM` (`interaction.cpp:884-984`).  A/B test of
+  implemented as `EM_FIRST_FSM` (`interaction.cpp:1451-1473`).  A/B test of
   `pbsb_two` (default vs `/D EM_FIRST_FSM`, new script
   `experiments/build_pbsb_two_em.bat`): identical traces -- both equal-charge
   clouds merge at frame 2, pB/sB = 0, EM counters = 0.  Root cause: the seeded

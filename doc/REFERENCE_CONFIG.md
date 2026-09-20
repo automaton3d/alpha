@@ -58,12 +58,12 @@ interchangeable measurement of the reference dynamics.
 
 | Macro | Gates | Where |
 |---|---|---|
-| `ORPHAN_GUIDANCE_FSM` | experimental P1/P2 photon-mediated impulse (orphan shell, recruit/relay) | `interaction.cpp` (61, 624, 823), `simulation.h` (382) |
-| `ORPHAN_GATE_ONLY`, `ORPHAN_NO_SHELL`, `ORPHAN_NO_RELAY`, `ORPHAN_NO_ANNIH`, `ORPHAN_KICK_CAP`, `ORPHAN_KICK_PER_WINDOW`, `ORPHAN_MEDIATOR_PROPAGATES`, `ORPHAN_MEDIATOR_SUSTAIN`, `ORPHAN_RELAY_KEEPT`, `ORPHAN_RELAY_NOOP`, `ORPHAN_RELAY_SHUTTLE` | sub-options of the orphan-mediation schemes A-E | `interaction.cpp`, `simulation.h`, `alpha_probe.cpp` |
-| `EXCLUSION_FSM` | Pauli-like identity hard core across seed families + push | `interaction.cpp` (442, 558, 988) |
-| `EM_FIRST_FSM` | decide the electroweak channel before identity | `interaction.cpp` (~893) |
-| `EM_FORCE_PREREQ` | (WP4.2 spike) force the `EM_FIRST_FSM` prerequisite s2B+pB at each contact | `interaction.cpp` (~884) |
-| `EM_NOS2B_FSM` | (Route B) drop the probabilistic sieve requirement from the EM reorder | `interaction.cpp` (~906) |
+| `ORPHAN_GUIDANCE_FSM` | experimental P1/P2 photon-mediated impulse (orphan shell, recruit/relay) | `interaction.cpp` (154, 161, 547, 567, 991, 1190), `simulation.h` (425), `experiments/alpha_probe.cpp` (778) |
+| `ORPHAN_GATE_ONLY`, `ORPHAN_NO_SHELL`, `ORPHAN_NO_RELAY`, `ORPHAN_NO_ANNIH`, `ORPHAN_KICK_CAP`, `ORPHAN_KICK_PER_WINDOW`, `ORPHAN_MEDIATOR_PROPAGATES`, `ORPHAN_MEDIATOR_SUSTAIN`, `ORPHAN_RELAY_KEEPT`, `ORPHAN_RELAY_NOOP`, `ORPHAN_RELAY_SHUTTLE` | sub-options of the orphan-mediation schemes A-E | `interaction.cpp` (e.g. `ORPHAN_RELAY_NOOP` at 1077, `defined()` form), `simulation.h`, `alpha_probe.cpp` |
+| `EXCLUSION_FSM` | Pauli-like identity hard core across seed families + push | `interaction.cpp` (776, 892, 1575), `color_fsm.inc` (28, 88, 132, 177, 226, 233, 304), `experiments/turnover_ablation.cpp` (202) |
+| `EM_FIRST_FSM` | decide the electroweak channel before identity | `interaction.cpp` (1451-1473) |
+| `EM_FORCE_PREREQ` | (WP4.2 spike) force the `EM_FIRST_FSM` prerequisite s2B+pB at each contact | `interaction.cpp` (1251) |
+| `EM_NOS2B_FSM` | (Route B) drop the probabilistic sieve requirement from the EM reorder | `interaction.cpp` (1464) |
 | `DD_INTRA_ISLAND_FIX` | (WP3.3 candidate) intra-family election uses the family-minimum chief, so a 3-copy family stays 1 K + 2 D | `chief_transition.h` |
 | `COLOR_ENCOUNTER_FSM` | colour FSM replaces `update_lattice_cpu` | `simulation.cpp` (647) |
 | `COLOR_CHIEF_FSM`, `COLOR_COHESION_FSM`, `COLOR_MATCHED_FSM` | colour/election/cohesion/matched candidates | `color_fsm.inc`, `color_matching.inc` |
@@ -73,11 +73,31 @@ interchangeable measurement of the reference dynamics.
 | `ISLAND_SEED_EXPERIMENT` | reduced seed branch (excluded by the census) | `initSim.cpp` |
 | `COAGULATION_RANDOM_FSM` | coagulation random experiment | `experiments/coagulation_random.cpp` |
 | `POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE` | experimental polarization bootstrap/broadcast | `polarization.cpp` |
-| `ORPHAN_PRINT_ONLY` | probe-only source diagnostic | `experiments/alpha_probe.cpp` |
+| `ORPHAN_PRINT_ONLY` | probe-only source diagnostic (companion of `ORPHAN_DUMP_SRC`) | `experiments/alpha_probe.cpp` (778, `defined()` form) |
 | `USE_CUDA`, `CUDA_BRIDGE_CU` | GPU path (see G0) | `bridge.cu`, `cuda_automaton.cu`, `Makefile` |
 
-Include guards (`ATTRACTOR_H_`, `GEOMETRY_H_`, `POLARIZATION_H_`,
-`SIMULATION_H_`, `WAVEFRONT_H_`) are not feature macros and are ignored.
+Include guards (`ATTRACTOR_H_`, `GEOMETRY_H` -- note: no trailing underscore,
+`POLARIZATION_H_`, `SIMULATION_H_`, `WAVEFRONT_H_`) are not feature macros and are ignored.
+
+**The two tables are one inventory, split chronologically.**  Everything in the first table already
+existed at the `model-ref-v1` freeze (`interaction.cpp` carried only `EM_FIRST_FSM`,
+`EXCLUSION_FSM`, `ISLAND_SEED_EXPERIMENT` and the `ORPHAN_*` set there); everything added afterwards
+is in "Post-freeze additions" below.  Together they are the **complete** set -- 45 feature macros in
+the model sources, no more.  All line numbers in both tables were re-verified on 19 Sep 2026
+against the compiled tree (`src/model/`, `src/include/model/`); they shift whenever a macro-guarded
+block is added, so re-check with:
+
+```powershell
+Get-ChildItem src\model\*.cpp, src\model\*.inc, src\include\model\*.h |
+  Select-String -Pattern '(?:ifdef|ifndef)\s+([A-Z_][A-Z0-9_]*)|(?:if|elif)\s+defined\s*\(\s*([A-Z_][A-Z0-9_]*)' -AllMatches |
+  ForEach-Object { $_.Matches | ForEach-Object { if ($_.Groups[1].Success) { $_.Groups[1].Value } else { $_.Groups[2].Value } } } |
+  Sort-Object -Unique
+```
+
+That prints those 45 macros plus the five include guards, one-to-one with the two tables.  The only
+macro-gated names *outside* this inventory are harness-only selectors in `experiments\*.cpp`
+(`ORPHAN_PRINT_ONLY`, `ORPHAN_DUMP_SRC`, `INERTIA_REVALIDATION`,
+`PROPELLER_K_FLIGHT_EXPERIMENT`), which cannot change model behaviour.
 
 ## Per-file model fingerprint
 
@@ -111,15 +131,31 @@ Combined fingerprint (model-ref-v1): `5b0944258b8f9b750688375f2e9a4cd99e74f0355f
 
 ## Post-freeze additions (working tree)
 
-Since the `model-ref-v1` freeze, the working tree added macro-guarded
-experimental blocks to model sources:
+Since the `model-ref-v1` freeze the working tree has added the macro-guarded blocks below.  All are
+OFF in the reference build, so "unchanged when OFF" holds by construction (the code is compiled
+out); it is marked "(verified)" only where an A/B run is recorded in `experiments\*.md`.  The
+"Where" numbers are the `#ifdef` sites, re-verified 19 Sep 2026.
 
 | Macro | Effect | Where | Reference behaviour |
 |---|---|---|---|
-| `EM_FORCE_PREREQ` | forces the `EM_FIRST_FSM` prerequisite (s2B + pB) at each contact (WP4.2 spike) | `interaction.cpp` (~884) | unchanged when OFF |
-| `DD_INTRA_ISLAND_FIX` | intra-family election uses the family-minimum chief (WP3.3); a 3-copy family stays 1 K + 2 D | `chief_transition.h` | unchanged when OFF |
-| `EM_NOS2B_FSM` | drops the probabilistic `s2B` gate from the EM reorder (Route B); needs `EM_FIRST_FSM` | `interaction.cpp` (~906) | unchanged when OFF |
-| `HOMB_PRODUCER_FSM` | ports the directional producers that exist only in the archived CUDA kernel (`src/cuda/cuda_automaton.cu`, `dev_encounter4/6/7`) into the CPU `encounter()`, giving the homing flag `homB` -- and through it the relocation vector `c` and the `RELOC` stage -- its missing producer (WP8).  Deterministic: the direction comes from the in-phase/quadrature bits `pB`/`sB` and, for equal phases, from the immutable `W` address.  Requires live `pB`/`sB`, i.e. a build that also breaks the election fixed point (`POLAR_BOOTSTRAP_ADDRESS`), and a tube with `RMAX >= 4` | `interaction.cpp` (~899) | unchanged when OFF (verified) |
+| `EM_FORCE_PREREQ` | forces the `EM_FIRST_FSM` prerequisite (s2B + pB) at each contact (WP4.2 spike) | `interaction.cpp` (1251) | unchanged when OFF |
+| `DD_INTRA_ISLAND_FIX` | intra-family election uses the family-minimum chief (WP3.3); a 3-copy family stays 1 K + 2 D | `chief_transition.h` (17, 46) | unchanged when OFF (verified: `ABLATION_81x3.md`) |
+| `EM_NOS2B_FSM` | drops the probabilistic `s2B` gate from the EM reorder (Route B); needs `EM_FIRST_FSM` | `interaction.cpp` (1464) | unchanged when OFF |
+| `SURFACE_ESCAPE_FSM` | item-4 candidate: a delegate whose group has had no internal contact for one full light frame is released back to `S` (the "surface escape" rule; the only release agent in the frozen-group probes) | `interaction.cpp` (84, 140, 149, 571, 692, 895, 964), `simulation.h` (304) | inert when OFF; ON is a separate binary (`p7_concentration`, `spin_probe`, `spin_ring_probe`) |
+| `SPIN_GATED_FSM` | J-programme S1/S3: computes the group's circulation `J = sum r x m` on the chief's frame and vetoes a release that would carry its last unit away; always built with `SURFACE_ESCAPE_FSM`, whose release test it gates | `interaction.cpp` (90, 713, 740), `simulation.h` (307) | **verified** (`J1_SPIN.md`): the reference releases every `N = 1..6`, the gated coherent arm holds every `N` (vetoes `N*(8-N)`) |
+| `WINDING_GATED_FSM` | T1 spatial-winding candidate, **PARKED**: the leave-veto keys on the file-scope global `chief_W[3]`.  No winding number is computed anywhere in the model, and because the label is global, `W != 0` vetoes every release, not only the group that "carries" it | `interaction.cpp` (106, 754), `simulation.h` (312) | inert when OFF; **no harness in the tree** -- parked with its probe in `attic/` (`attic/WINDING_PROBE_PARKED.md`); explicitly UNTESTED, not a measurement |
+| `PHASE_DISTINCT_FSM` | identity is (charge word, breathing phase): refuses merges between sources that agree in word AND phase, covering T1/T3/T4 and, through `promotesDelegate`, T2 | `chief_transition.h` (4, 39) | inert when OFF; see `EMERGENCE_SEARCH.md` |
+| `FAMILY_SELECTIVE_FSM` | producer side of WP8 option 2: only intra-family pairs (`w/3`) write the directional field, in the relative-displacement encoding, excluding the cross-family producers | `interaction.cpp` (1309) | inert when OFF; see `FAMILY_SELECTIVE_DESIGN.md` |
+| `ADDRESS_TARGET_FSM` | the address supplies the place: each layer's centre walks to the site its island index labels (`i % EL, (i / EL) % EL, CENTER`), one cell per light frame, so the `ISLAND_SIZE` copies walk in lockstep; the "quantised islands" absorbing state is this rule's fixed point | `simulation.cpp` (621) | inert when OFF; separate binary `island_census_addr` |
+| `HOMB_PRODUCER_FSM` | ports the directional producers that exist only in the archived CUDA kernel (`src/cuda/cuda_automaton.cu`, `dev_encounter4/6/7`) into the CPU `encounter()`, giving the homing flag `homB` -- and through it the relocation vector `c` and the `RELOC` stage -- its missing producer (WP8).  Deterministic: the direction comes from the in-phase/quadrature bits `pB`/`sB` and, for equal phases, from the immutable `W` address.  Requires live `pB`/`sB`, i.e. a build that also breaks the election fixed point (`POLAR_BOOTSTRAP_ADDRESS`), and a tube with `RMAX >= 4` | `interaction.cpp` (1261, 1924, 1935, 2053), `simulation.cpp` (432, 447, 753) | unchanged when OFF (verified in WP8) |
+| `ISLAND_ALIGNED_W_ROTATION` | candidate: the cross-layer rotation is cyclic WITHIN each `ISLAND_SIZE` block, so a slot's partner always belongs to the same island (the reference rotates the whole partner lattice by one slice per frame, so at `ISLAND_SIZE = 3` two of every three pairings are cross-island) | `utils.cpp` (47) | inert when OFF; separate binaries `island_census_align` / `island_census_rot` |
+| `PLACED_FAMILY_SEED` | prepared initial condition for visualisation: every family is placed at its own site on a flat `EL x EL` grid instead of all centres superposed | `initSim.cpp` (369) | not the reference seed; separate binary `island_census_placed` |
+| `MULTIFREQ_RAY_FSM` | multi-frequency mechanics: per-tick ray detection sets the binary `freq_hit` per source and gates the `pB`/`sB` channels on it | `interaction.cpp` (121, 342, 559, 951, 1474, 1747), `simulation.h` (319) | inert when OFF |
+| `PAIR_STACK_ABSORB_FSM` | multi-frequency piece: counts the free S+S formations that absorbed identical co-located stacks | `interaction.cpp` (114, 277, 1683), `simulation.h` (316) | inert when OFF |
+| `HOMB_CONSUMER_TRANSPORT` | WP8 consumer: decodes the arrived `c[]` field into `reloc[]` -- the transport chain the ported producers feed | `simulation.cpp` (532) | inert when OFF |
+| `POLAR_MAGNITUDE_FSM` | WP8 (iii): liveness by MAGNITUDE instead of by sign, i.e. `pB`/`sB` become `pol != 0` rather than `pol > 0` | `simulation.cpp` (366) | inert when OFF |
+| `PAIR_WORD_LOG` | instrumentation only: prints the charge words of every pair formation (`[pairword] ...`) so a long run can be checked against the reachability table of `CHARGE_SPECTRUM.md` | `interaction.cpp` (1656) | stdout only; no dynamics change |
+| `INERTIA_REVALIDATION`, `PROPELLER_K_FLIGHT_EXPERIMENT`, `ORPHAN_DUMP_SRC` (harness only) | selectors/diagnostics of the harnesses: which output root the two arms write to, the propeller flight experiment, and the probe's source dump | `experiments/inertia_matched.cpp` (37), `inertia_revalidation.cpp`, `propeller_k.cpp`, `alpha_probe.cpp` | harness only -- cannot affect the reference binary |
 
 ### Prerequisite discovered by the WP8 audit: `RMAX >= 4` for the polarization sector
 
@@ -139,19 +175,24 @@ tube with a short side of 5 or 7 is therefore degenerate, with or without
 least 9 before being quoted.
 
 Current working-tree model fingerprint:
-`4c2e609192ad0fb9959136229d62c4e87c8129b54f3500db1b164b4cef725716`
-(`interaction.cpp`, `simulation.cpp`, `simulation.h` changed by the WP8
-producer/probe blocks; candidate macros still OFF).
+`7f5eb50e14ebdb980b97fbde60f50eaf75317ee763c07b86113334894ae6b1a2`
+(re-measured 19 Sep 2026 with `experiments\model_fingerprint.ps1`, whose default `-Expected` now
+carries this value).  It moved past the previously recorded `4c2e60...` for three reasons, none of
+which touches the reference dynamics: `interaction.cpp` gained the 21 `WINDING_GATED_FSM` lines
+(macro OFF -- the file is preprocessor-identical without the macro), and `simulation.cpp` /
+`initSim.cpp` had two stale in-source comment anchors corrected.  Nine files now differ from the
+frozen per-file table above (`attractor.h`, `bridge.cpp`, `charges.cpp`, `chief_transition.h`,
+`initSim.cpp`, `interaction.cpp`, `simulation.cpp`, `simulation.h`, `utils.cpp`): the working tree
+has accumulated post-freeze work, and the frozen table is deliberately left as the state at the
+`model-ref-v1` tag (its per-file hashes still combine to `5b0944...`, re-verified 19 Sep 2026).
 
-WP8 candidate macros, all OFF in this reference (see experiments/WORK_PLAN.md):
-`HOMB_PRODUCER_FSM` (the directional producers ported from the archived CUDA
-kernel), `HOMB_CONSUMER_TRANSPORT` (the arrived `c[]` decoded into `reloc[]`),
-`POLAR_MAGNITUDE_FSM` (liveness by magnitude instead of by sign), plus the
-earlier `EM_FORCE_PREREQ`, `DD_INTRA_ISLAND_FIX`, `EM_NOS2B_FSM`,
-`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE` and the `ORPHAN_*` family.
-Build variants: `experiments/build_rest_shell_probe{_boot,_homb,_homb2,_homb3}.bat`.
+The WP8 candidate macros (`HOMB_PRODUCER_FSM`, `HOMB_CONSUMER_TRANSPORT`, `POLAR_MAGNITUDE_FSM`,
+plus the earlier `EM_FORCE_PREREQ`, `DD_INTRA_ISLAND_FIX`, `EM_NOS2B_FSM`,
+`POLAR_BOOTSTRAP_ADDRESS`, `POLAR_BROADCAST_WAVE` and the `ORPHAN_*` family) are rows of the table
+above, which is the authoritative inventory.  Build variants:
+`experiments/build_rest_shell_probe{_boot,_homb,_homb2,_homb3}.bat`.
 The reference build (all candidate macros OFF) was re-verified
-behaviour-identical after this addition: `alpha_probe 7 4 200 16384 256` reports
+behaviour-identical after that addition: `alpha_probe 7 4 200 16384 256` reports
 active-passes = 6468, s2B = 0, pairs = 0, alpha_A = 0.003756878.
 
 ## Reference harness recipes

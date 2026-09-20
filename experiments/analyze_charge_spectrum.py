@@ -12,7 +12,7 @@ statements below come from the code, not from prose:
                  ch = (island % 8) | (q << 3) | (w0 << 4) | (w1 << 5)
   bit layout     simulation.h:31-39  (C0 0x01, C1 0x02, C2 0x04, Q 0x08,
                  W0 0x10, W1 0x20)
-  pair rules     interaction.cpp:147-173  (R1..R6, see pair_rules below)
+  pair rules     interaction.cpp:210-237  (R1..R6, see pair_rules below)
   signature      sig = c2 + c1 + c0 ; matter if sig < 2, antimatter otherwise,
                  anti-neutral if sig == 3 (manuscript, Sect. "Charges")
 
@@ -52,7 +52,7 @@ COLOUR_NAMES = ["N", "R", "G", "Bbar", "B", "Gbar", "Rbar", "Nbar"]
 
 
 def pair_rules(ca, cb):
-    """The rule names satisfied by the pair (interaction.cpp:147-173)."""
+    """The rule names satisfied by the pair (interaction.cpp:210-237)."""
     hit = []
     if ca == 0x00 and cb == 0x00:
         hit.append("R3 neutrino-type")
@@ -115,7 +115,7 @@ def main():
     print()
 
     # The only writes to cell.ch are initSim.cpp:80 (the seed) and the gated
-    # conjugation hook simulation.cpp:872 (ch ^= 0x1F, no-op unless mm_eps != 0).
+    # conjugation hook simulation.cpp:873 (ch ^= 0x1F, no-op unless mm_eps != 0).
     # Both live inside the manifold M: q ^ w0 == w1.
     manifold = [c for c in range(64) if (((c >> 3) & 1) ^ ((c >> 4) & 1)) == ((c >> 5) & 1)]
     diag = [c for c in manifold if (c & 1) == ((c >> 4) & 1) and ((c >> 1) & 1) == ((c >> 5) & 1)]

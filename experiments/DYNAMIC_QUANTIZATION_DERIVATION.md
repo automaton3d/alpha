@@ -20,26 +20,34 @@ in section 4).
 ## 1. The transitions, exactly as coded
 
 Source kinds: `S` singleton, `K` chief, `D` delegate, `P` pair half.  A *group*
-is a chief plus the delegates whose `parent` names it.  Code anchors:
-`src/include/model/chief_transition.h`, `src/model/interaction.cpp` (1227-1250),
-encounter gate `interaction.cpp:631`.
+is a chief plus the delegates whose `parent` names it.  Code anchors (every `file:line` here
+is relative to `src/`, re-verified 19 Sep 2026 at commit `b901034` against the compiled tree;
+the transitions live in `src/include/model/chief_transition.h` and are reached through the
+single call site `src/model/interaction.cpp:1592`, `chiefContact(currSrc,partnerSrc,currDraft)`):
 
     T1  chiefContact, S x S (different layers, same charge word ch)
         -> the minimum W address becomes K, the other becomes D of it
-           [chief_transition.h:53-56]
+           [chief_transition.h:66-73; the S x S minimum is line 70]
     T2  promotesDelegate: D x D, same ch, main.w < mirror.w
         -> the lower-address delegate becomes K  (group loses one member)
-           [chief_transition.h:4-16, 43]
+           [chief_transition.h:14-26; invoked at chief_transition.h:60]
     T3  demotesChief: K x K, same ch, main.w > mirror.w
         -> the larger-address chief becomes D of the smaller  (groups fuse)
-           [chief_transition.h:20-23, 44-47]
+           [chief_transition.h:30-33; invoked at chief_transition.h:61-64]
     T4  S meets K or D  -> the S becomes D of that chief (group gains one)
-           [interaction.cpp:1202-1221]
+           [chief_transition.h:66-73; reached via interaction.cpp:1592]
     T5  different charge words -> no membership change (only the gated
-        electroweak branches act)                      [chief_transition.h:28]
+        electroweak branches act)                      [chief_transition.h:38]
 
     GATE: a contact requires both cells active and of positive radius
-          (interaction.cpp:633), i.e. the two wavefronts must overlap.
+          (interaction.cpp:942), i.e. the two wavefronts must overlap.
+
+An earlier revision of this note cited pre-move line numbers (`chief_transition.h:53-56` for T1,
+`interaction.cpp:1202-1221` for T4, gate at `:631-633`).  Those anchors pointed into a stale,
+never-compiled duplicate of the interaction source (`src/interaction.cpp`, since parked in
+`attic/`); the numbers above are the current, compiled ones.  Note that
+`chief_transition.h:52-58` is the `DD_INTRA_ISLAND_FIX` candidate *override* of T1, not the
+reference transition.
 
 None of T1-T5 reads `ISLAND_SIZE`, `ISLAND_COUNT` or `L/3`: they read `w`,
 `parent`, `kind`, `ch` and the **numerical order** of `w`.  The only place the
@@ -80,7 +88,7 @@ turns "no admissible pair" into "frozen".  So the reachable configuration is a
 
 **Scope (why co-location is in the hypothesis).**  The proof needs the two
 delegates to *meet with the gate open*; the contact gate is per cell
-(`encounter()`, `interaction.cpp:631`), so delegates sitting at *different*
+(`encounter()`, `interaction.cpp:942`), so delegates sitting at *different*
 sites never fire `T2`.  This is not a technicality: the prepared islands of the
 inertia campaign (a 3- and a 5-element body in a tube, `INERTIA.md`) transport
 with their `K/D` roles conserved over 48-160 frames, i.e. a frozen state with

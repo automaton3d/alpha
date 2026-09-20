@@ -88,7 +88,7 @@ merge (or a dressing-mediated repulsion acting before body shells meet).
 ## WP4.1 empirical test: EM_FIRST_FSM reordering (11 Sep 2026)
 
 The reorder is **already implemented** in the code as the `EM_FIRST_FSM` macro
-(`src/model/interaction.cpp:884-984`): for equal-charge contacts that carry
+(`src/model/interaction.cpp:1451-1473`): for equal-charge contacts that carry
 live pB/sB and pass the s2B gate, it decides the electroweak channel BEFORE
 `chiefContact()`.  Task WP4.1 was to test whether it changes the
 two-equal-charge-cloud outcome.

@@ -309,6 +309,10 @@ struct NeighborResult
   extern unsigned long long spin_jmax2;   // S4 cap on |J|^2 (0 = disabled)
   extern unsigned spin_cap_evictions;     // S4: members shed by the cap
 #endif
+#ifdef WINDING_GATED_FSM
+  extern unsigned winding_vetoes;    // T1: releases vetoed by planted/group winding
+  extern int chief_W[3];             // (Wx,Wy,Wz); W2 != 0 => protect
+#endif
 #ifdef PAIR_STACK_ABSORB_FSM
   extern long long enc_absorb;       // candidate: formations that absorbed identical stacks
 #endif

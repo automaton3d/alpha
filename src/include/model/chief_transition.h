@@ -14,6 +14,16 @@ namespace automaton {
 inline bool promotesDelegate(const Cell& main,const Cell& mirror) {
   // Active/radius contact gates belong to encounter. No affinity, parent,
   // spin, separation, or population condition is imposed here.
+#ifdef PARENT_SELECTIVE_FSM
+  // Candidate (2026-09-19): D x D no longer promotes.  The population cap of 2 came
+  // from this transition ejecting the surplus member of a group; with it disabled, two
+  // delegates of the SAME island stay delegates (cohesion) and two delegates of
+  // DIFFERENT islands repel by one step at the frame edge
+  // (interaction.cpp: encounter()/resolveParentRepulsion()).  The discriminator is the
+  // DYNAMICAL parent identity -- never the seed family, never ISLAND_SIZE, never L.
+  (void)main; (void)mirror;
+  return false;
+#endif
 #ifdef DD_INTRA_ISLAND_FIX
   // Candidate (WP3.3): a D x D contact promotes only across DISTINCT islands.
   // Within one island (same chief / parent) the two delegates must stay

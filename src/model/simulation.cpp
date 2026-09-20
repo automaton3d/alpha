@@ -367,7 +367,7 @@ namespace automaton
         // WP8 (iii): define a direction as LIVE BY MAGNITUDE instead of by sign.
         // The flags decide whether every directional rule may act at all, while
         // the sign of pol follows the phase quadrant the reconstruction stamp
-        // falls in (simulation.cpp:365-366, reference): the same tube and the same
+        // falls in (simulation.cpp:377-378, reference): the same tube and the same
         // bootstrap gave pol=(0,4) at N=3 (sector alive) and pol=(-4,0) at N=6
         // (every directional producer dead).  With a magnitude test, liveness
         // stops being a phase lottery.  OFF in the reference build.

@@ -372,7 +372,7 @@ void initCenters(unsigned wDim)
     // The islands the model itself predicts are the ISLAND_COUNT = 9*EL groups
     // of ISLAND_SIZE = W/(9*EL) = L/3 layers (initSim.cpp:322-324), whose chief
     // is by convention the first layer of the group
-    // (isIslandChief(w) = (w % ISLAND_SIZE == 0), simulation.h:377).  This seed
+    // (isIslandChief(w) = (w % ISLAND_SIZE == 0), simulation.h:405).  This seed
     // places every island at its OWN site, on a flat EL x EL grid of distinct
     // locations, so the quantised islands can be seen directly: one point per
     // island, at rest, each at a different location.

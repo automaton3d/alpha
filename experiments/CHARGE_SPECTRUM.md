@@ -8,6 +8,19 @@ the code, with an exhaustive enumeration, and verifies the answer against a live
 **Artifacts.** `experiments/analyze_charge_spectrum.py` (stdlib only) and its saved output
 `build/charge_spectrum.txt`; census logs `build/mm0.txt`, `build/mm1.txt`.
 
+**Anchor convention (re-verified 19 Sep 2026, commit `b901034`).**  Every `file:line` below is
+relative to `src/`, and the model sources that are actually compiled live in `src/model/`.  The
+numbers were re-checked against that tree: the pair predicate `canFormPair` is at
+`interaction.cpp:210-237` (this note was written against `147-173`) and the conjugation hook's
+XOR is at `simulation.cpp:873` (was `872`).  Two corrections are folded in.  (1) A divergent,
+never-compiled copy of the interaction source used to sit at `src/interaction.cpp` (it carried the
+un-ported `WINDING_GATED_FSM` blocks); those blocks were ported into `src/model/interaction.cpp`,
+which grew 2145 -> 2166 lines and therefore shifted every anchor below old line 106 by +8 and every
+anchor below old line 746 by +21, and the copy was parked in `attic/` -- so a bare `interaction.cpp`
+now resolves unambiguously.  (2) `WINDING_GATED_FSM` is OFF in this build, so the ported lines are
+preprocessed away and the reference binary is unchanged (verified by comparing the preprocessed
+output).
+
 ## 1. The seed's charge words (code authority, not prose)
 
 `initSim.cpp:76-80` builds every cell's word from its island index:
@@ -36,11 +49,11 @@ of the 32-word manifold `M = {ch : q ^ w0 = w1}`, i.e. 8 of 64 words.**
 ## 2. The reachable write set and a rule-reachability theorem
 
 Only two places write `cell.ch`: the seed (`initSim.cpp:80`) and the gated conjugation hook
-(`simulation.cpp:872`, `ch ^= 0x1F`, exact no-op unless `mm_eps != 0`; default
+(`simulation.cpp:873`, `ch ^= 0x1F`, exact no-op unless `mm_eps != 0`; default
 `mm_eps = 0.0` in `config.h:61`).  `ch ^= 0x1F` flips colour, `q` and `w0` while preserving
 `w1`, hence preserves `q ^ w0 = w1`: **every word any cell can ever hold lies in `M`.**
 
-Exhaustive enumeration over `M` against the real predicate (`interaction.cpp:147-173`):
+Exhaustive enumeration over `M` against the real predicate (`interaction.cpp:210-237`):
 
 | rule | pairs inside `M` | verdict |
 |---|---|---|
@@ -130,7 +143,9 @@ alone, consistent with the appendix's own "scale-of-consistency coincidence" sta
 
 The reachability table of section 2 is *algebra*: it asks which word pairs `canFormPair`
 accepts.  Whether such a pair can ever *form* is a different question, because the pair branch
-sits **after** the membership transitions in `encounter()`.  `experiments/pair_channel_probe.cpp`
+(`interaction.cpp:1652-1654`) sits **after** the membership transitions
+(`chiefContact` call at `interaction.cpp:1592`) and after the internal-contact early return
+(`interaction.cpp:1598-1613`) of `encounter()`.  `experiments/pair_channel_probe.cpp`
 plants co-located, in-phase `S` sources with chosen words in a `15x5x5` tube, presets the sieve
 bit and sets `s2b_target = 1` (so the electroweak gate is open, as in `island_census`), and
 reports every formation.  It measures rule acceptance, not sieve timing.  The model now carries
@@ -184,7 +199,7 @@ rules whose words *differ* — R1 and R2 — can ever form a pair.  This is not 
 * `PAIR_WORD_LOG` makes the check cheap for whoever wants to settle it: any canonical run that
   prints more than zero `[pairword]` lines falsifies the statement above.
 
-## 6. Conjugation-hook probe (started, not finished)
+## 6. Conjugation-hook probe (INCOMPLETE -- resumable, commands below)
 
 To test the dormancy claim empirically the census harness gained one optional argument
 (`experiments/island_census.cpp`: `argv[5] = mm_eps`, default absent = 0, so every existing
@@ -197,14 +212,47 @@ Observed before the runs were stopped (~1025 ticks):
 * the hook is genuinely entered in both arms: `[mm] init eps=0 ...` / `[mm] init eps=1 ...`;
 * the conjugation latch is not yet armed: `[mm] probe tick=1024 draft_t=1 RMAX=4 a=0`; with
   `draft_t` advancing 0 -> 1 in ~1024 ticks, the first opportunity (`t == RMAX = 4`,
-  `simulation.cpp:851`) lies near tick ~4000;
+  `simulation.cpp:852`) lies near tick ~4000;
 * consequently both arms are identical so far, and **no pair has formed**: at ticks 1, 257,
   513 and 1025 both logs read `pairM=0 pairA=0 form=0 blob=0 ann=0`.
 
-Status: incomplete (the runs were stopped to release the executable, which locks rebuilds).
-The natural next step is a finished pair of runs; the prediction to test is that `mm_eps = 1`
-conjugates matter islands at their turnarounds, adds the eight conjugate words, and is the
-only configuration in which R2 pairs appear at all.
+Status: **INCOMPLETE (resumable)**.  The runs were stopped to release the executable, which locks
+rebuilds; the logs stop at tick 1025 of 14,048.  Nothing in the note's claims rests on them --
+they are the one experiment that would *open* the R2 channel rather than confirm a closure.
+
+**Exact command to resume** (unchanged harness, signature
+`island_census [frames] [sieve] [outdir] [EL] [mm_eps]`; the harness does **not** create `outdir`,
+hence the `mkdir` lines):
+
+    rem arm A -- control, mm_eps = 0 (exact no-op: this arm must stay bit-identical to the reference)
+    cd /d E:\alpha
+    if not exist build\island_census\mm0 mkdir build\island_census\mm0
+    build\island_census\island_census.exe 16 16384 build\island_census\mm0 9 0 > build\mm0.txt
+
+    rem arm B -- hook armed (p = mm_pbase * (1 + mm_eps * bias) at each island turnaround)
+    if not exist build\island_census\mm1 mkdir build\island_census\mm1
+    build\island_census\island_census.exe 16 16384 build\island_census\mm1 9 1 > build\mm1.txt
+
+    rem the observable: the retina line of charges.cpp, printed once per 256 ticks
+    findstr /c:"[charges] retina" build\mm0.txt build\mm1.txt
+
+Budget: `L = 9` costs ~50 s/frame, so 16 frames is ~13 min per arm (the stopped pair had reached
+tick 1025 of 14,048).  Rebuild first if needed: `experiments\build_island_census.bat`.
+
+**How to read it, and the registered prediction.**
+
+1. **The latch must arm before anything can happen.**  The debug line
+   `[mm] probe tick=... draft_t=4 RMAX=4` marks the first turnaround the hook can act on; at tick
+   1024 both arms still read `draft_t=1`, and no `pairword`/`form` event can exist before that.
+   A finished arm B therefore has to show `[mm] probe` lines with `draft_t=4`, plus a non-zero
+   event count if the prediction holds.
+2. **Then compare the two arms on the same field of the retina line:** `pairM`, `pairA`, `form`.
+   Registered prediction: arm A `form = 0` (the exact no-op) and arm B `form > 0`, with the
+   bookkeeping identity `Dtot == dPair + freeD: OK` intact in both.
+3. **Both outcomes are informative.**  `form > 0` in arm A falsifies the no-op claim (a real bug);
+   `form = 0` in arm B falsifies the prediction that conjuring the eight conjugate words is what
+   reopens R2, and would move the dormancy explanation from the charge geometry to the sieve or
+   the branch ordering.
 
 ## 7. Falsifiable statements
 

@@ -334,7 +334,7 @@ Reading:
   schedule aligned with the island partition.  The reference schedule rotates the
   partner lattice by ONE slice per frame (`rotatePartners()`, `utils.cpp`; "cross-layer
   adjacency is owned by `rotatePartners()`'s rotation schedule, not by spatial
-  geometry", `simulation.cpp:86-88`), so at `ISLAND_SIZE = 3` two of every three
+  geometry", `simulation.cpp:87-89`), so at `ISLAND_SIZE = 3` two of every three
   pairings are between *different* islands and the election cascades on the W address
   (235 K / 8 D -- identical on the superposed and the placed seed, i.e. the identity
   structure does not depend on positions at all).  Rotating cyclically **within each

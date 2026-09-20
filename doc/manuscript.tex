@@ -58,7 +58,7 @@ We carefully label each claim as a postulate defining the model, a measured resu
 \textbf{PACS numbers: }12.10.Kt, 03.65.Ta, 04.60.Pp, 05.45.-a
 \par\end{center}
 \begin{center}
-\textbf{Keywords}: cellular automaton, digital physics, maximum information speed, charge quantization, non-signaling, spherical wavefronts
+\textbf{Keywords}: cellular automaton, digital physics, maximum information speed, island aggregation, non-signaling, spherical wavefronts
 \par\end{center}
 \newpage
 %%%%%%%% INTRODUCTION %%%%%%%%%%
@@ -135,7 +135,7 @@ The size of the internal dimension is defined as
 \begin{equation}
 W = 3L^2.
 \end{equation}
-Its quadratic scaling naturally matches the characteristic cross-sectional scaling of the discrete three-torus and provides sufficient internal degrees of freedom for the continual pairing, dissociation, and reorganization of bubbles. A dynamical motivation for this scaling, together with the internal population $W=3L^2$ and its $9L$ seed charge families, is given in Section~\ref{sec:dynamic-charge-quantization}.
+Its quadratic scaling naturally matches the characteristic cross-sectional scaling of the discrete three-torus and provides sufficient internal degrees of freedom for the continual pairing, dissociation, and reorganization of bubbles. A dynamical motivation for this scaling, together with the internal population $W=3L^2$ and the declared partition of its addresses into $N_I$ charge families, is given in Section~\ref{sec:dynamic-charge-quantization}.
 
 \subsection{The cell structure}
 \label{subsec:The-cell-structure}
@@ -233,7 +233,7 @@ The rules of this universe are deliberately constrained so that the model remain
 \begin{description}
 \item[Locality.] A cell's next state is computed only from its own current state and from the states of a fixed, finite neighborhood of adjacent cells. No cell reads global counters, hidden pointers, queues, frontier lists, or pre-computed tables that depend on the whole lattice.
 \item[Synchronicity and parallelizability.] Every cell updates simultaneously from the current lattice into a second, identical lattice (\texttt{grid} and \texttt{grid\_next}). The two buffers are the only shared memory; after the tick, the roles are swapped. This makes the rule directly parallelizable.
-\item[Integer-only runtime.] Inside the transition rule, all calculations use only addition, subtraction, bit shifts, and comparisons. Multiplication, division, floating-point arithmetic, square roots, trigonometric functions, and any other continuous operation of \emph{dynamic} operands are forbidden in the runtime loop. Fixed topological constants (e.g., $2R$, $L/2$, $9L$) are evaluated once at initialization and stored in read-only integer globals. Multiplication by such a constant is a fixed-strength operation, not the data-dependent multiplication the constraint excludes.
+\item[Integer-only runtime.] Inside the transition rule, all calculations use only addition, subtraction, bit shifts, and comparisons. Multiplication, division, floating-point arithmetic, square roots, trigonometric functions, and any other continuous operation of \emph{dynamic} operands are forbidden in the runtime loop. Fixed topological constants (e.g., $2R$, $L/2$, $N_I$) are evaluated once at initialization and stored in read-only integer globals. Multiplication by such a constant is a fixed-strength operation, not the data-dependent multiplication the constraint excludes.
 \item[No tables.] No pre-computed lookup tables encode the dynamics. Distances, phases, and interaction weights must propagate through local rules from the initial seed.
 \item[Finite-state and deterministic.] Each cell contains a fixed-size bit string. The transition rule is a finite function of this string and its neighborhood, with no Turing-complete constructs, no unbounded iteration, and no randomness.
 \item[Occam's razor.] The cell state is kept minimal. Auxiliary global variables, linked lists, or index arrays that point into the lattice are rejected because they would make the automaton's state depend on the order of evaluation rather than on the cell contents alone.
@@ -260,15 +260,11 @@ The internal non-spatial dimension has size
 W=3L^{2},
 \end{equation}
 where $L$ is a large odd integer divisible by $3$.
-During the Platonic Initialization, $W$ is partitioned axiomatically into
+During the Platonic Initialization, $W$ is partitioned axiomatically into $N_{I}$ identical \emph{$W$-islands}, each containing
 \begin{equation}
-N_{I}=9L
+\ell=\frac{W}{N_{I}}
 \end{equation}
-identical \emph{$W$-islands}, each containing
-\begin{equation}
-\ell=\frac{W}{N_{I}}=\frac{L}{3}
-\end{equation}
-positions.
+positions.  Both integers are declared inputs of the seed---evaluated once at initialization and reported with the run---and no rule derives either of them from the dynamics.
 A $W$-island is an internal charge family: its $\ell$ copies are $\ell$ distinct $W$-addresses that share the same six charge bits but have distinct $pB$/$sB$ patterns.  Each such address maps to a distinct spatial position in the 3-torus---i.e., each copy is one bubble at one lattice site---so that the $W$-island is an abstract grouping, not a spatial substructure.
 The distinct polarizations provide the internal angular diversity needed for the Hofer effect (Sect.~\ref{subsec:hofer}).
 The detailed dynamics of how these copies aggregate into $1K+nD$ islands, and how the island population stabilizes, is treated in Section~\ref{sec:dynamic-charge-quantization}.
@@ -367,7 +363,7 @@ Each active cell carries an integer pair $(u,v)$, stored as $\mathrm{pol}_u$ and
 
 \paragraph{Overview.}  The goal is to assign to each cell a direction in the plane perpendicular to an elected axis $\boldsymbol{m}$, using only integer arithmetic.  The direction is encoded as a pair $(u,v)$ lying on a circle of radius $R^2$, where $R$ is the emergent bubble radius.  The angle $\theta = \operatorname{atan2}(v,u)$ advances from $0$ to $2\pi$ as the broadcasted arrival time grows, winding a polarization helix around $\boldsymbol{m}$.  The automaton never computes $\theta$ explicitly; it computes $(u,v)$ directly from the arrival stamp using integer square roots.
 
-\paragraph{Stage 1: Election.}  Every cell owns a predefined value $\nu\in[\,0,\,9L-1\,]$---its $W$-island index, fixed once by the internal address.  At the expansion limit of the pulse (the exact tick where the wave turns from ascending to descending), every active shell cell is seeded with a \emph{payload} that combines a score (derived from $\nu$ and a global seed $s$) with the cell's linear index.  Because the index occupies the low bits, the payload order is a strict total order: ties are impossible, so the winner is unique and independent of any scan order.
+\paragraph{Stage 1: Election.}  Every cell owns a predefined value $\nu\in[\,0,\,N_{I}-1\,]$---its $W$-island index, fixed once by the internal address.  At the expansion limit of the pulse (the exact tick where the wave turns from ascending to descending), every active shell cell is seeded with a \emph{payload} that combines a score (derived from $\nu$ and a global seed $s$) with the cell's linear index.  Because the index occupies the low bits, the payload order is a strict total order: ties are impossible, so the winner is unique and independent of any scan order.
 
 Each pass lets every cell adopt the greatest payload among its six face neighbors:
 \[
@@ -476,7 +472,7 @@ Two bubbles are overlapping if they share the same spatial coordinates and $t_1=
 \subsubsection{drive pair} \label{subsubsec:drive pair}
 A pair can act as a \textit{drive pair}, repositioning other bubbles and providing inertia.
 A drive pair is a reciprocal photon-type pair that has adopted the island's affinity $a$ and carries a non-zero transport vector $\boldsymbol{m}$, typically on the scale $L/2$. Neither a nonzero vector alone nor receiving a translation impulse makes a source a drive pair. A free pair must first acquire the particle's affinity.
-Consider an island of $N=L/3$ equal charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without drive pairs its center of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
+Consider an island of $N$ equal-charge elements, one chief $K$ and $N-1$ delegates $D$, all sharing $a$. Its $K\times D$ and $D\times D$ contacts maintain dynamic cohesion. Without drive pairs its center of mass remains at rest in the lattice frame, although its constituents may rearrange. Bound pairs supply persistent internal propulsion through $P\times K$ and $P\times D$ contacts. A rightward resultant of their transport vectors drives a rightward mean displacement of the cohesive island. Few aligned pairs give sparse kicks and low velocity; many nearly collinear pairs give more frequent coherent kicks and higher velocity, up to the lattice transport bound. This is the proposed mechanism of inertia, not an externally imposed velocity of the aggregate.
 The reference simulation algorithm resolves each unordered source contact once per light frame, counting a reciprocal pair once rather than once per half or overlapping voxel. A pair can deliver at most one unit face-step to one contacted body element, in a direction selected from $\boldsymbol{m}$; receiving that step preserves the target's $K/D$ identity. $\boldsymbol{m}$ is not a displacement of $L/2$ cells and is retained while the pair remains a drive pair. These mechanical, same-affinity contacts are not gated by the electroweak sieve.
 \subsubsection{Singleton}
 An unpaired bubble is called a \textit{singleton}; it is not a generic synonym for bubble.
@@ -1049,20 +1045,16 @@ During encounter (Sect.~\ref{subsec:encounter}), incoming and residual bubbles a
 Legend: $1q$ = one quark, $1\ell$ = one lepton, $2q$ = a quark pair (up quark), $\nu$ = neutrino, $\gamma$ = photon and $g$ = gluon; a bar denotes the antiparticle ($1\bar{q}$ = antiquark, $1\bar{\ell}$ = antilepton, $\bar{\nu}$ = antineutrino). Since half the gluon fragments are right handed, they are shown as photons. The shaded cells mark the same-color pairs that, with electric charge $q=+$, may form an \emph{up quark} fragment in Orbis (cyan, matter colors) and its anti-up (yellow, antimatter colors).}
 \end{table}
 %%%%%%%% PARTICLES %%%%%%%%%%
-\section{Dynamic charge quantization and the scaling of $W$}\label{sec:dynamic-charge-quantization}
-This section expands Sect.~\ref{subsec:w-islands} and details the dynamic organization and quantization of $W$-islands.
+\section{Emergent island formation and the scaling of $W$}\label{sec:dynamic-charge-quantization}
+This section expands Sect.~\ref{subsec:w-islands} and details how $W$-islands organize dynamically, and whether that dynamics selects a preferred population at all.
 \subsection{Objects and identity}
 A \emph{3D island} is a spatially localized collective of equal-charge constituents identified by its chief $K$. Each delegate $D$ refers to that chief through its parent identity. Affinity does not identify an island: multiple islands and their dressing may share one affinity, and affinity is not an eligibility condition for chief election. A complete \emph{particle} is a 3D island of bare charge plus a surrounding \emph{pair dressing}:
 \begin{equation}
 \text{particle} = \text{3D island} + \text{pair dressing}.
 \end{equation}
-The internal non-spatial dimension is partitioned into
+The internal non-spatial dimension is partitioned into $N_I$ identical \emph{$W$-islands}, each containing
 \begin{equation}
-N_I = 9L
-\end{equation}
-identical \emph{$W$-islands}, each containing
-\begin{equation}
-\ell = \frac{L}{3}
+\ell = \frac{W}{N_I}
 \end{equation}
 positions. A $W$-island is not an object in physical space; it is an internal charge family. All $\ell$ copies inside one island share the same six charge bits ($q$, $w_1$, $w_0$, $c_2$, $c_1$, $c_0$), but each copy carries a distinct $pB$/$sB$ pattern. This built-in multiplicity is why identical particles are so similar, while the distinct polarizations allow the radial Hofer pattern (Sect.~\ref{subsec:hofer}) to emerge.
 Initially each internal address carries a singleton ($S$). Equal-charge singletons from different seed families may elect the same chief through encounter; neither their family index nor their affinity restricts this eligibility. Subsequent capture can therefore mix immutable $W$ addresses from different families within one spatial island. The proposed role of photon-mediated information transport is to enable further island formation and mixing over time; this process remains to be demonstrated numerically. A formed island has the form
@@ -1073,15 +1065,15 @@ In an admissible $D\times D$ encounter between equal-charge delegates, one deleg
 
 Conversely, an admissible equal-charge $K\times K$ clash leaves one chief and demotes the other to a delegate of the surviving chief. In the reference experiment, the smaller W address survives; among several encountered chiefs, the smallest eligible address is retained. This is an explicit deterministic tie-break, not a demonstrated physical origin of symmetry breaking. Existing delegates of a demoted chief are not reassigned remotely by this transition. The propagation of their updated membership and the resulting balance between chief creation and removal remain subjects of the coagulation experiment.
 
-Here $n$ counts delegates associated with the chief; the drive pair dressing is excluded. The population $1+n=L/3$, or $n=(L/3)-1$, and a tendency to maintain it are hypotheses for the aggregation dynamics to test. They do not follow from complete membership of a seed family. In particular, $9L$ spatial islands of $L/3$ constituents are a proposed outcome to investigate, not a partition imposed by initialization or election.
+Here $n$ counts delegates associated with the chief; the drive pair dressing is excluded. Whether the aggregation dynamics selects a \emph{preferred} population $1+n$---and whether such a preference is the same for every family, or varies with the lattice---is the open question this section tests. Nothing of the kind follows from complete membership of a seed family, and no value is imposed by initialization or election: the seed declares how many addresses \emph{share} a family ($\ell$), never how many of them should end up inside one island.
 
 The chief gives the island its identity. Each bubble retains its intrinsic address $w$; its parent and auxiliary leader identity record its association with a chief. Sharing affinity alone neither joins two islands nor makes an $S$ a delegate. Counting chiefs and their delegates measures associations; spatial localization and persistence must be measured separately before those associations can be called stable islands. The seed bookkeeping identity is
 \begin{equation}
-W=3L^2=(9L)\left(\frac{L}{3}\right),
+W=3L^2=N_I\,\ell,
 \end{equation}
-which supplies no independent bound of $9L$ on the number of dynamically formed chiefs.
-\subsection{Dynamic charge quantization}\label{subsec:dynamic-charge-quantization}
-A 3D island is an open dynamical object: it continuously captures free $S$ bubbles and loses surface bubbles. Let $\Gamma_{\mathrm{cap}}(N)$ and $\Gamma_{\mathrm{esc}}(N)$ be the effective capture and escape rates for an island of characteristic population $N$. Dynamic charge quantization was originally stated as the hypothesis that
+which supplies no independent bound of $N_I$ on the number of dynamically formed chiefs: the measured chief counts exceed the declared number of families at both lattice sizes (by a factor $2.9$ at $L=9$ and $4.9$ at $L=15$).
+\subsection{Is the island population quantized?}\label{subsec:dynamic-charge-quantization}
+A 3D island is an open dynamical object: it continuously captures free $S$ bubbles and loses surface bubbles. Let $\Gamma_{\mathrm{cap}}(N)$ and $\Gamma_{\mathrm{esc}}(N)$ be the effective capture and escape rates for an island of characteristic population $N$. The size-selection hypothesis was originally stated as the condition that
 \begin{align}
 \Gamma_{\mathrm{cap}}(N) &> \Gamma_{\mathrm{esc}}(N) \quad \text{for small } N, \\
 \Gamma_{\mathrm{cap}}(N) &< \Gamma_{\mathrm{esc}}(N) \quad \text{for large } N.
@@ -1092,38 +1084,38 @@ A stable attractor $N_*$ then appears near
 \end{equation}
 without any global counter. The characteristic charge of a particle would be the statistically preferred population of this attractor, dressed by the required photon pairs.
 The coordinated translation of Sect.~\ref{subsec:translation} is what prevents premature deterioration of such localized particles across scales, from a resting aggregate up to parton-level probing.  Because a kick displaces a single bubble while the mean center of mass advances only by $\Delta_{\mathrm{CoM}}=n/N$, no constituent ever outruns the affinity that recaptures it.  Identity survives every collapse-and-reissue because the intrinsic address $w$ is immutable while only the auxiliary \texttt{leader\_w} converges. Robustness is thus distributed over homeostasis ($N_*$), continuous affinity re-propagation at reissue, and conservative encounter rules --- not stored in any fragile global state.
-\paragraph{Status: measured negative for $N_* = L/3$; the population quantum is 2 (reference) or 3 (candidate), rule-induced, not geometric.}
-The rate-crossing formulation is \emph{degenerate} in this rule set: at the frozen plateau both capture and escape rates are \emph{zero} (no delegates leave a frozen island), so $\Gamma_{\mathrm{cap}}(N_*) = \Gamma_{\mathrm{esc}}(N_*) = 0$ selects $N_*$ by construction rather than by a dynamical balance. The genuine quantization therefore comes from the \emph{fixed-point structure of the membership transitions}, which are derived from the reference rules themselves (not from $L/3$) in \texttt{experiments/DYNAMIC\_QUANTIZATION\_DERIVATION.md}.
+\paragraph{Status: measured negative for a size-selecting attractor; the only population quantum found is 2 (reference) or 3 (candidate), rule-induced, not geometric.}
+The rate-crossing formulation is \emph{degenerate} in this rule set: at the frozen plateau both capture and escape rates are \emph{zero} (no delegates leave a frozen island), so $\Gamma_{\mathrm{cap}}(N_*) = \Gamma_{\mathrm{esc}}(N_*) = 0$ selects $N_*$ by construction rather than by a dynamical balance. The only quantization this rule set produces therefore comes from the \emph{fixed-point structure of the membership transitions}, derived from the reference rules themselves with no partition parameter involved (\texttt{experiments/DYNAMIC\_QUANTIZATION\_DERIVATION.md}).
 \begin{enumerate}
-\item The membership transitions T1--T5 read only the numerical order of $w$, the charge word $ch$, the parent linkage, and the source kind; none of them reads $L/3$, $ISLAND\_SIZE$ or $W$. The value $L/3$ enters only through the seed address map ($w / (L/3)$ giving the family index, \texttt{initSim.cpp}) and through the two candidate macros.
+\item The membership transitions T1--T5 read only the numerical order of $w$, the charge word $ch$, the parent linkage, and the source kind; none of them reads $\ell$, $ISLAND\_SIZE$ or $W$. The partition enters only through the seed address map ($\lfloor w/\ell\rfloor$ giving the family index, \texttt{initSim.cpp}) and through the two candidate macros, which is why their outcome is a declared multiplicity rather than a derived quantum.
 \item A frozen co-located state has at most one non-singleton group per charge word, and every such group has population $\le 2$. The bound follows from T2 (delegate promotion): any group of population $\ge 3$ contains two delegates of the same charge word, which meet within $W$ frames and promote one to chief, reducing group size by one. The maximum is reached, not merely satisfied: $K = W - 8$, $D = 8$ at both $L = 9$ ($235 + 8 = 243$) and $L = 15$ ($667 + 8 = 675$).
-\item At $L = 9$, the canonical superposed-seed reference census (closed gate, $S = 16384$) freezes at $K = 235$, $D = 8$, $S = 0$, with $N^* = 2$ and $\mathrm{pop} == L/3 = 0$; the open-gate ($S = 64$) census gives $145$ K + $5$ D plus $93$ pair halves, also with maximum population $2$ (archived log \texttt{experiments/census\_ref\_el9\_s64/census.csv}: frames 2--4 identical at $K=145$, $D=5$, $P=93$). Both are reproduced exactly by the reference build.
-\item At $L = 15$ ($W = 675$, $RMAX = 7$), the same reference dynamics yields $K = 667$, $D = 8$, with the population quantum again $2$ and $\mathrm{pop} == L/3 = 0$, confirming the bound at a second lattice size with no candidate macro involved.
+\item At $L = 9$, the canonical superposed-seed reference census (closed gate, $S = 16384$) freezes at $K = 235$, $D = 8$, $S = 0$, with maximum group population $2$ and no group at any larger population; the open-gate ($S = 64$) census gives $145$ K + $5$ D plus $93$ pair halves, also with maximum population $2$ (archived log \texttt{experiments/census\_ref\_el9\_s64/census.csv}: frames 2--4 identical at $K=145$, $D=5$, $P=93$). Both are reproduced exactly by the reference build.
+\item At $L = 15$ ($W = 675$, $RMAX = 7$), the same reference dynamics yields $K = 667$, $D = 8$, with the population quantum again $2$ and no group above it, confirming the bound at a second lattice size with no candidate macro involved.
 \end{enumerate}
-A constructed balance rule that switches T2 off \emph{inside} one family (the candidate macro \texttt{DD\_INTRA\_ISLAND\_FIX}) changes only the population from 2 to 3---not to $L/3$---because the rule still uses T1/T3/T4/T5 across families. No rule in the repository produces $N_* = L/3$ without \emph{reading} $L/3$ explicitly in its transition logic, which makes such a result axiomatic rather than emergent. The geometric-quantum hypothesis (shell, ball, and contact capacities) is separately tested and falsified in \texttt{experiments/GEOMETRIC\_QUANTUM.md}: no stable population matches any of the shell capacities $\{26, 66, 158, \dots\}$, the ball capacities $\{27, 93, 251, \dots\}$, or the contact capacity $W$; the realised population histogram over all 59 group-census files is a near-continuum from 1 to 33 with no quantisation gaps. The last positive path is closed: \emph{at $L \le 15$ the model has no population quantum at values other than the rule-induced 2, 3, or 5}.
+A constructed balance rule that switches T2 off \emph{inside} one family (the candidate macro \texttt{DD\_INTRA\_ISLAND\_FIX}) changes only the population from 2 to 3, because the rule still uses T1/T3/T4/T5 across families. No rule in the repository produces a larger quantum without \emph{reading} the seed's multiplicity explicitly in its transition logic, which makes such a result axiomatic rather than emergent. The geometric-quantum hypothesis (shell, ball, and contact capacities) is separately tested and falsified in \texttt{experiments/GEOMETRIC\_QUANTUM.md}: no stable population matches any of the shell capacities $\{26, 66, 158, \dots\}$, the ball capacities $\{27, 93, 251, \dots\}$, or the contact capacity $W$; the realised population histogram over all 59 group-census files is a near-continuum from 1 to 33 with no quantisation gaps. The last positive path is closed: \emph{at $L \le 15$ the model has no population quantum at values other than the rule-induced 2, 3, or 5}.
 \paragraph{Flux-harness confirmation.} The independent statistical instrument in \texttt{quantization/} tests the same attractor hypothesis from per-event fluxes $\Gamma_{\mathrm{cap}}(N)$ and $\Gamma_{\mathrm{esc}}(N)$ via OLS regression and permutation-surrogate testing (\texttt{quantize\_stdlib.py}). On the synthetic mean-reverting control the harness recovers $N^* = 30.38$, 95\% CI $[29.87, 30.91]$, surrogate $p = 0.005$ (PASS). On the six real datasets from the repository \emph{all four frozen configurations return zero escapes and are reported INCONCLUSIVE}: the reference at $L = 9$ and $L = 15$, the \texttt{EXCLUSION+DD\_INTRA\_ISLAND\_FIX} candidate, and the \texttt{ADDRESS\_TARGET\_FSM} candidate. Where turnover exists (the directional-channel candidates), the fitted slope is $b = +0.494$--$+0.495$, i.e. \emph{anti-restorative}---larger islands grow faster, so the population is driven upward rather than bounded. The flux harness thus confirms the membership-theorem verdict from an independent statistical angle: no population attractor exists in any real run in the repository at the accessible sizes.
 \paragraph{Circulation $\mathbf{J}$ as a membership invariant (measured).}
 After the population-attractor line closed, a separate programme asked whether a conserved circulation on the island could do work that a pile of members cannot. Define the integer spin of a group by
 \[
 \mathbf{J}=\sum_{\mathrm{members}}\mathbf{r}\times\mathbf{m},
 \]
-with \(\mathbf{r}\) the toroidal offset of a member from its chief and \(\mathbf{m}\) that member's momentum vector. The definition reads only \(w\), parent linkage, source centres and \(\boldsymbol{m}\); it contains no \(L\), \(L/3\) or \(\mathrm{ISLAND\_SIZE}\). Three pre-registered steps have been run (\texttt{experiments/J1\_SPIN.md}):
+with \(\mathbf{r}\) the toroidal offset of a member from its chief and \(\mathbf{m}\) that member's momentum vector. The definition reads only \(w\), parent linkage, source centres and \(\boldsymbol{m}\); it contains no \(L\), no partition parameter and no \(\mathrm{ISLAND\_SIZE}\). Three pre-registered steps have been run (\texttt{experiments/J1\_SPIN.md}):
 \begin{itemize}
 \item \textbf{J0 (baseline).} Across every archived census in the repository (\(\sim 3200\) groups), \(\mathbf{J}=\mathbf{0}\) identically. The cause is structural: in the reference path body elements keep \(\boldsymbol{m}=\mathbf{0}\), so no circulation is generated.
 \item \textbf{J1 (protection).} A candidate gate (\texttt{SPIN\_GATED\_FSM}) refuses delegate escape while the chief's \(\mathbf{J}\neq\mathbf{0}\). In a frozen-rotor tube where the only agent is the surface-escape rule, the \(J=0\) arm releases both delegates and the \(J\neq 0\) arm holds the group (\(1K+2D\), zero escapes), matching the four registered predictions exactly. Circulation is inert until a rule consults it; once consulted, it decides membership.
 \item \textbf{J2 (selection).} The same circulation protects an already planted size; it does not produce a \(dN\)--\(N\) rate crossing or select \(N_*\). Steps that would test conservation of \(\mathbf{J}\), scaling with cavity radius, and mixed charge words remain open.
 \end{itemize}
-Thus \(\mathbf{J}\) is the first measured quantity in the project that can hold a group together without reading \(L/3\), but it is a \emph{protection} invariant, not a population quantum. It does not restore the \(N_*=L/3\) conjecture; at most it can help keep an island that some other mechanism has already assembled.
+Thus \(\mathbf{J}\) is the first measured quantity in the project that can hold a group together without reading the seed's partition, but it is a \emph{protection} invariant, not a population quantum. It does not restore a size-selecting quantum; at most it can help keep an island that some other mechanism has already assembled.
 \subsection{Origin of $W$ and FSM addressing}
 The non-spatial dimension has size
 \begin{equation}
 W = 3L^2.
 \end{equation}
-The factorization
+The declared factorization
 \begin{equation}
-W = (9L)\left(\frac{L}{3}\right)
+W = N_I\,\ell
 \end{equation}
-splits the ledger into $9L$ charge families, each with $L/3$ identical copies. In a finite-state machine implementation the $W$ coordinate is therefore not a single integer accessed by modulo; it is a pair of registers, an island index in $[0,9L)$ and a copy index in $[0,L/3)$. This preserves the model's FSM character: all addressing and state transitions remain local and involve only comparison, copying, and small counters.
+splits the ledger into $N_{I}$ charge families, each with $\ell=W/N_I$ identical copies. In a finite-state machine implementation the $W$ coordinate is therefore not a single integer accessed by modulo; it is a pair of registers, an island index in $[0,N_I)$ and a copy index in $[0,\ell)$. This preserves the model's FSM character: all addressing and state transitions remain local and involve only comparison, copying, and small counters.  Both integers are evaluated once at initialization from the declared topology; no rule derives them from the dynamics, and none of the aggregation results below depends on their particular value.
 %%%%%%%% RESULTS %%%%%%%%%%
 At this point, the core construction of the cellular automaton is complete.
 \section{Results}\label{sec:Results}
@@ -1157,8 +1149,8 @@ The values $X=l_{P}$ and $L\sim10^{61}$ (to order of magnitude, Sect.~\ref{sec:R
 The lattice is a periodic cube of side $L$ with an internal dimension of $W$ layers.  The topological constants (initSim.cpp, \texttt{calculateParameters}), evaluated once at initialization and kept read-only (Sect.~\ref{subsec:purity}), are
 \begin{multline*}
 \mathrm{RMAX}=L/2,\qquad \mathrm{CENTER}=(L-1)/2,\qquad
-\mathrm{ISLAND\_COUNT}=9L,\\
-\mathrm{ISLAND\_SIZE}=L/3,\qquad \mathrm{BLOCK}=L^{3}\cdot W,
+\mathrm{ISLAND\_COUNT}=N_{I},\\
+\mathrm{ISLAND\_SIZE}=\ell=W/N_{I},\qquad \mathrm{BLOCK}=L^{3}\cdot W,
 \end{multline*}
 with a light frame of $\mathrm{FRAME}$ ticks (the encounter window of length $W$, plus glider, diffusion, relocation, reissue and flood slots) and reference wave amplitude $U_{0}=2048$.  Typical configurations range from $L=11$, $W=4$ ($\mathrm{BLOCK}=5{,}324$ cells, $\approx 340$\,KB) to $L=31$, $W=364$ ($\approx 700$\,MB); the selector offers odd lattice sides up to $L=31$ and even layer counts up to $W=364$.  Table~\ref{tab:scenarios} lists the eight scenarios with the lattice side suggested for each (help.cpp) and the resulting $\mathrm{BLOCK}$ and memory at the default $W=10$ and at the maximum $W=364$ layers.
 \begin{table}[h]
@@ -1281,20 +1273,20 @@ The next section discusses remaining challenges and limitations.
 
 \emph{Measured negative (M).} In the ordinary production path of this
 codebase, the superposed Platonic seed (L=9, W=243, all 243 sources at one
-centre) does not aggregate into the hypothesised $9L$ islands of $L/3$
-constituents.  The light-frame census (census harness, 64 frames) shows an
+centre) does not aggregate into the hypothesised $N_I$ islands of equal
+population.  The light-frame census (census harness, 64 frames) shows an
 absorbing plateau from the second journey onward: K=235, D=8, S=0 at a single
 occupied centre, with the D x D promotion cascade converting nearly every
-delegate into its own chief and no group reaching population $L/3=3$.  The
+delegate into its own chief and no group reaching a population of 3.  The
 same holds in the reduced ``matched'' colour FSM without protective rules,
 where equal-charge families in shell contact merge into one chief group per
-charge word (8 tribes of 30--33 members).  The hypothesised quantisation is
+charge word (8 tribes of 30--33 members).  A preferred population is
 therefore not a demonstrated property of the reference rule; it is the target
 that the candidate mechanisms below address.
 
 \emph{Candidate mechanisms (C).} Two macro-guarded candidates in the
 repository (experiment logs; ordinary builds and this transition rule are
-unaffected) produce the quantisation robustly.  (i) The colour/matched FSM
+unaffected) produce such a preferred population robustly.  (i) The colour/matched FSM
 with a Pauli-like identity hard core between different seed families
 ($w/3$) plus a one-step spatial push at shell contact yields, from the fully
 superposed seed, 81 chief groups of exactly 3 constituents, unresolved
@@ -1376,7 +1368,7 @@ Localized particles are conjectured to be assemblies of many discrete fragments,
 A free electron's average motion, for example, may follow a direction vector that cannot be expressed with only discrete modulo-$L$ components; continuous descriptors are thus necessary idealizations at large scales. The same holds for isotropy: it looks uniform at macroscopic scales even though the lattice is fundamentally granular.
 \subsection{Color quantization}
 Color quantization is presented as an extension of the electromagnetic case.
-Hadrons would form by the simultaneous action of charge quantization and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
+Hadrons would form by the simultaneous action of the island-formation dynamics and strong cohesion, producing color-neutral bound states of quark and gluon fragments. In the discrete color code (Sect.~\ref{subsec:specialized-pairs}), a strongly neutral combination would be either a pair of complementary color bits (meson-like), a pair of identical non-trivial colors (diquark-like), or a triplet of the three distinct colors (baryon-like, e.g.\ a proton $uud$ fragment). Free quarks would then be unobserved because only these color-neutral composites would be dynamically stable, any uncompensated color being rapidly balanced by quark-gluon exchange. This is a structural conjecture about the charge code; no hadron formation has been simulated.
 \subsection{Emergence of gravity}\label{subsec:emergence-of-gravity}
 General-relativistic spacetime is here conjectured to be an effective, coarse-grained approximation of the discrete lattice (a speculative projection). Gravity is proposed to be mediated by the gravitons of Sect.~\ref{subsec:specialized-pairs}---pairs with fully complementary charge words---which couple to both \emph{Orbis} and \emph{Umbra}. Ordinary photons are sector-specific and mediate electromagnetism (Sect.~\ref{subsec:Coulomb-interaction}); gravitons provide cross-sector connectivity and, being charge-neutral by construction, cancel electric and weak contributions at leading order, leaving a residual geometry-driven attraction independent of the electric-charge sign. Under this conjecture, free objects would follow emergent timelike geodesics under the observer's round-trip reading convention (Sect.~\ref{subsec:observers}), and graviton redistribution of energy and charge might mimic dark-matter effects such as flat rotation curves. None of these behaviors has been observed in the implementation.
 In the same coarse-grained picture, photons may also lose energy through minor, non-collapsing interactions with singletons and electrons as they propagate---an intrinsic \textit{aging} that would parallel cosmic redshift. In the model a photon's frequency is an integer pair population (Sect.~\ref{subsec:multi-frequency}), so each interaction that removes one pair lowers the emergent frequency read by an Observer by one quantized even step. Zwicky already proposed a redshift mechanism independent of expansion \cite{zwicky1929redshift}; in principle the model could realize it without the image-blurring problem he raised, offering a redshift explanation that does not require dark energy. The drive pair mechanism of Sect.~\ref{subsubsec:drive pair} might likewise make acceleration equivalent across frames, in line with the equivalence principle. These are suggestions, not measured effects.
@@ -1462,7 +1454,7 @@ This characteristic allows neutrinos to exist in enormous quantities across the 
 The inertia mechanism adopted here implies that the collective action of a large number of identical drive pairs produces a high--energy configuration. This stretches the propelled mass along the direction of motion, thereby forming a \textit{parton} structure.
 \paragraph{Quest for qubits.} \label{subsection:qubits}
 An electron may be conceived as a vast ensemble of dynamic \textit{nanostates}, collectively manifesting as a single particle through their shared affinity.
-When two electrons share the same affinity (totally or partially), they become distinguishable only through the constraints imposed by quantization dynamics.
+When two electrons share the same affinity (totally or partially), they become distinguishable only through the constraints imposed by the island-formation dynamics.
 However, if one momentarily relaxes these constraints, such a pair could in principle be interpreted as a system of qubits; this is a speculative reading, not a demonstrated computational capability.
 What, then, supports this emerging computation?
 Spatial interaction is facilitated by the encounter step, while the self-interference mechanism (see Sect.~\ref{subsec:Interference}) introduces a form of temporal smearing that allows information to persist and influence future states.
@@ -1520,17 +1512,17 @@ Three remarks.  (i) The argument does \emph{not} use the speed of the encounter 
 Given the mutual dependence of all system components and the absence of free external variables, one might speculate that the model, if interpreted as a complete physical theory, would align with superdeterministic readings of reality as discussed by Hossenfelder and Palmer \cite{hossenfelder2020rethinking}.
 \subsection{Particles}\label{sec:Particles}
 \emph{Scope (C).} This section assigns Standard-Model names to charge/pattern combinations of the model.  The assignment is a naming taxonomy; none of these objects has been produced or measured by the current implementation (see the negatives of Sect.~\ref{sec:Results} and the candidate mechanisms discussed there and in the experiment log).
-Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability comes from dynamic charge quantization: the 3D island population emerges from a balance between bubble capture and escape, while surrounding pairs act as drive pairs for transport.
+Particles are composite structures of bubbles. A particle is primarily identified by most of its bubbles sharing the same affinity $a$. Its stability is conjectured to come from the island-formation dynamics: the 3D island population would be maintained by whatever balance between bubble capture and escape the rules select, while surrounding pairs act as drive pairs for transport.
 In a complementary pair, weak and strong interactions are inhibited (but electric charge remains active). Both bubbles are reissued in a pair interaction, and such combinations generally form boson fragments.
 \subsubsection{Fermions}
-A fermion contains more than paired kinematic components. It typically has a 3D island sustained by dynamic charge quantization (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
+A fermion contains more than paired kinematic components. It typically has a 3D island sustained by the island-formation dynamics (Sect.~\ref{sec:dynamic-charge-quantization})---the up quark is the specialized pair of Sect.~\ref{subsec:specialized-pairs}---plus drive pair pairs responsible for inertial motion. Fermions form a small, ``punctiform'' bubble cloud surrounded by concentric orphans from frequent reissues, which constitute their \textit{field}.
 Quark confinement follows from the priority of color cohesion and quark-gluon interaction, well different from the electromagnetic case. In atoms, electrons distribute around the nucleus according to spherical harmonics.
 Specialized pairs do not form clusters and therefore have fermionic character; the neutrino pair is an example. Inter-sector neutrino pairs do not interact via the weak force, making them effectively sterile. Neutrino mass is the sum of the pair components plus drive pair contributions.
 \subsubsection{Bosons}\label{bosons}
 A boson is made of one or more clusters. Photon fragments and other gauge-boson fragments are examples; their pairs differ in some or all charge bits except $w_1$, making them sectorial particles. Photon frequency is defined by the integer pair population (Sect.~\ref{subsec:multi-frequency}).
 $W^{\pm}$ and $Z$ bosons, by contrast, form a ``punctiform'' cloud of several clusters sharing the same affinity, somewhat like fermions. The Higgs boson is conjectured to be two $Z^0$ bosons with opposite spins, with no apparent relation to giving mass to other particles.
 Orphans ($a=W$) do not carry a permanent particle affinity; they act as the flux that guides free pairs. Sectorial photonic pairs, guided by that flux, mediate electromagnetic contacts once they acquire a charged source's affinity (Sect.~\ref{subsec:Coulomb-interaction}). Fully complementary pairs (gravitons), guided by the same kind of flux, mediate gravity across Orbis and Umbra (Sect.~\ref{subsec:emergence-of-gravity}). Neutral orphan pairs do not interact electromagnetically on their own.
-%%%%%%%% DYNAMIC CHARGE QUANTIZATION %%%%%%%%%%
+%%%%%%%% EMERGENT ISLAND FORMATION %%%%%%%%%%
 
 \subsection{Cellular automata and quantum formalism}\label{sec:bridge}
 \emph{Status (C).} The mapping proposed in this section is speculative: it is not reconciled with the automaton's irreversible, dissipative dynamics (Sect.~\ref{sec-undecidability} and the reversibility paragraph of Sect.~\ref{subsec:translation}), and it is not claimed as a derivation.

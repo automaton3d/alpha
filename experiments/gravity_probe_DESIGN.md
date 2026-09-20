@@ -424,7 +424,9 @@ and the propellers redistribute momentum without self-accelerating the COM.
 - W-island structure: `islandOf(w) = w / ISLAND_SIZE`, leader =
   `firstWOfIsland` (`simulation.h`); a complete island = `ISLAND_SIZE = n_i`
   layers with common affinity superposed at one centre, charge word per layer
-  from the canonical seed (initSim.cpp:135: chief layer K, other layers S).
+  from the canonical seed (`initSim.cpp:120-121`: `cell.kind = SourceKind::S` and
+  "no chief is selected by the static W address at birth" -- the `K` role is
+  elected dynamically, `DYNAMIC_QUANTIZATION_DERIVATION.md`, not seeded).
 - Propeller (interaction.cpp): a pair (P) acting as a momentum carrier,
   `reloc != 0` pending; the move is consumed by `applyMomentum()` per light
   frame (`simulation.cpp`), which preserves the unit momentum direction m.
