@@ -119,12 +119,15 @@ int main(int argc, char** argv) {
   try {
     if (argc < 4) {
       fprintf(stderr, "usage: island_rate_probe N PAIRS FRAMES CSV [SIEVE]\n"
-                      "       island_rate_probe placed FRAMES CSV [SIEVE]   (multi-island fixture)\n");
+                      "       island_rate_probe placed FRAMES CSV [SIEVE]   (multi-island fixture)\n"
+                      "       island_rate_probe range LY DIST FRAMES CSV [SIEVE]  (shell-range discriminator)\n");
       return 1;
     }
     const bool placed = (strcmp(argv[1], "placed") == 0);
     const bool driven = (strcmp(argv[1], "driven") == 0);
+    const bool rangeMode = (strcmp(argv[1], "range") == 0);
     unsigned n = 2, pairs = 0, frames = 0;
+    unsigned rangeLy = 0, rangeDist = 0;
     const char* csvPath = nullptr;
     unsigned sieve = 16384u;
     if (placed || driven) {
@@ -132,6 +135,14 @@ int main(int argc, char** argv) {
       csvPath = argv[3];
       sieve = (argc > 4) ? (unsigned)atoi(argv[4]) : 16384u;
       if (frames < 2) return 2;
+    } else if (rangeMode) {
+      if (argc < 6) return 2;
+      rangeLy   = (unsigned)atoi(argv[2]);
+      rangeDist = (unsigned)atoi(argv[3]);
+      frames    = (unsigned)atoi(argv[4]);
+      csvPath   = argv[5];
+      sieve     = (argc > 6) ? (unsigned)atoi(argv[6]) : 16384u;
+      if (rangeLy < 5 || rangeLy > 21 || rangeDist < 1 || rangeDist > 60 || frames < 2) return 2;
     } else {
       if (argc < 5) return 2;
       n = (unsigned)atoi(argv[1]);
@@ -216,6 +227,36 @@ int main(int argc, char** argv) {
         }
       replicate();
       n = W_USED;
+    } else if (rangeMode) {
+      // ------------------------------------------------------------------
+      // SHELL-RANGE fixture -- the cheap discriminator between "the brake measures EXTENT" and "the
+      // brake measures the member COUNT".  Two tubes whose cross-section doubles the model contact
+      // range (5x5 -> RMAX = 2, range 4; 9x9 -> RMAX = 4, range 8), holding the SAME two sources at the
+      // same absolute torus separation:
+      //   w0 K @1            w1 D @1 + DIST        (the delegate is released iff DIST > 2*RMAX)
+      // The member count is identical in both tubes and so is DIST, so a change of outcome between them
+      // can only come from the length scale.
+      // NO second island and NO free S, deliberately: the first 4-source version of this fixture was
+      // CONTAMINATED -- on a torus its two "far apart" islands sat only 3 cells apart through the wrap,
+      // they fused (`[absorb] K x K encounters=16 pairs=8`), and the captures, the demotion and the
+      // D -> S it produced had nothing to do with the brake.  Two sources cannot do that: no K x K, no
+      // D x D, no recruitment.
+      // PX = max(2*DIST + 1, 2*LY + 1): long enough that the separation is DIST rather than its
+      // wrap-around complement, and STRICTLY longer than the cross-section -- with all three edges equal
+      // the tube allocator leaves EL = 0 and the run dies in an access violation (measured).
+      // ------------------------------------------------------------------
+      const unsigned PXr = (2 * rangeDist + 1 > 2 * rangeLy + 1) ? (2 * rangeDist + 1)
+                                                                 : (2 * rangeLy + 1);
+      if (!tryAllocateTube(PXr, rangeLy, rangeLy, 2)) throw std::runtime_error(lastAllocationError);
+      initSimulation(0);
+      const unsigned yr = (rangeLy - 1) / 2, zr = yr;
+      placeLayer(0, 1, yr, zr, 0x08);
+      placeLayer(1, 1 + rangeDist, yr, zr, 0x08);
+      replicate();
+      markChief(0, 0x08);
+      markDelegate(1, 0, 0x08);
+      replicate();
+      n = W_USED;
     } else {
       prepare(LX, LY, LZ, n, pairs, /*axis=*/0, /*direction=*/1);
     }
@@ -223,6 +264,7 @@ int main(int argc, char** argv) {
 
     char run[64];
     if (placed || driven) snprintf(run, sizeof run, "%s_%s", placed ? "placed" : "driven", build);
+    else if (rangeMode)   snprintf(run, sizeof run, "%s_rangeLY%uD%u", build, rangeLy, rangeDist);
     else snprintf(run, sizeof run, "%s_N%u_P%u", build, n, pairs);
 
     FILE* f = fopen(csvPath, "w");
@@ -230,7 +272,8 @@ int main(int argc, char** argv) {
     fprintf(f, "run,island,frame,N,captures,escapes\n");
 
     printf("RATE_PROBE build=%s mode=%s N=%u pairs=%u W_USED=%u RMAX=%u contact=%u sieve=%u "
-           "frames=%u run=%s\n", build, (placed || driven) ? (placed ? "placed" : "driven") : "prepared",
+           "frames=%u run=%s\n", build,
+           placed ? "placed" : (driven ? "driven" : (rangeMode ? "range" : "prepared")),
            n, pairs, W_USED, RMAX,
            2u * RMAX, sieve, frames, run);
     printf("NOTE: escape timer expires after W_USED = %u contact-free light frames\n", W_USED);

@@ -5,16 +5,25 @@
 | contact | required behaviour | code |
 |---|---|---|
 | `S x S` (same charge) | one becomes `K`, the other its `D` | unchanged (T1, `chiefContact`) |
-| `D x D` same island | they stay delegates -- **cohesion**, no transition | T2 disabled |
+| `D x D` same island | they stay delegates -- **no-op**: no transition, no step, no record | T2 disabled (+ see the correction below) |
 | `D x D` different islands | **one step apart per pair per light frame** | new, see below |
 | `K x K` (same charge) | one demoted to `D` and the two **agglutinate** (stay close) | T3 unchanged + no push applied |
+**Correction (2026-09-19, from a code reading).**  The `D x D` same-island row originally said "cohesion".
+Mechanically that is wrong: an equal-charge `D x D` contact returns early inside `encounter()` -- *before*
+the `internal` recording that feeds the cohesion loop -- so such a pair gets **no transition, no step and no
+record**.  The delegate is held by its `K-D` contacts with its **chief**, not by cohesion between delegates;
+`resolveInternalContacts()` therefore only ever acts on `K-D` pairs.  The code comments in
+`interaction.cpp` (the cohesion loop and the `parentRepel` declaration) and `chief_transition.h` were
+corrected in the same pass.
+
+
 
 The discriminator is the **dynamical parent identity** (`islandChief`, the emergent membership) and never
 the seed family: this is what separates this candidate from the retired `FAMILY_SELECTIVE_FSM` /
 `EXCLUSION_FSM` line, which keyed on `w/3` and therefore on the declared partition.
 
 **Implementation (all inside `#ifdef PARENT_SELECTIVE_FSM`, OFF in the reference build).**
-`chief_transition.h:17-26` disables `promotesDelegate` (T2); `interaction.cpp:140-145` declares the
+`chief_transition.h:17-29` disables `promotesDelegate` (T2); `interaction.cpp:140-146` declares the
 pair list `parentRepel`, cleared per tick (`:545-547`, `:576-578`) and at reset; `:1607-1630` records
 each equal-charge `D x D` pair whose two `islandChief` differ; `:788-819` is
 `resolveParentRepulsion()`, which pays **one antisymmetric unit step per pair per light frame**
@@ -77,7 +86,7 @@ set produces something the seed did not put in.  Cost: `L=15` is ~31 min per lig
 build (`162 K + 81 D`, 162 groups, 0 unresolved, 57 centres, `max_pop 2`) with **`escapes = 0`**.  The
 reason is a timescale inside the rule: `applySurfaceEscape()` releases a delegate only when
 `++framesWithoutContact[w] >= W_USED` -- `W_USED` **consecutive light frames without a same-charge
-contact** (`interaction.cpp:762-764`), i.e. **243 frames at `L=9`** (675 at `L=15`).  At ~50 s per
+contact** (`interaction.cpp:770-772`), i.e. **243 frames at `L=9`** (675 at `L=15`).  At ~50 s per
 light frame that is **~3.4 h** of run time before a single release can fire.
 
 **This also explains a standing observation of the project.**  The flux harness found `escapes = 0` in
@@ -334,9 +343,50 @@ sources, still 8 charge words, `2*RMAX` 8 -> 14): if the mode simply tracks `W/8
 condensation and the campaign's size limit remains geometric bookkeeping; if the mode moves with `2*RMAX`,
 the brake is selecting EXTENT and the plateau is a real (if not yet charged) quantum.
 
+## The cheap discriminator: the brake reads EXTENT, not the member COUNT
+
+`island_rate_probe range LY DIST FRAMES CSV` is the fine-grained version of the question the `L=15` arm asks:
+two tubes whose cross-section doubles the model contact range -- `5x5` with `RMAX = 2` (range 4) and `9x9`
+with `RMAX = 4` (range 8) -- holding the SAME two sources at the same absolute torus separation (`K @1`,
+`D @1 + DIST`).  The member count is identical in both tubes and so is `DIST`, so a change of outcome can
+only come from the length scale.  It is built as `rb_shellonly.exe`: the completed rule set plus the brake and
+WITHOUT `SURFACE_ESCAPE_FSM`, so the shell release is the only release channel and `releases(D->S)` in the
+MECHANISM line equals the `[shell]` count.
+
+| tube | `RMAX` | range `2*RMAX` | `DIST` | `[shell]` | releases (D->S) | other channels |
+|---|---|---|---|---|---|---|
+| 5x5 | 2 | **4** | 6 | `max_dist=6 releases=1` | 1 | all zero |
+| 5x5 | 2 | **4** | 2 | `max_dist=2 releases=0` | 0 | all zero |
+| **9x9** | **4** | **8** | **6** | `max_dist=6 releases=0` | 0 | all zero |
+| 9x9 | 4 | 8 | 12 | `max_dist=12 releases=1` | 1 | all zero |
+
+**Same fixture, same member count, same `DIST` -- rows 1 and 3 -- and opposite outcomes.**  The brake fires at
+distance 6 when the contact range is 4 and does not fire at distance 6 when the range is 8, and the two
+internal controls close the obvious loopholes (row 2: inside the shell at the small scale, no release; row 4:
+outside the shell at the large scale, release).  **The brake reads EXTENT -- the length scale `2*RMAX`, and
+not the member count** -- which is what the cubic analysis predicted from `max_dist = 0`, and what makes the
+`L=15` census a fair test: if the plateau tracks the length scale it is geometric, and if it tracks `W/8` it
+is condensation.
+
+Two fixture defects found on the way, both recorded because each cost runs:
+
+1. **The first 4-source version was CONTAMINATED by the torus wrap.**  Its two islands, placed at `x=1` and
+   `x=PX-2` on a `PX = 4*LY+1` axis, sat only **3 cells apart through the wrap**, so they fused
+   (`[absorb] K x K encounters=16 pairs=8`, one delegation re-pointed) and produced captures, a demotion and
+   a `D -> S` that had nothing to do with the brake: the aggregate `releases(D->S)=1` looked like a brake
+   release while `[shell] releases=0` said otherwise.  The line that caught it was `[absorb]`, not the shell
+   one.  Two sources cannot do any of that -- no `K x K`, no `D x D`, no recruitment.
+2. **Equal edges break the tube allocator.**  With `PX = 5` and a `5x5` cross-section the three edges are
+   equal, `tryAllocateTube` reports `initGeneral: EL=0, RMAX=0` and the run dies in an access violation
+   (`0xC0000005`, exit `-1073741819`).  The axis is now `max(2*DIST+1, 2*LY+1)`, strictly longer than the
+   cross-section.
+
+
+
+
+
+
 ## Diagnostics the builds print (keep them; they found the mechanism)
-
-
 
 
     [absorb]     frame-edge: K x K encounters=N pairs=M delegates re-pointed=P
@@ -364,11 +414,16 @@ frame 3 on, which is what lets the brake act there.
 
 And the small-`W` rate balance, where the brake is NOT inert (`rb_shell.exe` is the third arm):
 
-    experiments\build_island_rate_probe.bat                        rem builds rb_ref, rb_cand, rb_shell
+    experiments\build_island_rate_probe.bat                        rem builds rb_ref, rb_cand, rb_shell, rb_shellonly
     build\rate_probe\rb_ref.exe   placed 40 build/rate_probe/placed_ref.csv
     build\rate_probe\rb_cand.exe  placed 40 build/rate_probe/placed_cand.csv
     build\rate_probe\rb_shell.exe placed 40 build/rate_probe/placed_shell.csv
     build\rate_probe\rb_shell.exe driven 60 build/rate_probe/driven_shell.csv
+    rem --- the extent-vs-count discriminator (rb_shellonly = completed rules + brake, NO escape rule) ---
+    build\rate_probe\rb_shellonly.exe range 5 6  3 build/rate_probe/range2_LY5_D6.csv    rem RMAX=2 range 4 DIST=6 -> releases=1
+    build\rate_probe\rb_shellonly.exe range 5 2  3 build/rate_probe/range2_LY5_D2.csv    rem RMAX=2 range 4 DIST=2 -> releases=0
+    build\rate_probe\rb_shellonly.exe range 9 6  3 build/rate_probe/range2_LY9_D6.csv    rem RMAX=4 range 8 DIST=6 -> releases=0  <-- discriminator
+    build\rate_probe\rb_shellonly.exe range 9 12 3 build/rate_probe/range2_LY9_D12.csv   rem RMAX=4 range 8 DIST=12 -> releases=1
     python quantization\quantize_stdlib.py build\rate_probe\driven_ref.csv build\rate_probe\driven_shell.csv --by-run
 
 

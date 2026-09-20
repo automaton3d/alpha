@@ -33,4 +33,15 @@ cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX /D SURFACE_ESCAPE_FSM ^
  /I src\include /I src\include\zlib /I src %SRC% ^
  /Fobuild\rate_probe\shell\ /Fe:build\rate_probe\rb_shell.exe
 if errorlevel 1 exit /b 1
+rem Fourth arm: the completed rule set plus the shell brake and WITHOUT the contact-free escape rule, so
+rem the shell release is the ONLY release channel.  This is the arm the shell-range discriminator needs:
+rem with SURFACE_ESCAPE_FSM compiled in, a stray delegate also expires its contact-free timer and the two
+rem channels cannot be told apart.
+if not exist build\rate_probe\shellonly mkdir build\rate_probe\shellonly
+cl /nologo /std:c++20 /O2 /EHsc /MD /D NOMINMAX ^
+ /D PARENT_SELECTIVE_FSM /D PARENT_FUSION_ABSORB /D PARENT_NOMINATION_REPAIR ^
+ /D PARENT_SHELL_RELEASE_FSM ^
+ /I src\include /I src\include\zlib /I src %SRC% ^
+ /Fobuild\rate_probe\shellonly\ /Fe:build\rate_probe\rb_shellonly.exe
+if errorlevel 1 exit /b 1
 exit /b %errorlevel%

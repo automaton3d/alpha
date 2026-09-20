@@ -487,9 +487,13 @@ run:
 # ================================================
 # Claims-vs-artifacts lint (menu item 5)
 # ================================================
+# RETIRED 2026-09-19 with the rest of the paper-facing tooling: the lint and its
+# note (CLAIMS_LINT.md, check_claims.py) are in attic/closed_programmes/.  The
+# target is kept only as a pointer, so `make check-claims` says where it went
+# instead of failing with "no rule to make target".
 
 check-claims:
-	python experiments\check_claims.py --top 14 --md build\claims_lint_generated.md
+	@echo check-claims: retired 2026-09-19 -- see attic/closed_programmes/README.md
 
 # ================================================
 # ODR/link gate (header regression check)

@@ -194,7 +194,7 @@ family-selective rather than global -- is the remaining problem.
 
 Three 20-journey runs of the canonical seed (baseline = the directional channel
 above; `family` = `FAMILY_SELECTIVE_FSM`; `family + rigid` = plus
-`FAMILY_RIGID_FSM`; see `FAMILY_SELECTIVE_DESIGN.md` for the macros and the
+`FAMILY_RIGID_FSM`; see `attic/closed_programmes/FAMILY_SELECTIVE_DESIGN.md` for the macros and the
 harness), `distinct_centers` over the last six journeys:
 
 | variant | f15 ... f20 | amplitude | final | localized | pop == L/3 |
@@ -222,7 +222,7 @@ the field and the table predicate was doing all the work; and with the predicate
 removed the two binaries produce identical output.  **The 79 +- 2 row is therefore
 a host-level result, not a property of the model's local rule**, and
 `FAMILY_RIGID_FSM` has been withdrawn (no-op).  The remaining lever that is local is
-the encounter-level producer; see `FAMILY_SELECTIVE_DESIGN.md`.
+the encounter-level producer; see `attic/closed_programmes/FAMILY_SELECTIVE_DESIGN.md`.
 
 ## Formation from the canonical seed: the address supplies the place
 

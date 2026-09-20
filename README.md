@@ -23,7 +23,6 @@ src/                GUI + core (C++20)
   include/          GUI/utility headers + vendored glm, zlib
   cuda/             optional CUDA kernels (see "Toolchain" -- currently not the reference path)
 experiments/        headless harnesses (.cpp), build/run scripts (.bat/.sh/.py/.ps1),
-                    CSVs and the campaign notes (RESULTS.md, DESIGN docs, WORK_PLAN.md)
 doc/                manuscript.tex, manuscript.bib, figures, it_from_bit*.tex
 glad/               OpenGL loader source (needed by the build; not committed)
 lib/                prebuilt import libs (glfw3dll.lib, zlib.lib)
@@ -76,9 +75,9 @@ They compile the model sources directly and emit an `.exe` next to a per-run
 output directory. Representative examples:
 
 ```bat
-rem coupling / falsification probe (the alpha_A..F campaign)
-experiments\build_probe.bat
-experiments\alpha_probe.exe 7 4 200 16384 256
+rem reference drift check (the coupling probe that used to head this list was
+rem retired on 19 Sep 2026 -- see attic/alpha_campaign/README.md)
+powershell -NoProfile -ExecutionPolicy Bypass -File experiments\model_fingerprint.ps1
 
 rem production-path island census (chief aggregation)
 experiments\build_island_census.bat
@@ -100,10 +99,11 @@ the matching `experiments\*.md` note (see the documentation map below).
 - The **frozen reference** is documented in `doc\REFERENCE_CONFIG.md`:
   **MODEL_VERSION** = commit `4501f25`, annotated tag `model-ref-v1`.  The
   current working-tree model fingerprint (SHA256) is
-  `428ece873cddf82fb5fcdfeed14fc4c9e769ccf08ebd5c0fb792bb7edb4b2ca8` (the
-  historical `model-ref-v1` value was `5b0944...`; it advanced when the
-  macro-guarded spike macros `EM_FORCE_PREREQ` / `DD_INTRA_ISLAND_FIX` /
-  `EM_NOS2B_FSM` were added -- the reference build behaviour is unchanged).
+  `bacade53e4d0c0a7ae1601992579d0066a603e4ccf9020051399f8cc510a5d82` (the
+  historical `model-ref-v1` value was `5b0944...`; it advances whenever a model
+  source changes, comment-only edits included, so the current value is re-measured
+  and documented in `doc/REFERENCE_CONFIG.md`; for a comment-only change, behaviour
+  equivalence is proven by preprocessing the file with all candidate macros off).
   Verify drift with
   `powershell -ExecutionPolicy Bypass -File experiments\model_fingerprint.ps1`
   (exit 0 = matches).
@@ -116,22 +116,20 @@ the matching `experiments\*.md` note (see the documentation map below).
   run under the frozen reference configuration. Numbers produced before the
   inertia rework are labelled **historical** and are being regenerated
   (see `experiments\WORK_PLAN.md`, WP1-WP3).
-- The campaign notes are explicit about their own limits; read the
-  `*_REVALIDATION` and `RESULTS.md` notes before reusing any table.
+- The harness notes are explicit about their own limits; read the limits section of
+  a note before quoting its numbers.
 
 ## Current scientific status (one paragraph)
 
-The six pre-registered candidates for the fine-structure constant (alpha_A..F)
-all fail at accessible lattice sizes; the superposed Platonic seed does not
-self-assemble into `9L` islands of `L/3` constituents; the mediated
-photon/graviton repulsion between equal-charge islands is at a documented
-geometric impasse; and the island population is now *proved* to quantise to **two
-constituents** -- never to the postulated `L/3` -- a statement verified at `L=9`
-(multiplicity 3) and `L=15` (multiplicity 5), with controls that separate the
-geometry from the transition.  The charge unit `L/3` is stated as an axiom of the
-internal dimension.  Controlled positives exist (K-only island transport; a
+The superposed Platonic seed does not self-assemble into an island population set by
+the seed's declared partition (that partition is an axiom of the internal dimension,
+not a dynamical output); the mediated photon/graviton repulsion between equal-charge
+islands is at a documented geometric impasse; and the island population is now
+*proved* to quantise to **two constituents**, verified at `L=9` and `L=15` with
+controls that separate the geometry from the transition.  (The search for a coupling
+constant was set aside on 19 Sep 2026 as premature -- see
+`attic/alpha_campaign/README.md`.)  Controlled positives exist (K-only island transport; a
 family-preserving `81 x 3` exclusion control).  Full detail:
-`experiments\RESULTS.md`, `experiments\DYNAMIC_QUANTIZATION_DERIVATION.md` and the
 WORK_PLAN.
 
 ## Documentation map
@@ -141,40 +139,19 @@ WORK_PLAN.
 | `experiments\WORK_PLAN.md` | The active plan to finish the project and make the manuscript peer-review ready |
 | `doc\REFERENCE_CONFIG.md` | Frozen reference build: MODEL_VERSION (tag `model-ref-v1`), compiler flags, candidate-macro list, model fingerprint |
 | `experiments\model_fingerprint.ps1` | Recompute/verify the model source fingerprint (drift check) |
-| `experiments\RESULTS_v2.md` | WP2: reproduced reference measurements (alpha_A L-sweep, determinism, S-scan) |
-| `experiments\run_wp2_sweep.ps1` | WP2 driver: alpha_A L-sweep (+ batched S-scan) -> `build\wp2\` |
-| `experiments\analyze_wp2_scan.ps1` | WP2: summarize an S-scan CSV (open/closed split, median/mean) |
-| `experiments\plot_wp2_scan.ps1` | WP2: dependency-free SVG plot of an S-scan CSV |
-| `experiments\RESULTS.md` | The alpha_A..F falsification campaign, S-scan, gravity probes |
-| `experiments\REVISION_PLAN.md` | Editor-response blueprint for restructuring `manuscript.tex` |
-| `experiments\PHOTON_MEDIATION_DESIGN.md` | Photon/graviton-mediated interaction design (schemes A-E) |
 | `experiments\INERTIA.md`, `INERTIA_REVALIDATION.md` | Island-inertia transport experiments |
 | `experiments\ISLAND_CENSUS.md`, `ATTRACTOR_CENSUS.md` | Production-path aggregation census |
-| `experiments\ABLATION_81x3.md`, `LIGHTMATTER_DECOUPLE.md`, `PBSB_ISLANDS.md` | Candidate aggregation/EM mechanisms |
 | `experiments\DYNAMIC_QUANTIZATION_DERIVATION.md` | Membership fixed-point theorem (population quantum 2), ledger, `P7` control, `L=15` check |
-| `experiments\TURNOVER_ABLATION.md` (+ `turnover_ablation.cpp`, `build_turnover_ablation.bat`) | Item 2: the `EXCLUSION` on/off ablation on a configuration with turnover (the hard core isolates, it does not select) |
-| `experiments\SPACING_PROBE.md` (+ `spacing_probe.cpp`, `build_spacing_probe.bat`) | Item 1: the spacing threshold (`d >= 2*RMAX+1`) and the test that no model channel provides spacing |
-| `experiments\CLAIMS_LINT.md` (+ `check_claims.py`, `make check-claims`) | Item 5: the claims-vs-artifacts lint (52 STRONG / 2 WEAK / 12 NONE over 66 claim sentences) and the semantic findings the tool cannot see |
-| `experiments\EMERGENCE_SEARCH.md` (+ `PHASE_DISTINCT_FSM`, modes `coPhase/five/fiveCo`) | Emergence search: identity by (charge word, breathing phase) holds `N* = m` at `m = 3, 5` with no `ISLAND_SIZE` read; the phase-spread seed route is closed; census test registered |
 | `experiments\J1_SPIN.md` (+ `spin_probe.cpp`, `spin_ring_probe.cpp`, `build_spin_probe.bat`, `J0_spin_reader.py`, `SPIN_GATED_FSM`) | The spin programme, J0 and J1: `J = sum r x m` is structurally zero today (3206 groups, `nonzero_J = 0`, because only propeller layers are given `m`), and once a rule consults it (`SPIN_GATED_FSM` S1/S3, a leave-veto inside `SURFACE_ESCAPE_FSM`) a planted rotor `J = (0,0,10)` with zero net momentum holds its group where every control releases it (`escapes 2 -> 0`, `spin_vetoes 20`, final `1K+2D`); J2 sweeps `N = 1..6` and shows protection is FLAT in `N` and tracks `J` as a collective quantity -- a `cancel` arm carrying identical individual momenta but `J = 0` is released exactly like the `m = 0` arm |
-| `experiments\PREDICTED_NS_RULE.md` (+ `build_p7_concentration.bat`, modes `chain/gap2/mid/edge`) | Item 4: a rule with a predicted `N*` (capture by shell overlap vs escape by surface) -- prediction falsified at `gap = 3,4`; cause = contact duty cycle dropping 3/4 -> 1/4 of the 4-frame breathing period |
 | `experiments\CHARGE_SPECTRUM.md` (+ `analyze_charge_spectrum.py`, `pair_channel_probe.cpp`, `build_pair_channel_probe.bat`) | Item 3: the charge words and pair channels the rules allow (3 of 6 algebraically closed), the seed's 41:40 inventory verified live, the Appendix-B census arithmetic recomputed, and the measured result that the pair channel is EMPTY (only R1/R2 reach the branch) |
-| `experiments\SIEVE_SWEEP_PRODUCTION.md` | Sieve-modulus sweep on the production census (the sieve channel does not quantise) |
-| `experiments\PHOTON_MEDIATION_FAR.md` | Distinct-family mediated-duo probe (no mediator-based separation) |
-| `experiments\analyze_sieve_sweep.py` | Summarise every `build\island_census\sweep_S*` directory |
-| `experiments\GEOMETRIC_QUANTUM.md` | Geometric-quantum hypothesis tested and falsified (contact, shell and ball capacities) |
-| `experiments\BRIDGE_REVISION_IF_PROVEN.md` + `experiments\bridge_proven.tex` | Conditional revision of `sec:bridge` (as if the conjectures were proven): derivation text + the H1-H4 obligation map and swap procedure |
 | `quantization\README.md`, `quantization\FINDINGS.md` | Flux harness for the attractor hypothesis (`Gamma_cap = Gamma_esc`) and its first results on real data |
 | `quantization\flux_from_census.py`, `quantize_stdlib.py`, `make_synth_stdlib.py` | Adapter (`constituents.csv` -> flux CSV), stdlib port of the harness (with `--by-run`), stdlib synthetic controls |
-| `experiments\analyze_geometric_quantum.py` | Reader for the above: capacities, contact-graph completeness, realised-population histogram |
-| `experiments\p7_concentration.cpp` (+ `build_p7_concentration.bat`) | P7: co-located vs spread prepared island, reference vs `DD_INTRA_ISLAND_FIX` |
-| `experiments\pbsb_two_wide.cpp` | WP4.3: two-cloud pB/sB probe (ordinary + `/D EM_FIRST_FSM`) |
-| `experiments\POSTULATE_VS_EMERGENT.md` | Postulate-vs-emergent table (editor response, Limitations) |
-| `experiments\RESPONSE_TO_REFEREES.md` | WP6: simulated referee reports + point-by-point responses + action list |
-| `experiments\CANDIDATE_VERSION.md` | WP6: editor change summary for the candidate version |
-| `experiments\COVER_LETTER.md` | WP7: submission cover letter (draft) |
-| `experiments\DATA_DEPOSIT.md` | WP7: data/code deposit plan (what to deposit, table->script map) |
 | `doc\manuscript.tex` | The manuscript (build: `doc\latexpdf.bat`) |
+
+*(Notes and harnesses of the **closed programmes** -- the EM/photon/orphan and gravity lines, the
+colour/election/cohesion candidates, the falsified size-selection candidates and the paper lint -- were
+retired on 19 Sep 2026 and live in `attic/closed_programmes/`; see its README for the manifest.  This map
+lists only what is active.)*
 
 ## Notes
 

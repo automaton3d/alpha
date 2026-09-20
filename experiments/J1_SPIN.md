@@ -4,8 +4,8 @@
 membership transitions `T1`-`T5` cap a group at population 2, and every attempt to
 obtain anything larger either read the seed multiplicity (`DD_INTRA_ISLAND_FIX`,
 `EXCLUSION_FSM`, `w / ISLAND_SIZE`) or produced no interior balance at all
-(`SURFACE_ESCAPE_FSM`, `PFI` of `PREDICTED_NS_RULE.md`; flux harness `FAIL`,
-`b = +0.030`, `TURNOVER_ABLATION.md`).  What every one of those mechanisms lacks is
+(`SURFACE_ESCAPE_FSM`, `PFI` of `attic/closed_programmes/PREDICTED_NS_RULE.md`; flux harness `FAIL`,
+`b = +0.030`, `attic/closed_programmes/TURNOVER_ABLATION.md`).  What every one of those mechanisms lacks is
 **circulation**.  A pile of members can be deformed continuously from 3 to 2; a
 rotating one cannot, because winding has to be carried away by something.
 
@@ -67,7 +67,7 @@ which makes any later non-zero `J` attributable to whatever supplied it.
 ## J1 -- the question: does circulation protect?
 
 **The threat already exists.**  `SURFACE_ESCAPE_FSM` (candidate of item 4,
-`PREDICTED_NS_RULE.md`) releases a delegate that shares no same-charge shell overlap
+`attic/closed_programmes/PREDICTED_NS_RULE.md`) releases a delegate that shares no same-charge shell overlap
 with its own group for one full partner rotation (`W_USED` light frames).  It was
 already measured to bite: on the `p7` `mid`/`edge`/`spread` geometries it releases
 both delegates (`escapes = 2`), on `co`/`chain`/`gap2` it releases none.

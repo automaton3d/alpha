@@ -17,8 +17,11 @@ inline bool promotesDelegate(const Cell& main,const Cell& mirror) {
 #ifdef PARENT_SELECTIVE_FSM
   // Candidate (2026-09-19): D x D no longer promotes.  The population cap of 2 came
   // from this transition ejecting the surplus member of a group; with it disabled, two
-  // delegates of the SAME island stay delegates (cohesion) and two delegates of
-  // DIFFERENT islands repel by one step at the frame edge
+  // delegates of the SAME island simply stay delegates: identity preserved, no step and no
+  // record -- their contact is a no-op, NOT a cohesion step (the equal-charge D x D early return
+  // inside `encounter()` runs before the `internal` recording, so a same-charge D x D pair never
+  // reaches the cohesion loop; corrected 19 Sep 2026) -- while two delegates of DIFFERENT
+  // islands repel by one step at the frame edge
   // (interaction.cpp: encounter()/resolveParentRepulsion()).  The discriminator is the
   // DYNAMICAL parent identity -- never the seed family, never ISLAND_SIZE, never L.
   (void)main; (void)mirror;
@@ -82,4 +85,81 @@ inline void chiefContact(const Cell& main,const Cell& mirror,Cell& draft) {
   if(chief==main.w) makeChief(draft);
   else {draft.kind=SourceKind::D;draft.parent=chief;draft.leader_w=chief;}
 }
+#ifdef CASCADE_LOG
+  // ---------------------------------------------------------------------------
+  // A2 probe (read-only; OFF in the reference -- with the macro undefined the
+  // preprocessor removes this whole block, so the reference build is unchanged).
+  // The question it answers: where in the light frame does the membership
+  // cascade happen, and which encounter leaves exactly one delegate per charge
+  // word?  Nothing here writes to the lattice.
+  //   cascadeRecord()  called by encounter() when chiefContact() changed the
+  //                    current source's role: tick, both addresses, both kinds,
+  //                    the charge word, and the parent before/after.
+  //   cascadeDump(f)   called by the probe after each light frame: the global
+  //                    role-change tally, then one line per charge word with the
+  //                    tick window of its cascade and its LAST transition -- the
+  //                    encounter that ends that word's cascade.
+  // ---------------------------------------------------------------------------
+  struct CascadeNote {
+    unsigned      tick;
+    WIndex        w, partner;
+    unsigned char fromKind, toKind, ch;
+    WIndex        fromParent, toParent;
+  };
+  inline std::vector<CascadeNote>& cascadeLedger()
+  {
+    static std::vector<CascadeNote> v;
+    return v;
+  }
+  inline void cascadeRecord(unsigned tick, WIndex w, WIndex partner,
+                            unsigned char fromKind, unsigned char toKind,
+                            unsigned char ch, WIndex fromParent, WIndex toParent)
+  {
+    cascadeLedger().push_back({tick, w, partner, fromKind, toKind, ch, fromParent, toParent});
+  }
+  inline const char* cascadeKind(unsigned char k)
+  {
+    switch ((SourceKind)k) {
+      case SourceKind::S: return "S";
+      case SourceKind::K: return "K";
+      case SourceKind::D: return "D";
+      default:            return "P";
+    }
+  }
+  inline void cascadeDump(unsigned frame, unsigned tick)
+  {
+    const std::vector<CascadeNote>& L = cascadeLedger();
+    unsigned sk = 0, sd = 0, dk = 0, kd = 0, other = 0;
+    for (const CascadeNote& n : L) {
+      const bool s = n.fromKind == (unsigned char)SourceKind::S;
+      const bool d = n.fromKind == (unsigned char)SourceKind::D;
+      const bool k = n.fromKind == (unsigned char)SourceKind::K;
+      if      (s && n.toKind == (unsigned char)SourceKind::K) ++sk;
+      else if (s && n.toKind == (unsigned char)SourceKind::D) ++sd;
+      else if (d && n.toKind == (unsigned char)SourceKind::K) ++dk;
+      else if (k && n.toKind == (unsigned char)SourceKind::D) ++kd;
+      else ++other;
+    }
+    printf("[cascade] frame=%u tick=%u notes=%u S->K=%u S->D=%u D->K=%u K->D=%u other=%u\n",
+           frame, tick, (unsigned)L.size(), sk, sd, dk, kd, other);
+    for (unsigned ch = 0; ch < 256u; ++ch) {
+      unsigned n = 0, firstT = 0, lastT = 0;
+      const CascadeNote* last = nullptr;
+      for (const CascadeNote& x : L) {
+        if (x.ch != (unsigned char)ch) continue;
+        if (n == 0) firstT = x.tick;
+        lastT = x.tick; last = &x; ++n;
+      }
+      if (n == 0) continue;
+      printf("[cascade]   ch=0x%02X notes=%u first_tick=%u last_tick=%u"
+             " last=%s(w=%u)->%s(partner=%u) parent %u->%u\n",
+             ch, n, firstT, lastT,
+             cascadeKind(last->fromKind), (unsigned)last->w,
+             cascadeKind(last->toKind), (unsigned)last->partner,
+             (unsigned)last->fromParent, (unsigned)last->toParent);
+    }
+    fflush(stdout);
+  }
+#endif
+
 }

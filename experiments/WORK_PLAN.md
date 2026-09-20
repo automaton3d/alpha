@@ -1,341 +1,134 @@
-# WORK PLAN -- completing the alpha project and making the manuscript peer-review ready
+# WORK PLAN -- the alpha project: live backlog and record
 
-Status: **active**.  Last updated: 11 Sep 2026.
-Strategy decision: **Route A (falsification/methodology paper) as the backbone,
-with WP4 (photon/EM mediation) pulled forward as a time-boxed spike** to try to
-land one clean positive before the manuscript rewrite.
+Status: **active science only**.  Last updated: 19 Sep 2026.
 
-This file is the single source of truth for what remains.  It complements (does
-not replace) `REVISION_PLAN.md` (the manuscript blueprint) and `RESULTS.md`
-(the campaign record).
+This file has two halves: the **live backlog** (what remains to be done, rewritten 19 Sep 2026) and the
+**dated progress log** (the record, oldest entry first, kept as written).  A progress-log entry may refer to
+WP numbers, documents or harnesses that have since been retired; the plan they belonged to is summarised in
+the backlog, and the retired material itself is in `attic/` (manifest in the last table of the backlog).
 
----
-
-## 0. Executive summary
-
-The scientific campaign is finished and its result is mostly negative and
-honest: the six pre-registered candidates for the fine-structure constant all
-fail; the superposed Platonic seed does not aggregate into islands; the
-photon/graviton mediation is at a documented geometric impasse.  What remains is
-to turn that into a publishable artefact.
-
-The defensible assets of the paper are:
-
-1. a **fully specified** cellular-automaton universe, with every claim graded
-   as postulate (P), measurement (M) or conjecture (C);
-2. a **pre-registered falsification campaign** (alpha_A..F) that is reproducible
-   and falsifiable -- all six fail;
-3. a small set of **rigorous controlled positives** (K-only island transport;
-   the family-preserving `81 x 3` exclusion control);
-4. a **strong quantitative negative** (no `1K+nD` self-assembly from the seed).
-
-Everything else (gravity, black holes, spin, partons, observers, the QM bridge)
-is conjecture and belongs in clearly labelled appendices.
-
-> **Organising principle:** one frozen *reference build* -> one reproducibility
-> script -> **every number in the paper traceable to a figure/table script** ->
-> a claim-vs-evidence matrix.  This is what makes or breaks peer review.  Today
-> the paper still carries "historical" tables (e.g. 6996/18/0) that no longer
-> reproduce (current HEAD gives 6468/0/0).  That is the single biggest risk.
-
-## 1. Diagnosis: solid / fragile / missing
-
-| Layer | State | Evidence |
-|---|---|---|
-| Model definition (P) | **Solid** | `simulation.h`, `manuscript.tex` 127-423 |
-| alpha_A..F (6 negatives) | **Solid but drifted** | `RESULTS.md` (6468/0/0 vs historical 6996/18/0) |
-| K-only inertia (positive) | **Solid** | `INERTIA_REVALIDATION.md` -- 4 K-only cases pass |
-| Multi-constituent inertia | **Fragile** | does not preserve a single chief; matched fails 7/9 |
-| Island aggregation | **Solid negative** | `ISLAND_CENSUS.md` run64 (absorbing plateau) |
-| EXCLUSION 81x3 | **Mechanism, not physics** | `ABLATION_81x3.md`; labelled a stand-in |
-| Mediated repulsion (photon) | **Impasse** | `PHOTON_MEDIATION_DESIGN.md` schemes A-E; E negative |
-| EM between equal-charge islands | **Unreachable in current code** | `PBSB_ISLANDS.md` (encounter order) |
-| CUDA / GPU | **Broken** | Makefile expects v13.2, only v11.8 installed |
-| Reproducibility (README/scripts) | **Weak -> improving** | README written in WP0; scripts were scattered |
-| Historical tables in the paper | **Risk** | labelled, but not regenerated |
-| Paper structure | **Bloated** | 1674 lines, ~30 one-line subsubsections, large Conjectures |
-
-**Consequence for review:** an IJUC referee will ask "what is the scientific
-contribution?".  The honest answer is *"a rigorous falsification campaign plus a
-set of controls"*.  The paper must be rewritten **around that thesis**.
-
-## 2. Strategy
-
-- **Route A (backbone, recommended).** Scope: "a fully specified cellular
-  automaton + a pre-registered falsification campaign + rigorous controls".
-  All negatives are the result; the controlled positives carry the toolset;
-  conjectures move to labelled appendices.  Material already exists; risk low.
-- **Route B (stretch, gated).** Only if WP4 yields one clean positive (a
-  physical photon-mediated repulsion between equal-charge islands, or a stable
-  single-chief multi-constituent transport).  Then the paper's thesis upgrades.
-
-The plan never blocks on Route B: G1 decides, and Route A proceeds either way.
+This file used to carry a WP0-WP7 plan aimed at a manuscript submission.  That plan is retired: it was
+executed, withdrawn, or superseded, and the paper-facing documents it produced were retired with it -- the
+manuscript blueprint and the campaign record into `attic/` on 19 Sep 2026, and the paper-facing ("claim")
+documents, the referee-response letter, the coupling-constant campaign, the EM/photon/orphan and gravity
+lines, the colour/election/cohesion candidates and the falsified size-selection candidates into
+`attic/alpha_campaign/`, `attic/referee_response/`, `attic/submission_docs/` and
+`attic/closed_programmes/`.
 
 ---
 
-## 3. Work packages
 
-Each WP lists objective, tasks, deliverable, **acceptance criterion** and effort
-(sessions; simulation wall-clock cited separately -- ~50 s/frame at L=9 on CPU).
+## Live backlog (rewritten 2026-09-19)
 
-### WP0 -- Hygiene, toolchain and reproducibility baseline (foundation) -- ~3-5 sessions
-- **Tasks:** write `README.md` (repo map, build, per-campaign run); park pre-WP0
-  root clutter in `attic/`; resolve the CUDA v11.8 vs v13.2 mismatch (fix OR
-  declare GPU out of scope); provide one `run_all` script that regenerates every
-  figure/table.
-- **Deliverable:** a clean clone where `run_all` reproduces a published table
-  within tolerance; a written toolchain decision (gate G0).
-- **Acceptance:** a third party reproduces without contacting the author.
-- **Depends on:** nothing.  **Status: DONE** (README, `attic/` cleanup, G0 decision,
-  and a validated `run_all.bat`).
-- **Known follow-up (hygiene):** 22 of the `experiments\build_*.bat` scripts still
-  lack `/Fo`, so they dump their `*.obj` into the repository root; `build_probe.bat`
-  (the reference one used by `run_all.bat`) is fixed.  Add `/Foobj\` to the rest in
-  a later hygiene pass.
+The plan this file used to carry (WP0-WP7: freeze the reference, re-validate every claim, close the evidence
+gaps, run the photon/EM spike, restructure the paper, simulated referees, submission) is **retired** --
+executed, withdrawn, or parked in `attic/`.  What remains is the science.
 
-### WP1 -- Freeze the model and the reference configuration -- ~1-2 sessions
-- **Tasks:** tag a `MODEL_VERSION`/commit; define the reference build (all
-  candidate macros off); write `doc/REFERENCE_CONFIG.md`; flag dead code paths
-  (M/Mbar hook, `color_fsm` outside the ordinary build).
-- **Deliverable:** commit hash + config doc referenced by *every* number in the
-  paper.
-- **Acceptance:** every paper table cites the `MODEL_VERSION` (the `.tex`
-  citations are applied in WP5, once the numbers are regenerated; WP1 delivers
-  the anchor).
-- **Depends on:** WP0.  **Status: DONE** -- commit `4501f25`, tag `model-ref-v1`,
-  model fingerprint `5b0944...`, `doc/REFERENCE_CONFIG.md` written, and
-  `experiments/model_fingerprint.ps1` validates the fingerprint (exit 0).
+### A. Island aggregation and quantization (the primary programme)
 
-### WP2 -- Re-validate every quantitative claim (kill the historical tables) -- ~10-20 sessions + heavy runtime
-- **Tasks:** re-run alpha_A..F at L=7,9,11,13; measure the dispersion over the
-  swept sieve modulus S (NOT seeds -- the reference path is deterministic, see
-  `RESULTS_v2.md`) and state a pre-registered convergence criterion; re-run the
-  two-bubble scattering and gravity probes at reference parameters; re-run the
-  proof-of-concept census.
-- **Deliverable:** `experiments/RESULTS_v2.md` with every table regenerated plus
-  the driver `experiments/run_wp2_sweep.ps1`.
-- **Acceptance:** no table is labelled "historical"; everything reproduces in
-  <=1 driver run.
-- **Depends on:** WP1.  **This is the heaviest and most review-critical WP.**
-- **Status: DONE.** alpha_A..F re-validated at current HEAD; determinism
-  established (dispersion is over S, not seeds); the full 32-point S-comb
-  measured at L=7 with an L=9 stability check; figure generated. See
-  `RESULTS_v2.md`.  (Optional: extend the comb to more L; add further figures.)
+1. **Does the plateau track the length scale, or the condensate?**  The shell brake
+   (`PARENT_SHELL_RELEASE_FSM`) holds `max_pop` flat in the cubic census (`33 -> 24 -> 18 -> 26, 26, 26` at
+   `L=9`) while the same rule set without it freezes at 33 with zero events.  Registered before running: the
+   **`L=15` arm** (`island_census_parent_shell.exe 3 16384 build\island_census_parent\shell_L15 15`,
+   ~31 min/frame) decides it -- a mode tracking `W/8` (~84) is condensation, one tracking `2*RMAX` (14) is
+   extent.  **Status of the run:** the first attempt (19 Sep, ~23:43-00:08) was **killed mid-frame-1** by the
+   environment, so it produced no result; relaunched the same night.  The one frame edge it did reach is
+   consistent with `L=9`: `[shell] range=14 max_dist=0 releases=0`, i.e. the canonical superposed seed is
+   co-located at `L=15` too (all delegates on their chief), which is why the brake starts inert there.
 
-### WP3 -- Close the catalogued evidence gaps (`REVISION_PLAN.md` sec.3) -- ~6-10 sessions
-1. A single **ablation table for the 81 x 3 quantisation** (duo2/4, cube,
-   spread81, production port -- with/without EXCLUSION).
-2. **spread81 EXCLUSION+push, 12+ frames** and a pairwise-distance distribution
-   (~1.5-2 h/run).  *STATUS: delivered from the kept `sp81xL` groups.csv (no new
-   run): membership is a delta at population 3 for all 81 islands across frames
-   2-12; the extent broadens 6 -> 0..22.  See `ABLATION_81x3.md`.*
-3. **Production 1K+2D**: fix the intra-family promotion (currently 2 K + 1 D).
-   *STATUS: WP3.3 fix implemented + validated at rule level (see `ABLATION_81x3.md`).*
-4. **Postulate-vs-emergent control**: an ablation showing the 1-cell/tick front
-   follows from the rule set (defensive, cheap).
-   *STATUS: delivered as `POSTULATE_VS_EMERGENT.md` (table + code anchors,
-   answering the editor's "speed/polarisation prescribed" point).*
-5. **Scaling with error bars** (multiple seeds) for alpha_A.
-- **Deliverable:** new tables/figures ready to drop into the paper.
-- **Acceptance:** every number carries an ablation control and/or a statistical
-  error.
-- **Depends on:** WP2.
-- **Status: essentially DONE.** WP3.1 (the single ablation table), WP3.2
-  (spread81 membership/extent distribution, from kept data), WP3.3 (the
-  production 1 K + 2 D fix, validated at rule level with `promotion_three`) and
-  WP3.4 (postulate-vs-emergent table) are delivered; WP3.5 is the WP2 S-scan.
-  The full-scale WP3.3 confirmation is DONE (13 Sep 2026; see the session log):
-  heavy).
+2. ~~**Why exactly one island per charge word, and not zero?**~~  **ANSWERED 20 Sep 2026 --
+   `PAIR_MECHANISM.md`.**  Instrumented read-only (`CASCADE_LOG` + `cascade_probe`; reference build
+   byte-identical with the macro off): the whole cascade happens inside **one** light frame -- zero role
+   changes in frame 1, then 12402 changes in frame 2 between tick **879** (the first tick after the frame
+   edge) and tick **1120** (27% of the frame), after which nothing more changes.  The pair-making encounter
+   is a `D->K` **promotion**, and its partner is the charge word's **maximum address** (242, 230, 221, 233,
+   224, 236, 227, 239 = the top of each word's last family).  Mechanism: `promotesDelegate` requires
+   `main.w < mirror.w`, so the sweep runs upward in address and cannot promote the word's highest-address
+   delegate -- one survivor is *forced*, and zero is impossible because no transition demotes a delegate to
+   `S`.  Chiefs come from promotion, not election (`D->K = 6084` vs `S->K = 26`).  **Sub-question answered
+   20 Sep 2026 -- the cascade duration tracks `W`:** rerun at `L=12` (`W=432`, `FRAME=1504`) the cascade
+   runs ticks **1505 -> 1935** = **T = 431 = W-1**, against T = 242 = W-1 at `L=9` -- one partner-rotation
+   period (`T/W` = 0.996 and 0.997), independent of lattice volume and of the seed's family multiplicity.
+   Two further facts from the same run: the `S x S` election channel falls to **zero** at `L=12` (26 at
+   `L=9`), so the structure is built by promotion; and frame 1 again has zero role changes.  The `L=15`
+   confirmation (`T = 674` predicted) is launched and running; read it with
+   `build\cascade_probe\cascade_probe.exe 2 16384 15` -> `[cascade]` lines.  Still open: why `W-1` and not
+   `W`, and whether the law survives once islands have extent.
+3. **A size-dependent loss for a CO-LOCATED island.**  Both geometric brakes are closed by measurement:
+   displacement is forbidden by the one-cell step invariant (`inertia_fixture.h:95`), and the shell/extent
+   brake cannot see an island whose members share a cell; the `|J|` ceiling is inert for the same reason
+   (`max_Jmag2 = 0` at every census frame).  The only quantity that grows with `N` inside one cell is the
+   member COUNT, so the next candidate must read it -- and a count threshold is one step from a DECLARED knob
+   (the `L/3` lesson): **register the prediction before running it**, and check that the selected population
+   does not track the seed multiplicity.
+4. **Turnover and stationarity in one configuration.**  The flux harness has never received a dataset with
+   both.  The driven fixture proved the structural tension: release needs isolation, recruitment needs
+   contact, and a released singleton has `m = 0`, so a CARRIER is required.  Build the fixture with all four
+   ingredients (two or more islands beyond contact, free `S` in reach, small `W`, enough frames) and run
+   `quantization/quantize_stdlib.py` on it.
+5. **Does an island acquire a driver on its own?**  If a rule-built island starts transporting, the release
+   -> recruit cycle closes without a planted carrier.  Registered falsifier: if the separation spreads the
+   sizes, the uniformity was a property of the frozen plateau.
 
-### WP4 -- (PULLED FORWARD, time-boxed) Deepen one positive -- ~8-20 sessions, uncertain
-See the detailed breakdown in section 4.  **Gate G1** decides Route B vs Route A.
-**Status: 4.1, 4.2, 4.3, 4.4 done.**  4.1: the reorder is inert without live
-pB/sB.  4.2: with the prerequisite injected it is mechanically correct (clouds
-repel).  4.3: the broadcast is **not dormant** -- it is sign-pinned (lights sB on
-a wide tube); with live sB and an open sieve, `EM_FIRST_FSM` keeps two
-equal-charge clouds apart (2 centres, `enc_repel` > 0) in a window s2b <= ~64.
-4.4 (deepen): the reconstructed signs are **geometry-pinned** by R = RMAX-2 (sB
-for R >= 3; pB only for R >= 5; neither for R <= 2) and **not** steerable by the
-seeded axis (m/z/za identical).  4.5: at R = 5 (both flags live) with an open
-sieve, `EM_FIRST_FSM` keeps two equal-charge clouds as two distinct S singletons.
-4.6 (decisive): relaxing the sieve gate (`EM_NOS2B_FSM`) makes the separation
-hold **at the reference sieve** (16384) for 32 frames -- the probabilistic gate
-was the only blocker.  G1 is now a **robust positive** (candidate).  See
-`PBSB_ISLANDS.md` "WP4.3".."WP4.6".
+### B. Inertia and transport (the prerequisite programme)
 
-### WP5 -- Restructure and rewrite `manuscript.tex` -- ~8-12 sessions
-Executes `REVISION_PLAN.md` sec.4 on the current structure:
-- Reorder: **Model (facts) -> Falsification campaign (moved up from Results) ->
-  Controlled positives -> Candidates (clearly experimental) -> Limitations ->
-  Appendices**.
-- **Merge** the ~30 one-line subsubsections into paragraphs; single notation
-  table (today `Nomenclature` at 1455 plus scattered tables).
-- Move `Particles` (1371) -> Appendix C; `QM bridge` + no-signalling (1387) ->
-  Appendix D, labelled speculative; **halve** the Conjectures section (1222).
-- Rewrite the Introduction scope sentence (66) to the falsification framing.
-- Add the **postulate-vs-emergent** table (in Limitations, 1426) and a
-  **claim-vs-evidence matrix**.
-- **Deliverable:** restructured `manuscript.tex` + every figure/table regenerated
-  from WP2/WP3.
-- **Acceptance:** no unlabelled claim; no historical table; matrix complete.
-- **Depends on:** WP2 + WP3 (never touch the `.tex` before the numbers exist).
-- **Status: in progress (build-verified).**  Done: the **postulate-vs-emergent**
-  table (Limitations), the **claim-evidence map** (Results), the **sieve sweep
-  `tab:sieve` re-run at current HEAD**, and the **move of `Particles` + the QM
-  bridge out of Conjectures into the appendix** (now `\section`,
-  `sec:Particles`/`sec:bridge`; the Conjectures intro sentence updated);
-  **merged two pairs of one-line Conjectures subsections** (Color + Weak
-  quantization; Spin + the Hofer effect, label kept); **moved the
-  Speculative-particle-spectrum block (~60 lines) to the appendix** (now
-  `\section`); and **rewrote the Introduction** to state the pre-registered
-  falsification campaign explicitly and to fix the (now stale) section-map
-  sentence (taxonomy/QM bridge -> appendices); **demoted two short model
-  subsections** (The host lattices; What the seed does not contain) to
-  paragraphs; and **strengthened the Reproducibility section** (frozen
-  `model-ref-v1`, `model_fingerprint.ps1`, `run_all.bat`, `RESULTS_v2.md`) plus
-  fixed the stale `6996/18/0` reference row; and **added the falsification-campaign
-  outcome to the abstract**; and **added a dedicated "Falsification campaign"
-  section** (`sec:campaign`, `tab:campaign`) before Results presenting the six
-  pre-registered candidates and their failure at the current HEAD -- closing the
-  gap where the abstract/intro promised a campaign the body did not show.
-- **Status: DONE (14 Sep 2026).**  The revision also carries the membership
-  fixed-point subsection (`subsec:fixed-point`), the axiom statement for the
-  charge unit, the `L=15` and P7 verifications and the geometric falsification.
-  *Build claim corrected:* the manuscript compiles with **no undefined references
-  and no missing citations** (eight overfull hboxes remain).  Earlier entries in
-  this log that say "zero warnings" describe the state before the box count was
-  measured; this line supersedes them.  Remaining: optional prose tightening of
-  the Conjectures.
+6. **Transport is the shared bottleneck** of A4, A5 and the winding line: the reference seed does not move
+   (`J = 0` in ~3200 groups; the census freezes at one centre).  The measured transport instrument is the
+   drive pair (0.25 cells per light frame); the prepared-island fixtures are where a body actually moves.
+7. **The winding triple `(n1,n2,n3)`** is instrumented read-only (`winding_observatory.cpp`, B0 in
+   `WINDING_B0.md`): the accumulator is reliable, the response is diagonal in the axis, covariant under sign
+   and symmetric under axis permutation.  What it lacks is a *generator* (nothing in the reference
+   transports) and a decision on what the triple is supposed to mean (see C).
+8. **Definition first.**  In this project "quantization" means the spontaneous formation of islands with the
+   same charge and approximately equal size -- geometric, structural, emergent -- not a magnitude, not a
+   conserved number, not an identity.  The three-loop basis (three independent integers per object, an exact
+   measure) serves that only if the dynamics *selects* or *couples* the triple: state which, and register the
+   falsifier, before building on it.
 
-### WP6 -- Internal review, simulated referees, polish -- ~4-6 sessions
-- **Tasks:** third-party reproduction test (WP0); draft 2-3 simulated referee
-  reports (hostile to the "toy universe"; sceptical of non-locality; numerics);
-  respond point by point; standardise American English, notation, bibliography.
-- **Deliverable:** `RESPONSE_TO_REFEREES.md` + a candidate version.
-- **Acceptance:** every report point answered with evidence or a reduced scope.
-- **Depends on:** WP5.  **Status: DONE (13/14 Sep 2026).**  Two rounds of
-  simulated reports are written (round 1: scope/novelty, causality/non-locality,
-  numerics; round 2: the theorem's value, the frame windows, the measurement
-  audits, P7's construction), with **13 action items, all satisfied**.  The
-  third-party reproduction test was executed in this pass: `run_all.bat`
-  reported `gui_build OK / probe_build OK / probe_smoke OK`, and the 200-frame
-  reference probe reproduced `active-passes = 6468`, `s2B = 0`, `pairs = 0`,
-  `alpha_A = 0.003756878` (2.87 s).  Evidence: `RESPONSE_TO_REFEREES.md`,
-  `DATA_DEPOSIT.md`.
+### C. The registered candidate for size selection
 
-### WP7 -- Submission and data repository -- ~1-2 sessions
-- **Tasks:** a data/code deposit plan (Zenodo/OSF with `run_all` + CSVs + commit
-  hash + fingerprint); a submission cover letter; a single manuscript build
-  pipeline (`doc/latexpdf.bat`).
-- **Deliverable:** `experiments/DATA_DEPOSIT.md`, `experiments/COVER_LETTER.md`;
-  the actual DOI deposit is performed by the author.
-- **Depends on:** WP6.  **Status: notes complete for submission (14 Sep 2026).**
-  `DATA_DEPOSIT.md` carries the table-to-script map, the frozen expected-values
-  table (acceptance for a reproducer), the cost profile and the reproduction
-  status; `COVER_LETTER.md` states the scope reduction (the charge unit is an
-  axiom; the population quantum is 2).  The DOI deposit itself remains the
-  author's action.
+9. **A `|J|` ceiling with the cap taken from the cavity radius** (`J_max(RMAX)`, never from `L/3`),
+   predicting `N* ~ J_max / (r |m|)` and falsifiable by sweeping `RMAX` against the seed multiplicity.  This
+   is the only class of rule known that could select a size without reading the declared partition.
 
----
+### D. Discipline (non-negotiable, learned the hard way)
 
-## 4. WP4 in detail -- photon/EM mediation spike (pulled forward)
+- **Pre-register the prediction before the run.**  It caught a wrong bet on 19 Sep 2026 and produced the
+  plateau finding anyway.
+- **Cite code by NAME, not by line**: numbers rot within a session.
+  `experiments\anchor_semantic_check.ps1` (28 checks) proves that the cited line still says what the note
+  claims; `attic\anchor_audit3.ps1` only proves that it exists.  Run the semantic checker after any edit that
+  adds lines to the model.
+- **The fingerprint hashes source TEXT**: a comment-only edit moves it, so the expected value is re-measured
+  with the edit, and behaviour equivalence is shown separately by preprocessing with every candidate macro
+  off.  `experiments\model_fingerprint.ps1` -> `MATCH`; the macro inventory is checked by
+  `attic\inventory_check.ps1` (49 model macros, 4 harness-only).
+- **One channel per measurement**: count the mechanism, not the aggregate (`[shell]`, `[absorb]`,
+  `[nomination]`, the MECHANISM line of `island_rate_probe`).  Three findings in this session came from a
+  diagnostic line contradicting an aggregate.
 
-**Objective:** produce physical (non-stand-in) repulsion between two equal-charge
-islands, OR document definitively why the geometry forbids it.
+### E. Known defects
 
-**Known root cause (starting point, do not rediscover):**
-- In `encounter()`, `chiefContact()` runs **first** and merges equal-charge
-  sources across families; `K x K` / `D x D` equal-charge then `return false`
-  **before** the `electricContact`/`magneticContact` branches.  The EM channel
-  therefore **never fires** for two equal-word islands (`PBSB_ISLANDS.md`;
-  confirmed by `pbsb_two` -- both the +x/+x and +x/-x variants **merge**).
-- The photon-mediation line (`PHOTON_MEDIATION_DESIGN.md`) hit a **geometric**
-  impasse: two expanding shells overlap on a thin ring; a mediator either stays
-  on it (scheme A: a kick every tick, no clean law) or leaves it (propagating
-  B/C/E: intermittent windows, weak repulsion).  The documented next candidate is
-  **transferring the momentum BY the mediator** (per-engagement, integrated over
-  the window).
+- `doc/manuscript.bib` has no `hofer` key, so the build warns `\missing{hofer}` (page 38); the reference text
+  is inline in the `.tex`.  Pre-existing, unrelated to the science.
+- The manuscript compiles clean at 57 pages; the campaign's only trace (one Status clause) was removed on
+  19 Sep 2026.
 
-**Tasks (sequential, with a stop rule):**
-1. **4.1 -- Reorder EM for dressed islands.** Decide the EM channel (pB/sB)
-   **before** the identity merge when the sources carry dressing; keep
-   `chiefContact` only when no EM branch applies.  **Invariant: the default build
-   stays 6468/0/0.**  *STATUS: DONE -- the reorder already existed as
-   `EM_FIRST_FSM`; A/B tested, it is **inert** because pB/sB are never live at
-   the contact voxels.  Default invariant reconfirmed (6468/0/0, alpha_A
-   0.003756878).  See `PBSB_ISLANDS.md`.*
-2. **4.2 -- Inject the prerequisite (DONE, positive).** Force `s2B`+`pB` at each
-   contact (`EM_FORCE_PREREQ`) to isolate the reorder from the (dormant)
-   broadcast.  Result: the two equal-charge clouds do not merge but **repel**
-   (`sites`=2, dx 2->9, `enc_repel`=50); the 4.1 reorder is mechanically correct
-   and sufficient.  See `PBSB_ISLANDS.md` "WP4.2 result".
-3. **4.3 -- Make the broadcast light pB/sB (the real blocker, next).** The
-   seeded axis never reconstructs pol_u/pol_v on the shells (WP4.1).  Getting
-   the polarization broadcast to supply pB/sB on overlapping shells is now the
-   critical path to a Route B positive.
-   *STATUS: DONE (positive in a window).  The pbsb_two dormancy was an RMAX=2
-   artifact; on a wide tube the broadcast lights sB, and with an open sieve
-   EM_FIRST keeps the clouds apart.  See `PBSB_ISLANDS.md` "WP4.3 result".*
-4. **4.4 -- Controls.** W-matched bare, broken, freq0, swapped-halves, off-axis,
-   mag=0 (already implemented in `10c7cb7`).
-5. **4.5 -- Observable.** Do two prepared equal-charge dressed islands stay two?
-   (counters `enc_collapse/enc_adiah/enc_repel` + centres per frame).
+### Retired, and where it went
 
-**Time-box:** a fixed cap (sessions / runs).  On expiry, **close as a negative
-with root cause** and resume the Route A backbone.  **Labelling:** the outcome,
-positive or negative, is a **candidate (C)** -- never part of the model (P).
-
-## 5. Decision gates
-
-| Gate | When | Question | Consequence |
-|---|---|---|---|
-| **G0** | before WP2 | GPU (fix CUDA) or declared CPU-only? | runtime budget |
-| **G1** | right after WP4 | Is there reproducible EM repulsion with a control? | **Route B** (upgrade) vs **Route A** (documented negative) |
-| **G2** | before WP5 | Do all numbers reproduce? | releases the `.tex` rewrite |
-| **G3** | end of WP6 | Does it pass the simulated referees? | submission |
-
-## 6. `manuscript.tex` edit plan (concrete, by section)
-
-| Line/section | Action |
+| folder | what |
 |---|---|
-| 66 Introduction | rewrite the scope sentence (falsification framing) |
-| 106 Related work | ok; check positioning |
-| 127-423 Model (fabric/initial/phase/light-frame) | merge subsubsections; single notation table |
-| 791 Interactions | fold in the EM-vs-identity ordering finding (`PBSB_ISLANDS.md`) |
-| 923 Dynamic charge quantization | tighten |
-| 979 Results | **replace every historical table** with WP2 output; add a "Falsification campaign" subsection |
-| 1130 island-candidates | rewrite with the WP3.1 ablation table |
-| 1222 Conjectures | cut ~50%; `Particles`->Appendix C; `QM bridge`->Appendix D |
-| 1412 Conclusion | ok; strengthen Limitations + postulate-vs-emergent |
-| 1441 Reproducibility | expand with `run_all` and `MODEL_VERSION` |
-| 1455 Nomenclature | merge into the single notation table |
-| 1519+ Appendices | reorganise; mark speculation |
+| `attic/alpha_campaign/` | the coupling-constant campaign (probe, tables, drivers, raw logs) |
+| `attic/referee_response/` | the referee-response letter and the manuscript/revision blueprint |
+| `attic/submission_docs/` | the paper-facing ("claim") documents |
+| `attic/closed_programmes/` | the EM/photon/orphan and gravity lines, the colour/election/cohesion candidates, the falsified size-selection candidates and the paper lint |
+| `attic/retired_experiments/` | harnesses retired in the earlier pass |
 
-## 7. Risks and mitigations
+Everything else in the tree is the essential set: the model and its build, `doc/`, `quantization/`, the notes
+and instruments of programmes A and B, the test suite and the two repo checkers.
 
-1. **Compute cost** (~50 s/frame, L=9 CPU) -> G0 decides GPU; else budget
-   wall-clock and parallelise seeds.
-2. **Reproducibility drift** (already happened once) -> WP1 freezes the reference
-   build; every table cites the hash.
-3. **Scope creep** from the Conjectures section -> WP5 cuts; "move to appendix"
-   is the rule.
-4. **Referee hostility to the "toy universe"** -> mitigated by the falsification
-   framing + P/M/C grading + evidence matrix.
-5. **The photon line blocks the paper** -> mitigated by the time-box + G1: Route A
-   never depends on it.
-6. **EXCLUSION is a stand-in** -> label it explicitly as a candidate; never sell
-   it as physics.
-
-## 8. Recommended sequence
-
-`WP0 -> WP1 -> WP4 (time-boxed spike) -> [G1] -> WP2 -> WP3 -> [G2] -> WP5
--> WP6 -> WP7`.
-
-The heaviest, highest-value work is **WP2 + WP3** (regenerate the evidence); the
-`.tex` is only touched after that.  WP4 runs early in parallel and is protected by
-its time-box.
-
-## 9. Progress log
+---
+## Progress log (dated, oldest entry first -- kept as written)
 
 - **2026-09-11 -- WP0 DONE.** `README.md` written; pre-WP0 root clutter (74
   files: build/run logs, loose `*.obj`, stale `automaton.exe`, duplicate root
@@ -435,7 +228,7 @@ its time-box.
   planted by the probe, `pol` relies on the candidate bootstrap.
 - **2026-09-13 -- Item D: the membership fixed point is DERIVED (the quantum is
   2, not `L/3`).**  New note `experiments/DYNAMIC_QUANTIZATION_DERIVATION.md`.
-  From the coded transitions (`chief_transition.h:14-74`, the whole block from `promotesDelegate`
+  From the coded transitions (`chief_transition.h:14-87`, the whole block from `promotesDelegate`
   to the end of `chiefContact`; call site `interaction.cpp:1592`, contact gate `:942`)
   the frozen membership states satisfy: every
   group has population <= 2 and, per charge word, at most one group of
@@ -720,7 +513,7 @@ its time-box.
 - **2026-09-14 -- Conditional revision of `sec:bridge` written (exercise: "as if
   the conjectures were proven").**  New `experiments/bridge_proven.tex` (kept out
   of the build; compiles standalone via `build/bridge_check.tex`, 4 pages) and the
-  companion `experiments/BRIDGE_REVISION_IF_PROVEN.md`.  The revision turns the
+  companion `experiments/BRIDGE_REVISION_IF_PROVEN.md` (retired 19 Sep 2026 into `attic/submission_docs/`).  The revision turns the
   mapping into a derivation with named hypotheses: Lemma 1 (orthonormal basis from
   the finiteness of the state space), Theorem 2 (the reversible fragment is a
   permutation, hence unitary, hence `H = i hbar/T ln U` Hermitian), Corollary 3
@@ -1057,9 +850,9 @@ its time-box.
   (20), `ISLAND_CENSUS.md` (18), `LIGHTMATTER_DECOUPLE.md` (12), `SIEVE_SWEEP_PRODUCTION.md` (11),
   and the code (`initSim.cpp`, `interaction.cpp`, `utils.cpp`, `color_fsm.inc`, `simulation.h`,
   `attractor.*`).  The ones that now CONTRADICT the manuscript and need a pass before submission are
-  the claim-facing documents: `POSTULATE_VS_EMERGENT.md` (the P/M/C row "Charge unit `L/3`"),
-  `CANDIDATE_VERSION.md`, `COVER_LETTER.md`, `RESPONSE_TO_REFEREES.md`, `README.md`,
-  `DATA_DEPOSIT.md`.  Also pre-existing and untouched: `manuscript.bib` has no `hofer` key, so the
+  the claim-facing documents: **all five were RETIRED on 19 Sep 2026** (`attic/submission_docs/`), namely
+  `POSTULATE_VS_EMERGENT.md` (which carried the P/M/C row "Charge unit `L/3`"), `CANDIDATE_VERSION.md`,
+  `COVER_LETTER.md` and `DATA_DEPOSIT.md`; `README.md` was corrected in the same pass.  Also pre-existing and untouched: `manuscript.bib` has no `hofer` key, so the
   bibliography warns `\missing{hofer}` on page 38 (the `.bbl` already recorded it as missing before
   this edit).
 
@@ -1158,7 +951,7 @@ its time-box.
   -> one demoted to `D`, the two agglutinate.  The discriminator is the **dynamical parent**
   (`islandChief`), never the seed family -- which is what distinguishes this candidate from the retired
   `FAMILY_SELECTIVE_FSM`/`EXCLUSION_FSM` line that keyed on `w/3`.  Implemented macro-guarded:
-  `chief_transition.h:17-26` (T2 off), `interaction.cpp:140-145` (`parentRepel`), `:545-547`/`:576-578`
+  `chief_transition.h:17-29` (T2 off), `interaction.cpp:140-146` (`parentRepel`), `:556`/`:590`
   (clears), `:1607-1630` (record equal-charge `D x D` pairs of different islands), `:788-819`
   (`resolveParentRepulsion`, one antisymmetric step per pair per light frame through `reloc[]`, skipped
   if the pair merged during the frame), `:907-909` (frame-edge call).  New build script
@@ -1221,7 +1014,7 @@ its time-box.
   **numerically identical** to the repair build (`162 K + 81 D, 162 groups, 0 unresolved, 57 centres,
   max_pop 2, births 162`) with **`escapes = 0`**.  The reason is a timescale inside the release rule:
   `applySurfaceEscape()` releases a delegate only when `++framesWithoutContact[w] >= W_USED`
-  (`interaction.cpp:762-764`), i.e. after `W_USED` **consecutive light frames without a same-charge
+  (`interaction.cpp:770-772`), i.e. after `W_USED` **consecutive light frames without a same-charge
   contact** -- **243 frames at `L=9`**, 675 at `L=15`.  At ~50 s per light frame that is **~3.4 h of run
   time before a single release can fire**, so no rate balance can be reached in a cubic run of feasible
   length.  **This also explains a standing observation**: the flux harness found `escapes = 0` in *every*
@@ -1422,6 +1215,184 @@ its time-box.
   selects EXTENT, and the plateau is a real if not yet charged quantum).  Written up in
   `experiments/PARENT_SELECTIVE.md` (new section with the table, the spectrum, and the `L=15` registration).
 
+- **2026-09-19 -- Cheap discriminator EXECUTED: the shell brake reads EXTENT (`2*RMAX`), not the member
+  COUNT.**  New probe mode `island_rate_probe range LY DIST FRAMES CSV` in a fourth build arm
+  (`rb_shellonly.exe`: completed rule set + the brake, WITHOUT `SURFACE_ESCAPE_FSM`, so the shell release is
+  the only release channel).  Fixture: two tubes whose cross-section doubles the contact range -- `5x5`
+  (`RMAX = 2`, range 4) and `9x9` (`RMAX = 4`, range 8) -- holding the SAME two sources at the same absolute
+  torus separation (`K @1`, `D @1 + DIST`).  **Measured:** `5x5`/`DIST=6` -> `[shell] max_dist=6 releases=1`;
+  `5x5`/`DIST=2` -> `releases=0`; **`9x9`/`DIST=6` -> `max_dist=6 releases=0`**; `9x9`/`DIST=12` ->
+  `max_dist=12 releases=1`; with `promotions = demotions = recruits = 0` in all four cases and
+  `releases(D->S)` equal to the `[shell]` count, so no other channel contributed.  **Same fixture, same member
+  count and same `DIST` (rows 1 and 3) give opposite outcomes**, and the two internal controls close the
+  loopholes (inside the shell at the small scale -> no release; outside it at the large scale -> release).
+  **The brake therefore measures the length scale, not the population**, as the cubic `max_dist = 0` analysis
+  predicted -- which is what makes the running `L=15` census a fair test: a plateau tracking the length scale
+  is geometric, one tracking `W/8` is condensation.  Two fixture defects were found, fixed and recorded:
+  (1) the first 4-source version was CONTAMINATED by the torus wrap -- its two "far apart" islands sat 3 cells
+  apart through the wrap, fused (`[absorb] K x K encounters=16 pairs=8`) and produced a `D -> S` that looked
+  like a brake release while `[shell] releases=0` said otherwise (caught by the `[absorb]` line, not the shell
+  one); (2) with all three edges equal (`PX=5`, `5x5`) the tube allocator leaves `EL=0, RMAX=0` and the run
+  dies in an access violation (`0xC0000005`, exit `-1073741819`), so the axis is now
+  `max(2*DIST+1, 2*LY+1)`, strictly longer than the cross-section.  Written up in
+  `experiments/PARENT_SELECTIVE.md` (new "cheap discriminator" section plus the reproduce block).
+
+- **2026-09-19 -- Correction pass (author request): the `D x D` "cohesion" claim was false, four campaign
+  macros were missing from the inventory, and eight anchors had DRIFTED past the construct they cite.**
+  Three separate defects, all found by reading the code instead of trusting the notes.
+  **(1) `D x D` same-island is a NO-OP, not cohesion.**  `encounter()` returns early for ANY equal-charge
+  `D x D` pair (`if(currSrc.kind==SourceKind::D && partnerSrc.kind==SourceKind::D &&
+  currSrc.ch==partnerSrc.ch) return false;`) and that guard runs BEFORE the `internal` recording that feeds
+  `resolveInternalContacts()`.  No `D-D` pair therefore ever reaches `internalContacts`, so the cohesion loop
+  -- whose comment read "K-D and D-D cohesion" -- only ever acts on `K-D` pairs: a delegate is held by its
+  contacts with its CHIEF, not by cohesion between delegates.  Corrected in `interaction.cpp` (cohesion-loop
+  comment and the `parentRepel` declaration comment), in `chief_transition.h` (the candidate block) and in
+  `PARENT_SELECTIVE.md` (rule-set row now "no-op" + a correction paragraph).
+  **(2) The inventory lacked the four macros this campaign created** -- `PARENT_SELECTIVE_FSM`,
+  `PARENT_FUSION_ABSORB`, `PARENT_NOMINATION_REPAIR`, `PARENT_SHELL_RELEASE_FSM` -- because it was last
+  audited before they existed.  Added to `doc/REFERENCE_CONFIG.md` with effect, anchors and reference
+  behaviour; the inventory check now reports **49 model macros, 49 in the table, none missing either way,
+  4 harness-only cited**.  (The `harness-only` row was dropped by the same edit and restored -- the check
+  caught it.)
+  **(3) Eight anchors had drifted**, in `CHARGE_SPECTRUM.md`, `DYNAMIC_QUANTIZATION_DERIVATION.md`,
+  `PARENT_SELECTIVE.md` and `WORK_PLAN.md`.  The existence-only audit cannot see this: the line still EXISTS,
+  it just says something else.  Re-mapped by meaning: `canFormPair` `210-237 -> 226-253`; pair branch
+  `1652-1654 -> 1884-1886`; `chiefContact` call `1592 -> 1790`; internal early return `1598-1613 ->
+  1830-1845`; escape timer `762-764 -> 770-772`; `homB = false` `2111 -> 2343`; `relocate()` `2046 -> 2278`
+  and the `draft = north` slide `2067 -> 2299-2300`; the `chief_transition.h` block `14-74 -> 14-87` with T2
+  `14-26 -> 14-39` (invoked `60 -> 73`), T3 `30-33 -> 43-46` (invoked `61-64 -> 74-77`), the S x S minimum
+  `66-73 -> 65-71` (minimum line `70 -> 68`), the T5 return `38 -> 37-38` and the `DD_INTRA_ISLAND_FIX`
+  override `52-58 -> 59-72`.  One of them was not merely displaced but WRONG in substance: no transition
+  requires the same CENTRE cell -- two approaching sources share the VOXEL, and that is where `encounter()`
+  is called from (`simulation.cpp:1000-1001`); the note now says that.
+  **Durable fix: new versioned tool `experiments/anchor_semantic_check.ps1`** -- a table of 28
+  (construct, file, line, expected text) rows that fails when a cited line no longer says what the note
+  claims.  It caught four stale rows in my own first draft of the table, which is the point.
+  `powershell -NoProfile -ExecutionPolicy Bypass -File experiments\anchor_semantic_check.ps1`.
+  Both audits green at the end of this pass (semantic 28/0, existence 106/0); the reference pre-processed
+  output is unchanged (comments only) and both build modes compile.
+
+- **2026-09-19 -- The coupling-constant (alpha) campaign is RETIRED (author: "premature; we return to it
+  once quantization and inertia are mature").**  Parked, not deleted: **125 files** moved to
+  `attic/alpha_campaign/` with a `README.md` carrying the manifest, the reason and the restore recipe --
+  the probe `alpha_probe.cpp` (`alpha_A..F`) with `alphaC_limit.cpp`/`alphaE_limit.cpp`, their tables, the
+  notes `RESULTS.md` ("alpha probe - results") and `RESULTS_v2.md` (WP2 canonical tables), the 22
+  `build_probe*.bat` builders plus `build_alphaE.bat`, the drivers `run_wp2_sweep.ps1` /
+  `plot_wp2_scan.ps1` / `analyze_wp2_scan.ps1`, 23 binaries, `obj/alpha_probe.obj` and the whole
+  `build/wp2` output root (the `alpha_A` L-sweep, the `S*`/`L*`/`pol*` sweep logs, the S-scan CSVs/SVGs).
+  **The invariant check moved to the fingerprint.**  `run_all.bat` step 2 built `alpha_probe` and asserted
+  an `alpha_A` line; it now runs `experiments\model_fingerprint.ps1` and asserts `MATCH` (sub-second,
+  independent of any harness).  `doc/REFERENCE_CONFIG.md` lost the campaign recipe and the `alpha_A` quote,
+  and `experiments/DATA_DEPOSIT.md` lost the campaign rows, the `RESULTS_v2` paragraph and the two
+  `alpha_probe` frozen-value rows (replaced by a fingerprint row).
+  **Correction to the scope I first reported:** I said the 68 `alpha_probe` references meant the other
+  harnesses check the reference through it -- they do not; the count was dominated by matches of the repo
+  PATH `E:\alpha`, and the only real script dependency was `run_all.bat`.  Likewise the manuscript is NOT
+  part of the campaign: the paper never uses the word `alpha`, never states a coupling-constant value and
+  has no `tab:campaign`; its `subsec:s2b-sweep` is the electroweak-gate demonstration (the gate opening as
+  `S` falls), cited by five other passages, and it stands on the `s2B` mechanism rather than on the
+  constant.  **One real cost, recorded:** the paper names `scatter_main.cpp` as the harness for
+  `tab:sieve` and that file is **not in this tree**; the reproducible measurement of those rows used the
+  probe that is now parked, so the table is reproducible today only from
+  `attic/alpha_campaign/alpha_probe.cpp`.  That is stated in `DATA_DEPOSIT.md` rather than hidden.
+  **Fingerprint note (maintenance):** the fingerprint hashes source TEXT, so the comment-only edits of the
+  `D x D` correction pass moved it (`7f5eb50e...` -> `6f906df0...`); the expected value in
+  `model_fingerprint.ps1` and in `REFERENCE_CONFIG.md` was updated, and behaviour equivalence is proven
+  separately by preprocessing `interaction.cpp` with all candidate macros OFF and diffing with `HEAD`.
+  **Documentation pass (same day, completed).**  Every active file that quoted the campaign's reference
+  check now quotes the fingerprint instead (`PBSB_ISLANDS.md` x3, `FAMILY_SELECTIVE_DESIGN.md`,
+  `DRIVE_PAIR_SHELL.md`, `gravity_probe_DESIGN.md`); the files that measure *other* programmes through the
+  parked harness carry a "Harness note (19 Sep 2026)" at the top saying the probe is retired and the recipes
+  below are the historical record (`PHOTON_MEDIATION_DESIGN.md`, `PHOTON_MEDIATION_FAR.md`);
+  `stack_absorb_probe.cpp`'s four comments and `gravity_probe.cpp`'s link-stub comment were re-pointed; and
+  the paper-facing maps lost the campaign (`DATA_DEPOSIT.md`: campaign rows, the `RESULTS_v2` paragraph and
+  the two `alpha_probe` frozen-value rows, replaced by a fingerprint row; `CANDIDATE_VERSION.md` artifact
+  list; `POSTULATE_VS_EMERGENT.md` pointers; `REVISION_PLAN.md`, where the coupling-constant deliverable is
+  struck as WITHDRAWN; `RESPONSE_TO_REFEREES.md` pointers).  **The manuscript's only footprint was one
+  clause** in a Status paragraph ("...and the six pre-registered coupling candidates all remain rejected");
+  it was removed -- a withdrawn internal campaign does not belong in the paper -- and the PDF recompiles
+  clean at 57 pages.  The campaign's own history stays in this log, deliberately: it is the record of what
+  was tried, what was falsified and why it was set aside.
+
+- **2026-09-19 -- The referee-response letter is RETIRED too (author's request).**
+  `experiments/RESPONSE_TO_REFEREES.md` (14.4 kB: three simulated referee reports with point-by-point
+  responses and an action list, written in WP6 on 2026-09-11) now lives in `attic/referee_response/`, with a
+  README recording why and how to restore it (`git checkout HEAD -- experiments\RESPONSE_TO_REFEREES.md`).
+  **It had also become inconsistent with the manuscript:** the letter argues from the coupling-constant
+  campaign -- it quotes `RESULTS_v2.md`, the "six candidates for the fine-structure constant", `tab:campaign`
+  and a referee's question about the `alpha_A` table -- and that campaign was withdrawn earlier the same day,
+  with neither that section nor that table present in the paper.  **What changed in the active tree:**
+  `README.md` (the document-inventory row is gone); `experiments/CANDIDATE_VERSION.md` (the pointer to the
+  letter, **plus two claims that the revision had ADDED a `sec:campaign` / "six candidates" section and had
+  stated the campaign in the abstract and Introduction -- neither of which is in the manuscript**; both are
+  now marked Corrected); `experiments/BRIDGE_REVISION_IF_PROVEN.md` (item 7 had listed the letter among the
+  files needing a status update; it now points at the parked copy); and this log's L/3 knock-on list no
+  longer names it.  The WP6 history of writing the letter stays here deliberately.  The manuscript was not
+  touched: it never cited the letter.
+
+- **2026-09-19 -- The revision blueprint is RETIRED as well (author's request), and the log's PLAN half was
+  corrected.**  `experiments/REVISION_PLAN.md` (6.5 kB, the editor-response blueprint for restructuring
+  `manuscript.tex`) now lives in `attic/referee_response/` next to the retired response letter, and that
+  folder's README covers both (`git checkout HEAD -- experiments\REVISION_PLAN.md` restores it).
+  **Pointers fixed:** `README.md` (its inventory row is gone) and this file's own PLAN sections -- the
+  header's "complements ... `REVISION_PLAN.md` / `RESULTS.md`" now names the parked copies, WP3's and WP5's
+  blueprint references point at `attic/referee_response/REVISION_PLAN.md`, and the WP5 reorder pipeline no
+  longer carries a "Falsification campaign" stage (nothing in the manuscript presented one).
+  **WP2 is marked WITHDRAWN** with a banner -- that WP *was* the coupling-constant campaign -- and the
+  diagnosis table's `alpha_A..F` row is struck, its evidence pointer now naming
+  `attic/alpha_campaign/RESULTS.md`.  **Two false claims in the WP5 status paragraph were corrected in
+  place:** it asserted that the abstract gained the falsification-campaign outcome and that a dedicated
+  section (`sec:campaign`, `tab:campaign`) was added before Results presenting the six pre-registered
+  candidates.  **Neither is in `manuscript.tex`** -- there is no `sec:campaign`, no `tab:campaign`, no
+  campaign claim in the abstract and no campaign section anywhere (the campaign's only trace in the paper
+  was one clause in a Status paragraph, removed earlier today).  Those two claims describe a revision state
+  this tree does not contain, which is why the correction names them explicitly rather than deleting them
+  quietly.
+
+- **2026-09-19 -- The paper-facing ("claim") documents are RETIRED: five files, and the acceptance table was
+  preserved first.**  `COVER_LETTER.md`, `CANDIDATE_VERSION.md`, `POSTULATE_VS_EMERGENT.md`,
+  `DATA_DEPOSIT.md` and `BRIDGE_REVISION_IF_PROVEN.md` (28.5 kB together) now live in
+  `attic/submission_docs/` with a README (manifest, why, restore recipe, and the warning that they cite code
+  lines and manuscript labels written against older revisions -- re-anchor with
+  `experiments\anchor_semantic_check.ps1` before trusting them).  **Before parking, the frozen
+  expected-values table** -- the acceptance list a reproducer runs, and the one part of the deposit plan the
+  active project still needs -- **moved to `doc/REFERENCE_CONFIG.md`**, section "Frozen expected values",
+  with a note recording where it came from; `run_all.bat`'s step-3 comment now points there.  **References
+  fixed:** `README.md` (five inventory rows), `experiments/CLAIMS_LINT.md` (its pointer to the deposit
+  plan), `experiments/bridge_proven.tex` (the header comment that named the conditional-revision plan -- a
+  `.tex` file, easy to miss) and this log's PLAN half (WP7's deliverables, the WP3.4 status line, the
+  bridge-revision section, and the L/3 knock-on list, which now records that all five are gone).
+  **A finding that justifies the removal:** the retired documents -- and, before them, the WP5 status
+  paragraph -- assert five manuscript labels that **do not exist in `doc/manuscript.tex`**:
+  `sec:campaign`, `tab:campaign`, `tab:postulate-emergent`, `tab:claim-evidence` and `subsec:fixed-point`.
+  The tex grades claims inline (line 71) and its only tables are `tab:Cell-structure`, `tab:polar-fidelity`,
+  `tab:color-combination`, `tab:scenarios`, `tab:sieve`, `tab:scaling` and `tab:charge-examples`; the
+  sections that DO exist include `sec:Particles`, `sec:bridge` and `sec:dynamic-charge-quantization`.  The
+  submission package therefore described a manuscript revision this tree is not, which is why it could not
+  stay.  The dated entries that record *writing* these five documents are kept as history.
+
+- **2026-09-19 -- "Keep only the essential": 89 files of closed lineages retired into
+  `attic/closed_programmes/` (+ its README).**  The rule applied: the active tree keeps the model and its
+  build, `doc/` (manuscript, reference config, bibliography), the repo `README.md`, this log, `quantization/`,
+  and in `experiments/` the notes and instruments of the **two programmes that must mature** (island
+  aggregation/quantization, inertia), the J/invariant chain, the transport (winding) instrument, the test
+  suite and the two repo tools.  **Parked:** 30 notes (EM/photon/orphan: `PHOTON_MEDIATION_*`, `PBSB_ISLANDS`,
+  `DRIVE_PAIR_SHELL`, `MF_CAMPAIGN_SUMMARY`, `PREDICTED_NS_RULE`, `SIEVE_SWEEP_PRODUCTION`; gravity:
+  `gravity_probe_DESIGN`; colour/election/cohesion: `COLOR_*`, `FIRST_ELECTION`, `ISLAND_SEED`,
+  `SEED_ASYMMETRY`, `KK_CLASH`, `DD_PROMOTION_AUDIT`, `FAMILY_SELECTIVE_DESIGN`; falsified size selection:
+  `EMERGENCE_SEARCH`, `GEOMETRIC_QUANTUM`, `ABLATION_81x3`, `LIGHTMATTER_DECOUPLE`, `SPACING_PROBE`,
+  `TURNOVER_ABLATION`, `COAGULATION_RANDOM`, `AGGREGATION_REVIEW`; paper tooling: `CLAIMS_LINT`), 9 harnesses
+  (+ their binaries), 12 scripts and 25 build scripts.  **Integrity work, so nothing kept broke:** (i) the
+  build scripts that matched the parked names cite **macro** names (`COLOR_*_FSM`, `DD_PROMOTION_FSM`,
+  `KK_CLASH_FSM`, `ISLAND_SEED_EXPERIMENT`), not files -- verified, no functional break; (ii) every file
+  reference in the kept documents was re-pointed to `attic/closed_programmes/`; (iii) `README.md` lost 14
+  inventory rows -- 11 for the closed programmes plus **3 whose target had already been parked in the earlier
+  pass**, found by testing each row's cited path for existence; (iv) `Makefile`'s `check-claims` target now
+  prints a pointer instead of failing on a missing script; (v) the frozen expected-values table in
+  `REFERENCE_CONFIG.md` dropped its two rows for parked analyzers (`analyze_geometric_quantum.py`,
+  `analyze_sieve_sweep.py`).  **Active set now:** 12 notes, 17 harnesses, 11 scripts, 19 build scripts; both
+  audits and the fingerprint stay green (semantic 28/0, inventory 49/49, `MATCH`).
+
 - **2026-09-11 -- Readability pass (author request).**  Split the two largest
   paragraphs ("Distinct bubbles"; "Diffusion, translation and collapse in one
   reading") into readable paragraphs by inserting blank lines at logical
@@ -1585,7 +1556,7 @@ its time-box.
   **fire** (`homb_events = 5`) and `sB` is live (40/59 samples) -- but the body
   still does not move (`MEAN_V = 0`) and the end-of-run counters for `c`/`homB`
   read zero because `homB` is cleared at the end of every frame
-  (`interaction.cpp:2111`, `draft.homB = false;`), so the effect must be sampled *within* the
+  (`interaction.cpp:2352`, `draft.homB = false;`), so the effect must be sampled *within* the
   frame; also the prepared 3-element island is a single family, which disables
   the address tie-break path.  Next: per-frame instrumentation and a
   multi-family seed.
@@ -1604,7 +1575,7 @@ its time-box.
   **Reading:** the chain is ALIVE end to end -- producer fires, consumer sees it,
   the field reaches the centre, and 30752 cell migrations follow -- yet the net
   displacement is exactly zero.  There are TWO transport machines:
-  (A) `relocate()` (interaction.cpp:2046; the `draft = north; draft.c[0]--` slide at `:2067`), which
+  (A) `relocate()` (interaction.cpp:2287; the `draft = north; draft.c[0]--` slide at `:2308-2309`), which
   slides the whole state pattern through the lattice keeping the address -- this
   is the archived CUDA kernel's actual transport, and `MEAN_V` cannot see it;
   (B) `applyMomentum()` (simulation.cpp:423), which translates a source centre and
@@ -2120,5 +2091,62 @@ its time-box.
   decision, dead/experimental paths); added `experiments/model_fingerprint.ps1`
   (validated: matches, exit 0).  Note: 22 `experiments/build_*.bat` still lack
   `/Fo` (hygiene follow-up from WP0).
+
+
+
+- **2026-09-20 -- The log was trimmed to the live backlog plus the dated record.**  The WP0-WP7 plan half
+  (executive summary, the diagnosis table, WP0-WP7, the WP4 detail, the decision gates, the manuscript edit
+  plan, risks and the recommended sequence) described work that had been executed, withdrawn or superseded,
+  and it named documents and harnesses now in `attic/`.  It was replaced by a **Live backlog** of nine
+  numbered items in four groups -- A island aggregation/quantization, B inertia/transport, C the registered
+  `|J|`-ceiling candidate for size selection, D discipline, E known defects -- followed by the manifest of
+  what was retired and where it went; the **100 dated entries are untouched**, and both the title and the
+  header now say that a WP number or a retired filename met below is history.  File: 2322 -> 2082 lines.
+  Two facts recorded in the backlog while trimming: the first `L=15` arm was **killed mid-frame-1** by the
+  environment (it produced no result; relaunched the same night), and the one frame edge it did reach
+  (`[shell] range=14 max_dist=0 releases=0`) matches `L=9` -- the canonical superposed seed is co-located at
+  `L=15` too, which is why the shell brake starts inert there.
+
+
+- **2026-09-20 -- A2 ANSWERED: the pair-making encounter and the cascade window, measured read-only.**  New
+  `CASCADE_LOG` -- instrumentation only, no rule: it records every encounter that changes a source's role
+  (tick, both addresses, both kinds, the charge word, the parent before/after) -- plus the probe
+  `cascade_probe.cpp` and `build_cascade_probe.bat`.  The ledger sits at the END of `chief_transition.h`, so
+  no existing anchor moved there; the single hook in `interaction.cpp` (9 lines, right after the
+  `chiefContact` call) moved the six anchors below it by **+9**, which the semantic checker caught and I
+  re-mapped together with the citing documents (`CHARGE_SPECTRUM.md` x2, this log x2) -- the discipline
+  working as written.  **Measured on the reference path** (canonical seed, `L=9`, 2 light frames): frame 1 =
+  **zero** role changes; frame 2 = 12402 of them, all between tick **879** and tick **1120**; and per charge
+  word the LAST transition is a `D->K` promotion whose partner is that word's **maximum address**.  Answers:
+  the cascade is a single one-frame, ~240-tick event opened by the frame edge itself; the pair is made by
+  promotion, not by election (`D->K = 6084` against `S->K = 26`); and the bound is *forced* by
+  `main.w < mirror.w`, because the highest-address delegate has no higher partner to meet.  Written up in
+  `experiments/PAIR_MECHANISM.md`; backlog item A2 is struck, with the new sub-question recorded (why 241
+  ticks; does the stopping rule hold once an island has extent).  `CASCADE_LOG` was also added to the macro
+  inventory (**50/50**), the reference preprocessed output re-verified **byte-identical to `HEAD`** with the
+  macro off, and both audits are green (semantic 28/0, inventory 50/50).
+
+- **2026-09-20 -- A2 sub-question answered: the cascade duration tracks W, not the volume.**  Reran the
+  same read-only probe at `L=12` (`W=432`, `RMAX=6`, `FRAME=1504`, `ISLAND_SIZE=4`, `ISLAND_COUNT=108`) with
+  no code change: frame 1 again has **zero** role changes, and the cascade runs ticks **1505 -> 1935**, i.e.
+  **T = 431 = W-1**, against **T = 242 = W-1** at `L=9` (`T/W` = 0.996 and 0.997).  The cascade is therefore
+  one **partner-rotation period** (one `rotatePartners()` slice per light frame, `W` slices per rotation):
+  its length is set by the number of layers, not by the number of sources, the lattice volume or the seed's
+  family multiplicity -- which is also why it starts on the first tick of a frame (the edge advances a
+  slice).  Two further facts: the `S x S` election channel drops to **zero** now (26 at `L=9`), so chiefly
+  structure is built by the `D->K` promotion cascade (11024 notes, fed by 11232 `S->D` adoptions); and
+  `K->D = 0` again.  Recorded in `experiments/PAIR_MECHANISM.md` (new "Scaling of the cascade duration T"
+  section) and in backlog item A2.  Still open: why `W-1` rather than `W`, and whether the law survives once
+  islands have extent.
+
+- **2026-09-20 -- L=15 confirmation launched; census run stopped to free the machine (relaunch needed).**
+  The `L=15` probe (`T = 674` predicted, cascade ticks 2286 -> 2959) is running as
+  `build\cascade_probe\cascade_probe.exe 2 16384 15`, plus a sieve sensitivity control
+  (`... 2 4096 15`).  Note for the environment: background processes advance only ~30 s of CPU per command
+  window, so the `L=15` run needs ~30 more windows to reach its second frame edge; the prediction is
+  registered above so the run is a confirmation, not an exploration.  The `shell_L15` census
+  (`build\island_census_parent\shell_L15\`) was **stopped** at frame 2 to give the probe the machine; it had
+  committed frames 0-1 (`frame 1: 0 K, 0 D, 675 S, 1 centre` -- no structure yet at that size, matching
+  `L=9`) and **must be relaunched** for backlog item A1.
 
 

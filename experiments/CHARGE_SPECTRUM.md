@@ -11,7 +11,7 @@ the code, with an exhaustive enumeration, and verifies the answer against a live
 **Anchor convention (re-verified 19 Sep 2026, commit `b901034`).**  Every `file:line` below is
 relative to `src/`, and the model sources that are actually compiled live in `src/model/`.  The
 numbers were re-checked against that tree: the pair predicate `canFormPair` is at
-`interaction.cpp:210-237` (this note was written against `147-173`) and the conjugation hook's
+`interaction.cpp:226-253` (this note was written against `147-173`) and the conjugation hook's
 XOR is at `simulation.cpp:873` (was `872`).  Two corrections are folded in.  (1) A divergent,
 never-compiled copy of the interaction source used to sit at `src/interaction.cpp` (it carried the
 un-ported `WINDING_GATED_FSM` blocks); those blocks were ported into `src/model/interaction.cpp`,
@@ -53,7 +53,7 @@ Only two places write `cell.ch`: the seed (`initSim.cpp:80`) and the gated conju
 `mm_eps = 0.0` in `config.h:61`).  `ch ^= 0x1F` flips colour, `q` and `w0` while preserving
 `w1`, hence preserves `q ^ w0 = w1`: **every word any cell can ever hold lies in `M`.**
 
-Exhaustive enumeration over `M` against the real predicate (`interaction.cpp:210-237`):
+Exhaustive enumeration over `M` against the real predicate (`interaction.cpp:226-253`):
 
 | rule | pairs inside `M` | verdict |
 |---|---|---|
@@ -143,9 +143,9 @@ alone, consistent with the appendix's own "scale-of-consistency coincidence" sta
 
 The reachability table of section 2 is *algebra*: it asks which word pairs `canFormPair`
 accepts.  Whether such a pair can ever *form* is a different question, because the pair branch
-(`interaction.cpp:1652-1654`) sits **after** the membership transitions
-(`chiefContact` call at `interaction.cpp:1592`) and after the internal-contact early return
-(`interaction.cpp:1598-1613`) of `encounter()`.  `experiments/pair_channel_probe.cpp`
+(`interaction.cpp:1893-1895`) sits **after** the membership transitions
+(`chiefContact` call at `interaction.cpp:1790`) and after the internal-contact early return
+(`interaction.cpp:1839-1854`) of `encounter()`.  `experiments/pair_channel_probe.cpp`
 plants co-located, in-phase `S` sources with chosen words in a `15x5x5` tube, presets the sieve
 bit and sets `s2b_target = 1` (so the electroweak gate is open, as in `island_census`), and
 reports every formation.  It measures rule acceptance, not sieve timing.  The model now carries

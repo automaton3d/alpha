@@ -140,7 +140,10 @@ namespace automaton
 #ifdef PARENT_SELECTIVE_FSM
     // Candidate (2026-09-19): equal-charge delegates of DIFFERENT dynamical islands,
     // recorded once per light frame for the one-step separation push applied at the frame
-    // edge.  Same-island delegates are never recorded: their D x D contact is cohesion.
+    // edge.  Same-island delegates are never recorded because their D x D contact does
+    // nothing at all -- identity preserved, no step, no record; it is NOT a cohesion step
+    // (corrected 19 Sep 2026: the equal-charge D x D early return inside `encounter()` precedes
+    // the `internal` recording, so such a pair never reaches the cohesion loop).
     std::vector<std::pair<WIndex, WIndex>> parentRepel;
 #ifdef PARENT_FUSION_ABSORB
     // Candidate (completed rule set, 2026-09-19): on a K x K fusion the demoted chief's
@@ -653,8 +656,13 @@ namespace automaton
       std::vector<std::array<int, 3>> moves(W_USED, {0, 0, 0});
       std::vector<bool> moved(W_USED, false);
 
-      // K-D and D-D cohesion: reciprocal face steps reduce a separation
-      // greater than one cell without changing the body's centre of mass.
+      // Cohesion: reciprocal face steps close a separation greater than one cell without
+      // changing the body's centre of mass.  The `body` and `shareChief` filters mean this loop
+      // only ever acts on K-D pairs: the equal-charge D x D early return in `encounter()` runs
+      // BEFORE the `internal` recording in the same function, so no D-D pair ever reaches
+      // `internalContacts`.  The earlier comment here said "K-D and D-D" -- corrected 19 Sep
+      // 2026 (see experiments/WORK_PLAN.md): a delegate is held by its contacts with its CHIEF,
+      // not by cohesion between delegates.
       for (const auto& [a, b] : internalContacts) {
         const Cell& sa = sourceAfter[a]; const Cell& sb = sourceAfter[b];
         if (!body(sa) || !body(sb) || !shareChief(sa, sb) || moved[a] || moved[b]) continue;
@@ -1780,6 +1788,15 @@ namespace automaton
     }
 #endif
     chiefContact(currSrc,partnerSrc,currDraft);
+#ifdef CASCADE_LOG
+    // A2 probe (read-only): did this encounter change the current source's role?  Recorded with the
+    // tick, both addresses, both kinds, the charge word and the parent before/after.  OFF in the
+    // reference, so the preprocessor removes it there.
+    if (currDraft.kind != currSrc.kind || currDraft.parent != currSrc.parent)
+      cascadeRecord(pulse_tick, currSrc.w, partnerSrc.w,
+                    (unsigned char)currSrc.kind, (unsigned char)currDraft.kind,
+                    (unsigned char)currSrc.ch, currSrc.parent, currDraft.parent);
+#endif
 #ifdef PARENT_FUSION_ABSORB
     // The K x K clash demoted the larger-address chief (chiefContact ran above); record
     // {demoted, survivor} so the frame edge can absorb the demoted chief's delegation.
@@ -1795,9 +1812,10 @@ namespace automaton
     // Candidate (2026-09-19): two delegates of the same charge but of DIFFERENT dynamical
     // islands repel by one step per light frame.  The island identity is read from the
     // emergent parent linkage (islandChief), so the test contains no family index, no
-    // ISLAND_SIZE and no L.  Same-island delegate pairs are deliberately NOT recorded:
-    // they fall through to the cohesion handling below (T2 is disabled in
-    // chief_transition.h, so nothing ejects them).
+    // ISLAND_SIZE and no L.  Same-island delegate pairs are deliberately NOT recorded: with T2
+    // disabled in chief_transition.h nothing ejects them, and they then hit the equal-charge
+    // D x D early return inside `encounter()` -- identity preserved, no step, no record.  They do
+    // NOT reach the cohesion loop (corrected 19 Sep 2026; see experiments/WORK_PLAN.md).
     if (currSrc.kind == SourceKind::D && partnerSrc.kind == SourceKind::D &&
         currSrc.ch == partnerSrc.ch) {
       const WIndex ca = islandChief(currSrc), cb = islandChief(partnerSrc);
