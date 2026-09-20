@@ -54,6 +54,19 @@ executed, withdrawn, or parked in `attic/`.  What remains is the science.
    confirmation (`T = 674` predicted) is launched and running; read it with
    `build\cascade_probe\cascade_probe.exe 2 16384 15` -> `[cascade]` lines.  Still open: why `W-1` and not
    `W`, and whether the law survives once islands have extent.
+   **Sub-question answered 20 Sep 2026 -- `ch` does NOT organise the population, and the pair law is
+   refined.**  The new per-word block of `analyze_island_spectrum.py` measures the spectrum *per charge word*
+   on censuses already in the repository: at `L=6, 9, 15` (multiplicities **2, 3, 5**) all **8 of 8** words
+   carry an identical spectrum -- exactly one non-singleton, size **2** -- and the slices by every `ch` field
+   (colour index, `q`, `(w0,w1)`, class) are flat, so the only `ch`-dependence in the dynamics is the
+   equality test `main.ch == mirror.ch`.  The island count per word simply follows the seed's family map
+   (17 families -> 84 islands at `L=15`).  The pair sits at the **top two addresses of the word's highest
+   family** (offsets `m-2`, `m-1`, chief = the lower one) at `m = 2, 3, 5`; and at `L=6` the multiplicity
+   *equals* the island size (2) by coincidence, so the size-2 island is not the seed's family.  **Consequence
+   for `ch`-derived targets** (e.g. `192L` islands of `L/64`, read off the 64-word alphabet): both testable
+   clauses are measured and both are flat -- **words active = 8 of 64**, **islands per word = 1, independent
+   of `L` and of the multiplicity** -- so such a coefficient would have to be *installed* by a rule that
+   reads `ch` or the partition.  Written up in `experiments/ISLAND_SPECTRUM.md` ("Per-word spectrum").
 3. **A size-dependent loss for a CO-LOCATED island.**  Both geometric brakes are closed by measurement:
    displacement is forbidden by the one-cell step invariant (`inertia_fixture.h:95`), and the shell/extent
    brake cannot see an island whose members share a cell; the `|J|` ceiling is inert for the same reason
@@ -2149,4 +2162,43 @@ and instruments of programmes A and B, the test suite and the two repo checkers.
   committed frames 0-1 (`frame 1: 0 K, 0 D, 675 S, 1 centre` -- no structure yet at that size, matching
   `L=9`) and **must be relaunched** for backlog item A1.
 
+
+
+- **2026-09-20 -- Per-word spectrum: `ch` does not organise the island population (item A2 refinement).**
+  Extended `experiments/analyze_island_spectrum.py` with a per-word block (one row per charge word: its
+  `c`/`q`/`w0`/`w1` bits, class, colour, seed families, island count, sizes, and the chief addresses of its
+  non-singleton islands) plus slices by each `ch` field, and an optional `--frame N`.  Ran it on censuses
+  already in the repository -- reference at `L=6` (`ref_el6`, multiplicity 2), `L=9` (`census_corrected`,
+  multiplicity 3), `L=15` (`island_census/L15`, multiplicity 5), and the two candidates
+  (`parent/repair_run10`, `parent/shell_run10`).  Findings: (i) at all three sizes **8 of 8** words carry an
+  *identical* spectrum -- exactly one non-singleton, size **2** -- and every slice by `ch` is flat (colour
+  0-7: one each; `q=0/1`: four each; `(w0,w1)`: two each; class 4/3/1 in proportion to the words in each
+  class), so the only `ch`-dependence in the dynamics is the equality test `main.ch == mirror.ch`; the
+  island count per word merely follows the seed's family map (17 families -> 84 islands at `L=15`); (ii) the
+  pair is the **top two addresses of the word's highest family** (offsets `m-2`, `m-1`, chief = the lower),
+  true at `m = 2, 3, 5` -- and since `L=6` has multiplicity 2 while `L=9`/`L=15` have 3 and 5 with the same
+  island size, the size-2 island is **not** the seed's family; (iii) the candidates with sizes above 2 are
+  still word-blind: `repair` gives one ~30-island per word (`30:7 33:1`), `shell` gives one of 26 plus one of
+  3 per word.  **Consequence for the `ch`-derived target** (`192L` islands of `L/64`, read off the 64-word
+  alphabet): both clauses it implies are now measured and both are flat -- words active 8 of 64, islands per
+  word 1 independent of `L` and of the multiplicity -- so a `ch`-based coefficient would have to be installed
+  by a rule that reads `ch`/the partition, i.e. the retired route.  Written up in
+  `experiments/ISLAND_SPECTRUM.md` ("Per-word spectrum"); no source file changed (analysis only, reference
+  fingerprint unaffected).
+
+
+- **2026-09-20 -- Variant `doc/it_from_bit.tex`: the construction alone, without Sections 9 and 10.**
+  Sections 9 (*Results*, `\label{sec:Results}`, manuscript.tex lines 1121-1363) and 10 (*Conjectures and
+  prospects*, `\label{sec:Prospects-and-conjectures}`, lines 1364-1551) are omitted; Sections 1-8, the
+  Conclusion, the Nomenclature and Appendices A-D are kept.  The removed material defined **23 labels that
+  the retained text referenced 39 times**; every one was repaired -- the pointer is dropped, or the reader
+  is sent to "the full manuscript" -- with an exact single-match check per edit (36 edits, all matched;
+  the one that failed the first run was a sentence broken across two source lines).  No claim is added or
+  changed; a *Note on this variant* paragraph was inserted after the abstract, and the abstract's "the
+  tests it passes and fails" was dropped because this variant reports no measurements.  Built by
+  `attic/make_it_from_bit.ps1` (reproducible from `manuscript.tex`; LaTeX renumbers sections, tables,
+  figures and equations automatically).  Verified: `pdflatex` x3 -> **40 pages, 0 errors, 0 undefined
+  references, no `??` in the extracted text**; a scan for references to the removed labels finds nothing
+  outside the header comment.  Artifacts: `it_from_bit.tex`, `it_from_bit.pdf`, `it_from_bit.bbl` (copy of
+  `manuscript.bbl`, so one pdflatex pass resolves the bibliography).  Uncommitted.
 
